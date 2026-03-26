@@ -14,7 +14,7 @@
          └────────┬─────────┘
                   │
     ┌─────────────▼────────────────┐
-    │       Unit Tests              │  (Jest — Services, Mappers, UseCases, hooks)
+    │       Unit Tests              │  (Vitest — Services, Mappers, UseCases, hooks)
     │  Services / Mappers / Repos  │
     └──────────────────────────────┘
 ```
@@ -22,7 +22,7 @@
 **Mocking strategy:**
 - **MSW (Mock Service Worker)** for HTTP mocking in integration tests
 - **Manual mocks** for repositories and use cases in unit tests
-- **`jest.fn()`** for simple dependency mocking
+- **`vi.fn()`** for simple dependency mocking
 
 ### 10.2 Service Tests
 
@@ -30,6 +30,7 @@ Highest priority. Pure input → output, no mocks needed.
 
 ```typescript
 // __tests__/domain/services/LeaveBalanceCalculator.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { LeaveBalanceCalculatorService } from '@/domain/services/LeaveBalanceCalculator';
 
 describe('LeaveBalanceCalculatorService', () => {
@@ -82,20 +83,21 @@ describe('LeaveRequestValidatorService', () => {
 
 ```typescript
 // __tests__/presentation/hooks/useEmployeeListViewModel.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useEmployeeListViewModel } from '@/presentation/features/employee-list/useEmployeeListViewModel';
 import { createQueryClientWrapper } from '@/__tests__/utils/queryClientWrapper';
 
 const mockGetEmployeesUseCase = {
-  execute: jest.fn(),
+  execute: vi.fn(),
 };
 
 const mockDeleteEmployeeUseCase = {
-  execute: jest.fn(),
+  execute: vi.fn(),
 };
 
 describe('useEmployeeListViewModel', () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => vi.clearAllMocks());
 
   it('loads employees on mount', async () => {
     const employees = [{ id: '1', name: 'John', email: 'john@example.com', department: { id: 'd1', name: 'Eng', headCount: 5 }, joinDate: new Date() }];
@@ -135,25 +137,26 @@ With injectable mappers, you can isolate repository logic from mapping logic:
 
 ```typescript
 // __tests__/data/repositories/EmployeeRepositoryImpl.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EmployeeRepositoryImpl } from '@/data/repositories/EmployeeRepositoryImpl';
 
 const mockRemoteDataSource = {
-  fetchEmployee: jest.fn(),
-  fetchEmployees: jest.fn(),
-  updateEmployee: jest.fn(),
-  deleteEmployee: jest.fn(),
+  fetchEmployee: vi.fn(),
+  fetchEmployees: vi.fn(),
+  updateEmployee: vi.fn(),
+  deleteEmployee: vi.fn(),
 };
 
 const mockMapper = {
-  toDomain: jest.fn(),
-  toRequest: jest.fn(),
+  toDomain: vi.fn(),
+  toRequest: vi.fn(),
 };
 
 describe('EmployeeRepositoryImpl', () => {
   let sut: EmployeeRepositoryImpl;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     sut = new EmployeeRepositoryImpl(mockRemoteDataSource, mockMapper);
   });
 
@@ -179,6 +182,7 @@ Pure input → output, no mocks needed:
 
 ```typescript
 // __tests__/data/mappers/EmployeeMapper.test.ts
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EmployeeMapperImpl } from '@/data/mappers/EmployeeMapper';
 
 describe('EmployeeMapperImpl', () => {
@@ -208,7 +212,7 @@ describe('EmployeeMapperImpl', () => {
   });
 
   it('uses injected child mapper for department', () => {
-    const mockDeptMapper = { toDomain: jest.fn().mockReturnValue({ id: 'mock', name: 'Mocked', headCount: 0 }) };
+    const mockDeptMapper = { toDomain: vi.fn().mockReturnValue({ id: 'mock', name: 'Mocked', headCount: 0 }) };
     const sut = new EmployeeMapperImpl(mockDeptMapper);
 
     const dto = {

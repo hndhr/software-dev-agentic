@@ -57,7 +57,7 @@ const message = error instanceof DomainError
   ? humanizeError(error.code)
   : 'Something went wrong';
 
-// domain/errors/errorMessages.ts
+// presentation/common/utils/errorMessages.ts
 export function humanizeError(code: DomainErrorCode): string {
   const messages: Record<DomainErrorCode, string> = {
     notFound: 'The requested resource was not found.',
@@ -69,6 +69,8 @@ export function humanizeError(code: DomainErrorCode): string {
   };
   return messages[code];
 }
+// Note: humanizeError lives in the presentation layer — user-facing message
+// strings are a display concern, not a domain concept.
 ```
 
 ---
