@@ -32,7 +32,21 @@ link_if_absent() {
 
 # ── Directories ──────────────────────────────────────────────────────────────
 
+# Convert old-style directory symlinks (agents → web-agentic/agents) to real
+# directories so individual file symlinks land in .claude/agents/, not inside
+# the submodule itself.
+convert_dir_symlink() {
+  local dir="$1"
+  if [ -L "$dir" ]; then
+    echo "  convert  $dir (directory symlink → real directory)"
+    rm "$dir"
+    mkdir -p "$dir"
+  fi
+}
+
 echo "Setting up .claude/ directories..."
+convert_dir_symlink "$CLAUDE_DIR/agents"
+convert_dir_symlink "$CLAUDE_DIR/skills"
 mkdir -p \
   "$CLAUDE_DIR/agents" \
   "$CLAUDE_DIR/skills" \
