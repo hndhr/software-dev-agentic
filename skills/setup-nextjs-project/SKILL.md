@@ -1,4 +1,8 @@
-# /setup-nextjs-project
+---
+name: setup-nextjs-project
+description: Wire a freshly cloned Next.js project to consume the web-agentic starter kit as a git submodule. Run this once during project initialization.
+disable-model-invocation: true
+---
 
 Wire a freshly cloned Next.js project to consume the `reference` starter kit as a git submodule, then guide the user through filling in project-specific details.
 

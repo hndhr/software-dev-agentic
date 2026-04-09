@@ -1,6 +1,7 @@
 ---
 name: create-issue
 description: Create a GitHub Issue, a local issue file in issues/, and a matching git branch. Use when asked to create, track, or log a new issue or task.
+disable-model-invocation: true
 context: fork
 allowed-tools: Bash, Write, Edit, Read
 ---

@@ -1,23 +1,57 @@
 # Skills
 
-User-invocable prompt expansions triggered with `/skill-name`.
+Focused, reusable workflow procedures. Each skill does one thing only.
 
-Each skill lives in its own directory as `SKILL.md` following the current Claude Code convention.
+Copy to `.claude/skills/` in the actual project (or symlink via submodule).
+
+## Skill Types
+
+| Type | Config | Who triggers | Context cost | Use for |
+|------|--------|-------------|-------------|---------|
+| **A — Internal** | `user-invocable: false` | Workers only | Zero | Standard scaffolding procedures |
+| **B — User-triggered** | `disable-model-invocation: true` | User only | Zero | Destructive or side-effect operations |
+
+## Type A — Internal Procedures (called by workers)
+
+### Domain layer
+| Skill | What it does |
+|-------|-------------|
+| `domain-create-entity` | Create a domain entity interface |
+| `domain-create-usecase` | Create a use case interface + implementation |
+| `domain-create-repository` | Create a domain repository interface |
+| `domain-create-service` | Create a pure domain service |
+
+### Data layer
+| Skill | What it does |
+|-------|-------------|
+| `data-create-mapper` | Create a DTO + mapper (interface + Impl) |
+| `data-create-datasource` | Create a remote data source interface + Axios impl |
+| `data-create-repository-impl` | Create a remote repository implementation |
+| `data-create-db-datasource` | Create a DB record, DB data source interface + ORM stub impl |
+| `data-create-db-repository` | Create a DB mapper + DB repository implementation |
+
+### Presentation layer
+| Skill | What it does |
+|-------|-------------|
+| `pres-create-viewmodel` | Create a ViewModel hook |
+| `pres-create-view` | Create a View component + App Router page |
+| `pres-create-server-action` | Create a next-safe-action Server Action |
+| `pres-wire-di` | Wire use case and deps into DI containers |
+| `pres-ssr-check` | Determine Server vs Client Component decision |
+
+### Test layer
+| Skill | What it does |
+|-------|-------------|
+| `test-create-mock` | Scaffold a Mock class with vi.fn() for every interface method |
+| `test-create-domain` | Unit tests for use cases and domain services |
+| `test-create-data` | Mapper unit tests + repository integration tests |
+| `test-create-presentation` | ViewModel hook tests + View component tests |
+
+## Type B — User-Triggered (explicit invocation only)
 
 | Skill | Trigger | What it does |
 |-------|---------|-------------|
-| `create-issue` | `/create-issue` | Create issue file + git branch + backlog entry |
-| `new-feature` | `/new-feature` | Full feature scaffold — all layers + DI wiring |
-| `new-entity` | `/new-entity` | Domain entity + DTO + Mapper |
-| `new-usecase` | `/new-usecase` | UseCase interface + implementation |
-| `new-viewmodel` | `/new-viewmodel` | ViewModel hook + View component |
-| `new-server-action` | `/new-server-action` | Scaffold a validated Server Action with next-safe-action |
-| `new-db-repository` | `/new-db-repository` | Scaffold a DB-backed DataSource + Repository impl |
-| `write-tests` | `/write-tests` | Tests for any file — auto-selects test type by layer |
-| `scaffold-service` | `/scaffold-service` | Create a pure domain service (no async, no I/O) |
-| `scaffold-repository` | `/scaffold-repository` | Create a repository implementation with mapper + ErrorMapper |
-| `create-mock` | `/create-mock` | Scaffold a `Mock[Name]` class with `vi.fn()` for every interface method |
-| `integration-test` | `/integration-test` | Scaffold integration tests covering happy path + all HTTP error codes |
-| `ssr-check` | `/ssr-check` | Server vs Client Component decision + code structure |
-| `wire-di` | `/wire-di` | Wire a use case into `container.server.ts` and/or `container.client.ts` |
-| `release` | `/release` | Cut a new version — bumps VERSION, updates CHANGELOG, creates git tag |
+| `create-issue` | `/create-issue` | Create GitHub Issue + git branch + backlog entry |
+| `pickup-issue` | `/pickup-issue NNN` | Pick up a PM-created GitHub Issue |
+| `setup-nextjs-project` | `/setup-nextjs-project` | Wire submodule + symlinks for a new project |
+| `release` | `/release` | Cut a new version — bumps VERSION, updates CHANGELOG, tags |

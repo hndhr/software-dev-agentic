@@ -1,6 +1,7 @@
 ---
 name: pickup-issue
 description: Pick up a GitHub Issue created by the PM. Fetches issue data, checks out a matching branch, and updates the backlog.
+disable-model-invocation: true
 context: fork
 allowed-tools: Bash, Edit, Read
 ---

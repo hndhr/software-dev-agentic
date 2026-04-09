@@ -5,102 +5,129 @@
 | | Count |
 |--|-------|
 | Architecture docs (`reference/`) | 16 |
-| Agents (`.claude/agents/`) | 5 |
-| Skills (`.claude/skills/`) | 13 |
-| `hooks/` | 3 automation hooks (Impl import guard, lint on edit, use server warn) |
-| `rules/` | 3 path-scoped rules (DI containers, Server Actions, Domain purity) |
-| `settings-template.json` | Base settings with hooks wired — copy to `.claude/settings.local.json` |
+| Orchestrators (`agents/`) | 2 |
+| Workers (`agents/`) | 6 |
+| Skills — Type A, Internal (`skills/`) | 18 |
+| Skills — Type B, User-triggered (`skills/`) | 4 |
+| Hooks (`hooks/`) | 3 (impl import guard, lint on edit, use server warn) |
+| `settings-template.json` | Base settings with hooks wired |
 | Entry point | `STARTER-KIT-README.md` |
 
 ---
 
 ## Starting a New Project
 
-**Step 1 — Copy agents, skills, hooks, and rules into the project**
+**Step 1 — Wire as a submodule**
 
 ```bash
-mkdir -p .claude
-cp -r path/to/web-agentic/agents   .claude/agents/
-cp -r path/to/web-agentic/skills   .claude/skills/
-cp -r path/to/web-agentic/hooks    .claude/hooks/ && chmod +x .claude/hooks/*.sh
-cp -r path/to/web-agentic/rules    .claude/rules/
-cp path/to/web-agentic/settings-template.json .claude/settings.local.json
-# Edit .claude/settings.local.json — replace PROJECT_ROOT with $(pwd)/.claude
-cp path/to/web-agentic/di-CLAUDE.md src/shared/di/CLAUDE.md
+git submodule add https://github.com/handharr-labs/web-agentic .claude/web-agentic
+cd .claude
+ln -s web-agentic/agents     agents
+ln -s web-agentic/docs       docs
+ln -s web-agentic/hooks      hooks
+ln -s web-agentic/reference  reference
+ln -s web-agentic/skills     skills
+cd ..
+chmod +x .claude/web-agentic/hooks/*.sh
+cp .claude/web-agentic/settings-template.json .claude/settings.local.json
 ```
 
-**Step 2 — Tell Claude to set up the project**
+Or: open Claude Code in the new project and run `/setup-nextjs-project`.
 
-Open Claude Code in the new project and say:
+**Step 2 — Copy and fill in CLAUDE.md**
 
-> "Set up my project using this starter kit"
+```bash
+cp .claude/web-agentic/CLAUDE-template.md CLAUDE.md
+```
 
-Point it at `STARTER-KIT-README.md`. Claude will read it and follow the AI Project Setup flow automatically.
+Replace every `[placeholder]` in CLAUDE.md.
 
-**Step 3 — Answer the setup questions**
+**Step 3 — Say what you want**
 
-Claude will ask about:
-- Project mode: frontend-only, full-stack, or both
-- Styling / UI library
-- Database / ORM (full-stack only)
-- Authentication
-- Testing framework (Vitest or Jest)
+Describe intent in natural language — Claude routes to the right agent:
 
-Say "you decide" for anything you're unsure about — Claude will use the recommended default and note it.
+> "Set up the project scaffold" → reads STARTER-KIT-README.md and follows the AI Project Setup flow
+> "Create the leave request feature" → `feature-orchestrator`
+> "Add an entity for Employee" → `domain-worker`
 
-**Step 4 — Claude generates the seed files and base structure**
+---
 
-All the foundation files get created before any feature code is written. See `STARTER-KIT-README.md` → Seed Files Manifest for the full list.
+## How Routing Works
 
-**Step 5 — Scaffold your first feature**
+Users describe intent. Claude matches to the right agent by description. No slash commands needed for building features.
 
 ```
-/new-feature          ← frontend-only or full-stack UI layer
-@backend-scaffolder   ← full-stack backend feature (DB + Server Action)
+"build the leave request feature"
+  → feature-orchestrator
+      → domain-worker (entity + repo + use cases)
+      → data-worker (DTO + mapper + datasource + repo impl)
+      → presentation-worker (ViewModel + View + DI wiring)
 ```
 
 ---
 
-## Daily Commands
+## Agent Hierarchy
 
-| What you want to do | Command |
-|---------------------|---------|
-| New full feature (all layers) | `/new-feature` |
-| New domain entity | `/new-entity` |
-| New use case | `/new-usecase` |
-| New ViewModel hook + View | `/new-viewmodel` |
-| Wire a use case into DI | `/wire-di` |
-| Write tests for any file | `/write-tests` |
-| Scaffold integration tests | `/integration-test` |
-| Create a mock for an interface | `/create-mock` |
-| New domain service (pure logic) | `/scaffold-service` |
-| New repository implementation | `/scaffold-repository` |
-| Check Server vs Client Component | `/ssr-check` |
-| New Server Action (full-stack) | `/new-server-action` |
-| New DB repository (full-stack) | `/new-db-repository` |
+```
+Orchestrators (coordinate)
+  feature-orchestrator  ← full feature, all layers
+  backend-orchestrator  ← full-stack backend only
+
+Workers (execute)
+  domain-worker         ← entities, use cases, repository interfaces
+  data-worker           ← DTOs, mappers, data sources, repo impls
+  presentation-worker   ← ViewModel hooks, Views, Server Actions, DI
+  test-worker           ← tests for any layer
+  arch-review-worker    ← architecture audit
+  debug-worker          ← error tracing
+```
 
 ---
 
-## When to Use Agents
+## User-Triggered Skills (Type B)
 
-| Situation | Agent |
-|-----------|-------|
-| Building a complete new feature end-to-end | `@feature-scaffolder` |
-| Building a full-stack backend feature | `@backend-scaffolder` |
-| Auditing code for architecture violations | `@arch-reviewer` |
-| Writing tests for a file or module | `@test-writer` |
-| Debugging a runtime error or unexpected behavior | `@debug-agent` |
+These require explicit invocation — Claude won't auto-trigger them.
+
+| Command | What it does |
+|---------|-------------|
+| `/create-issue` | Create GitHub Issue + branch |
+| `/pickup-issue NNN` | Pick up a PM-created issue |
+| `/setup-nextjs-project` | Wire submodule + symlinks |
+| `/release` | Cut a new version |
+
+---
+
+## Extending Without Modifying
+
+To add project-specific logic on top of a shared agent or skill:
+
+1. Create `.claude/agents.local/extensions/{agent-name}.md` (delta only — not a full copy)
+2. The agent's extension hook reads it automatically
+
+To override a shared agent entirely:
+1. Create a real file at `.claude/agents/{agent-name}.md`
+2. The symlink setup skips the shared version (`link_if_absent` guard)
+
+---
+
+## Updating the Starter Kit
+
+```bash
+cd .claude/web-agentic && git pull && cd ../..
+git add .claude/web-agentic
+git commit -m "chore: bump web-agentic starter kit"
+```
+
+This updates all 5 linked directories in one operation.
 
 ---
 
 ## Project-Specific Things Still to Define
 
-These are intentionally left open — decide them per project:
-
 | Decision | Where to configure |
 |----------|--------------------|
 | Styling / UI library | Install + configure in `app/layout.tsx` |
-| Database / ORM | `src/lib/db.ts` + fill in `*DbDataSourceImpl` stubs |
+| Database / ORM | `src/lib/db.ts` + fill in ORM queries in DB DataSource stubs |
 | Authentication | `src/lib/auth.ts` + update `src/lib/safe-action.ts` |
 | Environment variables | `.env.local` — template in `reference/project-setup.md` |
 | Error monitoring | Wrap `app/layout.tsx` with provider |
