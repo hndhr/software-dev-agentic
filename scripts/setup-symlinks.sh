@@ -52,10 +52,12 @@ for agent in "$CLAUDE_DIR/agents.local"/*.md; do
 done
 
 # Shared agents — skip if local override already linked
+# Symlink target is relative to the link's own directory (.claude/agents/)
+# so "../web-agentic/agents/<name>" always resolves correctly.
 for agent in "$SUBMODULE/agents"/*.md; do
   [ -f "$agent" ] || continue
   name="$(basename "$agent")"
-  link_if_absent "../../$(realpath --relative-to="$CLAUDE_DIR/agents" "$agent")" "$CLAUDE_DIR/agents/$name"
+  link_if_absent "../web-agentic/agents/$name" "$CLAUDE_DIR/agents/$name"
 done
 
 # ── Skills ───────────────────────────────────────────────────────────────────
@@ -74,7 +76,7 @@ done
 for skill_dir in "$SUBMODULE/skills"/*/; do
   [ -d "$skill_dir" ] || continue
   name="$(basename "$skill_dir")"
-  link_if_absent "../../$(realpath --relative-to="$CLAUDE_DIR/skills" "$skill_dir")" "$CLAUDE_DIR/skills/$name"
+  link_if_absent "../web-agentic/skills/$name" "$CLAUDE_DIR/skills/$name"
 done
 
 # ── Hooks ────────────────────────────────────────────────────────────────────
