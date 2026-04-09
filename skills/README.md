@@ -20,3 +20,4 @@ Each skill lives in its own directory as `SKILL.md` following the current Claude
 | `integration-test` | `/integration-test` | Scaffold integration tests covering happy path + all HTTP error codes |
 | `ssr-check` | `/ssr-check` | Server vs Client Component decision + code structure |
 | `wire-di` | `/wire-di` | Wire a use case into `container.server.ts` and/or `container.client.ts` |
+| `release` | `/release` | Cut a new version — bumps VERSION, updates CHANGELOG, creates git tag |
