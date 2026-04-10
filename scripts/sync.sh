@@ -36,19 +36,18 @@ elif ! grep -qF "$BEGIN_MARKER" "$CLAUDE_MD"; then
   echo "skip  CLAUDE.md sync (no managed section markers found — add them manually)"
   echo "      Markers: $BEGIN_MARKER ... $END_MARKER"
 else
-  # Extract the managed block from the template (inclusive of markers)
-  managed="$(awk "/$BEGIN_MARKER/{found=1} found{print} /$END_MARKER/{found=0}" "$TEMPLATE")"
+  # Extract the managed block from the template to a temp file (inclusive of markers)
+  managed_tmp="$(mktemp)"
+  awk "/^${BEGIN_MARKER}$/{found=1} found{print} /^${END_MARKER}$/{found=0}" "$TEMPLATE" > "$managed_tmp"
 
-  # Replace the managed block in CLAUDE.md using awk
-  awk -v block="$managed" \
-    -v begin="$BEGIN_MARKER" \
-    -v end="$END_MARKER" \
-    'BEGIN{skip=0}
-     $0 == begin { print block; skip=1; next }
-     $0 == end   { skip=0; next }
-     !skip        { print }
-    ' "$CLAUDE_MD" > "$CLAUDE_MD.tmp" && mv "$CLAUDE_MD.tmp" "$CLAUDE_MD"
+  # Replace the managed block in CLAUDE.md — read replacement from temp file
+  awk -v begin="$BEGIN_MARKER" -v end="$END_MARKER" -v src="$managed_tmp" '
+    $0 == begin { while ((getline line < src) > 0) print line; skip=1; next }
+    $0 == end   { skip=0; next }
+    !skip        { print }
+  ' "$CLAUDE_MD" > "$CLAUDE_MD.tmp" && mv "$CLAUDE_MD.tmp" "$CLAUDE_MD"
 
+  rm -f "$managed_tmp"
   echo "sync  CLAUDE.md (managed section updated)"
 fi
 
