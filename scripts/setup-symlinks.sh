@@ -112,12 +112,24 @@ else
   echo "     $(pwd)/.claude"
 fi
 
+# ── CLAUDE.md ────────────────────────────────────────────────────────────────
+
+echo ""
+if [ -f "$PROJECT_ROOT/CLAUDE.md" ]; then
+  echo "skip  CLAUDE.md (already exists)"
+else
+  cp "$SUBMODULE/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
+  echo "copy  CLAUDE.md (from CLAUDE-template.md)"
+  echo ""
+  echo "  ⚠  Edit CLAUDE.md — fill in [AppName] and stack placeholders"
+fi
+
 # ── Done ─────────────────────────────────────────────────────────────────────
 
 echo ""
 echo "Done. web-agentic is wired."
 echo ""
 echo "Next steps:"
-echo "  1. Fill in CLAUDE.md placeholders (copy from .claude/web-agentic/CLAUDE-template.md if needed)"
+echo "  1. Fill in CLAUDE.md placeholders"
 echo "  2. Edit .claude/settings.local.json — replace PROJECT_ROOT"
 echo "  3. git add .claude/ && git commit -m 'chore: wire web-agentic submodule'"

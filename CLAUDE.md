@@ -33,11 +33,11 @@ settings-template.json  # Template for downstream .claude/settings.local.json
 
 ## Workflow
 
-Before any work: `@issue-worker "title"` (new) or `@issue-worker N` (existing).
+Before any work, invoke the **issue-worker** agent with a title (new) or number (existing).
 
 ```
-@issue-worker "add X"   → create GH issue + branch + backlog row
-@issue-worker 42        → pick up existing GH issue + branch + backlog row
+issue-worker "add X"   → create GH issue + branch + backlog row
+issue-worker 42        → pick up existing GH issue + branch + backlog row
 ```
 
 Then work directly on the relevant files (agents, skills, reference docs).

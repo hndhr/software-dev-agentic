@@ -14,12 +14,19 @@ npm run dev | build | lint | test
 Feature slices: `src/features/{auth,[feature-a],[feature-b],...}` · `src/shared/{domain,presentation,core,di}` · `src/lib/` · `src/app/`
 Arch docs: `.claude/reference/` · DI/arch rules: `.claude/docs/`
 
+<!-- BEGIN web-agentic -->
 ## Workflow
-Before any work: `/create-issue [title]` → wait for instruction → invoke agent
+Before any work, invoke the **issue-worker** agent with a title (new) or number (existing).
 
-Agents: `feature-scaffolder` · `backend-scaffolder` · `debug-agent` · `test-writer` · `arch-reviewer` · `/simplify` · `.claude/skills/`
+```
+issue-worker "add X"   → create GH issue + branch + backlog row
+issue-worker 42        → pick up existing GH issue + branch + backlog row
+```
 
-Issue rule: On `fix/`|`feature/` branch → add feedback to current issue. On `main` → create new issue.
+Agents: `feature-orchestrator` · `backend-orchestrator` · `debug-worker` · `test-worker` · `arch-review-worker` · `/simplify` · `.claude/skills/`
+
+Issue rule: On `fix/`|`feat/` branch → add feedback to current issue. On `main` → create new issue.
 
 ## Code Principles
 CLEAN · DRY · SOLID (SRP, OCP, LSP, ISP, DIP). Wire deps via `src/shared/di/`.
+<!-- END web-agentic -->
