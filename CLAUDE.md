@@ -1,16 +1,19 @@
 # CLAUDE.md
 
-**web-agentic** — Claude Code toolkit for Next.js 15 Clean Architecture projects.
-Consumed as a git submodule at `.claude/web-agentic/` in downstream projects. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
+**software-dev-agentic** — Multi-platform Claude Code toolkit for Clean Architecture projects.
+Consumed as a git submodule at `.claude/software-dev-agentic/` in downstream projects. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
+
+Platforms: **web** (Next.js 15) · **ios** (Swift/UIKit) · **flutter** (stub)
 
 ## Dev Commands
 
 ```bash
 # Wire into a downstream project — interactive package selection (recommended)
-.claude/web-agentic/scripts/setup-packages.sh
+.claude/software-dev-agentic/scripts/setup-packages.sh --platform=web
+.claude/software-dev-agentic/scripts/setup-packages.sh --platform=ios
 
 # Or link everything without prompts
-.claude/web-agentic/scripts/setup-symlinks.sh
+.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
 
 # Cut a release
 /release
@@ -21,17 +24,31 @@ No build, lint, or test commands — all files are Markdown and Bash.
 ## Structure
 
 ```
-agents/          # Claude Code subagents — orchestrators and workers
-skills/          # Slash command skills — called by workers or users directly
-  <skill>/
-    SKILL.md     # Skill definition and instructions
-    template.md  # Code template (optional)
-reference/       # Architecture docs consumed by agents and skills
-hooks/           # Claude Code hooks (PreToolUse / PostToolUse)
-scripts/         # setup-symlinks.sh, sync.sh
+core/
+  agents/        # Platform-agnostic orchestrators and utility workers
+  skills/        # Platform-agnostic skills (release, doctor, agentic-perf-review)
+  reference/
+    clean-arch/  # Universal CLEAN Architecture principles
+
+platforms/
+  web/           # Next.js 15 Clean Architecture
+    agents/      # Web worker implementations (domain, data, presentation, test)
+    skills/      # Web-specific skills
+    reference/   # Web-specific architecture docs
+    hooks/       # Web-specific Claude Code hooks
+    packages/    # Optional package definitions
+    CLAUDE-template.md
+    settings-template.json
+  ios/           # Swift/UIKit Clean Architecture
+    agents/      # iOS worker + orchestrator implementations
+    skills/      # iOS-specific skills
+    reference/   # iOS-specific architecture docs
+    CLAUDE-template.md
+  flutter/       # BLoC Clean Architecture (stub — see platforms/flutter/README.md)
+
+packages/        # Core package definitions (always installed)
+scripts/         # setup-symlinks.sh, setup-packages.sh, sync.sh
 docs/            # Internal design docs (not consumed by agents)
-CLAUDE-template.md   # Template for downstream projects' CLAUDE.md
-settings-template.json  # Template for downstream .claude/settings.local.json
 ```
 
 ## Workflow
@@ -43,7 +60,7 @@ issue-worker "add X"   → create GH issue + branch + backlog row
 issue-worker 42        → pick up existing GH issue + branch + backlog row
 ```
 
-Then work directly on the relevant files (agents, skills, reference docs).
+Then work directly on the relevant files in `core/` or `platforms/<platform>/`.
 
 ## Agent Conventions
 

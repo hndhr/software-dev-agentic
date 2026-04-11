@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # setup-symlinks.sh
-# Run once from the project root after adding web-agentic as a submodule.
-# Creates .claude/agents/ and .claude/skills/ as symlink-only directories.
-# Local overrides (agents.local/, skills.local/) are respected — shared files
-# are never linked if a local file with the same name already exists.
+# Run once from the project root after adding software-dev-agentic as a submodule.
+# Links core agents/skills/reference + the chosen platform's agents/skills/reference
+# into .claude/agents/, .claude/skills/, .claude/reference/ and .claude/hooks/.
 #
 # Usage:
-#   .claude/web-agentic/scripts/setup-symlinks.sh
+#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 #
 # Re-running is safe — link_if_absent never overwrites existing files.
+# Priority order: agents.local > platform > core  (first link wins)
 
 set -euo pipefail
 
@@ -16,25 +17,42 @@ SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
 CLAUDE_DIR="$PROJECT_ROOT/.claude"
 
-# ── Helpers ─────────────────────────────────────────────────────────────────
+# ── Parse --platform ─────────────────────────────────────────────────────────
+
+PLATFORM=""
+for arg in "$@"; do
+  case "$arg" in
+    --platform=*) PLATFORM="${arg#--platform=}" ;;
+  esac
+done
+
+if [ -z "$PLATFORM" ]; then
+  echo "Error: --platform is required."
+  echo "Usage: $0 --platform=web|ios|flutter"
+  exit 1
+fi
+
+PLATFORM_DIR="$SUBMODULE/platforms/$PLATFORM"
+if [ ! -d "$PLATFORM_DIR" ]; then
+  echo "Error: platform '$PLATFORM' not found at $PLATFORM_DIR"
+  exit 1
+fi
+
+echo "Setting up software-dev-agentic (platform: $PLATFORM)..."
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 link_if_absent() {
-  local target="$1"   # symlink target (relative path from the link location)
-  local link="$2"     # symlink path to create
-
+  local target="$1"
+  local link="$2"
   if [ -e "$link" ] || [ -L "$link" ]; then
-    echo "  skip  $link (already exists)"
+    echo "  skip  $link"
   else
     ln -s "$target" "$link"
-    echo "  link  $link → $target"
+    echo "  link  $(basename $link)"
   fi
 }
 
-# ── Directories ──────────────────────────────────────────────────────────────
-
-# Convert old-style directory symlinks (agents → web-agentic/agents) to real
-# directories so individual file symlinks land in .claude/agents/, not inside
-# the submodule itself.
 convert_dir_symlink() {
   local dir="$1"
   if [ -L "$dir" ]; then
@@ -44,92 +62,120 @@ convert_dir_symlink() {
   fi
 }
 
-echo "Setting up .claude/ directories..."
+# ── Directories ───────────────────────────────────────────────────────────────
+
+echo ""
+echo "Preparing .claude/ directories..."
 convert_dir_symlink "$CLAUDE_DIR/agents"
 convert_dir_symlink "$CLAUDE_DIR/skills"
+convert_dir_symlink "$CLAUDE_DIR/reference"
 mkdir -p \
   "$CLAUDE_DIR/agents" \
   "$CLAUDE_DIR/skills" \
+  "$CLAUDE_DIR/reference" \
   "$CLAUDE_DIR/agents.local/extensions" \
   "$CLAUDE_DIR/skills.local/extensions"
 
-# ── Agents ───────────────────────────────────────────────────────────────────
+# ── Link function (local > platform > core) ───────────────────────────────────
+
+link_agents() {
+  local src_dir="$1"
+  local rel_prefix="$2"
+  [ -d "$src_dir" ] || return 0
+  for agent in "$src_dir"/*.md; do
+    [ -f "$agent" ] || continue
+    name="$(basename "$agent")"
+    link_if_absent "$rel_prefix/$name" "$CLAUDE_DIR/agents/$name"
+  done
+}
+
+link_skills() {
+  local src_dir="$1"
+  local rel_prefix="$2"
+  [ -d "$src_dir" ] || return 0
+  for skill_dir in "$src_dir"/*/; do
+    [ -d "$skill_dir" ] || continue
+    name="$(basename "$skill_dir")"
+    link_if_absent "$rel_prefix/$name" "$CLAUDE_DIR/skills/$name"
+  done
+}
+
+link_reference() {
+  local src_dir="$1"
+  local rel_prefix="$2"
+  [ -d "$src_dir" ] || return 0
+  for ref in "$src_dir"/*.md; do
+    [ -f "$ref" ] || continue
+    name="$(basename "$ref")"
+    link_if_absent "$rel_prefix/$name" "$CLAUDE_DIR/reference/$name"
+  done
+}
+
+# Relative paths from .claude/agents/ or .claude/skills/ to submodule
+REL_CORE="../software-dev-agentic/core"
+REL_PLATFORM="../software-dev-agentic/platforms/$PLATFORM"
+
+# ── 1. Local overrides (highest priority) ────────────────────────────────────
 
 echo ""
-echo "Linking agents..."
+echo "1/3 Linking local overrides..."
+link_agents "$CLAUDE_DIR/agents.local" "../agents.local"
+link_skills "$CLAUDE_DIR/skills.local" "../skills.local"
 
-# Local agents first — override takes priority
-for agent in "$CLAUDE_DIR/agents.local"/*.md; do
-  [ -f "$agent" ] || continue
-  name="$(basename "$agent")"
-  link_if_absent "../agents.local/$name" "$CLAUDE_DIR/agents/$name"
-done
-
-# Shared agents — skip if local override already linked
-# Symlink target is relative to the link's own directory (.claude/agents/)
-# so "../web-agentic/agents/<name>" always resolves correctly.
-for agent in "$SUBMODULE/agents"/*.md; do
-  [ -f "$agent" ] || continue
-  name="$(basename "$agent")"
-  link_if_absent "../web-agentic/agents/$name" "$CLAUDE_DIR/agents/$name"
-done
-
-# ── Skills ───────────────────────────────────────────────────────────────────
+# ── 2. Platform agents/skills/reference ──────────────────────────────────────
 
 echo ""
-echo "Linking skills..."
+echo "2/3 Linking platform: $PLATFORM..."
+link_agents "$PLATFORM_DIR/agents" "$REL_PLATFORM/agents"
+link_skills "$PLATFORM_DIR/skills" "$REL_PLATFORM/skills"
+link_reference "$PLATFORM_DIR/reference" "$REL_PLATFORM/reference"
 
-# Local skills first — override takes priority
-for skill_dir in "$CLAUDE_DIR/skills.local"/*/; do
-  [ -d "$skill_dir" ] || continue
-  name="$(basename "$skill_dir")"
-  link_if_absent "../skills.local/$name" "$CLAUDE_DIR/skills/$name"
-done
+# ── 3. Core agents/skills/reference (fallback) ───────────────────────────────
 
-# Shared skills — skip if local override already linked
-for skill_dir in "$SUBMODULE/skills"/*/; do
-  [ -d "$skill_dir" ] || continue
-  name="$(basename "$skill_dir")"
-  link_if_absent "../web-agentic/skills/$name" "$CLAUDE_DIR/skills/$name"
-done
+echo ""
+echo "3/3 Linking core..."
+link_agents "$SUBMODULE/core/agents" "$REL_CORE/agents"
+link_skills "$SUBMODULE/core/skills" "$REL_CORE/skills"
+link_reference "$SUBMODULE/core/reference/clean-arch" "$REL_CORE/reference/clean-arch"
 
-# ── Hooks ────────────────────────────────────────────────────────────────────
+# ── Hooks ─────────────────────────────────────────────────────────────────────
 
 echo ""
 echo "Making hooks executable..."
-chmod +x "$SUBMODULE/hooks/"*.sh
+if [ -d "$PLATFORM_DIR/hooks" ]; then
+  chmod +x "$PLATFORM_DIR/hooks/"*.sh 2>/dev/null || true
+fi
 
-# ── Settings ─────────────────────────────────────────────────────────────────
+# ── Settings ──────────────────────────────────────────────────────────────────
 
 echo ""
 if [ -f "$CLAUDE_DIR/settings.local.json" ]; then
   echo "skip  .claude/settings.local.json (already exists)"
-else
-  cp "$SUBMODULE/settings-template.json" "$CLAUDE_DIR/settings.local.json"
-  echo "copy  .claude/settings.local.json (from settings-template.json)"
+elif [ -f "$PLATFORM_DIR/settings-template.json" ]; then
+  cp "$PLATFORM_DIR/settings-template.json" "$CLAUDE_DIR/settings.local.json"
+  echo "copy  .claude/settings.local.json"
   echo ""
-  echo "  ⚠  Edit .claude/settings.local.json — replace PROJECT_ROOT with:"
-  echo "     $(pwd)/.claude"
+  echo "  ⚠  Edit .claude/settings.local.json — replace PROJECT_ROOT with your .claude path"
 fi
 
-# ── CLAUDE.md ────────────────────────────────────────────────────────────────
+# ── CLAUDE.md ─────────────────────────────────────────────────────────────────
 
 echo ""
 if [ -f "$PROJECT_ROOT/CLAUDE.md" ]; then
   echo "skip  CLAUDE.md (already exists)"
-else
-  cp "$SUBMODULE/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
-  echo "copy  CLAUDE.md (from CLAUDE-template.md)"
+elif [ -f "$PLATFORM_DIR/CLAUDE-template.md" ]; then
+  cp "$PLATFORM_DIR/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
+  echo "copy  CLAUDE.md (from $PLATFORM CLAUDE-template.md)"
   echo ""
   echo "  ⚠  Edit CLAUDE.md — fill in [AppName] and stack placeholders"
 fi
 
-# ── Done ─────────────────────────────────────────────────────────────────────
+# ── Done ──────────────────────────────────────────────────────────────────────
 
 echo ""
-echo "Done. web-agentic is wired."
+echo "Done. software-dev-agentic ($PLATFORM) is wired."
 echo ""
 echo "Next steps:"
 echo "  1. Fill in CLAUDE.md placeholders"
 echo "  2. Edit .claude/settings.local.json — replace PROJECT_ROOT"
-echo "  3. git add .claude/ && git commit -m 'chore: wire web-agentic submodule'"
+echo "  3. git add .claude/ && git commit -m 'chore: wire software-dev-agentic ($PLATFORM)'"

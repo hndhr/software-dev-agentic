@@ -1,31 +1,43 @@
 #!/usr/bin/env bash
 # sync.sh
-# Pull the latest web-agentic updates and re-run symlink setup.
+# Pull the latest software-dev-agentic updates and re-run symlink setup.
 # Run from the project root whenever you want to adopt new agents/skills.
 #
 # Usage:
-#   .claude/web-agentic/scripts/sync.sh
-#
-# What it does:
-#   1. git pull inside the submodule
-#   2. Re-runs setup-symlinks.sh (link_if_absent is idempotent — safe to re-run)
-#   3. Reminds you to commit the updated submodule pointer
+#   .claude/software-dev-agentic/scripts/sync.sh --platform=web
+#   .claude/software-dev-agentic/scripts/sync.sh --platform=ios
 
 set -euo pipefail
 
 SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
 CLAUDE_MD="$PROJECT_ROOT/CLAUDE.md"
-TEMPLATE="$SUBMODULE/CLAUDE-template.md"
-BEGIN_MARKER="<!-- BEGIN web-agentic -->"
-END_MARKER="<!-- END web-agentic -->"
 
-echo "Pulling latest web-agentic..."
+# ── Parse --platform ─────────────────────────────────────────────────────────
+
+PLATFORM=""
+for arg in "$@"; do
+  case "$arg" in
+    --platform=*) PLATFORM="${arg#--platform=}" ;;
+  esac
+done
+
+if [ -z "$PLATFORM" ]; then
+  echo "Error: --platform is required."
+  echo "Usage: $0 --platform=web|ios|flutter"
+  exit 1
+fi
+
+TEMPLATE="$SUBMODULE/platforms/$PLATFORM/CLAUDE-template.md"
+BEGIN_MARKER="<!-- BEGIN software-dev-agentic:$PLATFORM -->"
+END_MARKER="<!-- END software-dev-agentic:$PLATFORM -->"
+
+echo "Pulling latest software-dev-agentic..."
 git -C "$SUBMODULE" pull
 
 echo ""
 echo "Re-running symlink setup..."
-"$SUBMODULE/scripts/setup-symlinks.sh"
+"$SUBMODULE/scripts/setup-symlinks.sh" --platform="$PLATFORM"
 
 # ── Sync managed section in CLAUDE.md ────────────────────────────────────────
 
@@ -33,14 +45,14 @@ echo ""
 if [ ! -f "$CLAUDE_MD" ]; then
   echo "skip  CLAUDE.md sync (file not found — run setup-symlinks.sh first)"
 elif ! grep -qF "$BEGIN_MARKER" "$CLAUDE_MD"; then
-  echo "skip  CLAUDE.md sync (no managed section markers found — add them manually)"
-  echo "      Markers: $BEGIN_MARKER ... $END_MARKER"
+  echo "skip  CLAUDE.md sync (no managed section markers found)"
+  echo "      Add: $BEGIN_MARKER ... $END_MARKER"
+elif [ ! -f "$TEMPLATE" ]; then
+  echo "skip  CLAUDE.md sync (no CLAUDE-template.md for platform $PLATFORM)"
 else
-  # Extract the managed block from the template to a temp file (inclusive of markers)
   managed_tmp="$(mktemp)"
   awk "/^${BEGIN_MARKER}$/{found=1} found{print} /^${END_MARKER}$/{found=0}" "$TEMPLATE" > "$managed_tmp"
 
-  # Replace the managed block in CLAUDE.md — read replacement from temp file
   awk -v begin="$BEGIN_MARKER" -v end="$END_MARKER" -v src="$managed_tmp" '
     $0 == begin { while ((getline line < src) > 0) print line; skip=1; next }
     $0 == end   { skip=0; next }
@@ -53,5 +65,5 @@ fi
 
 echo ""
 echo "Submodule updated. To lock in this version:"
-echo "  git add .claude/web-agentic"
-echo "  git commit -m 'chore: bump web-agentic to $(git -C "$SUBMODULE" rev-parse --short HEAD)'"
+echo "  git add .claude/software-dev-agentic"
+echo "  git commit -m 'chore: bump software-dev-agentic to $(git -C "$SUBMODULE" rev-parse --short HEAD)'"

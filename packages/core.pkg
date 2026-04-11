@@ -1,4 +1,4 @@
 name=core
-description=Always installed — issue management, project doctor, release tooling
-agents=issue-worker
-skills=doctor release setup-nextjs-project
+description=Always installed — issue management, perf review, release tooling
+agents=issue-worker perf-worker
+skills=doctor release agentic-perf-review

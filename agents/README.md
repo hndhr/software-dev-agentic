@@ -2,41 +2,60 @@
 
 Subagents following the Core Design Principles — orchestrators coordinate workers, workers execute procedures.
 
-Copy to `.claude/agents/` in the actual project (or symlink via submodule).
+Agents are split by scope:
+- `core/agents/` — platform-agnostic (orchestrators, utility workers)
+- `platforms/<platform>/agents/` — platform worker implementations + platform-exclusive agents
 
-## Orchestrators
+## Core Agents (platform-agnostic)
 
-Coordinate multiple workers for multi-layer tasks. Gather intent, read context, delegate in order. Never write code directly.
+### Orchestrators
+
+Coordinate workers for multi-layer tasks. Gather intent, delegate in order, never write code directly.
 
 | Agent | When to invoke |
-|-------|---------------|
-| `feature-orchestrator` | Build a complete feature end-to-end — domain, data, and presentation layers |
-| `backend-orchestrator` | Scaffold a full-stack backend feature — DB DataSource, Repository, Use Case, Server Action |
+|-------|----------------|
+| `feature-orchestrator` | Build a complete feature end-to-end — domain → data → presentation |
+| `backend-orchestrator` | Scaffold a backend feature — domain → data layer only |
+| `pres-orchestrator` | Build presentation layer when domain is done — StateHolder → UI (mobile platforms) |
 
-## Workers
+### Utility Workers
 
-Domain specialists. Validate preconditions, pick the right skill, execute. Can be invoked directly for single-layer tasks or spawned by an orchestrator.
+| Agent | When to invoke |
+|-------|----------------|
+| `issue-worker` | Create or pick up a GitHub Issue — opens issue, creates branch, updates backlog |
+| `perf-worker` | Analyse agentic session performance from Claude Code transcript |
+| `debug-worker` | Trace runtime errors through the layers to root cause |
+| `arch-review-worker` | Audit code for Clean Architecture violations |
 
-| Agent | Layer | When to invoke |
-|-------|-------|---------------|
-| `domain-worker` | Domain | Create/update entities, repository interfaces, use cases, domain services |
-| `data-worker` | Data | Create/update DTOs, mappers, data sources (remote or DB), repository impls |
-| `presentation-worker` | Presentation | Create/update ViewModel hooks, Views, Server Actions, routes, DI wiring |
-| `test-worker` | Testing | Write tests for any layer — auto-selects test type by layer |
-| `arch-review-worker` | Cross-layer | Audit code for Clean Architecture violations |
-| `debug-worker` | Cross-layer | Trace runtime errors through the layers to root cause |
-| `issue-worker` | Product | Create or pick up a GitHub Issue — opens issue, creates branch, updates backlog |
+## Platform Workers
 
-## Natural Language Routing
+Each platform implements this standard worker set:
 
-Describe intent — Claude routes to the right agent automatically.
+| Worker | Layer | Responsibility |
+|--------|-------|----------------|
+| `domain-worker` | Domain | Entities, repository interfaces, use cases, domain services |
+| `data-worker` | Data | DTOs/Responses, mappers, data sources, repository impls |
+| `presentation-worker` | Presentation | StateHolder (ViewModel/BLoC) — or full UI for web |
+| `test-worker` | Testing | Unit + integration tests for any layer |
+| `ui-worker` | UI | UI layer bound to StateHolder contract (mobile platforms only) |
 
-> "Create the leave request feature" → `feature-orchestrator`
-> "Add an entity for Employee" → `domain-worker`
-> "Write tests for LeaveRepositoryImpl" → `test-worker`
-> "Why is my form submission failing silently?" → `debug-worker`
-> "Create an issue for adding export button" → `issue-worker`
-> "Pick up issue #42" → `issue-worker`
+Platform-exclusive agents live alongside — e.g. iOS adds `pres-orchestrator` override, `test-orchestrator`, `ui-worker`, `pr-review-worker`.
+
+## Orchestration Model
+
+```
+feature-orchestrator (core)
+  → domain-worker    (platform implementation)
+  → data-worker      (platform implementation)
+  → presentation-worker (platform implementation)
+     — or for mobile —
+  pres-orchestrator (core)
+    → presentation-worker  (StateHolder)
+    → ui-worker            (UI binding)
+```
+
+Workers are resolved by name at runtime from `.claude/agents/`. The correct platform implementation
+is wired by `setup-symlinks.sh --platform=<p>` at project setup time.
 
 ## Extension
 

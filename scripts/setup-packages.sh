@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # setup-packages.sh
-# Interactive package installer for web-agentic.
-# Presents available packages, lets the user choose, then symlinks only the
-# selected agents and skills. Core package is always installed.
+# Interactive package installer for software-dev-agentic.
+# Presents available packages for the chosen platform, lets the user choose,
+# then symlinks only the selected agents and skills. Core package always installed.
 #
 # Usage (run from the downstream project root):
-#   .claude/web-agentic/scripts/setup-packages.sh
+#   .claude/software-dev-agentic/scripts/setup-packages.sh --platform=web
+#   .claude/software-dev-agentic/scripts/setup-packages.sh --platform=ios
 #
 # Re-running is safe — existing symlinks are never overwritten.
 
@@ -14,183 +15,208 @@ set -euo pipefail
 SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
 CLAUDE_DIR="$PROJECT_ROOT/.claude"
-PACKAGES_DIR="$SUBMODULE/packages"
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ── Parse --platform ─────────────────────────────────────────────────────────
 
-bold()    { printf '\033[1m%s\033[0m' "$*"; }
-green()   { printf '\033[32m%s\033[0m' "$*"; }
-yellow()  { printf '\033[33m%s\033[0m' "$*"; }
-cyan()    { printf '\033[36m%s\033[0m' "$*"; }
-reset()   { printf '\033[0m'; }
+PLATFORM=""
+for arg in "$@"; do
+  case "$arg" in
+    --platform=*) PLATFORM="${arg#--platform=}" ;;
+  esac
+done
 
-link_agent() {
-  local name="$1"
-  local src="$SUBMODULE/agents/$name.md"
-  local link="$CLAUDE_DIR/agents/$name.md"
-  if [ ! -f "$src" ]; then
-    echo "  $(yellow "warn")  agent $name not found in web-agentic — skipping"
-    return
-  fi
+if [ -z "$PLATFORM" ]; then
+  echo "Error: --platform is required."
+  echo "Usage: $0 --platform=web|ios|flutter"
+  exit 1
+fi
+
+PLATFORM_DIR="$SUBMODULE/platforms/$PLATFORM"
+CORE_PACKAGES_DIR="$SUBMODULE/packages"
+PLATFORM_PACKAGES_DIR="$PLATFORM_DIR/packages"
+
+if [ ! -d "$PLATFORM_DIR" ]; then
+  echo "Error: platform '$PLATFORM' not found at $PLATFORM_DIR"
+  exit 1
+fi
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+bold()   { printf '\033[1m%s\033[0m' "$*"; }
+green()  { printf '\033[32m%s\033[0m' "$*"; }
+yellow() { printf '\033[33m%s\033[0m' "$*"; }
+cyan()   { printf '\033[36m%s\033[0m' "$*"; }
+
+link_if_absent() {
+  local target="$1"
+  local link="$2"
   if [ -e "$link" ] || [ -L "$link" ]; then
-    echo "  skip  agents/$name.md"
+    echo "  skip  $(basename $link)"
   else
-    ln -s "../web-agentic/agents/$name.md" "$link"
-    echo "  $(green "link")  agents/$name.md"
-  fi
-}
-
-link_skill() {
-  local name="$1"
-  local src="$SUBMODULE/skills/$name"
-  local link="$CLAUDE_DIR/skills/$name"
-  if [ ! -d "$src" ]; then
-    echo "  $(yellow "warn")  skill $name not found in web-agentic — skipping"
-    return
-  fi
-  if [ -e "$link" ] || [ -L "$link" ]; then
-    echo "  skip  skills/$name"
-  else
-    ln -s "../web-agentic/skills/$name" "$link"
-    echo "  $(green "link")  skills/$name"
+    ln -s "$target" "$link"
+    echo "  $(green "link")  $(basename $link)"
   fi
 }
 
 read_pkg() {
   local file="$1"
   local field="$2"
-  grep "^${field}=" "$file" | cut -d= -f2-
+  grep "^${field}=" "$file" 2>/dev/null | cut -d= -f2-
+}
+
+# Resolve an agent name to its source path (platform takes priority over core)
+find_agent() {
+  local name="$1"
+  if [ -f "$PLATFORM_DIR/agents/$name.md" ]; then
+    echo "$PLATFORM_DIR/agents/$name.md"
+  elif [ -f "$SUBMODULE/core/agents/$name.md" ]; then
+    echo "$SUBMODULE/core/agents/$name.md"
+  fi
+}
+
+find_skill() {
+  local name="$1"
+  if [ -d "$PLATFORM_DIR/skills/$name" ]; then
+    echo "$PLATFORM_DIR/skills/$name"
+  elif [ -d "$SUBMODULE/core/skills/$name" ]; then
+    echo "$SUBMODULE/core/skills/$name"
+  fi
+}
+
+link_agent() {
+  local name="$1"
+  local src link rel
+  src="$(find_agent "$name")"
+  if [ -z "$src" ]; then
+    echo "  $(yellow "warn")  agent '$name' not found — skipping"
+    return
+  fi
+  link="$CLAUDE_DIR/agents/$name.md"
+  # Relative path from .claude/agents/ to the source
+  rel="$(python3 -c "import os; print(os.path.relpath('$src', '$CLAUDE_DIR/agents'))" 2>/dev/null || \
+        realpath --relative-to="$CLAUDE_DIR/agents" "$src" 2>/dev/null || \
+        echo "$src")"
+  link_if_absent "$rel" "$link"
+}
+
+link_skill() {
+  local name="$1"
+  local src link rel
+  src="$(find_skill "$name")"
+  if [ -z "$src" ]; then
+    echo "  $(yellow "warn")  skill '$name' not found — skipping"
+    return
+  fi
+  link="$CLAUDE_DIR/skills/$name"
+  rel="$(python3 -c "import os; print(os.path.relpath('$src', '$CLAUDE_DIR/skills'))" 2>/dev/null || \
+        realpath --relative-to="$CLAUDE_DIR/skills" "$src" 2>/dev/null || \
+        echo "$src")"
+  link_if_absent "$rel" "$link"
 }
 
 install_pkg() {
   local pkg_file="$1"
-  local pkg_name
+  local pkg_name agents skills
   pkg_name="$(read_pkg "$pkg_file" name)"
-  local agents skills
-
   echo ""
   echo "  Installing $(bold "$pkg_name")..."
-
   agents="$(read_pkg "$pkg_file" agents)"
   skills="$(read_pkg "$pkg_file" skills)"
-
-  for agent in $agents; do
-    link_agent "$agent"
-  done
-
-  for skill in $skills; do
-    link_skill "$skill"
-  done
+  for agent in $agents; do link_agent "$agent"; done
+  for skill in $skills; do link_skill "$skill"; done
 }
 
 # ── Directory setup ───────────────────────────────────────────────────────────
 
 echo ""
-echo "$(bold "web-agentic package installer")"
-echo "────────────────────────────────────────"
+echo "$(bold "software-dev-agentic package installer") (platform: $PLATFORM)"
+echo "────────────────────────────────────────────────────────"
 
-# Convert any old-style directory symlinks
-for dir in "$CLAUDE_DIR/agents" "$CLAUDE_DIR/skills"; do
+for dir in "$CLAUDE_DIR/agents" "$CLAUDE_DIR/skills" "$CLAUDE_DIR/reference"; do
   if [ -L "$dir" ]; then
     echo "convert  $dir (directory symlink → real directory)"
-    rm "$dir"
-    mkdir -p "$dir"
+    rm "$dir"; mkdir -p "$dir"
   fi
 done
-
 mkdir -p \
-  "$CLAUDE_DIR/agents" \
-  "$CLAUDE_DIR/skills" \
-  "$CLAUDE_DIR/agents.local/extensions" \
-  "$CLAUDE_DIR/skills.local/extensions"
+  "$CLAUDE_DIR/agents" "$CLAUDE_DIR/skills" "$CLAUDE_DIR/reference" \
+  "$CLAUDE_DIR/agents.local/extensions" "$CLAUDE_DIR/skills.local/extensions"
 
-# ── Local overrides first ─────────────────────────────────────────────────────
+# ── Local overrides ───────────────────────────────────────────────────────────
 
 for agent in "$CLAUDE_DIR/agents.local"/*.md; do
   [ -f "$agent" ] || continue
   name="$(basename "$agent")"
-  if [ ! -e "$CLAUDE_DIR/agents/$name" ] && [ ! -L "$CLAUDE_DIR/agents/$name" ]; then
-    ln -s "../agents.local/$name" "$CLAUDE_DIR/agents/$name"
-    echo "  $(green "link")  agents/$name (local override)"
-  fi
-done
-
-for skill_dir in "$CLAUDE_DIR/skills.local"/*/; do
-  [ -d "$skill_dir" ] || continue
-  name="$(basename "$skill_dir")"
-  if [ ! -e "$CLAUDE_DIR/skills/$name" ] && [ ! -L "$CLAUDE_DIR/skills/$name" ]; then
-    ln -s "../skills.local/$name" "$CLAUDE_DIR/skills/$name"
-    echo "  $(green "link")  skills/$name (local override)"
-  fi
+  [ -e "$CLAUDE_DIR/agents/$name" ] || [ -L "$CLAUDE_DIR/agents/$name" ] && continue
+  ln -s "../agents.local/$name" "$CLAUDE_DIR/agents/$name"
+  echo "  $(green "link")  $name (local override)"
 done
 
 # ── Core (always installed) ───────────────────────────────────────────────────
 
-install_pkg "$PACKAGES_DIR/core.pkg"
+install_pkg "$CORE_PACKAGES_DIR/core.pkg"
 
-# ── Package selection ─────────────────────────────────────────────────────────
+# ── Platform package selection ────────────────────────────────────────────────
 
 echo ""
-echo "$(bold "Available packages:")"
+echo "$(bold "Available packages for $PLATFORM:")"
 echo ""
 
-# Load non-core packages
 optional_pkgs=()
-for pkg_file in "$PACKAGES_DIR"/*.pkg; do
-  pkg_name="$(read_pkg "$pkg_file" name)"
-  [ "$pkg_name" = "core" ] && continue
-  optional_pkgs+=("$pkg_file")
-done
-
-# Display menu
-i=1
-for pkg_file in "${optional_pkgs[@]}"; do
-  pkg_name="$(read_pkg "$pkg_file" name)"
-  pkg_desc="$(read_pkg "$pkg_file" description)"
-  printf "  $(cyan "[%d]") %-14s %s\n" "$i" "$pkg_name" "$pkg_desc"
-  i=$((i + 1))
-done
-
-echo ""
-echo "  Enter package numbers to install (e.g. $(bold "1 2")), $(bold "all"), or $(bold "none"):"
-printf "  > "
-read -r selection
-
-echo ""
-
-if [ "$selection" = "none" ]; then
-  echo "  No optional packages selected."
-elif [ "$selection" = "all" ]; then
-  for pkg_file in "${optional_pkgs[@]}"; do
-    install_pkg "$pkg_file"
+if [ -d "$PLATFORM_PACKAGES_DIR" ]; then
+  for pkg_file in "$PLATFORM_PACKAGES_DIR"/*.pkg; do
+    [ -f "$pkg_file" ] || continue
+    optional_pkgs+=("$pkg_file")
   done
+fi
+
+if [ ${#optional_pkgs[@]} -eq 0 ]; then
+  echo "  (no optional packages defined for $PLATFORM)"
 else
-  for num in $selection; do
-    if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#optional_pkgs[@]}" ]; then
-      install_pkg "${optional_pkgs[$((num - 1))]}"
-    else
-      echo "  $(yellow "warn")  '$num' is not a valid option — skipping"
-    fi
+  i=1
+  for pkg_file in "${optional_pkgs[@]}"; do
+    pkg_name="$(read_pkg "$pkg_file" name)"
+    pkg_desc="$(read_pkg "$pkg_file" description)"
+    printf "  $(cyan "[%d]") %-16s %s\n" "$i" "$pkg_name" "$pkg_desc"
+    i=$((i + 1))
   done
+
+  echo ""
+  echo "  Enter package numbers (e.g. $(bold "1 2")), $(bold "all"), or $(bold "none"):"
+  printf "  > "
+  read -r selection
+  echo ""
+
+  if [ "$selection" = "none" ]; then
+    echo "  No optional packages selected."
+  elif [ "$selection" = "all" ]; then
+    for pkg_file in "${optional_pkgs[@]}"; do install_pkg "$pkg_file"; done
+  else
+    for num in $selection; do
+      if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#optional_pkgs[@]}" ]; then
+        install_pkg "${optional_pkgs[$((num - 1))]}"
+      else
+        echo "  $(yellow "warn")  '$num' is not a valid option — skipping"
+      fi
+    done
+  fi
 fi
 
 # ── Hooks ─────────────────────────────────────────────────────────────────────
 
 echo ""
 echo "Making hooks executable..."
-chmod +x "$SUBMODULE/hooks/"*.sh
+[ -d "$PLATFORM_DIR/hooks" ] && chmod +x "$PLATFORM_DIR/hooks/"*.sh 2>/dev/null || true
 
 # ── Settings ─────────────────────────────────────────────────────────────────
 
 echo ""
 if [ -f "$CLAUDE_DIR/settings.local.json" ]; then
-  echo "skip  .claude/settings.local.json (already exists)"
-else
-  cp "$SUBMODULE/settings-template.json" "$CLAUDE_DIR/settings.local.json"
-  echo "copy  .claude/settings.local.json"
-  echo ""
-  echo "  $(yellow "⚠")  Edit .claude/settings.local.json — replace PROJECT_ROOT with:"
-  echo "     $CLAUDE_DIR"
+  echo "skip  settings.local.json (already exists)"
+elif [ -f "$PLATFORM_DIR/settings-template.json" ]; then
+  cp "$PLATFORM_DIR/settings-template.json" "$CLAUDE_DIR/settings.local.json"
+  echo "copy  settings.local.json"
+  echo "  $(yellow "⚠")  Replace PROJECT_ROOT in settings.local.json with: $CLAUDE_DIR"
 fi
 
 # ── CLAUDE.md ─────────────────────────────────────────────────────────────────
@@ -198,20 +224,19 @@ fi
 echo ""
 if [ -f "$PROJECT_ROOT/CLAUDE.md" ]; then
   echo "skip  CLAUDE.md (already exists)"
-else
-  cp "$SUBMODULE/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
-  echo "copy  CLAUDE.md (from CLAUDE-template.md)"
-  echo ""
-  echo "  $(yellow "⚠")  Edit CLAUDE.md — fill in [AppName] and stack placeholders"
+elif [ -f "$PLATFORM_DIR/CLAUDE-template.md" ]; then
+  cp "$PLATFORM_DIR/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
+  echo "copy  CLAUDE.md"
+  echo "  $(yellow "⚠")  Fill in [AppName] and stack placeholders in CLAUDE.md"
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 
 echo ""
-echo "────────────────────────────────────────"
-echo "$(green "Done.") web-agentic packages installed."
+echo "────────────────────────────────────────────────────────"
+echo "$(green "Done.") software-dev-agentic ($PLATFORM) packages installed."
 echo ""
 echo "Next steps:"
 echo "  1. Fill in CLAUDE.md placeholders"
 echo "  2. Edit .claude/settings.local.json — replace PROJECT_ROOT"
-echo "  3. git add .claude/ && git commit -m 'chore: wire web-agentic packages'"
+echo "  3. git add .claude/ && git commit -m 'chore: wire software-dev-agentic ($PLATFORM)'"
