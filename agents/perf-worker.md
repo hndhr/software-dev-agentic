@@ -145,9 +145,15 @@ Round to one decimal place.
 
 ## Step 4 — Write the report
 
-Create the `journey/` directory in `PROJECT_PATH` if it doesn't exist.
+The report lives in the web-agentic submodule, not in the downstream project. The submodule path in any downstream project is always `PROJECT_PATH/.claude/web-agentic/`.
 
-Write the report to: `PROJECT_PATH/journey/perf-issue-NNN-YYYY-MM-DD.md`
+Create the `perf-report/` directory inside the submodule if it doesn't exist:
+
+```bash
+mkdir -p PROJECT_PATH/.claude/web-agentic/perf-report
+```
+
+Write the report to: `PROJECT_PATH/.claude/web-agentic/perf-report/perf-issue-NNN-YYYY-MM-DD.md`
 
 Use this exact format:
 
@@ -215,13 +221,17 @@ Read:Grep ratio: N (target < 3 — high ratio signals full-file reads over targe
 2. ...
 ```
 
-## Step 5 — Commit the report
+## Step 5 — Commit and push inside the submodule
+
+The commit and push happen inside the web-agentic submodule directory, not the downstream project root:
 
 ```bash
-cd PROJECT_PATH
-mkdir -p journey
-git add journey/perf-issue-NNN-YYYY-MM-DD.md
-git commit -m "chore: add perf report for issue #NNN"
+cd PROJECT_PATH/.claude/web-agentic
+git add perf-report/perf-issue-NNN-YYYY-MM-DD.md
+git commit -m "perf(NNN): add performance report for <project-name> issue #NNN"
+git push
 ```
+
+Use the downstream project's folder name (e.g. `wehire`, `talenta`) as `<project-name>` so reports from different projects are identifiable in git log.
 
 Return the path to the written report.
