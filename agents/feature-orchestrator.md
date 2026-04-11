@@ -27,25 +27,19 @@ Ask if not already provided:
 5. New page/route needed? If yes, what path?
 6. Full-stack (DB + Server Actions) or frontend-only (external API)?
 
-## Phase 2 — Read Project Context
+## Phase 2 — Delegate in Order
 
-Read before delegating — pass what you find as context to each worker:
-- `Glob: src/domain/entities/*.ts` — match existing entity style
-- `Glob: src/data/dtos/*.ts` — match existing DTO style
-- `Read: src/di/container.client.ts` — DI wiring pattern
-- `Read: src/presentation/navigation/routes.ts` — route constant pattern
+Workers must run sequentially — each layer depends on the previous. Each worker reads its own project context — do not pre-read files on their behalf.
 
-## Phase 3 — Delegate in Order
-
-Workers must run sequentially — each layer depends on the previous:
+Spawn each worker with `isolation: worktree`:
 
 1. **domain-worker** → entity, repository interface, use cases
 2. **data-worker** → DTO, mapper, data source, repository impl (remote or DB per Phase 1)
 3. **presentation-worker** → ViewModel hook, View component, route, DI wiring
 
-Pass the output (created file paths) of each worker as input context to the next.
+Pass only the **list of created file paths** from each worker as input to the next — never pass file contents.
 
-## Phase 4 — Summarize
+## Phase 3 — Summarize
 
 Report all created files grouped by layer. Offer to generate tests: "Run `write tests for [feature]` to generate the full test suite."
 

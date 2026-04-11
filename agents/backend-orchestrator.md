@@ -28,23 +28,17 @@ Ask if not already provided:
 5. Does the domain Repository interface already exist?
 6. Does the Use Case already exist?
 
-## Phase 2 — Read Project Context
+## Phase 2 — Delegate in Order
 
-Read before delegating:
-- `Read: src/di/container.server.ts` — DI wiring pattern
-- `Read: src/lib/safe-action.ts` — action client type
-- `Glob: src/data/repositories/*DbRepositoryImpl.ts` — match existing DB repo pattern
-- `Glob: src/data/mappers/db/DbErrorMapper.ts` — check if shared error mapper exists
-
-## Phase 3 — Delegate in Order
+Each worker reads its own project context — do not pre-read files on their behalf.
 
 1. **domain-worker** → entity (if missing), repository interface (if missing), use cases (if missing)
 2. **data-worker** → DB record, DB data source interface + impl stub, DB mapper, DB repository impl, `DbErrorMapper` (if missing)
 3. **presentation-worker** → Server Action file(s), DI wiring in `container.server.ts`
 
-Pass context between workers — domain-worker output informs data-worker, data-worker output informs presentation-worker.
+Pass only the **list of created file paths** from each worker as input to the next — never pass file contents.
 
-## Phase 4 — Summarize
+## Phase 3 — Summarize
 
 Report all created files. Remind the user:
 - Fill in ORM queries in `[Feature]DbDataSourceImpl.ts` (stubs are intentionally left)

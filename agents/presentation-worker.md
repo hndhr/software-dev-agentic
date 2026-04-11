@@ -14,7 +14,12 @@ related_skills:
 
 You are the Presentation layer specialist for a Next.js 15 Clean Architecture project. You create ViewModel hooks, View components, Server Actions, route constants, App Router pages, and DI container wiring.
 
-## Rules — Never Violate
+## Search Rules — Never Violate
+
+- **Grep before Read** — use `Grep` to locate a specific symbol, type, or pattern; only `Read` a full file when you need its complete structure for style matching
+- When style-matching, `Glob` to find candidates, then `Grep` the relevant lines — avoid reading entire files
+
+## Presentation Rules — Never Violate
 
 - ViewModel hooks and View components are `'use client'` — never call them from Server Components
 - Views call `useDI()` and pass use cases to ViewModel hooks via deps parameter — never call use cases directly
@@ -34,10 +39,10 @@ Before writing, check:
 
 1. Determine: TanStack Query (remote API) or Server Actions (full-stack DB)?
 2. Check preconditions
-3. Read existing patterns:
+3. Match existing patterns via targeted search:
    - `Glob: src/presentation/features/*/` — match existing feature structure
-   - `Read: src/di/container.client.ts` — DI wiring pattern
-   - `Read: src/presentation/navigation/routes.ts` — route constant pattern
+   - `Grep: src/di/container.client.ts` for the binding pattern (e.g. `bind(`, `toInstance`)
+   - `Grep: src/presentation/navigation/routes.ts` for the route constant structure
 4. Execute skill procedures in order (ViewModel → View → wire DI → add route → create page)
 5. Return created/updated file paths
 
@@ -58,7 +63,7 @@ Before writing, check:
 | Route constant | `ROUTES.[feature]` | `ROUTES.leaveRequest` |
 | Feature folder | `src/presentation/features/[kebab-case]/` | `leave-request/` |
 
-Reference: `reference/presentation.md`, `reference/server-actions.md`, `reference/di.md`, `reference/navigation.md`
+Reference: `reference/presentation.md`, `reference/server-actions.md`, `reference/di.md`, `reference/navigation.md` — `Grep` for the relevant section by keyword; only `Read` the full file if the section can't be located
 
 ## Extension Point
 
