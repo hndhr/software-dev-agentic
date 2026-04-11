@@ -20,6 +20,7 @@ Copy to `.claude/skills/` in the actual project (or symlink via submodule).
 | `domain-create-usecase` | Create a use case interface + implementation |
 | `domain-create-repository` | Create a domain repository interface |
 | `domain-create-service` | Create a pure domain service |
+| `domain-update-usecase` | Update an existing use case |
 
 ### Data layer
 | Skill | What it does |
@@ -27,14 +28,18 @@ Copy to `.claude/skills/` in the actual project (or symlink via submodule).
 | `data-create-mapper` | Create a DTO + mapper (interface + Impl) |
 | `data-create-datasource` | Create a remote data source interface + Axios impl |
 | `data-create-repository-impl` | Create a remote repository implementation |
+| `data-update-mapper` | Update an existing mapper after Entity or DTO changes |
 | `data-create-db-datasource` | Create a DB record, DB data source interface + ORM stub impl |
 | `data-create-db-repository` | Create a DB mapper + DB repository implementation |
 
 ### Presentation layer
 | Skill | What it does |
 |-------|-------------|
-| `pres-create-viewmodel` | Create a ViewModel hook |
-| `pres-create-view` | Create a View component + App Router page |
+| `pres-create-stateholder` | Create a StateHolder hook or pure function |
+| `pres-create-screen` | Create a View component + App Router page |
+| `pres-update-stateholder` | Update an existing StateHolder |
+| `pres-create-component` | Create a reusable UI sub-component |
+| `pres-update-screen` | Update an existing View component |
 | `pres-create-server-action` | Create a next-safe-action Server Action |
 | `pres-wire-di` | Wire use case and deps into DI containers |
 | `pres-ssr-check` | Determine Server vs Client Component decision |
@@ -45,7 +50,9 @@ Copy to `.claude/skills/` in the actual project (or symlink via submodule).
 | `test-create-mock` | Scaffold a Mock class with vi.fn() for every interface method |
 | `test-create-domain` | Unit tests for use cases and domain services |
 | `test-create-data` | Mapper unit tests + repository integration tests |
-| `test-create-presentation` | ViewModel hook tests + View component tests |
+| `test-create-presentation` | StateHolder hook tests + View component tests |
+| `test-update` | Update existing tests after StateHolder code changes |
+| `test-fix` | Diagnose and fix failing tests |
 
 ## Type B — User-Triggered (explicit invocation only)
 
