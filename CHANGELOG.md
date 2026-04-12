@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.0.2] — 2026-04-12
+
+### Fixed
+- `scripts/setup-symlinks.sh` — hooks were never symlinked into `.claude/hooks/`; script now creates the directory and links each `.sh` file
+
+---
+
 ## [3.0.1] — 2026-04-12
 
 ### Fixed

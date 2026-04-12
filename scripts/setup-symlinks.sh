@@ -142,9 +142,15 @@ link_reference "$SUBMODULE/lib/core/reference/clean-arch" "$REL_CORE/reference/c
 # ── Hooks ─────────────────────────────────────────────────────────────────────
 
 echo ""
-echo "Making hooks executable..."
+echo "Linking hooks..."
 if [ -d "$PLATFORM_DIR/hooks" ]; then
-  chmod +x "$PLATFORM_DIR/hooks/"*.sh 2>/dev/null || true
+  mkdir -p "$CLAUDE_DIR/hooks"
+  for hook in "$PLATFORM_DIR/hooks/"*.sh; do
+    [ -f "$hook" ] || continue
+    chmod +x "$hook"
+    name="$(basename "$hook")"
+    link_if_absent "$REL_PLATFORM/hooks/$name" "$CLAUDE_DIR/hooks/$name"
+  done
 fi
 
 # ── Settings ──────────────────────────────────────────────────────────────────
