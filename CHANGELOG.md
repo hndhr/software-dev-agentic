@@ -7,6 +7,36 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [2.0.0] — 2026-04-12
+
+### Added
+- `core/agents/builder/` — builder persona group: `feature-orchestrator`, `backend-orchestrator`, `pres-orchestrator`, `domain-worker`, `data-worker`, `presentation-worker`, `ui-worker`, `test-worker`
+- `core/agents/detective/` — detective persona group: `debug-orchestrator`, `debug-worker`
+- `core/agents/tracker/` — tracker persona group: `issue-worker`
+- `core/agents/auditor/` — auditor persona group: `arch-review-worker` (platform-agnostic)
+- `packages/builder.pkg`, `packages/detective.pkg`, `packages/auditor.pkg` — selective installation via `setup-packages.sh`
+- `platforms/web/skills/arch-check-web/` — web-specific CLEAN rules (W1–W6: import direction, hook exposure, ViewModel patterns, directive placement, Server Actions, Atomic Design)
+- `platforms/ios/skills/arch-check-ios/` — iOS-specific CLEAN rules (I1–I4: layer imports, legacy folder violations, UseCase bypass, RepositoryImpl placement)
+- `agents/arch-review-orchestrator.md` — internal convention review orchestrator (not symlinked to downstream projects)
+- `agents/arch-review-worker.md` — internal convention review worker; runs `arch-check-conventions` per file
+- `skills/arch-check-conventions/` — full convention checklist: frontmatter, Grep-first, isolation, model selection, platform-agnosticism, Fix F, Fix G, naming
+- `skills/arch-generate-report/` — formats raw convention findings into severity-grouped report
+- `agents/docs-sync-worker.md` — manual Confluence sync worker; applies targeted section updates after sessions that change structure or conventions
+- `skills/docs-identify-changes/` — maps session delta descriptions to stale Confluence doc sections
+
+### Changed
+- `core/agents/` restructured from flat to persona subdirectories — **breaking**: downstream projects must re-run `setup-symlinks.sh` or `setup-packages.sh` to pick up the new paths
+- `setup-packages.sh` — new Step 2: core agent group selection (builder / detective / auditor) before platform packages
+- `setup-symlinks.sh` — `link_agents()` now recurses into persona subdirectories; all agents still land flat in `.claude/agents/`
+- `core/agents/auditor/arch-review-worker.md` — rewritten as platform-agnostic; universal CLEAN rules U1–U5 in body; platform rules delegated to `arch-check-web` and `arch-check-ios` skills
+- iOS platform skills (20 files) — corrected broken reference filenames (`domain-layer.md` → `domain.md`, `data-layer.md` → `data.md`, `testing-patterns.md` → `testing-patterns-advanced.md`); Grep-first added to all reference reads
+- `platforms/ios/agents/test-orchestrator.md` — added `isolation: worktree` and `## Search Rules` section
+- `platforms/ios/agents/pr-review-worker.md` — added `## Search Rules` section
+- `core/agents/builder/pres-orchestrator.md` — added `isolation: worktree` to Constraints
+- `core/agents/detective/debug-orchestrator.md` — added `isolation: worktree` to Constraints
+
+---
+
 ## [1.2.1] — 2026-04-11
 
 ### Fixed
