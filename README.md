@@ -1,4 +1,4 @@
-# web-agentic
+# software-dev-agentic
 
 > **For AI agents**: If a user asks you to "set up a project using this starter kit" or similar, jump to the [AI Project Setup](#ai-project-setup) section at the bottom and follow it step by step before generating any code.
 
@@ -234,8 +234,8 @@ Generate or instruct the user to run the following in order:
 
 5. **Add the starter kit as a git submodule and run the setup script:**
    ```bash
-   git submodule add https://github.com/handharr-labs/web-agentic .claude/web-agentic
-   .claude/web-agentic/scripts/setup-symlinks.sh
+   git submodule add https://github.com/handharr-labs/software-dev-agentic .claude/software-dev-agentic
+   .claude/software-dev-agentic/scripts/setup-symlinks.sh
    ```
 
    This creates `.claude/agents/` and `.claude/skills/` as symlink-only directories pointing into the submodule. Local overrides in `agents.local/` and `skills.local/` are respected — the script never overwrites existing files (`link_if_absent` guard).
@@ -254,7 +254,7 @@ Generate or instruct the user to run the following in order:
 
 5a. **Copy and customize `CLAUDE.md`** (or let `/setup-nextjs-project` do it):
    ```bash
-   cp docs/web-agentic/nextjs/CLAUDE-template.md CLAUDE.md
+   cp .claude/software-dev-agentic/lib/platforms/web/CLAUDE-template.md CLAUDE.md
    ```
    Then open `CLAUDE.md` and replace every `[placeholder]`:
    - `[AppName]` — your project name (e.g. `Talenta`, `Expenzo`)
@@ -438,7 +438,7 @@ After setup, tell the user:
 After the submodule is wired, pull updates at any time with the sync script:
 
 ```bash
-.claude/web-agentic/scripts/sync.sh
+.claude/software-dev-agentic/scripts/sync.sh
 ```
 
-This pulls the latest from the web-agentic repo, re-runs symlink setup (idempotent — local overrides are never touched), and reminds you to commit the updated submodule pointer.
+This pulls the latest from the software-dev-agentic repo, re-runs symlink setup (idempotent — local overrides are never touched), and reminds you to commit the updated submodule pointer.

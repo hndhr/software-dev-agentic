@@ -5,7 +5,7 @@ This platform is not yet implemented.
 ## What belongs here
 
 ```
-platforms/flutter/
+lib/platforms/flutter/
   agents/
     domain-worker.md          # Dart entity + repository protocol + use case
     data-worker.md            # Repository impl + datasource (Dio/http)
