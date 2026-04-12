@@ -12,7 +12,7 @@ Migrate one Domain layer component at a time to the modern architecture standard
 ## Architecture Reference
 
 Read these before starting:
-- `.claude/reference/domain-layer.md` — V2 Domain patterns (entities, repo protocols, UseCases, Params)
+- `.claude/reference/domain.md` — V2 Domain patterns (entities, repo protocols, UseCases, Params)
 - `.claude/reference/migration.md §15.1–15.2` — folder structure + UseCase migration guide
 - `.claude/reference/di.md` — DI Container wiring
 

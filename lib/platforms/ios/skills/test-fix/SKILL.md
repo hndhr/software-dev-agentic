@@ -5,7 +5,7 @@ description: |
 user-invocable: false
 ---
 
-Fix failing tests following patterns in `.claude/reference/testing-patterns.md`.
+Fix failing tests following patterns in `.claude/reference/testing-patterns-advanced.md`.
 
 ## Critical Constraint
 
@@ -13,7 +13,7 @@ Fix failing tests following patterns in `.claude/reference/testing-patterns.md`.
 
 ## Steps
 
-1. **Read** `.claude/reference/testing-patterns.md` (failure diagnosis section)
+1. **Grep** `.claude/reference/testing-patterns-advanced.md` for failure diagnosis keywords; only **Read** the full file if the section cannot be located
 2. **Get failure output** — ask user to paste `xcodebuild` output if not provided:
    ```bash
    xcodebuild test -project Talenta.xcodeproj -scheme Talenta \
