@@ -112,3 +112,16 @@ Architecture reference docs live in `lib/platforms/<platform>/reference/` and `l
 
 - [Agentic Coding Assistant — Core Design Principles](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51126370416)
 - [Shared Agentic Submodule Architecture — Cross-Platform Scaling](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51129909710)
+
+---
+
+## .gitignore recommendations
+
+Add these to your downstream project's `.gitignore`:
+
+```gitignore
+# Claude Code — delegation flags (branch-scoped, local session state)
+.claude/.delegated-*
+```
+
+These flags are created by `feature-orchestrator` to track that delegation has occurred for a branch. They are local state and should not be committed.

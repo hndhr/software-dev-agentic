@@ -19,9 +19,11 @@ CLAUDE_DIR="$PROJECT_ROOT/.claude"
 # ── Parse --platform ─────────────────────────────────────────────────────────
 
 PLATFORM=""
+APP_NAME=""
 for arg in "$@"; do
   case "$arg" in
     --platform=*) PLATFORM="${arg#--platform=}" ;;
+    --app-name=*) APP_NAME="${arg#--app-name=}" ;;
   esac
 done
 
@@ -270,7 +272,19 @@ if [ -f "$PROJECT_ROOT/CLAUDE.md" ]; then
 elif [ -f "$PLATFORM_DIR/CLAUDE-template.md" ]; then
   cp "$PLATFORM_DIR/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
   echo "copy  CLAUDE.md"
-  echo "  $(yellow "⚠")  Fill in [AppName] and stack placeholders in CLAUDE.md"
+
+  if grep -q '\[AppName\]' "$PROJECT_ROOT/CLAUDE.md"; then
+    if [ -z "$APP_NAME" ]; then
+      printf "  App name (replaces [AppName] in CLAUDE.md): "
+      read -r APP_NAME
+    fi
+    if [ -n "$APP_NAME" ]; then
+      sed -i.bak "s/\[AppName\]/$APP_NAME/g" "$PROJECT_ROOT/CLAUDE.md" && rm "$PROJECT_ROOT/CLAUDE.md.bak"
+      echo "  $(green "✓")  Replaced [AppName] with '$APP_NAME'"
+    else
+      echo "  $(yellow "⚠")  Fill in [AppName] placeholders in CLAUDE.md"
+    fi
+  fi
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────

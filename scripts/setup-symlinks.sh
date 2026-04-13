@@ -20,9 +20,11 @@ CLAUDE_DIR="$PROJECT_ROOT/.claude"
 # ── Parse --platform ─────────────────────────────────────────────────────────
 
 PLATFORM=""
+APP_NAME=""
 for arg in "$@"; do
   case "$arg" in
     --platform=*) PLATFORM="${arg#--platform=}" ;;
+    --app-name=*) APP_NAME="${arg#--app-name=}" ;;
   esac
 done
 
@@ -153,6 +155,17 @@ if [ -d "$PLATFORM_DIR/hooks" ]; then
   done
 fi
 
+CORE_HOOKS_DIR="$SUBMODULE/lib/core/hooks"
+if [ -d "$CORE_HOOKS_DIR" ]; then
+  mkdir -p "$CLAUDE_DIR/hooks"
+  for hook in "$CORE_HOOKS_DIR/"*.sh; do
+    [ -f "$hook" ] || continue
+    chmod +x "$hook"
+    name="$(basename "$hook")"
+    link_if_absent "$REL_CORE/hooks/$name" "$CLAUDE_DIR/hooks/$name"
+  done
+fi
+
 # ── Settings ──────────────────────────────────────────────────────────────────
 
 echo ""
@@ -173,8 +186,19 @@ if [ -f "$PROJECT_ROOT/CLAUDE.md" ]; then
 elif [ -f "$PLATFORM_DIR/CLAUDE-template.md" ]; then
   cp "$PLATFORM_DIR/CLAUDE-template.md" "$PROJECT_ROOT/CLAUDE.md"
   echo "copy  CLAUDE.md (from $PLATFORM CLAUDE-template.md)"
-  echo ""
-  echo "  ⚠  Edit CLAUDE.md — fill in [AppName] and stack placeholders"
+
+  if grep -q '\[AppName\]' "$PROJECT_ROOT/CLAUDE.md"; then
+    if [ -z "$APP_NAME" ]; then
+      printf "  App name (replaces [AppName] in CLAUDE.md): "
+      read -r APP_NAME
+    fi
+    if [ -n "$APP_NAME" ]; then
+      sed -i.bak "s/\[AppName\]/$APP_NAME/g" "$PROJECT_ROOT/CLAUDE.md" && rm "$PROJECT_ROOT/CLAUDE.md.bak"
+      echo "  ✓  Replaced [AppName] with '$APP_NAME'"
+    else
+      echo "  ⚠  Fill in [AppName] placeholders in CLAUDE.md"
+    fi
+  fi
 fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────

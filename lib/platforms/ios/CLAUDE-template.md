@@ -16,4 +16,14 @@ Clean Architecture · DRY · SOLID — apply to all new code.
 Agents: `feature-orchestrator` · `backend-orchestrator` · `pres-orchestrator` · `debug-worker` · `test-worker` · `arch-review-worker` · `.claude/skills/`
 
 **Feature work (create or update, any scope) → always delegate to `feature-orchestrator`, never inline.**
+
+## Feature Directories
+
+```
+# Replace [AppName] with your app target name (e.g. Talenta)
+[AppName]/Module
+[AppName]/Shared
+[AppName]Tests/Module
+[AppName]Tests/Shared
+```
 <!-- END software-dev-agentic:ios -->

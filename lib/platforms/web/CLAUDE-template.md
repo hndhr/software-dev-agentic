@@ -16,4 +16,10 @@ Clean Architecture · DRY · SOLID — apply to all new code.
 Agents: `feature-orchestrator` · `backend-orchestrator` · `debug-worker` · `test-worker` · `arch-review-worker` · `.claude/skills/`
 
 **Feature work (create or update, any scope) → always delegate to `feature-orchestrator`, never inline.**
+
+## Feature Directories
+
+```
+src
+```
 <!-- END software-dev-agentic:web -->
