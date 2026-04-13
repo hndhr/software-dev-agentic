@@ -141,6 +141,17 @@ link_agents "$SUBMODULE/lib/core/agents" "$REL_CORE/agents"
 link_skills "$SUBMODULE/lib/core/skills" "$REL_CORE/skills"
 link_reference "$SUBMODULE/lib/core/reference/clean-arch" "$REL_CORE/reference/clean-arch"
 
+# ── .gitignore ────────────────────────────────────────────────────────────────
+
+echo ""
+GITIGNORE="$PROJECT_ROOT/.gitignore"
+if grep -qs '\.delegated-\*' "$GITIGNORE" 2>/dev/null; then
+  echo "skip  .gitignore (.delegated-* already present)"
+else
+  printf '\n# Claude Code — delegation flags\n.claude/.delegated-*\n' >> "$GITIGNORE"
+  echo "patch .gitignore (added .claude/.delegated-*)"
+fi
+
 # ── Hooks ─────────────────────────────────────────────────────────────────────
 
 echo ""
