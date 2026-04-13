@@ -17,6 +17,8 @@ Agents: `feature-orchestrator` · `backend-orchestrator` · `debug-worker` · `t
 
 **Feature work (create or update, any scope) → always delegate to `feature-orchestrator`, never inline.**
 
+**If the delegation guard hook blocks an edit → always stop and ask the user: inline or `feature-orchestrator`? Never resolve it autonomously.**
+
 ## Feature Directories
 
 ```
