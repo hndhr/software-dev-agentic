@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.1.0] — 2026-04-13
+
+### Changed
+- All workers: `## Search Rules` replaced with `## Search Protocol` decision gate table — agents must answer "full file or symbol?" before any Read call (P7 enforcement)
+- All builder workers: `## Output` section added as a required contract — one path per line, no prose
+- `feature-orchestrator`: writes `.claude/runs/<feature>/state.json` after each phase for mid-run resumability (P4)
+- `presentation-worker`: writes StateHolder contract to `.claude/runs/<feature>/stateholder-contract.md`; returns only the path (P8 fix)
+- `feature-orchestrator`: passes only the contract file path to `ui-worker` — not content (P8 fix)
+
+### Added
+- `evaluation/02-context-efficiency-round-2.md` — investigation documenting xpnsio session findings and the four fixes applied
+
+---
+
 ## [3.0.2] — 2026-04-12
 
 ### Fixed

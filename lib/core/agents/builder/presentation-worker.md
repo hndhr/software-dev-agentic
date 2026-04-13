@@ -28,10 +28,18 @@ The StateHolder consumes use cases. It never touches repositories or data source
 - State is read-only from the UI's perspective — UI observes, never mutates state directly
 - StateHolder has no knowledge of the UI framework rendering it (no view imports)
 
-## Search Rules — Never Violate
+## Search Protocol — Never Violate
 
-- **Grep before Read** — locate symbols and patterns with `Grep`; only `Read` a full file when you need its complete structure
-- When style-matching, `Glob` to find existing StateHolders, then `Grep` for State/Event/Action patterns
+Before any Read call, ask: "Do I need the full file, or just a specific symbol/section?"
+
+| What you need | Tool |
+|---|---|
+| A specific class, function, or type | `Grep` for the name |
+| A section of a reference doc | `Grep` for the section heading |
+| The full file structure (style-matching a new file) | `Read` — justified |
+| Whether a file exists | `Glob` |
+
+Read a full file only when: (a) you need its complete structure to write a new matching file, or (b) Grep returned no results.
 
 ## Preconditions — Fail Fast
 
@@ -46,7 +54,7 @@ Before writing:
 3. Style-match against existing StateHolders via `Glob` + `Grep`
 4. Load `reference/presentation.md` — `Grep` for State/Event/Action pattern
 5. Execute skill procedure
-6. Return created/updated file paths **and the complete StateHolder contract** — `ui-worker` needs this to bind the UI without re-reading files:
+6. Write the StateHolder contract to `.claude/runs/<feature-name>/stateholder-contract.md` — create the directory if needed. Include:
    - StateHolder class/hook name and file path
    - State fields (what the UI renders)
    - Event/Action cases (what the UI sends back)
@@ -63,6 +71,18 @@ Before writing:
 For platform-specific skill variants (e.g. server actions, view components), check `reference/index.md` first.
 
 Reference: `reference/presentation.md`, `reference/di.md` — `Grep` for the relevant section by keyword; only `Read` the full file if the section can't be located. If uncertain which reference file covers a topic, check `reference/index.md` first.
+
+## Output
+
+Return this block as the final section of your response. One path per line, no prose:
+
+```
+## Output
+- <path/to/created/stateholder/source/file>
+- .claude/runs/<feature-name>/stateholder-contract.md
+```
+
+The orchestrator passes only the contract file path to `ui-worker` — not the source file.
 
 ## Extension Point
 

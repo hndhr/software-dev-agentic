@@ -30,8 +30,13 @@ Spawn `domain-worker` with:
 - Feature name
 - Operations needed (so it knows which use cases to create)
 
-Wait for completion. Extract from output:
+Wait for completion. Extract from the `## Output` section:
 - List of created file paths (pass to Phase 2)
+
+Write state file `.claude/runs/<feature>/state.json`:
+```json
+{ "feature": "<name>", "completed_phases": ["domain"], "artifacts": { "domain": ["<paths>"] }, "next_phase": "data" }
+```
 
 ## Phase 2 — Data Layer
 
@@ -40,8 +45,13 @@ Depends on Phase 1. Spawn `data-worker` with:
 - Operations needed
 - File paths from Phase 1
 
-Wait for completion. Extract from output:
+Wait for completion. Extract from the `## Output` section:
 - List of created file paths (pass to Phase 3)
+
+Update state file `.claude/runs/<feature>/state.json`:
+```json
+{ "feature": "<name>", "completed_phases": ["domain", "data"], "artifacts": { "domain": ["<paths>"], "data": ["<paths>"] }, "next_phase": "presentation" }
+```
 
 ## Phase 3 — Presentation Layer (StateHolder)
 
@@ -49,8 +59,14 @@ Depends on Phase 2. Spawn `presentation-worker` with:
 - Feature name
 - File paths from Phase 1 + Phase 2
 
-Wait for completion. Extract from output:
-- List of created file paths (pass to Phase 4 if applicable)
+Wait for completion. Extract from the `## Output` section:
+- List of created source file paths
+- Path to `.claude/runs/<feature>/stateholder-contract.md`
+
+Update state file `.claude/runs/<feature>/state.json`:
+```json
+{ "feature": "<name>", "completed_phases": ["domain", "data", "presentation"], "artifacts": { "domain": ["<paths>"], "data": ["<paths>"], "presentation": ["<paths>"], "stateholder_contract": ".claude/runs/<feature>/stateholder-contract.md" }, "next_phase": "ui" }
+```
 
 ## Phase 4 — UI Layer (mobile/imperative platforms only)
 
@@ -58,7 +74,7 @@ Skip if Phase 0 confirmed no separate UI layer.
 
 Spawn `ui-worker` with:
 - Feature name
-- File paths from Phase 3 (StateHolder contract — ui-worker does not share context with Phase 3)
+- Path to `.claude/runs/<feature>/stateholder-contract.md` from Phase 3
 
 Wait for completion.
 

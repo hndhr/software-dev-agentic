@@ -14,6 +14,7 @@ Each entry is numbered in sequence. Entries may be:
 | # | Title | Type | Date | Principles Touched | Status |
 |---|-------|------|------|--------------------|--------|
 | 01 | [Token Optimization](./01-token-optimization.md) | Investigation | 2026-04-10 | P4, P7, P8, P9 | In progress |
+| 02 | [Context Efficiency — Round 2](./02-context-efficiency-round-2.md) | Improvement | 2026-04-13 | P4, P7, P8 | Done |
 
 ---
 
