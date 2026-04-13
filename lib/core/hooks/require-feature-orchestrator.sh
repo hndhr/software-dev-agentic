@@ -76,11 +76,14 @@ if [[ -f "$FLAG_FILE" ]]; then
   exit 0
 fi
 
-# Block
+# Block — ask Claude to present a choice to the user
 echo "BLOCKED: Feature directory edit on feat/* branch requires delegation."
 echo ""
 echo "  Branch : $BRANCH"
 echo "  File   : $FILE_PATH"
+echo "  Flag   : $FLAG_FILE (not found)"
 echo ""
-echo "Invoke feature-orchestrator first. It will set the delegation flag and proceed."
+echo "Ask the user how to proceed — present exactly these two options:"
+echo "  1. Inline  — create the delegation flag now and continue with the edit directly"
+echo "  2. Feature orchestrator — invoke feature-orchestrator to handle this properly (recommended for logic changes, new files, or multi-layer work)"
 exit 2
