@@ -1,9 +1,9 @@
 # Agentic Performance Report — April 2026
 
 > Period: 2026-04-10 → 2026-04-14
-> Toolkit version: v3.4.7 (as of 2026-04-14)
-> Projects covered: wehire, xpnsio
-> Sessions analysed: 9
+> Toolkit version: v3.7.0 (as of 2026-04-14)
+> Projects covered: wehire, xpnsio, talenta-ios
+> Sessions analysed: 10
 > Prepared by: Engineering
 
 ---
@@ -50,6 +50,9 @@ Scoring uses seven dimensions (D1–D7). Each is scored 1–10. Sessions below 6
 | xpnsio — split-bill UX update | Apr 13 | xpnsio | 106K | 8 | 9 | 8 | 8 | 9 | 7 | 7 | **8.0** |
 | xpnsio — split-bill MVP release | Apr 13 | xpnsio | 185K | 3 | 2 | 4 | 8 | 6 | 3 | 8 | **4.9** |
 | xpnsio — split-bill currency input | Apr 13 | xpnsio | 103K | 8 | 8 | 7 | 8 | 9 | 7 | 9 | **8.0** |
+| talenta-ios — cico no-location hint | Apr 14 | talenta-ios | 2,638K* | 6 | 6 | 8 | 6 | 7 | 5 | 8 | **6.6** |
+
+*Cache hit ratio 94.2% — actual billing cost $1.75. Raw billed-equivalent shown for consistency.
 
 **Dimension key:** D1 Orchestration Quality · D2 Worker Invocation · D3 Skill Execution · D4 Token Efficiency · D5 Routing Accuracy · D6 Workflow Compliance · D7 One-Shot Rate
 
@@ -64,19 +67,19 @@ Score
  10 |
   9 |
   8 |                                    ●         ●
-  7 |  ●                     ●
+  7 |  ●                     ●                          ●
   6 |       ●    ●      ●         ●
   5 |                 ●                       ●
   4 |
-    +--------------------------------------------->
-      Apr10 Apr11 Apr12 Apr13 Apr13 Apr13 Apr13 Apr13 Apr13
-      wh#26 wh#53 #73   upd   edit  fix   UX    rel   curr
+    +-------------------------------------------------->
+      Apr10 Apr11 Apr12 Apr13 Apr13 Apr13 Apr13 Apr13 Apr13 Apr14
+      wh#26 wh#53 #73   upd   edit  fix   UX    rel   curr  cico
 ```
 
-Two sessions peaked at 8.0 (both on Apr 13 afternoon), coinciding with the delegation guard hook going live. The 4.9 session on the same date was the direct trigger for the final hook hardening (Entry 06).
+Two sessions peaked at 8.0 (both on Apr 13 afternoon), coinciding with the delegation guard hook going live. The 4.9 session on the same date was the direct trigger for the final hook hardening (Entry 06). The Apr 14 talenta-ios session scored 6.6 — first iOS session tracked, surfacing two new orchestrator-level gaps (Entry 07).
 
 **Average score across all sessions: 6.6/10**
-**Average score (last three sessions): 7.0/10**
+**Average score (last three sessions): 7.1/10**
 
 ---
 
@@ -97,8 +100,9 @@ The primary token efficiency metric is the **read:grep ratio** — how often an 
 | xpnsio form fix | 2.0 | Good |
 | xpnsio UI edit | 1.0 | Excellent |
 | xpnsio currency input | 1.3 | Excellent |
+| talenta-ios cico hint | 4.0 | Poor — orchestrator reading source files directly |
 
-The ratio went from **37.0 → 1.3** over 9 sessions. Cache hit ratios have been consistently excellent throughout (88–97%), confirming the caching layer was never the problem — unnecessary reads were inflating creation cost, not cache misses.
+The ratio went from **37.0 → 1.3** over 9 web sessions; the talenta-ios session regressed to 4.0, driven by the orchestrator (not workers) reading production source files — the gap addressed by Entry 07. Cache hit ratios have been consistently excellent throughout (88–97%), confirming the caching layer was never the problem — unnecessary reads were inflating creation cost, not cache misses.
 
 ### Billed Token Cost Reduction
 
@@ -129,8 +133,9 @@ The most impactful compliance dimension: whether feature work was routed through
 | xpnsio split-bill release | ✗ No | D2: 2 |
 | xpnsio UI edit | ✓ Appropriate inline | D2: 8 |
 | xpnsio currency input | ✓ Yes (×2) | D2: 8 |
+| talenta-ios cico hint | ✓ Yes — but outer agent did inline reads + 2 Edits before delegating | D2: 6 |
 
-Delegation compliance rate: **5 out of 9 sessions** correctly routed feature work. The delegation guard hook (shipped in v3.4.0) was the tooling response to this gap.
+Delegation compliance rate: **5 out of 9 web sessions** correctly routed feature work; the talenta-ios session represents a partial compliance — delegation happened but was preceded by inline work. The delegation guard hook (shipped in v3.4.0) was the tooling response to this gap.
 
 ---
 
@@ -201,24 +206,34 @@ Six improvement cycles were shipped between Apr 10 and Apr 14, each grounded in 
 - `isolation: worktree` moved inline with each Spawn directive (Phases 1–4) so it is adjacent to the instruction that causes the spawn
 - Constraint added: after delegation flag is set, orchestrator must never call Edit/Write directly
 
+### Entry 07 — Orchestrator Read Discipline and Invocation Isolation (Apr 14)
+**Trigger:** talenta-ios cico-no-location-hint (6.6/10) — first iOS session tracked. `feature-orchestrator` performed 9 direct Reads and 2 direct Edits on production source files before delegating, producing a read:grep ratio of 4.0. Feature-orchestrator itself was not invoked with `isolation: worktree` by the outer agent.
+
+**Root cause:** Workers all had "Search Protocol — Never Violate" tables; the orchestrator had none. The CLAUDE-template delegation rule mandated delegation but said nothing about isolation at invocation time.
+
+**Changes shipped:**
+- Search Protocol added to `feature-orchestrator`: forbids `Read` on any production source file; only state/run files may be Read directly; all source investigation delegated to workers
+- CLAUDE-template delegation rule updated (iOS + web): now reads "always delegate to `feature-orchestrator` **with `isolation: worktree`**, never inline"
+- iOS branch pattern open question resolved: `feature/*` prefix support confirmed shipped in v3.5.0
+
 ---
 
-## Current State (v3.4.7)
+## Current State (v3.7.0)
 
 ### What is working well
-- **Cache hit ratio consistently 90–97%** across all sessions — the caching layer is effective.
-- **Read:grep ratio trending toward target** — last two sessions at 1.3 and 3.0 vs 37.0 baseline.
+- **Cache hit ratio consistently 90–97%** across all sessions — the caching layer is effective. talenta-ios first session at 94.2% confirms iOS context volume is well-cached.
+- **Read:grep ratio trending toward target** — web sessions at 1.3 and 3.0; iOS regression to 4.0 addressed by Entry 07 Search Protocol.
 - **Correct delegation when followed** — sessions that properly used `feature-orchestrator` scored 8.0 vs 4.9–5.9 for inline sessions.
-- **Token cost on compliant sessions** — 100–106K billed (vs 498–737K for early inline sessions).
+- **Token cost on compliant sessions** — 100–106K billed (vs 498–737K for early inline sessions). talenta-ios cost $1.75 despite 2.6M billed-equiv tokens, demonstrating iOS cache efficiency.
 - **Validation Protocol** — TypeScript error loops eliminated in workers; bounded to ≤2 pass/fix cycles.
 - **Auto-PR at Phase 5** — workflow now closes the loop without manual intervention.
+- **iOS branch pattern** — `feature/*` prefix now supported in `require-feature-orchestrator.sh` (v3.5.0).
 
 ### Open risks
 
 | Risk | Severity | Status |
 |---|---|---|
-| iOS branch pattern mismatch — hook matches `feat/*` but iOS uses `feature/*` (Bitbucket convention) | Medium | Open |
-| Root agent reading source files before delegating (D1 marginal loss) — not enforceable at toolkit level, requires downstream CLAUDE.md rule | Low | Open |
+| Orchestrator tool list still includes `Read` | Low | Structural gap — Search Protocol enforces via instruction, not tool restriction |
 | Worker identity in hook — hook cannot distinguish a legitimate worker Edit (inside worktree) from a root-agent violation | Low | By-design; worktree isolation mitigates |
 | `pickup-issue` at session start — agents frequently skip `issue-worker` on continuation sessions | Low | Partially addressed via perf scoring fix; not yet enforced |
 
@@ -245,4 +260,4 @@ The architecture is sound. Gains at this point come from tuning compliance signa
 
 ---
 
-*Source data: `evaluation/01` through `evaluation/06`, `perf-report/` (9 session reports), `CHANGELOG.md` (v0.1.0 → v3.4.7).*
+*Source data: `evaluation/01` through `evaluation/07`, `perf-report/` (10 session reports), `CHANGELOG.md` (v0.1.0 → v3.7.0).*
