@@ -15,7 +15,7 @@ Clean Architecture · DRY · SOLID — apply to all new code.
 
 Agents: `feature-orchestrator` · `backend-orchestrator` · `debug-worker` · `test-worker` · `arch-review-worker` · `.claude/skills/`
 
-**Feature work (create or update, any scope) → always delegate to `feature-orchestrator`, never inline.**
+**Feature work (create or update, any scope) → always delegate to `feature-orchestrator` with `isolation: worktree`, never inline.**
 
 **If the delegation guard hook blocks an edit → always stop and ask the user: inline or `feature-orchestrator`? Never resolve it autonomously.**
 

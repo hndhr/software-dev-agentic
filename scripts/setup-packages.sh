@@ -254,15 +254,31 @@ GITIGNORE="$PROJECT_ROOT/.gitignore"
 if grep -qs '\.delegated-\*' "$GITIGNORE" 2>/dev/null; then
   echo "skip  .gitignore (.delegated-* already present)"
 else
-  printf '\n# Claude Code — delegation flags\n.claude/.delegated-*\n' >> "$GITIGNORE"
-  echo "patch .gitignore (added .claude/.delegated-*)"
+  printf '\n# Claude Code — delegation flags and session state\n.claude/.delegated-*\n.claude/.session-id\n.claude/runs/\n' >> "$GITIGNORE"
+  echo "patch .gitignore (added .delegated-*, .session-id, runs/)"
 fi
 
 # ── Hooks ─────────────────────────────────────────────────────────────────────
 
 echo ""
-echo "Making hooks executable..."
-[ -d "$PLATFORM_DIR/hooks" ] && chmod +x "$PLATFORM_DIR/hooks/"*.sh 2>/dev/null || true
+echo "Installing hooks..."
+mkdir -p "$CLAUDE_DIR/hooks"
+for hooks_src in "$SUBMODULE/lib/core/hooks" "$PLATFORM_DIR/hooks"; do
+  [ -d "$hooks_src" ] || continue
+  for hook in "$hooks_src/"*.sh; do
+    [ -f "$hook" ] || continue
+    chmod +x "$hook"
+    name="$(basename "$hook")"
+    dest="$CLAUDE_DIR/hooks/$name"
+    if [ -e "$dest" ]; then
+      echo "  skip  $name"
+    else
+      cp "$hook" "$dest"
+      chmod +x "$dest"
+      echo "  copy  $name"
+    fi
+  done
+done
 
 # ── Settings ─────────────────────────────────────────────────────────────────
 

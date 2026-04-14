@@ -99,6 +99,18 @@ Wait for completion.
 rm -f "$(git rev-parse --show-toplevel)/.claude/.delegated-$(git branch --show-current | tr '/' '-')"
 ```
 
+## Search Protocol — Never Violate
+
+You are a pure coordinator. You never investigate source files.
+
+| What you need | Tool |
+|---|---|
+| Whether a state/run file exists | `Glob` |
+| A value inside a state/run file | `Read` — permitted |
+| Anything in a production source file | **Delegate to a worker — never Read directly** |
+
+If you find yourself about to `Read` a `.swift`, `.ts`, `.kt`, or other source file, stop. Pass the intent to the appropriate worker instead.
+
 ## Constraints
 
 - Never skip a layer unless the user confirms it already exists
