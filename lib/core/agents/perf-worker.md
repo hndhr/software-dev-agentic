@@ -65,18 +65,83 @@ Score each dimension **1–10**. Provide a one-line justification for each score
 - Check `agent_spawns` — were subagent types appropriate for the task?
 - Deduct if a write-capable worker was spawned for read-only work (P9 violation)
 - Deduct if a worker was spawned when inline execution was clearly cheaper
-- Deduct if preconditions were missing (domain before data, data before presentation)
 - +1 if workers were explicitly isolated (worktree) when appropriate
+
+**Layer-to-worker mapping** — cross-check each spawn's `description` against the expected worker type:
+
+| Work category | Expected worker |
+|---|---|
+| Entity / repository interface / use case | `domain-worker` |
+| DTO / mapper / datasource / repository impl | `data-worker` |
+| StateHolder / ViewModel / BLoC | `presentation-worker` |
+| View / screen / component | `ui-worker` |
+| Debugging | `debug-worker` via `debug-orchestrator` |
+| Architecture review | `arch-review-worker` |
+
+- Deduct `-1` each time a worker's `description` implies work from a different layer (e.g. `data-worker` spawned with a description about creating use cases)
+- Deduct `-2` if a worker was entirely skipped for a layer that clearly needed changes (e.g. no `data-worker` spawn but `write_paths` contains mapper/DTO files)
+
+**Cross-layer ordering** — inspect the sequence in `agent_spawns`:
+
+- Domain → Data → Presentation → UI is the required order for new features
+- Deduct `-2` if `data-worker` appears before `domain-worker` (precondition violation: entity/repository interface must exist first)
+- Deduct `-2` if `presentation-worker` appears before `data-worker` (use cases must exist before StateHolder wires them)
+- Deduct `-1` if `ui-worker` appears before `presentation-worker` (StateHolder contract must exist first)
+
+**Input quality** — orchestrators must pass file path lists only, never file contents:
+
+- Deduct `-1` if orchestrator's spawn prompt (inferred from description context) shows signs of passing file contents rather than paths (e.g. descriptions mention "here is the entity code" vs "entity at path/to/entity.ts")
 
 ### D3 — Skill Execution
 
-*Were skills invoked correctly and in the right project context?*
+*Were the correct skills invoked for each artifact, in the correct sequence?*
 
 - Check `skill_calls` — was each skill appropriate for this project?
 - `pickup-issue` or `create-issue` early in session = correct workflow start (+1)
 - Deduct heavily if a skill misfired (wrong project context, wrong release mechanism)
 - Deduct if a skill was skipped when it should have been used
 - Score N/A (8/10) if no skills were called and inline handling was appropriate
+
+**Skill-to-artifact alignment** — cross-reference each `skill_calls` entry against the canonical skill selection tables:
+
+*Domain layer:*
+
+| Artifact created | Expected skill |
+|---|---|
+| Entity | `domain-create-entity` |
+| Repository interface | `domain-create-repository` |
+| Use case | `domain-create-usecase` |
+| Domain service | `domain-create-service` |
+| Update use case | `domain-update-usecase` |
+
+*Data layer:*
+
+| Artifact created | Expected skill |
+|---|---|
+| DTO / mapper | `data-create-mapper` |
+| DataSource interface + impl | `data-create-datasource` |
+| Repository implementation | `data-create-repository-impl` |
+| Update mapper | `data-update-mapper` |
+
+*Presentation layer:*
+
+| Artifact created | Expected skill |
+|---|---|
+| New StateHolder | `pres-create-stateholder` |
+| Update StateHolder | `pres-update-stateholder` |
+
+- Deduct `-1` per skill call that doesn't match the expected skill for the artifact inferred from its context (e.g. `domain-create-usecase` called when a repository interface was needed)
+- Deduct `-2` if a write to `write_paths` produced a domain/data/presentation artifact with **no corresponding skill call** — this means the worker bypassed skills and wrote directly (anti-pattern)
+
+**Intra-layer skill sequencing** — check the order of skill calls within each layer:
+
+*Domain order:* entity → repository interface → use case(s)
+*Data order (remote API):* mapper → datasource → repository-impl
+*Data order (local DB):* db-record → db-datasource → db-mapper → db-repository-impl
+
+- Deduct `-1` if `domain-create-usecase` appears in `skill_calls` before `domain-create-repository` for the same feature (precondition: repository interface must exist first)
+- Deduct `-1` if `data-create-repository-impl` appears before `data-create-datasource` (datasource interface must exist first)
+- Deduct `-1` if `data-create-*` skills appear in `skill_calls` before any `domain-create-*` skills (cross-layer precondition violation)
 
 ### D4 — Token Efficiency
 

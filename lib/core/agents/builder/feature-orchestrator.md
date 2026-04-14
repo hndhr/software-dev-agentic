@@ -37,7 +37,7 @@ Required:
 
 ## Phase 1 — Domain Layer
 
-Spawn `domain-worker` with `isolation: worktree` and:
+Spawn `domain-worker` and:
 - Feature name
 - Operations needed (so it knows which use cases to create)
 
@@ -51,7 +51,7 @@ Write state file `.claude/runs/<feature>/state.json`:
 
 ## Phase 2 — Data Layer
 
-Depends on Phase 1. Spawn `data-worker` with `isolation: worktree` and:
+Depends on Phase 1. Spawn `data-worker` and:
 - Feature name
 - Operations needed
 - File paths from Phase 1
@@ -66,7 +66,7 @@ Update state file `.claude/runs/<feature>/state.json`:
 
 ## Phase 3 — Presentation Layer (StateHolder)
 
-Depends on Phase 2. Spawn `presentation-worker` with `isolation: worktree` and:
+Depends on Phase 2. Spawn `presentation-worker` and:
 - Feature name
 - File paths from Phase 1 + Phase 2
 
@@ -83,7 +83,7 @@ Update state file `.claude/runs/<feature>/state.json`:
 
 Skip if Phase 0 confirmed no separate UI layer.
 
-Spawn `ui-worker` with `isolation: worktree` and:
+Spawn `ui-worker` and:
 - Feature name
 - Path to `.claude/runs/<feature>/stateholder-contract.md` from Phase 3
 
