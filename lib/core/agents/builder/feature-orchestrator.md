@@ -18,7 +18,7 @@ Your only platform knowledge: Domain → Data → Presentation (→ UI on platfo
 
 Before anything else, run:
 ```bash
-date +%s > "$(git rev-parse --show-toplevel)/.claude/.delegated-$(git branch --show-current | tr '/' '-')"
+date +%s > "$(git rev-parse --show-toplevel)/.claude/agentic-state/.delegated-$(git branch --show-current | tr '/' '-')"
 ```
 
 This unblocks the `require-feature-orchestrator` hook for this branch. The flag is branch-scoped and persists across sessions — no need to re-run on continuation sessions.
@@ -44,7 +44,7 @@ Spawn `domain-worker` and:
 Wait for completion. Extract from the `## Output` section:
 - List of created file paths (pass to Phase 2)
 
-Write state file `.claude/runs/<feature>/state.json`:
+Write state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
 { "feature": "<name>", "completed_phases": ["domain"], "artifacts": { "domain": ["<paths>"] }, "next_phase": "data" }
 ```
@@ -59,7 +59,7 @@ Depends on Phase 1. Spawn `data-worker` and:
 Wait for completion. Extract from the `## Output` section:
 - List of created file paths (pass to Phase 3)
 
-Update state file `.claude/runs/<feature>/state.json`:
+Update state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
 { "feature": "<name>", "completed_phases": ["domain", "data"], "artifacts": { "domain": ["<paths>"], "data": ["<paths>"] }, "next_phase": "presentation" }
 ```
@@ -72,11 +72,11 @@ Depends on Phase 2. Spawn `presentation-worker` and:
 
 Wait for completion. Extract from the `## Output` section:
 - List of created source file paths
-- Path to `.claude/runs/<feature>/stateholder-contract.md`
+- Path to `.claude/agentic-state/runs/<feature>/stateholder-contract.md`
 
-Update state file `.claude/runs/<feature>/state.json`:
+Update state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
-{ "feature": "<name>", "completed_phases": ["domain", "data", "presentation"], "artifacts": { "domain": ["<paths>"], "data": ["<paths>"], "presentation": ["<paths>"], "stateholder_contract": ".claude/runs/<feature>/stateholder-contract.md" }, "next_phase": "ui" }
+{ "feature": "<name>", "completed_phases": ["domain", "data", "presentation"], "artifacts": { "domain": ["<paths>"], "data": ["<paths>"], "presentation": ["<paths>"], "stateholder_contract": ".claude/agentic-state/runs/<feature>/stateholder-contract.md" }, "next_phase": "ui" }
 ```
 
 ## Phase 4 — UI Layer (mobile/imperative platforms only)
@@ -85,7 +85,7 @@ Skip if Phase 0 confirmed no separate UI layer.
 
 Spawn `ui-worker` and:
 - Feature name
-- Path to `.claude/runs/<feature>/stateholder-contract.md` from Phase 3
+- Path to `.claude/agentic-state/runs/<feature>/stateholder-contract.md` from Phase 3
 
 Wait for completion.
 
@@ -96,7 +96,7 @@ Wait for completion.
 3. Suggest next step (e.g. tests: "run `write tests for [feature]` to generate the full test suite").
 4. Clear the delegation flag:
 ```bash
-rm -f "$(git rev-parse --show-toplevel)/.claude/.delegated-$(git branch --show-current | tr '/' '-')"
+rm -f "$(git rev-parse --show-toplevel)/.claude/agentic-state/.delegated-$(git branch --show-current | tr '/' '-')"
 ```
 
 ## Search Protocol — Never Violate

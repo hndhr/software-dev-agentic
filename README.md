@@ -120,8 +120,8 @@ Architecture reference docs live in `lib/platforms/<platform>/reference/` and `l
 Add these to your downstream project's `.gitignore`:
 
 ```gitignore
-# Claude Code — delegation flags (branch-scoped, local session state)
-.claude/.delegated-*
+# Claude Code — agentic state (delegation flags, session state, run artifacts)
+.claude/agentic-state/
 ```
 
-These flags are created by `feature-orchestrator` to track that delegation has occurred for a branch. They are local state and should not be committed.
+This directory is created by the setup scripts and holds delegation flags, session tracking, and per-feature orchestrator run state. It is local state and should not be committed.

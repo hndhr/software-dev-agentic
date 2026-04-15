@@ -54,7 +54,7 @@ Before writing:
 3. Style-match against existing StateHolders via `Glob` + `Grep`
 4. Load `reference/presentation.md` — `Grep` for State/Event/Action pattern
 5. Execute skill procedure
-6. Write the StateHolder contract to `.claude/runs/<feature-name>/stateholder-contract.md` — create the directory if needed. Include:
+6. Write the StateHolder contract to `.claude/agentic-state/runs/<feature-name>/stateholder-contract.md` — create the directory if needed. Include:
    - StateHolder class/hook name and file path
    - State fields (what the UI renders)
    - Event/Action cases (what the UI sends back)
@@ -87,7 +87,7 @@ Return this block as the final section of your response. One path per line, no p
 ```
 ## Output
 - <path/to/created/stateholder/source/file>
-- .claude/runs/<feature-name>/stateholder-contract.md
+- .claude/agentic-state/runs/<feature-name>/stateholder-contract.md
 ```
 
 The orchestrator passes only the contract file path to `ui-worker` — not the source file.

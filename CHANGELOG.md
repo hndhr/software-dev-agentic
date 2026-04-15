@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.8.2] — 2026-04-15
+
+### Changed
+- Consolidated agentic runtime state into `.claude/agentic-state/` — delegation flags (`.delegated-*`), session file (`.session-id`), and run artifacts (`runs/`) moved from `.claude/` root into a single subdirectory
+- All scripts (`setup-packages.sh`, `setup-symlinks.sh`, `sync.sh`, `local-sync.sh`): mkdir now creates `agentic-state/runs/`; gitignore patch now adds `.claude/agentic-state/` as a single entry
+- `lib/core/hooks/require-feature-orchestrator.sh`, `lib/platforms/ios/hooks/require-feature-orchestrator.sh`: updated FLAG_FILE and SESSION_FILE paths to `agentic-state/`
+- `lib/core/agents/builder/feature-orchestrator.md`: delegation flag and run state paths updated to `agentic-state/`
+- `lib/core/agents/builder/presentation-worker.md`: stateholder contract path updated to `agentic-state/runs/`
+- `lib/core/skills/clear-runs/SKILL.md`: all paths updated to `agentic-state/runs/`
+- `README.md`: gitignore recommendation simplified to single `.claude/agentic-state/` entry
+
+---
+
 ## [3.8.1] — 2026-04-15
 
 ### Fixed

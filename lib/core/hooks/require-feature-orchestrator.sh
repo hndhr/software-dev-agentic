@@ -4,7 +4,7 @@
 # Input: JSON on stdin with keys: tool_name, tool_input
 #
 # Config: CLAUDE.md ## Feature Directories section (fenced code block) in project root.
-# Flag:   .claude/.delegated — created by feature-orchestrator at session start, cleared at end.
+# Flag:   .claude/agentic-state/.delegated — created by feature-orchestrator at session start, cleared at end.
 #
 # Block condition: feat/* or feature/* branch + file matches a feature dir + no delegation flag
 
@@ -71,7 +71,7 @@ fi
 
 # Delegation flag set — allow if present and fresh (< 4h); treat stale flag as missing
 BRANCH_SLUG=$(echo "$BRANCH" | tr '/' '-')
-FLAG_FILE="$PROJECT_ROOT/.claude/.delegated-$BRANCH_SLUG"
+FLAG_FILE="$PROJECT_ROOT/.claude/agentic-state/.delegated-$BRANCH_SLUG"
 if [[ -f "$FLAG_FILE" ]]; then
   FLAG_TIME=$(cat "$FLAG_FILE" 2>/dev/null || echo 0)
   NOW=$(date +%s)

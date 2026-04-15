@@ -66,7 +66,8 @@ mkdir -p \
   "$CLAUDE_DIR/reference" \
   "$CLAUDE_DIR/hooks" \
   "$CLAUDE_DIR/agents.local/extensions" \
-  "$CLAUDE_DIR/skills.local/extensions"
+  "$CLAUDE_DIR/skills.local/extensions" \
+  "$CLAUDE_DIR/agentic-state/runs"
 
 # ── Copy helpers ──────────────────────────────────────────────────────────────
 
@@ -143,15 +144,11 @@ copy_hooks "$PLATFORM_DIR/hooks"
 
 echo ""
 GITIGNORE="$PROJECT_ROOT/.gitignore"
-if grep -qs '\.delegated-\*' "$GITIGNORE" 2>/dev/null; then
-  echo "skip  .gitignore (.delegated-* already present)"
+if grep -qs 'agentic-state' "$GITIGNORE" 2>/dev/null; then
+  echo "skip  .gitignore (agentic-state/ already present)"
 else
-  printf '\n# Claude Code — delegation flags and session state\n.claude/.delegated-*\n.claude/.session-id\n.claude/runs/\n' >> "$GITIGNORE"
-  echo "patch .gitignore (added .delegated-*, .session-id, runs/)"
-fi
-if ! grep -qs '\.claude/runs/' "$GITIGNORE" 2>/dev/null; then
-  printf '.claude/.session-id\n.claude/runs/\n' >> "$GITIGNORE"
-  echo "patch .gitignore (added .session-id, runs/)"
+  printf '\n# Claude Code — agentic state (delegation flags, session state, run artifacts)\n.claude/agentic-state/\n' >> "$GITIGNORE"
+  echo "patch .gitignore (added agentic-state/)"
 fi
 
 # ── settings.local.json ───────────────────────────────────────────────────────

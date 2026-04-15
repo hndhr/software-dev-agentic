@@ -4,9 +4,9 @@
 # Input: JSON on stdin with keys: session_id, tool_name, tool_input
 #
 # Config: CLAUDE.md ## Feature Directories section (fenced code block) in project root.
-# Flag:   .claude/.delegated-<branch-slug> — created by feature-orchestrator at session start,
+# Flag:   .claude/agentic-state/.delegated-<branch-slug> — created by feature-orchestrator at session start,
 #         cleared at end. Session-scoped: a new session_id wipes all stale flags automatically.
-# Session: .claude/.session-id — tracks the active session; updated on session boundary.
+# Session: .claude/agentic-state/.session-id — tracks the active session; updated on session boundary.
 #
 # Block condition: feat/* or feature/* branch + file matches a feature dir + no delegation flag
 
@@ -24,12 +24,12 @@ fi
 PROJECT_ROOT_EARLY=$(git rev-parse --show-toplevel 2>/dev/null || true)
 if [[ -n "$PROJECT_ROOT_EARLY" ]]; then
   CURRENT_SESSION=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('session_id',''))" 2>/dev/null || true)
-  SESSION_FILE="$PROJECT_ROOT_EARLY/.claude/.session-id"
+  SESSION_FILE="$PROJECT_ROOT_EARLY/.claude/agentic-state/.session-id"
   if [[ -n "$CURRENT_SESSION" ]]; then
     STORED_SESSION=$(cat "$SESSION_FILE" 2>/dev/null || true)
     if [[ "$CURRENT_SESSION" != "$STORED_SESSION" ]]; then
       # New session — clear all delegation flags from previous session
-      rm -f "$PROJECT_ROOT_EARLY"/.claude/.delegated-* 2>/dev/null || true
+      rm -f "$PROJECT_ROOT_EARLY"/.claude/agentic-state/.delegated-* 2>/dev/null || true
       echo "$CURRENT_SESSION" > "$SESSION_FILE"
     fi
   fi
@@ -88,7 +88,7 @@ fi
 
 # Delegation flag set — allow if present and fresh (< 4h); treat stale flag as missing
 BRANCH_SLUG=$(echo "$BRANCH" | tr '/' '-')
-FLAG_FILE="$PROJECT_ROOT/.claude/.delegated-$BRANCH_SLUG"
+FLAG_FILE="$PROJECT_ROOT/.claude/agentic-state/.delegated-$BRANCH_SLUG"
 if [[ -f "$FLAG_FILE" ]]; then
   FLAG_TIME=$(cat "$FLAG_FILE" 2>/dev/null || echo 0)
   NOW=$(date +%s)
