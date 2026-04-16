@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.14.0] — 2026-04-16
+
+### Fixed
+- `require-feature-orchestrator.sh`: Branch guard widened from `feat/*`/`feature/*` allowlist to "not main or develop" blocklist — `fix/*` and all other work branches now correctly require feature-orchestrator delegation before editing feature directories
+
+### Added
+- `evaluation/08-fix-branch-delegation-guard-gap.md`: Documents the fix branch delegation gap found in xpnsio sessions #91 and #93 (both scored Fair due to inline edits on `fix/*` branches)
+- `evaluation/README.md`: Backfilled entries 07 and 08 in the log table
+
+---
+
 ## [3.13.0] — 2026-04-15
 
 ### Added
