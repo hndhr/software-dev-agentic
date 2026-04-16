@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.11.0] — 2026-04-16
+
+### Added
+- `scripts/manage-packages.sh`: interactive package and hook manager for submodule projects — shows ✓/✗ state for all packages and hooks, toggle by number mid-run
+- `scripts/local-manage-packages.sh`: same interactive manager for non-submodule (local copy) projects — takes `--project=` arg, uses `cp` instead of symlinks
+
+### Changed
+- `scripts/setup-packages.sh`: hooks now installed as symlinks (previously copied) — hook updates in the submodule propagate automatically; re-running migrates stale copies to symlinks with `migrate` label
+- `scripts/local-setup-packages.sh`: hooks always overwritten on re-run (previously skipped) — re-running is now the upgrade path for hook changes
+- All hooks (`require-feature-orchestrator.sh`, `block-impl-import-in-presentation.sh`, `lint-on-edit.sh`, `check-use-server.sh`): added disable guard — exits 0 immediately if the hook name is listed in `.claude/config/disabled-hooks`, enabling per-hook toggle without modifying `settings.local.json`
+
+---
+
 ## [3.10.1] — 2026-04-16
 
 ### Changed

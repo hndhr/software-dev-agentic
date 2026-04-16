@@ -268,16 +268,13 @@ for hooks_src in "$SUBMODULE/lib/core/hooks" "$PLATFORM_DIR/hooks"; do
   [ -d "$hooks_src" ] || continue
   for hook in "$hooks_src/"*.sh; do
     [ -f "$hook" ] || continue
-    chmod +x "$hook"
     name="$(basename "$hook")"
     dest="$CLAUDE_DIR/hooks/$name"
-    if [ -e "$dest" ]; then
-      echo "  skip  $name"
-    else
-      cp "$hook" "$dest"
-      chmod +x "$dest"
-      echo "  copy  $name"
-    fi
+    # Hooks are always overwritten — they are toolkit files users should not edit,
+    # and re-running the script is the upgrade path for hook changes (e.g. guard updates).
+    cp "$hook" "$dest"
+    chmod +x "$dest"
+    echo "  $(green "copy")  $name"
   done
 done
 

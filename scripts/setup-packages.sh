@@ -272,12 +272,19 @@ for hooks_src in "$SUBMODULE/lib/core/hooks" "$PLATFORM_DIR/hooks"; do
     chmod +x "$hook"
     name="$(basename "$hook")"
     dest="$CLAUDE_DIR/hooks/$name"
-    if [ -e "$dest" ]; then
+    rel="$(python3 -c "import os; print(os.path.relpath('$hook', '$CLAUDE_DIR/hooks'))" 2>/dev/null || \
+          realpath --relative-to="$CLAUDE_DIR/hooks" "$hook" 2>/dev/null || \
+          echo "$hook")"
+    if [ -L "$dest" ]; then
       echo "  skip  $name"
+    elif [ -f "$dest" ]; then
+      # Migrate: replace stale copy with symlink so hook updates propagate automatically
+      rm "$dest"
+      ln -s "$rel" "$dest"
+      echo "  $(green "migrate")  $name (copy → symlink)"
     else
-      cp "$hook" "$dest"
-      chmod +x "$dest"
-      echo "  copy  $name"
+      ln -s "$rel" "$dest"
+      echo "  $(green "link")  $name"
     fi
   done
 done
