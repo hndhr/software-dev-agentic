@@ -18,10 +18,21 @@ Your only platform knowledge: Domain → Data → Presentation (→ UI on platfo
 
 Before anything else, run:
 ```bash
-date +%s > "$(git rev-parse --show-toplevel)/.claude/agentic-state/.delegated-$(git branch --show-current | tr '/' '-')"
+python3 - <<'PYEOF'
+import json, time, os, subprocess
+root = subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).decode().strip()
+branch = subprocess.check_output(['git', 'branch', '--show-current']).decode().strip()
+slug = branch.replace('/', '-')
+f = f'{root}/.claude/agentic-state/delegation.json'
+d = json.load(open(f)) if os.path.exists(f) else {}
+d[slug] = int(time.time())
+tmp = f + '.tmp'
+json.dump(d, open(tmp, 'w'), indent=2)
+os.replace(tmp, f)
+PYEOF
 ```
 
-This unblocks the `require-feature-orchestrator` hook for this branch. The flag is branch-scoped and persists across sessions — no need to re-run on continuation sessions.
+This writes the current branch into `delegation.json` with a timestamp, unblocking the `require-feature-orchestrator` hook. The entry is branch-scoped and persists across sessions — no need to re-run on continuation sessions.
 
 ## Phase 0 — Gather Intent
 
@@ -94,9 +105,22 @@ Wait for completion.
 1. Report all created/modified files grouped by layer.
 2. Run `gh pr create` if no open PR exists for this branch — title: `feat(<feature>): <short description> #<issue>`, body: `Closes #<issue>`.
 3. Suggest next step (e.g. tests: "run `write tests for [feature]` to generate the full test suite").
-4. Clear the delegation flag:
+4. Remove this branch's entry from `delegation.json`:
 ```bash
-rm -f "$(git rev-parse --show-toplevel)/.claude/agentic-state/.delegated-$(git branch --show-current | tr '/' '-')"
+python3 - <<'PYEOF'
+import json, os, subprocess
+root = subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).decode().strip()
+branch = subprocess.check_output(['git', 'branch', '--show-current']).decode().strip()
+slug = branch.replace('/', '-')
+f = f'{root}/.claude/agentic-state/delegation.json'
+if not os.path.exists(f):
+    exit(0)
+d = json.load(open(f))
+d.pop(slug, None)
+tmp = f + '.tmp'
+json.dump(d, open(tmp, 'w'), indent=2)
+os.replace(tmp, f)
+PYEOF
 ```
 
 ## Search Protocol — Never Violate

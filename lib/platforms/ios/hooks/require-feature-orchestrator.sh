@@ -20,7 +20,7 @@ if [[ "$TOOL" != "Write" && "$TOOL" != "Edit" ]]; then
   exit 0
 fi
 
-# Session boundary detection — wipe stale delegation flags when session_id changes
+# Session boundary detection — wipe stale delegation entries when session_id changes
 PROJECT_ROOT_EARLY=$(git rev-parse --show-toplevel 2>/dev/null || true)
 if [[ -n "$PROJECT_ROOT_EARLY" ]]; then
   CURRENT_SESSION=$(echo "$INPUT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('session_id',''))" 2>/dev/null || true)
@@ -28,8 +28,15 @@ if [[ -n "$PROJECT_ROOT_EARLY" ]]; then
   if [[ -n "$CURRENT_SESSION" ]]; then
     STORED_SESSION=$(cat "$SESSION_FILE" 2>/dev/null || true)
     if [[ "$CURRENT_SESSION" != "$STORED_SESSION" ]]; then
-      # New session — clear all delegation flags from previous session
-      rm -f "$PROJECT_ROOT_EARLY"/.claude/agentic-state/.delegated-* 2>/dev/null || true
+      # New session — clear all entries in delegation.json
+      python3 -c "
+import json, os, sys
+f = sys.argv[1]
+if os.path.exists(f):
+    tmp = f + '.tmp'
+    json.dump({}, open(tmp, 'w'), indent=2)
+    os.replace(tmp, f)
+" "$PROJECT_ROOT_EARLY/.claude/agentic-state/delegation.json" 2>/dev/null || true
       echo "$CURRENT_SESSION" > "$SESSION_FILE"
     fi
   fi
@@ -86,28 +93,39 @@ if [[ "$IS_FEATURE_FILE" == false ]]; then
   exit 0
 fi
 
-# Delegation flag set — allow if present and fresh (< 4h); treat stale flag as missing
+# Delegation check — read from delegation.json; allow if entry exists and is fresh (< 4h)
 BRANCH_SLUG=$(echo "$BRANCH" | tr '/' '-')
-FLAG_FILE="$PROJECT_ROOT/.claude/agentic-state/.delegated-$BRANCH_SLUG"
-if [[ -f "$FLAG_FILE" ]]; then
-  FLAG_TIME=$(cat "$FLAG_FILE" 2>/dev/null || echo 0)
-  NOW=$(date +%s)
-  AGE=$((NOW - FLAG_TIME))
-  if [[ "$AGE" -lt 14400 ]]; then
-    exit 0
-  fi
-  # Stale flag (> 4h) — fall through to block
+DELEGATION_FILE="$PROJECT_ROOT/.claude/agentic-state/delegation.json"
+FLAG_TIME=$(python3 -c "
+import json, os, sys
+f, slug = sys.argv[1], sys.argv[2]
+if not os.path.exists(f): print(0); exit()
+d = json.load(open(f))
+print(d.get(slug, 0))
+" "$DELEGATION_FILE" "$BRANCH_SLUG" 2>/dev/null || echo 0)
+
+NOW=$(date +%s)
+AGE=$((NOW - FLAG_TIME))
+if [[ "$FLAG_TIME" -gt 0 && "$AGE" -lt 14400 ]]; then
+  exit 0
 fi
+# No entry or stale (> 4h) — fall through to block
 
 # Block — agent must stop and surface to user; must not resolve autonomously
 echo "BLOCKED: Feature directory edit on feat/* or feature/* branch requires delegation."
 echo ""
 echo "  Branch : $BRANCH"
 echo "  File   : $FILE_PATH"
-echo "  Flag   : $FLAG_FILE (not found or stale > 4h)"
+echo "  Reason : No active delegation for this branch (missing or stale > 4h)"
 echo ""
-echo "STOP. Do not proceed. Do not create the flag. Do not choose an option autonomously."
-echo "Tell the user this edit was blocked and ask them how to proceed:"
-echo "  - Inline: user must explicitly say to proceed inline"
-echo "  - Delegate: invoke feature-orchestrator (recommended)"
+echo "STOP. Do not proceed. Do not write the delegation entry yourself."
+echo "Present the user with this exact choice and wait for their selection:"
+echo ""
+echo "  [1] Delegate to feature-orchestrator (recommended)"
+echo "      Invoke feature-orchestrator to coordinate this feature build."
+echo ""
+echo "  [2] Proceed inline (bypass delegation)"
+echo "      Only if the user explicitly confirms they want to continue without the orchestrator."
+echo ""
+echo "Wait for the user's choice before taking any further action."
 exit 2
