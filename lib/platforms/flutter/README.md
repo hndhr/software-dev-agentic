@@ -1,48 +1,72 @@
-# Flutter Platform — Stub
+# Flutter Platform
 
-This platform is not yet implemented.
+Flutter · Clean Architecture + BLoC · get_it/injectable
 
-## What belongs here
+## Structure
 
 ```
 lib/platforms/flutter/
-  agents/
-    domain-worker.md          # Dart entity + repository protocol + use case
-    data-worker.md            # Repository impl + datasource (Dio/http)
-    presentation-worker.md    # BLoC/Cubit: Event, State, Bloc class
-    test-worker.md            # flutter_test + mocktail/mockito
-    ui-worker.md              # Widget: BlocBuilder/BlocListener/BlocConsumer bindings
   skills/
-    domain-create-entity/     # Dart class with freezed or plain
-    domain-create-repository/ # Abstract class (repository protocol)
-    domain-create-usecase/    # UseCase base class pattern
-    data-create-datasource/   # Dio/http datasource
-    data-create-repository-impl/
-    pres-create-stateholder/  # BLoC or Cubit
-    pres-create-screen/       # StatelessWidget + BlocProvider
-    test-create-*/
+    domain-create-entity/       # @freezed entity, no fromJson
+    domain-create-repository/   # abstract class, Either returns
+    domain-create-usecase/      # UseCase<T, P>, Params class
+    domain-create-service/      # pure sync business logic
+    domain-update-usecase/      # add/change params or return type
+    data-create-mapper/         # Model (freezed+json) + BaseMapper impl
+    data-create-datasource/     # abstract + Dio impl, throws AppException
+    data-create-repository-impl/# catches AppException → Left(failure)
+    data-update-mapper/         # add/remove/rename model fields
+    pres-create-stateholder/    # BLoC: Event + State + BLoC class
+    pres-create-screen/         # Screen (BlocProvider) + View (BlocBuilder)
+    pres-create-component/      # reusable presentational Widget
+    pres-update-stateholder/    # add events, state fields, use cases
+    pres-update-screen/         # add bindings and event dispatches
+    test-create-domain/         # UseCase + Service tests
+    test-create-data/           # Mapper + RepositoryImpl tests
+    test-create-presentation/   # BLoC tests with bloc_test
+    test-fix/                   # diagnose and fix failing tests
+    test-update/                # extend tests for new events/methods
   reference/
-    domain.md
-    data.md
-    presentation.md           # BLoC pattern, State/Event design
-    di.md                     # get_it or injectable
-    testing.md
-  CLAUDE-template.md
+    domain.md              # Entities, repository interfaces, use cases, services, Failure
+    data.md                # Models, payloads, mappers, datasources, repository impls
+    presentation.md        # BLoC pattern, ViewDataState, Events, States, widget bindings
+    di.md                  # get_it + injectable setup and patterns
+    testing.md             # bloc_test, mockito, test structure
+    navigation.md          # go_router setup and patterns
+    project.md             # Folder structure, naming conventions, code style
+    error-handling.md      # Failure, AppException, error flow
+  CLAUDE-template.md       # Drop into downstream project as CLAUDE.md content
 ```
 
-## Orchestration model
+## How It Fits Into the Core Orchestrator
 
-`pres-orchestrator` (core) applies here exactly as it does for iOS:
-- `presentation-worker` creates the BLoC/Cubit with its Event and State types
-- `ui-worker` creates the Widget with BlocBuilder/BlocListener wired to the exact event/state contract
+The core workers (`lib/core/agents/builder/`) are platform-agnostic. When invoked on a Flutter project, they call the skills in this platform folder:
 
-`feature-orchestrator` (core) coordinates domain-worker → data-worker → presentation-worker
-as the standard CLEAN feature build sequence.
+```
+feature-orchestrator
+  └─ domain-worker  →  skills/domain-create-entity
+                   →  skills/domain-create-repository
+                   →  skills/domain-create-usecase
+  └─ data-worker    →  skills/data-create-mapper
+                   →  skills/data-create-datasource
+                   →  skills/data-create-repository-impl
+  └─ presentation-worker  →  skills/pres-create-stateholder
+  └─ ui-worker      →  skills/pres-create-screen
+  └─ test-worker    →  skills/test-create-domain
+                   →  skills/test-create-data
+                   →  skills/test-create-presentation
+```
 
-## When to implement
+## Key Patterns
 
-Implement when onboarding the first Flutter project. Start with:
-1. `reference/` — map the project's BLoC patterns and DI (get_it or injectable)
-2. `agents/domain-worker.md` + `agents/data-worker.md` — Dart CLEAN patterns
-3. `agents/presentation-worker.md` + `agents/ui-worker.md` — BLoC + Widget
-4. Skills — one feature's templates extracted into reusable skill templates
+- **Entity** — `@freezed`, no `fromJson`, `.freezed.dart` only
+- **Model** — `@freezed` + `@JsonKey`, has `fromJson`, both `.freezed.dart` + `.g.dart`
+- **Payload** — separate write class, same parts as Model
+- **UseCase** — `implements UseCase<T, Params>`, `@lazySingleton`, returns `Either<Failure, T>`
+- **BLoC** — `@injectable`, `ViewDataState<T>` in state, always `result.fold()`
+- **RepositoryImpl** — `on AppException catch → Left(failure)`, generic `catch → unknownFailure`
+
+## Reference Philosophy
+
+References are **project-agnostic**. They document patterns, not project-specific utilities.
+Downstream projects extend via `.claude/agents.local/extensions/<worker>.md`.

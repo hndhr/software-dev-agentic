@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.12.0] — 2026-04-16
+
+### Added
+- `lib/platforms/flutter/`: full Flutter platform implementation — Clean Architecture + BLoC
+  - `reference/`: 8 project-agnostic knowledge docs (domain, data, presentation, di, testing, navigation, project, error-handling)
+  - `skills/`: 19 platform skills for core workers (domain, data, presentation, test layers)
+  - `CLAUDE-template.md`: downstream CLAUDE.md snippet
+- `docs/agent-architecture.md`: three-layer model doc (orchestrators → workers → skills) explaining when to use core vs platform workers
+
+### Changed
+- `CLAUDE.md`: added `## Agent Architecture` pointer to `docs/agent-architecture.md`; fixed misleading `web/agents/` comment; marked flutter as active
+
+---
+
 ## [3.11.0] — 2026-04-16
 
 ### Added

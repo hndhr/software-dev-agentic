@@ -1,0 +1,233 @@
+# Flutter — Dependency Injection
+
+`get_it` for the service locator. `injectable` for annotation-driven code generation. One DI module per feature.
+
+---
+
+## 1. Setup
+
+```yaml
+# pubspec.yaml
+dependencies:
+  get_it: ^7.6.0
+  injectable: ^2.5.0
+
+dev_dependencies:
+  injectable_generator: ^2.6.0
+  build_runner: ^2.4.0
+```
+
+---
+
+## 2. Global Locator
+
+```dart
+// di/injection.dart
+import 'package:get_it/get_it.dart';
+import 'package:injectable/injectable.dart';
+
+import 'injection.config.dart';
+
+final getIt = GetIt.instance;
+
+@InjectableInit()
+Future<void> configureDependencies() async => getIt.init();
+```
+
+Generate after adding/changing annotations:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+---
+
+## 3. Annotations
+
+| Annotation | Lifecycle | Use For |
+|------------|-----------|---------|
+| `@lazySingleton` | Singleton, created on first access | Repositories, use cases, mappers, datasources |
+| `@singleton` | Singleton, created at startup | Core services (auth, analytics) |
+| `@injectable` | New instance each time `getIt.get()` is called | BLoCs, Cubits |
+| `@LazySingleton(as: Interface)` | Singleton bound to interface | Repository/datasource implementations |
+| `@module` | Abstract class providing external dependencies | Dio, SharedPreferences, etc. |
+
+---
+
+## 4. Feature DI Module
+
+Each feature owns its DI registration. Scope all registrations to the feature's directory.
+
+```dart
+// features/employee/di/employee_module.dart
+import 'package:injectable/injectable.dart';
+import 'package:get_it/get_it.dart';
+
+@InjectableInit(
+  generateForDir: ['lib/src/features/employee'],
+  preferRelativeImports: true,
+)
+Future<GetIt> configureEmployeeDependencies() async =>
+    GetIt.instance.init();
+```
+
+Or use the global `@InjectableInit` and annotate each class in the feature folder.
+
+---
+
+## 5. Registering Classes
+
+### Repositories and Use Cases
+
+```dart
+// Use @LazySingleton(as:) to bind implementation to interface
+@LazySingleton(as: EmployeeRepository)
+class EmployeeRepositoryImpl implements EmployeeRepository {
+  EmployeeRepositoryImpl({required this.remoteDataSource, required this.mapper});
+  // ...
+}
+
+// Use @lazySingleton for concrete classes (mappers, use cases)
+@lazySingleton
+class EmployeeMapper extends BaseMapper<EmployeeModel, EmployeeEntity> {
+  // ...
+}
+
+@lazySingleton
+class GetEmployeeUseCase implements UseCase<EmployeeEntity, String> {
+  GetEmployeeUseCase({required this.repository});
+  final EmployeeRepository repository;
+  // ...
+}
+```
+
+### BLoCs (New Instance Per Screen)
+
+```dart
+@injectable
+class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
+  EmployeeBloc({
+    required this.getEmployeeUseCase,
+    required this.updateEmployeeUseCase,
+  }) : super(EmployeeState.initial()) { ... }
+  // ...
+}
+```
+
+Provide via `BlocProvider`:
+
+```dart
+BlocProvider(
+  create: (_) => getIt<EmployeeBloc>()
+    ..add(EmployeeEvent.loadEmployee(employeeId: id)),
+  child: const EmployeeView(),
+)
+```
+
+---
+
+## 6. External Dependencies Module
+
+Register third-party instances (Dio, SharedPreferences) via `@module`:
+
+```dart
+// di/app_module.dart
+import 'package:dio/dio.dart';
+import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+@module
+abstract class AppModule {
+  @lazySingleton
+  Dio get dio => Dio(BaseOptions(
+        baseUrl: const String.fromEnvironment(
+          'API_BASE_URL',
+          defaultValue: 'https://api.example.com',
+        ),
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ))
+        ..interceptors.addAll([
+          ErrorInterceptor(),
+          LogInterceptor(logPrint: (obj) => debugPrint(obj.toString())),
+        ]);
+
+  @preResolve
+  Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
+}
+```
+
+`@preResolve` tells injectable to await the future before resolving.
+
+---
+
+## 7. Environment-Based Registration
+
+```dart
+@module
+abstract class NetworkModule {
+  @lazySingleton
+  @prod
+  Dio get prodDio => Dio(BaseOptions(baseUrl: 'https://api.example.com'));
+
+  @lazySingleton
+  @dev
+  Dio get devDio => Dio(BaseOptions(baseUrl: 'https://api.staging.example.com'));
+}
+```
+
+Configure at app startup:
+
+```dart
+// main.dart
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies(
+    environment: const String.fromEnvironment('ENV', defaultValue: 'prod'),
+  );
+  runApp(const App());
+}
+```
+
+---
+
+## 8. DI Principles
+
+| Component | Lifecycle | Why |
+|-----------|-----------|-----|
+| DataSources | `@lazySingleton` | Stateless, expensive to create |
+| Mappers | `@lazySingleton` | Stateless, pure functions |
+| Repositories | `@lazySingleton` | Stateless, bound to interface |
+| Use Cases | `@lazySingleton` | Stateless, depend on singletons |
+| BLoCs | `@injectable` | Stateful, one per screen |
+| Cubits | `@lazySingleton` or `@injectable` | Depends on whether state is shared |
+
+---
+
+## 9. Testing with getIt
+
+Override registrations in tests by unregistering and re-registering:
+
+```dart
+setUp(() {
+  getIt.reset();
+  getIt.registerLazySingleton<EmployeeRepository>(
+    () => MockEmployeeRepository(),
+  );
+  getIt.registerFactory<EmployeeBloc>(
+    () => EmployeeBloc(
+      getEmployeeUseCase: MockGetEmployeeUseCase(),
+      updateEmployeeUseCase: MockUpdateEmployeeUseCase(),
+    ),
+  );
+});
+```
+
+Or prefer constructor injection in tests — pass mocks directly without getIt:
+
+```dart
+final bloc = EmployeeBloc(
+  getEmployeeUseCase: mockGetEmployeeUseCase,
+  updateEmployeeUseCase: mockUpdateEmployeeUseCase,
+);
+```

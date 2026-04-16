@@ -3,7 +3,7 @@
 **software-dev-agentic** — Multi-platform Claude Code toolkit for Clean Architecture projects.
 Consumed as a git submodule at `.claude/software-dev-agentic/` in downstream projects. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
 
-Platforms: **web** (Next.js 15) · **ios** (Swift/UIKit) · **flutter** (stub)
+Platforms: **web** (Next.js 15) · **ios** (Swift/UIKit) · **flutter** (Dart/BLoC)
 
 ## Dev Commands
 
@@ -38,7 +38,7 @@ lib/                          # Everything shipped to downstream projects
       clean-arch/  # Universal CLEAN Architecture principles
   platforms/
     web/           # Next.js 15 Clean Architecture
-      agents/      # Web worker implementations (domain, data, presentation, test)
+      agents/      # Platform-specific workers only (empty = core workers suffice)
       skills/      # Web-specific skills
       reference/   # Web-specific architecture docs
       hooks/       # Web-specific Claude Code hooks
@@ -50,7 +50,7 @@ lib/                          # Everything shipped to downstream projects
       skills/      # iOS-specific skills
       reference/   # iOS-specific architecture docs
       CLAUDE-template.md
-    flutter/       # BLoC Clean Architecture (stub — see lib/platforms/flutter/README.md)
+    flutter/       # BLoC Clean Architecture (see lib/platforms/flutter/README.md)
 
 agents/          # Internal tooling — NOT shipped downstream
 skills/          # Internal tooling — NOT shipped downstream
@@ -70,6 +70,10 @@ issue-worker 42        → pick up existing GH issue + branch + backlog row
 ```
 
 Then work directly on the relevant files in `lib/core/` or `lib/platforms/<platform>/`.
+
+## Agent Architecture
+
+See `docs/agent-architecture.md` — read it before adding any agent, worker, or skill.
 
 ## Agent Conventions
 
