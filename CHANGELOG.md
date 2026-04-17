@@ -7,6 +7,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.15.0] — 2026-04-17
+
+### Added
+- `lib/core/agents/detective/prompt-debug-worker`: New worker that diagnoses why an agent underperformed — feeds its system prompt and perf-worker trajectory back to Claude to surface ambiguous instructions, missing context, and contradicting rules
+- `docs/core-design-principles.md`: Full Core Design Principles doc (v31) — local source of truth, replaces agent-architecture.md; Confluence is now the published view
+- `docs/shared-submodule-arch.md`: Full Shared Submodule Architecture doc (v14) — local source of truth
+- `docs/README.md`: Index of docs/ with Confluence links and edit workflow
+
+### Changed
+- `lib/core/agents/perf-worker`: New Step 5 — when any D1–D7 dimension scores below 7, report flags the underperforming agent file and points to `prompt-debug-worker`
+- `skills/arch-check-conventions`: Prompt Clarity Check category added (Warning) — flags ambiguous scope, missing stop conditions, contradicting rules, undefined failure paths
+- `CLAUDE.md`: Trimmed from 1.1k to ~550 tokens — structure tree replaced with pointer to docs/; frontmatter examples condensed to prose
+
+### Removed
+- `docs/agent-architecture.md`: Superseded by `docs/core-design-principles.md`
+
+---
+
 ## [3.14.0] — 2026-04-16
 
 ### Fixed

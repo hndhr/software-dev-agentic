@@ -68,6 +68,21 @@ How to check: `Read` the template file; flag any comment that explains the skill
 - [ ] Skill directory name follows `<layer>-<action>-<target>` convention
 - [ ] Layer prefix matches the agent that calls it (`domain-`, `data-`, `pres-`, `test-`, `debug-`, `review-`)
 
+## Prompt Clarity Check
+
+For each agent file, flag instructions that are likely to cause bad decisions at runtime:
+
+- [ ] No instruction says "create the X" without specifying interface vs implementation
+- [ ] No step spans two CLEAN layers without an explicit stop condition
+- [ ] No two rules in the same file contradict each other
+- [ ] Failure paths are specified — agent knows what to do when a precondition fails
+
+How to check: Read the agent body and look for vague scope, missing boundaries, or contradicting rules.
+
+> **For deeper analysis:** When a perf-worker report scores D1, D2, D3, or D7 below 7, run `prompt-debug-worker` with the report + the agent file. The static checks here catch structural issues; `prompt-debug-worker` catches reasoning failures.
+
+Severity: Warning for any prompt clarity finding.
+
 ## Severity Levels
 
 - **Critical** — missing required frontmatter field, broken reference path, "Read completely" violation, orchestrator missing `isolation: worktree`, platform-specific content in a `lib/core/agents/` file

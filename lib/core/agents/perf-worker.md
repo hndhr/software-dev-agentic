@@ -253,7 +253,29 @@ overall = average of all applicable dimensions (exclude N/A dimensions from deno
 
 Round to one decimal place.
 
-## Step 5 — Write the report
+## Step 5 — Flag low scores for prompt debugging
+
+For any dimension that scored below 7, add a callout at the end of the "Issues found" section:
+
+```
+> **Low score on D<N>?** Run `prompt-debug-worker` with this report + the agent's .md file
+> to surface ambiguous instructions that caused this behavior.
+```
+
+Include the exact agent file path inferred from the `agent_spawns` subagent types:
+
+| Subagent type | Agent file |
+|---|---|
+| feature-orchestrator | lib/core/agents/builder/feature-orchestrator.md |
+| pres-orchestrator | lib/core/agents/builder/pres-orchestrator.md |
+| domain-worker | lib/core/agents/builder/domain-worker.md |
+| data-worker | lib/core/agents/builder/data-worker.md |
+| presentation-worker | lib/core/agents/builder/presentation-worker.md |
+| ui-worker | lib/core/agents/builder/ui-worker.md |
+| test-worker | lib/core/agents/builder/test-worker.md |
+| debug-worker | lib/core/agents/detective/debug-worker.md |
+
+## Step 6 — Write the report
 
 The report lives in the software-dev-agentic submodule, not in the downstream project. The submodule path in any downstream project is always `PROJECT_PATH/.claude/software-dev-agentic/`.
 
@@ -377,7 +399,7 @@ Cache hit ratio of **N%** was the primary cost saver — without it, the same se
 <one paragraph identifying the single highest-cost item and why it was disproportionate, or confirming efficiency was well-distributed>
 ```
 
-## Step 6 — Commit and push inside the submodule
+## Step 7 — Commit and push inside the submodule
 
 The commit and push happen inside the software-dev-agentic submodule directory, not the downstream project root:
 

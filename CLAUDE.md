@@ -23,42 +23,9 @@ No build, lint, or test commands — all files are Markdown and Bash.
 
 ## Structure
 
-```
-lib/                          # Everything shipped to downstream projects
-  core/
-    agents/
-      builder/     # Feature builders — orchestrators + layer workers + test-worker
-      detective/   # Debug orchestrator + debug worker
-      tracker/     # Issue lifecycle management
-      auditor/     # Architecture review (future: security-review, perf-audit)
-      installer/   # Project setup + onboarding (setup-worker)
-      perf-worker.md  # Session performance analysis (ungrouped — meta/observability)
-    skills/        # Platform-agnostic skills (release, doctor, agentic-perf-review)
-    reference/
-      clean-arch/  # Universal CLEAN Architecture principles
-  platforms/
-    web/           # Next.js 15 Clean Architecture
-      agents/      # Platform-specific workers only (empty = core workers suffice)
-      skills/      # Web-specific skills
-      reference/   # Web-specific architecture docs
-      hooks/       # Web-specific Claude Code hooks
-      packages/    # Optional package definitions
-      CLAUDE-template.md
-      settings-template.json
-    ios/           # Swift/UIKit Clean Architecture
-      agents/      # iOS worker + orchestrator implementations
-      skills/      # iOS-specific skills
-      reference/   # iOS-specific architecture docs
-      CLAUDE-template.md
-    flutter/       # BLoC Clean Architecture (see lib/platforms/flutter/README.md)
+`lib/` — ships downstream · `agents/` + `skills/` — internal tooling · `docs/` — design docs · `evaluation/` — observations
 
-agents/          # Internal tooling — NOT shipped downstream
-skills/          # Internal tooling — NOT shipped downstream
-packages/        # Core package definitions (consumed by setup scripts)
-scripts/         # setup-symlinks.sh, setup-packages.sh, sync.sh
-docs/            # Internal design docs
-evaluation/      # Serialized observations and investigations
-```
+See `docs/core-design-principles.md` and `docs/shared-submodule-arch.md` for the full structure and decision rules.
 
 ## Workflow
 
@@ -73,46 +40,13 @@ Then work directly on the relevant files in `lib/core/` or `lib/platforms/<platf
 
 ## Agent Architecture
 
-See `docs/agent-architecture.md` — read it before adding any agent, worker, or skill.
+See `docs/core-design-principles.md` — read it before adding any agent, worker, or skill.
 
-## Agent Conventions
+## Conventions
 
-Every agent file must have this frontmatter:
+**Agents** — `name`, `description`, `model`, `tools` required in frontmatter. Orchestrators list sub-agents in `agents:` and never write files directly. Workers end with `## Extension Point` (check `.claude/agents.local/extensions/<name>.md`).
 
-```yaml
----
-name: agent-name
-description: one-line description used for routing
-model: sonnet          # or opus for complex orchestration
-tools: Read, Glob, Grep, ...
-permissionMode: plan   # for read-only workers; omit for write workers
----
-```
-
-**Orchestrators** — coordinate workers, never write files directly. List sub-agents in `agents:` frontmatter.
-
-**Workers** — domain specialists, execute skills, write files. End with an extension point:
-
-```markdown
-## Extension Point
-After completing, check for `.claude/agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions.
-```
-
-## Skill Conventions
-
-Every skill must have this frontmatter:
-
-```yaml
----
-name: skill-name
-description: one-line description
-user-invocable: false    # omit or set true if user can invoke directly
-tools: Read, Write, Edit, Glob
----
-```
-
-Skills called only by workers: `user-invocable: false`.
-User-facing skills (slash commands): no `user-invocable` field or `true`.
+**Skills** — `name`, `description`, `user-invocable: false` required. Single task only, under 30 lines. User-facing skills omit `user-invocable` or set it to `true`.
 
 ## Release
 
