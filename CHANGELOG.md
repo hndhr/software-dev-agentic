@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.17.0] — 2026-04-17
+
+### Added
+- `lib/core/agents/builder/feature-planner.md`: New read-only planning agent — produces a reviewable `plan.md` per layer before any code is written; reads `layer-contracts.md` + Explore agent for existing conventions; does not set `delegation.json`; consumed by `feature-orchestrator` pre-flight on approval
+- `lib/core/reference/clean-arch/layer-contracts.md`: Single source of truth for all four Clean Architecture layers — artifact types, creation order, inter-layer dependencies, and invariants; replaces inline rule lists in workers
+- `lib/core/reference/README.md`: Grep-optimized taxonomy doc for agents — placement rules for reference vs agent body vs skills, directory map, access rules
+
+### Changed
+- `lib/core/agents/builder/feature-orchestrator`: Added Approved Plan Check pre-flight — detects `status: approved` in `plan.md` and skips Phase 0 if found
+- `lib/core/hooks/require-feature-orchestrator.sh`: Block now surfaces three options — "Plan first with feature-planner", "Delegate to feature-orchestrator", "Proceed inline"
+- `lib/core/agents/builder/domain-worker`, `data-worker`, `presentation-worker`, `ui-worker`: Layer rules sections replaced with pointer lines to `layer-contracts.md`
+- `docs/core-design-principles.md`: P7 placement decision rule added (reference vs agent body vs skills); `feature-planner` added to Combined Matrix; builder orchestrator count updated to 5; version v35
+- `docs/shared-submodule-arch.md`: `reference/README.md` and `layer-contracts.md` added to reference docs section
+- `docs/stakeholder-brief.md`: New "How the Team Is Built" section — personas, orchestrators, workers, skills, and three-tier knowledge taxonomy with placement column
+
+---
+
 ## [3.16.0] — 2026-04-17
 
 ### Added
