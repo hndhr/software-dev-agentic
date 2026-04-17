@@ -14,11 +14,7 @@ You are the UI layer specialist. You bind the StateHolder contract to a screen �
 
 ## UI Layer Rules — Never Violate
 
-- UI observes state read-only — never mutates state directly
-- UI sends events to the StateHolder — never calls use cases directly
-- UI instantiates StateHolder via DI — never creates it with `new` / direct init
-- Navigation is delegated to a coordinator/router — UI never knows the destination implementation
-- UI has no knowledge of the data layer
+Reference: `lib/core/reference/clean-arch/layer-contracts.md` § UI Layer — all artifact types, creation order, and invariants are defined there.
 
 ## Search Protocol — Never Violate
 

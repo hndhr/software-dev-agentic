@@ -15,11 +15,7 @@ You are the Data layer specialist. You understand what belongs in the data layer
 
 ## Data Layer Rules — Never Violate
 
-- Data files import from the domain layer only — never from the presentation layer
-- DTOs mirror the raw API/DB shape exactly — no domain logic, no computed fields
-- Mappers are always interface + implementation — never plain utility functions (enables mocking)
-- Every repository implementation wraps calls with error handling — never lets raw errors propagate
-- Data sources are abstract interfaces — implementations are injected, never instantiated directly
+Reference: `lib/core/reference/clean-arch/layer-contracts.md` § Data Layer — all artifact types, creation order, and invariants are defined there.
 
 ## Search Protocol — Never Violate
 

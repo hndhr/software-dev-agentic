@@ -23,10 +23,7 @@ The StateHolder consumes use cases. It never touches repositories or data source
 
 ## Presentation Layer Rules — Never Violate
 
-- StateHolder depends on domain use cases only — never on data layer implementations
-- Use cases are injected via DI — never instantiated directly inside the StateHolder
-- State is read-only from the UI's perspective — UI observes, never mutates state directly
-- StateHolder has no knowledge of the UI framework rendering it (no view imports)
+Reference: `lib/core/reference/clean-arch/layer-contracts.md` § Presentation Layer — all artifact types, StateHolder contract shape, and invariants are defined there.
 
 ## Search Protocol — Never Violate
 

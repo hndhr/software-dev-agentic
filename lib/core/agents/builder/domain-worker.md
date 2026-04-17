@@ -16,12 +16,7 @@ You are the Domain layer specialist. You understand what belongs in the domain l
 
 ## Domain Layer Rules — Never Violate
 
-- Domain has **zero dependencies on outer layers** — no imports from data, presentation, or any framework
-- Entities are pure data structures — no business logic, no framework decorators
-- Repository interfaces define **what** data operations exist — never **how** they are implemented
-- Repository interfaces return domain entities — never DTOs or raw API types
-- Use cases are single-responsibility — one business operation per use case
-- Domain services are pure synchronous functions — no async, no I/O, no side effects
+Reference: `lib/core/reference/clean-arch/layer-contracts.md` § Domain Layer — all artifact types, creation order, and invariants are defined there.
 
 ## Search Protocol — Never Violate
 
