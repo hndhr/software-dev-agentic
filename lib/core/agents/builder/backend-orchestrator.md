@@ -23,7 +23,12 @@ Ask if not already provided:
 Spawn `domain-worker` with:
 - Feature name and operations needed
 
-Wait for completion. Pass created file paths to Phase 2.
+Wait for completion. Extract created file paths from the `## Output` section.
+
+Write state file `.claude/agentic-state/runs/<feature>/state.json`:
+```json
+{ "feature": "<name>", "completed_phases": ["domain"], "artifacts": { "domain": ["<paths>"] }, "next_phase": "data" }
+```
 
 ## Phase 2 — Data Layer
 
@@ -32,6 +37,11 @@ Spawn `data-worker` with:
 - File paths from Phase 1
 
 Wait for completion.
+
+Update state file `.claude/agentic-state/runs/<feature>/state.json`:
+```json
+{ "feature": "<name>", "completed_phases": ["domain", "data"], "artifacts": { "domain": ["<paths>"], "data": ["<paths>"] }, "next_phase": null }
+```
 
 ## Phase 3 — Summarize
 

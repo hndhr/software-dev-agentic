@@ -96,6 +96,10 @@ VERDICT
 <one sentence: the primary instruction failure that caused the underperformance>
 ```
 
+## Output
+
+Return the Step 6 report block as the final section of your response. No trailing prose.
+
 ## Extension Point
 
 After completing, check for `.claude/agents.local/extensions/prompt-debug-worker.md` — if it exists, read and follow its additional instructions.
