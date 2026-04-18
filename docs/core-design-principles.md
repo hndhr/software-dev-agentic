@@ -1,6 +1,6 @@
 > Author: Puras Handharmahua · 2026-04-08
-> Updated: 2026-04-17 — v35: feature-planner agent added to builder persona; P7 placement decision rule added (reference vs agent body); layer-contracts.md extracted as shared reference; lib/core/reference/README.md taxonomy added
-> Synced with: software-dev-agentic v3.14.0
+> Updated: 2026-04-18 — v36: P8 orchestrator contract hardened (platform param, output validation, worktree exception); P10 fail-fast expanded to four gates (Input/Preconditions/Output/Orchestrator); P15 convention table updated (sonnet default, new required worker sections)
+> Synced with: software-dev-agentic v3.20.0
 > Related: Shared Agentic Submodule Architecture — Cross-Platform Scaling
 
 ## What is an Agentic Coding Assistant?
@@ -156,22 +156,23 @@ Orchestrators coordinate multiple worker agents using the `agents` field in fron
 **How orchestrators work:**
 1. User describes intent
 2. Main session matches the orchestrator's description and spawns it
-3. Orchestrator gathers intent from the user
-4. Orchestrator spawns only the relevant workers with `isolation: worktree`
-5. Workers execute in isolation — each reads its own project context independently
-6. Orchestrator receives only the list of created file paths — never file contents
-7. Orchestrator writes a state file (`.claude/runs/<run-id>/state.json`) after each phase — tracks completed phases and artifact paths so long sessions can recover without re-reading source files
-8. For presentation→UI handoffs: `presentation-worker` writes the StateHolder contract to `.claude/runs/<run-id>/stateholder-contract.md` and returns only the path — the orchestrator passes the path (not the content) to `ui-worker`, which reads the file directly
-9. Orchestrator synthesizes results and reports
+3. Orchestrator gathers intent from the user — including `platform` (`web`/`ios`/`flutter`) passed to every worker spawn
+4. Orchestrator spawns only the relevant workers; uses `isolation: worktree` only when workers do not need to share uncommitted files between phases
+5. Workers execute — each reads its own project context independently
+6. Orchestrator validates each worker's `## Output`: section must exist and all listed paths must exist on disk — STOP and surface to user if not
+7. Orchestrator receives only the list of created file paths — never file contents
+8. Orchestrator writes a state file (`.claude/runs/<run-id>/state.json`) after each phase — tracks completed phases and artifact paths so long sessions can recover without re-reading source files
+9. For presentation→UI handoffs: `presentation-worker` writes the StateHolder contract to `.claude/runs/<run-id>/stateholder-contract.md` and returns only the path — the orchestrator passes the path (not the content) to `ui-worker`, which reads the file directly
+10. Orchestrator synthesizes results and reports
 
 | | Feature Orchestrator | Worker |
 |---|---|---|
 | `agents` field | Yes — lists available workers | No |
 | Can spawn subagents? | Yes — only those in `agents` list | No — leaf node |
 | Body content | Coordination + delegation | Domain expertise + execution logic |
-| Model | `sonnet` | `haiku` (mechanical) or `sonnet` (complex) |
+| Model | `sonnet` | `sonnet` (default); `haiku` only for truly mechanical leaf tasks with no architectural judgment |
 | Codebase reads | None — workers own their context | Yes — per worker's workflow |
-| `isolation` on spawn | `worktree` (standard) | N/A |
+| `isolation` on spawn | `worktree` when phases don't share uncommitted files; omit when contract files must be shared (e.g. `pres-orchestrator`) | N/A |
 
 **Agent Scope — Core vs Platform-specific:**
 
@@ -203,13 +204,26 @@ Agents have a second axis — where they live and what they know.
 
 Agents validate preconditions before executing procedures — they never guess or proceed with assumptions.
 
-Every agent must check:
+**Workers check on entry (`## Input`):**
+- Are all required spawn parameters present? — return `MISSING INPUT: <param>` immediately if not
+- Is the task within this worker's layer scope? — STOP and name the correct worker if not
+
+**Workers check before writing (`## Preconditions`):**
 - Does the target file/module exist? (before `update-*` skills)
 - Does the target file/module NOT exist? (before `create-*` skills — avoid overwriting)
 - Are required dependencies available?
-- Is the correct pattern in use?
 
-When preconditions fail: return a clear, actionable message — never partially execute.
+**Workers check before returning (`## Output`):**
+- Does each created file exist on disk? (`Glob`)
+- Does each file contain the expected primary class or function? (`Grep`)
+- Only list paths that pass both checks
+
+**Orchestrators check after each worker spawn:**
+- Does the worker response contain an `## Output` section?
+- Do all listed paths exist on disk?
+- If either check fails: STOP — do not proceed to the next phase
+
+When any check fails: return a clear, actionable message — never partially execute or silently continue.
 
 ---
 
@@ -280,14 +294,19 @@ The agentic system enforces its own conventions through automated review — the
 | Category | Rule | Severity |
 |---|---|---|
 | Frontmatter | `name`, `description`, `model`, `tools` required | Critical |
-| Model assignment | `haiku` for mechanical workers, `sonnet` for orchestrators | Warning |
-| Orchestrators | `isolation: worktree` inline with each Spawn directive | Critical |
+| Model assignment | `sonnet` for all workers; `haiku` only for truly mechanical leaf tasks with no architectural judgment | Warning |
+| Orchestrators | `isolation: worktree` inline with each Spawn directive — omit only when phases share uncommitted files (e.g. `pres-orchestrator` contract handoff) | Critical |
 | Orchestrators | File paths only between phases | Critical |
 | Orchestrators | Writes state file after each phase | Warning |
 | Orchestrators | No Phase 2 codebase reads | Critical |
 | Orchestrators | After delegation flag set, no direct Edit or Write — all file changes through workers | Critical |
+| Orchestrators | Explicit output validation after each worker spawn — STOP if `## Output` missing or paths don't exist on disk | Critical |
+| Workers | `## Input` section — required params table + `MISSING INPUT` STOP condition | Critical |
+| Workers | `## Scope Boundary` section — owned layer + delegation table for out-of-scope tasks | Warning |
+| Workers | `## Task Assessment` section — skill vs direct edit decision gate | Warning |
+| Workers | `## Skill Execution` section — platform path resolution + Read SKILL.md + follow | Critical |
 | Workers | `## Search Protocol` section with decision gate table | Warning |
-| Workers | `## Output` section before Extension Point | Warning |
+| Workers | `## Output` section — Glob + Grep verification before listing paths | Critical |
 | Workers | `## Extension Point` section at end | Warning |
 | Workers | No "Read ... completely" | Critical |
 | Core agent platform-agnosticism | No hardcoded platform paths, framework refs, or language syntax in `lib/core/agents/` body | Critical |
@@ -541,7 +560,12 @@ prompt-debug-worker ← reads perf-report + domain-worker.md
 
 ## Changelog
 
-**v34 — 2026-04-17 · software-dev-agentic v3.15.0**
+**v36 — 2026-04-18 · software-dev-agentic v3.20.0**
+- P8: Orchestrator step 3 updated — `platform` parameter now gathered in Phase 0 and passed to every worker spawn; step 4 updated — `isolation: worktree` conditional, not universal; step 6 added — orchestrator validates worker `## Output` (section exists + paths on disk) before proceeding; P8 table updated: model row changed from haiku/sonnet split to sonnet default; isolation row clarified with exception note
+- P10: Fail-Fast expanded into four structured gates — Input (worker entry), Preconditions (before writing), Output (before returning), Orchestrator (after each spawn)
+- P15: Convention table updated — Model assignment row updated (sonnet default); Orchestrators row: `isolation: worktree` exception noted, output validation added (Critical); Workers: four new required sections added (`## Input`, `## Scope Boundary`, `## Task Assessment`, `## Skill Execution`) and `## Output` Glob+Grep verification promoted to Critical
+
+**v35 — 2026-04-17 · software-dev-agentic v3.19.0**
 - `pres-orchestrator` promoted to sub-orchestrator of `feature-orchestrator` — `feature-orchestrator` now delegates Phase 3 entirely to `pres-orchestrator` instead of spawning `presentation-worker`/`ui-worker` directly
 - `feature-orchestrator`: `agents:` field updated (removed `presentation-worker`, `ui-worker`; added `pres-orchestrator`); Phase 3 rewritten; Phase 4 (UI) removed; Phase 5 renumbered to Phase 4
 - `pres-orchestrator`: dual-mode added — standalone (full gather + state file) vs sub-orchestrator (Grep provided paths, skip state file); P8 Combined Matrix updated to show `feature-orchestrator → pres-orchestrator` hierarchy

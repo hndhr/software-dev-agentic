@@ -1,6 +1,6 @@
 > Author: Puras Handharmahua · 2026-04-09
-> Updated: 2026-04-17 — v14: prompt-debug-worker added to detective persona; Prompt Clarity Check added to Convention Compliance table; "What Goes Where" table updated
-> Synced with: software-dev-agentic v3.14.0
+> Updated: 2026-04-18 — v15: Decision 3 runtime platform param; Decision 8a sonnet for all workers; Decision 8b worktree isolation conditional; Convention Compliance table updated with new required worker sections and output validation
+> Synced with: software-dev-agentic v3.20.0
 > Related: Agentic Coding Assistant — Core Design Principles
 
 ## Relationship to Core Design Principles
@@ -109,9 +109,9 @@ Adding a new persona: Create `lib/core/agents/<persona>/`, add worker(s)/orchest
 
 ### 3. Setup-Time Platform Resolution — No `.claude/platform` File
 
-**Decision:** The correct platform skill files are linked at project setup time via the `--platform=` flag. There is no `.claude/platform` file — platform identity is baked into the symlinks themselves.
+**Decision:** The correct platform skill files are linked at project setup time via the `--platform=` flag. There is no `.claude/platform` file — platform identity is baked into the symlinks themselves. At runtime, orchestrators also pass `platform` explicitly in every worker spawn prompt so workers can resolve skill paths without relying solely on symlink structure.
 
-**Rationale:** With workers now being platform-agnostic files in `lib/core/agents/`, and skills being the platform-specific layer, setup-time symlinks wire the right skill implementations into `.claude/skills/`. Workers call skills by name and get the correct platform implementation automatically.
+**Rationale:** With workers being platform-agnostic files in `lib/core/agents/`, and skills being the platform-specific layer, setup-time symlinks wire the right skill implementations into `.claude/skills/`. The runtime platform parameter (`web`/`ios`/`flutter`) lets workers resolve `lib/platforms/<platform>/skills/<skill>/SKILL.md` deterministically — a second safety net that works even in repos with non-standard symlink layouts.
 
 Three-pass linking priority: `agents.local` > platform > core (first link wins)
 
@@ -176,11 +176,11 @@ Extension files contain only the delta — not a full copy. Updates to the submo
 
 These decisions were validated through empirical session analysis (wehire Issue #26 and #53, April 2026; xpnsio Issue #73, April 2026) and applied in April 2026.
 
-**8a. Mechanical workers use `model: haiku`**
-Workers that follow deterministic skill procedures (`domain-worker`, `data-worker`, `test-worker`) use `model: haiku`. Sonnet is reserved for orchestrators and reasoning-heavy workers (`presentation-worker`, `debug-worker`, `arch-review-worker`, `prompt-debug-worker`). Haiku is ~5–8× cheaper per token than Sonnet. Workers filling templates don't need orchestration-level reasoning.
+**8a. Workers use `model: sonnet` by default**
+All core workers now use `model: sonnet`. Skill execution requires reading SKILL.md, following multi-step platform-specific instructions, verifying output artifacts, and enforcing layer boundaries — none of which is purely mechanical. `model: haiku` is reserved only for truly mechanical leaf tasks with no architectural judgment. Orchestrators remain on `sonnet`.
 
-**8b. `isolation: worktree` is standard for orchestrator spawns**
-When spawning workers for tasks touching more than 5 files across multiple layers, orchestrators use `isolation: worktree`. This prevents context bleed between workers and enables safe parallel execution.
+**8b. `isolation: worktree` is conditional, not universal**
+Orchestrators use `isolation: worktree` only when worker phases do not share uncommitted files. Exception: `pres-orchestrator` and `backend-orchestrator` omit isolation because `presentation-worker` writes the StateHolder contract to disk and `ui-worker` must read it in the same working tree. Applying worktree isolation here would silently break the contract file handoff.
 
 **8c. Orchestrators pass only file paths, never file contents**
 Between worker phases, orchestrators receive and forward only the list of created file paths — never file contents. This prevents orchestrator context from accumulating previous workers' outputs across phases.
@@ -211,9 +211,9 @@ software-dev-agentic enforces its own conventions through an automated internal 
 
 | Category | Rules | Severity |
 |---|---|---|
-| Frontmatter | `name`, `description`, `model`, `tools` required; `model: haiku` for mechanical workers, `sonnet` for orchestrators/reasoning workers | 🔴 Critical / 🟡 Warning |
-| Orchestrators | `agents:` lists only spawned workers; `isolation: worktree` inline with each Spawn directive; body passes only file paths between phases; writes state file after each phase; no Phase 2 codebase reads; after delegation flag is set, no direct Edit or Write — file changes through workers only | 🔴 Critical |
-| Workers | `## Search Protocol` section with decision gate table; `## Output` section before Extension Point; `## Extension Point` section at end; no "Read ... completely" on reference docs; all `Reference:` lines use Grep-first | 🟡 Warning / 🔴 Critical |
+| Frontmatter | `name`, `description`, `model`, `tools` required; `model: sonnet` for all workers (haiku only for truly mechanical leaf tasks) | 🔴 Critical / 🟡 Warning |
+| Orchestrators | `agents:` lists only spawned workers; `isolation: worktree` inline with each Spawn directive (omit only when phases share uncommitted files); body passes only file paths between phases; writes state file after each phase; no Phase 2 codebase reads; after delegation flag is set, no direct Edit or Write — file changes through workers only; explicit output validation after each spawn — STOP if `## Output` missing or paths don't exist | 🔴 Critical |
+| Workers | `## Input` section with required params table and `MISSING INPUT` STOP condition; `## Scope Boundary` section with owned-layer declaration and delegation table; `## Task Assessment` section — skill vs direct edit gate; `## Skill Execution` section — platform path resolution, Read SKILL.md, follow; `## Search Protocol` with decision gate table; `## Output` section with Glob + Grep verification before listing paths; `## Extension Point` at end; no "Read ... completely" on reference docs | 🔴 Critical / 🟡 Warning |
 | Core agent platform-agnosticism | No hardcoded platform paths (`src/domain/`, `Talenta/Module/`, `lib/`, `app/`); no platform framework references as rules (`React`, `Next.js`, `RxSwift`, `UIKit`, `BLoC`, `axios`); no platform language syntax as rules (`'use client'`, `readonly`, `BehaviorRelay`); platform knowledge delegated to a skill | 🔴 Critical |
 | Skill frontmatter | `name`, `description`, `user-invocable: false` present | 🔴 Critical |
 | Reference reads in skills | Grep-first; no "Read completely"; all referenced paths match actual filenames | 🔴 Critical |
@@ -422,6 +422,12 @@ Both scripts are idempotent — re-running never overwrites existing files (`lin
 ---
 
 ## Changelog
+
+**v15 — 2026-04-18 · software-dev-agentic v3.20.0**
+- Decision 3: Updated — platform now passed at runtime in every worker spawn prompt, not just resolved via setup-time symlinks; rationale updated to explain dual safety net
+- Decision 8a: Updated — all workers now use `model: sonnet`; haiku reserved only for truly mechanical leaf tasks; rationale: skill execution requires architectural judgment (path resolution, SKILL.md reading, output verification)
+- Decision 8b: Updated — `isolation: worktree` is conditional, not universal; `pres-orchestrator` and `backend-orchestrator` omit isolation to allow contract file sharing between phases; blackboard violation note added
+- Convention Compliance table: Workers row expanded — `## Input`, `## Scope Boundary`, `## Task Assessment`, `## Skill Execution` added as required sections; `## Output` Glob+Grep verification promoted to Critical; Orchestrators row — output validation after each spawn added (Critical); model row updated to sonnet default
 
 **v14 — 2026-04-17 · software-dev-agentic v3.14.0**
 - `prompt-debug-worker` added to `lib/core/agents/detective/` — diagnoses why an agent underperformed by analyzing its system prompt against the trajectory from a perf-worker report

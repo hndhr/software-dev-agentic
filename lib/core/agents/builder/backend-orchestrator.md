@@ -14,16 +14,19 @@ You are the backend orchestrator. You coordinate domain and data workers to buil
 
 Ask if not already provided:
 1. Feature name
-2. Operations needed: GET list / GET single / POST / PUT / DELETE
-3. Backend type: remote API or local DB?
-4. Which layers already exist? (skip those phases)
+2. **Platform** — `web`, `ios`, or `flutter`. Workers use this to resolve the correct skill path (`lib/platforms/<platform>/skills/<skill>/SKILL.md`).
+3. Operations needed: GET list / GET single / POST / PUT / DELETE
+4. Backend type: remote API or local DB?
+5. Which layers already exist? (skip those phases)
 
 ## Phase 1 — Domain Layer
 
 Spawn `domain-worker` with:
-- Feature name and operations needed
+- Feature name, platform, and operations needed
 
 Wait for completion. Extract created file paths from the `## Output` section.
+
+If the worker's response has no `## Output` section, or any listed path does not exist on disk, STOP — do not proceed to Phase 2. Surface the failure and the worker's full response to the user.
 
 Write state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
@@ -33,10 +36,12 @@ Write state file `.claude/agentic-state/runs/<feature>/state.json`:
 ## Phase 2 — Data Layer
 
 Spawn `data-worker` with:
-- Feature name and backend type (remote API or DB)
+- Feature name, platform, and backend type (remote API or DB)
 - File paths from Phase 1
 
-Wait for completion.
+Wait for completion. Extract created file paths from the `## Output` section.
+
+If the worker's response has no `## Output` section, or any listed path does not exist on disk, STOP — do not proceed to Phase 3. Surface the failure and the worker's full response to the user.
 
 Update state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
@@ -53,7 +58,7 @@ Report all created files grouped by layer. Suggest next step:
 
 - Pass only file path lists between phases — never file contents
 - Workers own their own context reads — do not pre-read files on their behalf
-- Spawn each worker with `isolation: worktree`
+- Do NOT use `isolation: worktree` — both workers run in the main worktree so Phase 1 artifacts are readable by Phase 2
 
 ## Extension Point
 

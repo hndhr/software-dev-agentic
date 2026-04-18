@@ -77,20 +77,24 @@ Ask only what you need to coordinate layers. Do not gather platform-specific det
 
 Required:
 1. **Feature name** — used to coordinate between workers
-2. **New or update?** — creating a new feature, or modifying an existing one?
+2. **Platform** — `web`, `ios`, or `flutter`. Workers use this to resolve the correct skill path (`lib/platforms/<platform>/skills/<skill>/SKILL.md`).
+3. **New or update?** — creating a new feature, or modifying an existing one?
    - New → ask which layers to create (default: all)
    - Update → ask which layers need changes; skip all others
-3. **Operations needed** — GET list / GET single / POST / PUT / DELETE (drives which layers have meaningful work)
-4. **Separate UI layer?** — does this platform have a UI layer distinct from the StateHolder? (yes for mobile/imperative UI, no for web/declarative)
+4. **Operations needed** — GET list / GET single / POST / PUT / DELETE (drives which layers have meaningful work)
+5. **Separate UI layer?** — does this platform have a UI layer distinct from the StateHolder? (yes for mobile/imperative UI, no for web/declarative)
 
 ## Phase 1 — Domain Layer
 
 Spawn `domain-worker` and:
 - Feature name
+- Platform (e.g. `web`, `ios`, `flutter`)
 - Operations needed (so it knows which use cases to create)
 
 Wait for completion. Extract from the `## Output` section:
 - List of created file paths (pass to Phase 2)
+
+If the worker's response has no `## Output` section, or any listed path does not exist on disk, STOP — do not proceed to Phase 2. Surface the failure and the worker's full response to the user.
 
 Write state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
@@ -101,11 +105,14 @@ Write state file `.claude/agentic-state/runs/<feature>/state.json`:
 
 Depends on Phase 1. Spawn `data-worker` and:
 - Feature name
+- Platform (e.g. `web`, `ios`, `flutter`)
 - Operations needed
 - File paths from Phase 1
 
 Wait for completion. Extract from the `## Output` section:
 - List of created file paths (pass to Phase 3)
+
+If the worker's response has no `## Output` section, or any listed path does not exist on disk, STOP — do not proceed to Phase 3. Surface the failure and the worker's full response to the user.
 
 Update state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
@@ -116,6 +123,7 @@ Update state file `.claude/agentic-state/runs/<feature>/state.json`:
 
 Depends on Phase 2. Spawn `pres-orchestrator` with:
 - Feature name
+- Platform (e.g. `web`, `ios`, `flutter`)
 - File paths from Phase 1 + Phase 2 (domain + data artifacts)
 - Whether a separate UI layer exists (from Phase 0)
 
@@ -124,6 +132,8 @@ Depends on Phase 2. Spawn `pres-orchestrator` with:
 Wait for completion. Extract from its output:
 - List of created source file paths
 - Path to `.claude/agentic-state/runs/<feature>/stateholder-contract.md`
+
+If the output is missing any file paths or the stateholder-contract.md does not exist on disk, STOP — do not proceed to Phase 4. Surface the failure to the user.
 
 Update state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json

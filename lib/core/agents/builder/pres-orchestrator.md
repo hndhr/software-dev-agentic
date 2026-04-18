@@ -62,6 +62,7 @@ You are a pure coordinator. You only read state/run files and UseCase signatures
 
 **If standalone:** collect from the user:
 - **Feature name and screen purpose** — what this screen does
+- **Platform** — `web`, `ios`, or `flutter`
 - **Navigation targets** — what screens this feature navigates to/from
 - **Module path** — where in the project this feature lives
 - **DI Container status** — is the module container already set up?
@@ -69,12 +70,13 @@ You are a pure coordinator. You only read state/run files and UseCase signatures
 
 Then Grep the codebase for UseCase class/struct definitions and `execute` method signatures. Only Read the full file if Grep returns no results.
 
-**If sub-orchestrator (domain + data paths provided):** skip the user gather. Grep the provided domain file paths for UseCase class/struct definitions and `execute` signatures directly — the parent already has feature name, module path, and UI layer status.
+**If sub-orchestrator (domain + data paths provided):** skip the user gather. Grep the provided domain file paths for UseCase class/struct definitions and `execute` signatures directly — the parent already has feature name, platform, module path, and UI layer status.
 
 ## Phase 1 — StateHolder
 
 Spawn `presentation-worker` with:
 - Feature name, screen purpose, module path
+- Platform (e.g. `web`, `ios`, `flutter`)
 - UseCase names and param signatures from the existing domain layer
 - Navigation targets
 - DI Container status
@@ -82,6 +84,8 @@ Spawn `presentation-worker` with:
 Wait for `presentation-worker` to complete. Extract from its output:
 - StateHolder source file path
 - Path to `.claude/agentic-state/runs/<feature>/stateholder-contract.md`
+
+If the output is missing the StateHolder path or the contract file does not exist on disk, STOP — do not proceed to Phase 2. Surface the failure to the user.
 
 **Standalone only** — write state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
@@ -92,28 +96,21 @@ Wait for `presentation-worker` to complete. Extract from its output:
 
 Spawn `ui-worker` with:
 - Feature name
+- Platform (e.g. `web`, `ios`, `flutter`)
 - Path to `.claude/agentic-state/runs/<feature>/stateholder-contract.md` from Phase 1
 
 `ui-worker` reads the contract file directly — do not pass contract content inline.
 
-Wait for `ui-worker` to complete.
+Wait for `ui-worker` to complete. Extract created file paths from its output.
+
+If the output has no file paths or any listed path does not exist on disk, STOP — surface the failure to the user.
 
 **Standalone only** — update state file `.claude/agentic-state/runs/<feature>/state.json`:
 ```json
 { "feature": "<name>", "completed_phases": ["presentation", "ui"], "artifacts": { "stateholder_contract": ".claude/agentic-state/runs/<feature>/stateholder-contract.md" }, "next_phase": null }
 ```
 
-## Phase 3 — Verify Wiring
-
-Check that the generated UI:
-- Instantiates StateHolder via the DI factory method (if applicable)
-- Observes / binds all State fields
-- Sends all Event/Action cases in response to user interactions
-- Handles navigation via the coordinator/navigator protocol
-
-If anything is misaligned, surface it to the user.
-
-## Phase 4 — Report
+## Phase 3 — Report
 
 ```
 ✅ Presentation layer complete: [FeatureName]
@@ -131,4 +128,4 @@ Next steps: [any manual wiring steps the platform requires]
 - Always confirm UseCase signatures before spawning `presentation-worker` — Grep for class/struct definitions and `execute` signatures first; only Read the full file if Grep returns no results. Never guess signatures.
 - Pass only the **contract file path** to `ui-worker` — never the contract content inline
 - Do not write code yourself — delegate all code generation to the workers
-- Spawn each worker with `isolation: worktree`
+- Do NOT use `isolation: worktree` — both workers run in the main worktree so the contract file written by `presentation-worker` is readable by `ui-worker`

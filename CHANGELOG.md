@@ -7,6 +7,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.20.0] — 2026-04-18
+
+### Added
+- `lib/core/skills/plan/SKILL.md`: new `/plan` user-invocable skill — direct entry point to `feature-planner` agent; closes the gap where the planner was only reachable via hook and never actually invoked
+- All workers (`domain-worker`, `data-worker`, `presentation-worker`, `ui-worker`, `test-worker`): `## Input` section — required parameter table with `MISSING INPUT` STOP condition on entry
+- All workers: `## Scope Boundary` section — declares owned layer and delegation table for out-of-scope tasks; workers STOP and name the correct worker rather than crossing layer boundaries
+- All workers: `## Task Assessment` section — standardised skill-vs-direct-edit decision gate; workers default to direct `Read`+`Edit` for scoped changes and only invoke skills for new artifacts or contract changes
+- All workers: `## Skill Execution` section — explicit platform path resolution (`lib/platforms/<platform>/skills/<skill>/SKILL.md`), Read SKILL.md, follow as authoritative procedure
+- All workers: `## Output` verification — Glob + Grep each artifact before listing path; workers never return paths that don't exist on disk
+- All orchestrators (`feature-orchestrator`, `backend-orchestrator`, `pres-orchestrator`): explicit output validation after each worker spawn — STOP if `## Output` section missing or any listed path does not exist on disk
+
+### Changed
+- `lib/core/agents/builder/domain-worker.md`, `data-worker.md`, `test-worker.md`: model upgraded from `haiku` to `sonnet` — skill execution requires architectural judgment (path resolution, multi-step instruction following, output verification), not purely mechanical template filling
+- `lib/core/agents/builder/feature-orchestrator.md`, `backend-orchestrator.md`, `pres-orchestrator.md`: `platform` parameter added to Phase 0 intake and all worker spawn calls — workers now resolve skill paths deterministically at runtime
+- `lib/core/agents/builder/pres-orchestrator.md`, `backend-orchestrator.md`: removed `isolation: worktree` — both orchestrators need shared working tree so uncommitted artifacts (contract file, domain artifacts) are readable across phases
+- `lib/core/agents/builder/pres-orchestrator.md`: Phase 3 "Verify Wiring" removed — presentation-layer wiring knowledge moved to `ui-worker` Workflow step 6 where it belongs
+- `lib/core/hooks/require-feature-orchestrator.sh`: added post-selection dispatch instructions — hook now tells the agent exactly which agent to invoke per option (`feature-planner`, `feature-orchestrator`, or inline bypass)
+- `docs/core-design-principles.md`: v36 — P8 orchestrator contract updated (platform param, output validation gate, worktree exception); P10 fail-fast restructured into four explicit gates; P15 convention table updated (sonnet default, new required worker sections)
+- `docs/shared-submodule-arch.md`: v15 — Decision 3 runtime platform param; Decision 8a sonnet for all workers; Decision 8b worktree isolation conditional; Convention Compliance table updated
+
 ## [3.19.0] — 2026-04-18
 
 ### Fixed

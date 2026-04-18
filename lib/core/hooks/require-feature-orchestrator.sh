@@ -139,5 +139,8 @@ echo '      ]'
 echo '    }'
 echo '  ]'
 echo ""
-echo "Wait for the user's selection. Take no further action until they respond."
+echo "Once the user responds, dispatch as follows:"
+echo "  - 'Plan first (feature-planner)'    → invoke the feature-planner agent immediately. Do not write any files."
+echo "  - 'Delegate now (feature-orchestrator)' → invoke the feature-orchestrator agent immediately."
+echo "  - 'Proceed inline (bypass)'         → write the delegation entry yourself (update delegation.json for this branch) then continue with the original edit."
 exit 2
