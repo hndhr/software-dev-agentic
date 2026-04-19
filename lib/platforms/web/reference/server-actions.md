@@ -1,10 +1,11 @@
-## 16. Server Actions (Full-Stack Mode)
+# Web — Server Actions
+
 
 Server Actions are the primary mechanism for **mutations** when Next.js is the backend. They run exclusively on the server, are called directly from Client Components, and eliminate the need for separate API routes for your own UI.
 
 > **Frontend-only projects**: skip this section. Use the existing ViewModel → UseCase → RemoteDataSource pattern.
 
-### 16.1 When to Use What
+## When to Use What
 
 ```
 Read data (initial load)
@@ -20,7 +21,7 @@ External API / webhook / file upload
   → Not a Server Action
 ```
 
-### 16.2 Setup — `next-safe-action`
+## Setup — `next-safe-action`
 
 Install:
 ```bash
@@ -60,7 +61,7 @@ export const authActionClient = actionClient.use(async ({ next }) => {
 - `handleServerError` is the single place that decides what error details reach the client
 - Never expose raw error messages, stack traces, or database errors to the client
 
-### 16.3 Action File Pattern
+## Action File Pattern
 
 One file per mutation. Actions live alongside the feature they belong to:
 
@@ -103,7 +104,7 @@ export const submitLeaveRequestAction = authActionClient
 - Call use cases from `container.server.ts` — never instantiate repositories or data sources directly
 - The action returns the use case result directly; `next-safe-action` wraps it in `{ data }` automatically
 
-### 16.4 Client-Side Consumption
+## Client-Side Consumption
 
 ```typescript
 // presentation/features/leave-request/LeaveRequestView.tsx
@@ -146,7 +147,7 @@ export function LeaveRequestView() {
 }
 ```
 
-### 16.5 Optimistic Updates
+## Optimistic Updates
 
 For mutations where you want instant UI feedback:
 
@@ -164,7 +165,7 @@ const { execute, optimisticState } = useOptimisticAction(
 );
 ```
 
-### 16.6 Data Flow — Full-Stack Mutation
+## Data Flow — Full-Stack Mutation
 
 ```
 Client Component
@@ -183,7 +184,7 @@ Repository
     ↑ result available in useAction({ onSuccess })
 ```
 
-### 16.7 Cache Revalidation
+## Cache Revalidation
 
 After a successful mutation, revalidate the affected data:
 
@@ -200,7 +201,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 });
 ```
 
-### 16.8 Full-Stack Project Structure Addition
+## Full-Stack Project Structure Addition
 
 ```
 src/
@@ -215,7 +216,7 @@ src/
 │       └── [Feature]View.tsx
 ```
 
-### 16.9 Naming Conventions
+## Naming Conventions
 
 | Artifact | Pattern | Example |
 |----------|---------|---------|

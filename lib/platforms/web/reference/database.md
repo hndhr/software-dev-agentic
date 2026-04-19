@@ -1,10 +1,11 @@
-## 17. Database Layer (Full-Stack Mode)
+# Web — Database Layer
+
 
 Introduces a `db/` data source variant alongside the existing `remote/` data source. The domain layer — entities, repository interfaces, use cases — is **unchanged**. Only the DataSource implementation and its Repository wiring differ.
 
 > **Frontend-only projects**: skip this section. The remote data source pattern already covers your data needs.
 
-### 17.1 Core Principle — Swap the DataSource, Keep Everything Else
+## Core Principle — Swap the DataSource, Keep Everything Else
 
 ```
 Frontend-only:                          Full-stack:
@@ -19,7 +20,7 @@ Both implement the same:
 
 The DI container is the only file that changes when switching modes. Business logic (use cases, domain services) is reused without modification.
 
-### 17.2 DB Record Types
+## DB Record Types
 
 Analogous to DTOs, but represent the database row shape instead of the API response shape.
 
@@ -51,7 +52,7 @@ export interface PaginatedDbResult<T> {
 - DB records never escape the data layer
 - Nullable DB columns map to `T | null` (not `T | undefined`)
 
-### 17.3 DB DataSource
+## DB DataSource
 
 ```typescript
 // data/data-sources/db/EmployeeDbDataSource.ts
@@ -119,7 +120,7 @@ export class EmployeeDbDataSourceImpl implements EmployeeDbDataSource {
 }
 ```
 
-### 17.4 DB Mapper
+## DB Mapper
 
 Maps `DbRecord → Domain Entity`. Same interface + impl pattern as HTTP mappers.
 
@@ -149,7 +150,7 @@ export class EmployeeDbMapperImpl implements EmployeeDbMapper {
 }
 ```
 
-### 17.5 DB Repository Implementation
+## DB Repository Implementation
 
 A separate impl class that uses the DB data source. Implements the same domain interface as the remote repository.
 
@@ -219,7 +220,7 @@ export class EmployeeDbRepositoryImpl implements EmployeeRepository {
 }
 ```
 
-### 17.6 DB Error Mapper
+## DB Error Mapper
 
 Maps ORM-specific errors to `DomainError`. Pattern mirrors `ErrorMapperImpl` for HTTP errors.
 
@@ -253,7 +254,7 @@ export class DbErrorMapperImpl implements DbErrorMapper {
 
 Fill in the ORM-specific error codes when the ORM is chosen. The interface never changes.
 
-### 17.7 Wiring in the Container
+## Wiring in the Container
 
 ```typescript
 // di/container.server.ts (full-stack mode)
@@ -299,7 +300,7 @@ export const getEmployeeUseCase = () => new GetEmployeeUseCaseImpl(employeeRepos
 export const db = null; // TODO: replace with ORM client
 ```
 
-### 17.8 Full-Stack Project Structure Addition
+## Full-Stack Project Structure Addition
 
 ```
 src/
@@ -324,7 +325,7 @@ src/
 │       └── EmployeeDbRepositoryImpl.ts    ← new (DB mode)
 ```
 
-### 17.9 Decision Rule — Remote vs DB
+## Decision Rule — Remote vs DB
 
 ```
 Is this project consuming an external API you don't control?

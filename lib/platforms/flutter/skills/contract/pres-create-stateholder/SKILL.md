@@ -6,13 +6,13 @@ user-invocable: false
 
 > **Flutter mapping**: StateHolder = BLoC (or Cubit for simple state)
 
-Create a BLoC following `.claude/reference/contract/presentation.md §2–4` and DI rules in `.claude/reference/contract/di.md §3`.
+Create a BLoC following `.claude/reference/contract/presentation.md ## Events, ## States, ## BLoC sections` and DI rules in `.claude/reference/contract/di.md ## Annotations section`.
 
 ## Steps
 
 1. **Grep** `.claude/reference/contract/presentation.md` for `## 2. Events` and `## 3. States`; only **Read** the full file if sections cannot be located
 2. **Read** the UseCase signatures that this BLoC will call — never guess method names
-3. **Decide**: BLoC or Cubit? (see reference §5 — use Cubit for 1-3 simple mutations with no payload)
+3. **Decide**: BLoC or Cubit? (see reference ## Cubit (Simpler Alternative) section — use Cubit for 1-3 simple mutations with no payload)
 4. **Locate** path: `lib/src/features/[feature]/presentation/blocs/`
 5. **Create** `[feature]_event.dart` → `[feature]_state.dart` → `[feature]_bloc.dart`
 
@@ -27,7 +27,7 @@ part '[feature]_event.freezed.dart';
 sealed class [Feature]Event with _$[Feature]Event {
   const factory [Feature]Event.load[Feature]({required String id}) = Load[Feature];
   const factory [Feature]Event.refresh[Feature]() = Refresh[Feature];
-  // verb + noun; see reference §2 for naming guide
+  // verb + noun; see reference ## Events section for naming guide
 }
 
 // [feature]_state.dart

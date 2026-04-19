@@ -5,11 +5,11 @@ description: |
 user-invocable: false
 ---
 
-Create a ViewController following `.claude/reference/contract/presentation.md §5.4` and project conventions in `.claude/reference/project.md §13`.
+Create a ViewController following `.claude/reference/contract/presentation.md ## ViewController section` and project conventions in `.claude/reference/project.md ## Conventions & Naming section`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/contract/presentation.md` for `§5.4`; only **Read** the full file if the section cannot be located
+1. **Grep** `.claude/reference/contract/presentation.md` for `## ViewController`; only **Read** the full file if the section cannot be located
 2. **Read** the ViewModel to understand State, Event, and Action — never guess
 3. **Locate** module path: `Talenta/Module/[Module]/Presentation/ViewController/`
 4. **Create** `[Feature]ViewController.swift`

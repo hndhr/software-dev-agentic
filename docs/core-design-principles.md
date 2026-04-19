@@ -119,7 +119,7 @@ This gives agents full procedural knowledge without embedding it in their body. 
 
 **Reference doc organization in software-dev-agentic:**
 - `lib/core/reference/clean-arch/` — conceptual, language-agnostic principles. Linked to all platforms.
-- `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns (same filename on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`). Preserved as `contract/` subdir in downstream (`.claude/reference/contract/<name>.md`).
+- `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns (same 8 filenames on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`, `error-handling.md`, `utilities.md`). Each file: `#` platform+topic title, `##` canonical keyword sections (agent-greppable), `###` subsections. Preserved as `contract/` subdir in downstream (`.claude/reference/contract/<name>.md`).
 - `lib/platforms/<platform>/reference/` (flat) — platform-specific code patterns unique to that platform. Linked only to matching platform as `.claude/reference/<name>.md`.
 
 **Placement decision rule — reference vs agent body:**
@@ -568,6 +568,11 @@ prompt-debug-worker ← reads perf-report + domain-worker.md
 - P7: Reference doc organization note expanded with three-tier breakdown: `lib/core/reference/clean-arch/`, `lib/platforms/<platform>/reference/contract/`, and flat platform-specific refs
 - Taxonomy Skills by Scope: Platform-contract skill location updated to `lib/platforms/<platform>/skills/contract/`; downstream behavior noted (lands flat); Platform-only clarified as flat
 - Decision Rules: Architecture reference knowledge split into two rows — contract/ for cross-platform, flat for platform-specific; platform-contract skill row updated with `contract/` path
+
+**v38 — 2026-04-19 · software-dev-agentic v3.21.0**
+- P3/P7: Contract expanded from 6 to 8 files — `error-handling.md` and `utilities.md` added to all three platforms; `lib/core/reference/clean-arch/contract-schema.md` added as the canonical keyword registry
+- P7: Heading structure normalized across all 24 contract files: `#` platform+topic title, `##` canonical keyword sections, `###` subsections — agents now grep with `^## Keyword` for deterministic lookup without depth guessing
+- All skills and agents updated to replace `§N.N` section references with canonical `## Heading` names; legacy numbered headings removed from all reference files
 
 **v36 — 2026-04-18 · software-dev-agentic v3.20.0**
 - P8: Orchestrator step 3 updated — `platform` parameter now gathered in Phase 0 and passed to every worker spawn; step 4 updated — `isolation: worktree` conditional, not universal; step 6 added — orchestrator validates worker `## Output` (section exists + paths on disk) before proceeding; P8 table updated: model row changed from haiku/sonnet split to sonnet default; isolation row clarified with exception note

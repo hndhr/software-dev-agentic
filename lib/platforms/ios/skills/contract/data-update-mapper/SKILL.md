@@ -5,7 +5,7 @@ description: |
 user-invocable: false
 ---
 
-Update an existing Mapper following `.claude/reference/contract/data.md §4.3`.
+Update an existing Mapper following `.claude/reference/contract/data.md ## Mappers section`.
 
 ## Steps
 

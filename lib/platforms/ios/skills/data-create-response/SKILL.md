@@ -5,11 +5,11 @@ description: |
 user-invocable: false
 ---
 
-Create a Response DTO following `.claude/reference/contract/data.md §4.1` and naming conventions in `.claude/reference/project.md §13`.
+Create a Response DTO following `.claude/reference/contract/data.md ## Response Models (DTOs) section` and naming conventions in `.claude/reference/project.md ## Conventions & Naming section`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/contract/data.md` for `§4.1`; only **Read** the full file if the section cannot be located
+1. **Grep** `.claude/reference/contract/data.md` for `## DTOs`; only **Read** the full file if the section cannot be located
 2. **Locate** module path: `Talenta/Module/[Module]/Data/Models/`
 3. **Create** `[Feature]Response.swift`
 

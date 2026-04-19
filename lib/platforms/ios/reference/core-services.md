@@ -1,6 +1,6 @@
-# Talenta iOS — Architecture V2: Core Services
+# iOS — Core Services
 
-## 9.1 StorageService
+## StorageService
 
 Abstract key-value storage for tokens, preferences, cached data.
 
@@ -100,7 +100,7 @@ final class SecureStorageService: StorageService {
 
 ---
 
-## 9.2 DateService
+## DateService
 
 Centralized date handling with timezone/formatting.
 

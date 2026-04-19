@@ -2,7 +2,7 @@
 
 ---
 
-## 1. Feature Folder Structure
+## Feature Folder Structure
 
 Each feature is self-contained under `lib/src/features/<feature_name>/`.
 
@@ -80,7 +80,7 @@ lib/
 
 ---
 
-## 2. Naming Conventions
+## Naming Conventions
 
 ### Files
 
@@ -154,7 +154,7 @@ class SomeBloc {
 
 ---
 
-## 3. Import Order
+## Import Order
 
 ```dart
 // 1. Dart core imports
@@ -180,7 +180,7 @@ import 'package:my_app/src/shared/domain/errors/failure.dart';
 
 ---
 
-## 4. Barrel Files
+## Barrel Files
 
 Each feature exposes a barrel that re-exports its public API:
 
@@ -204,7 +204,7 @@ import 'package:my_app/src/features/employee/employee.dart';
 
 ---
 
-## 5. Code Style Rules
+## Code Style Rules
 
 ```dart
 // Trailing commas — always, for better diffs and auto-formatting
@@ -238,7 +238,7 @@ return Left(Failure.serverFailure(message: 'Failed', developerMessage: '...'));
 
 ---
 
-## 6. Code Generation
+## Code Generation
 
 ```bash
 # Generate freezed, json_serializable, injectable, and mockito
@@ -261,7 +261,7 @@ Add all generated files to `.gitignore` or commit them — choose one policy per
 
 ---
 
-## 7. analysis_options.yaml
+## analysis_options.yaml
 
 ```yaml
 include: package:flutter_lints/flutter.yaml

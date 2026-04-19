@@ -1,8 +1,8 @@
-# Talenta iOS — Architecture V2: 8. Error Handling
+# iOS — Error Handling & Utilities
 
-## 8. Error Handling
+## Error Handling
 
-### 8.1 Error Flow
+### Error Flow
 
 ```
 DataSource throws NetworkError
@@ -16,7 +16,7 @@ ViewModel maps to user message → Action
 ViewController shows error UI
 ```
 
-### 8.2 BaseErrorModel
+### BaseErrorModel
 
 ```swift
 // Shared/Domain/Entities/BaseErrorModel.swift
@@ -37,7 +37,7 @@ struct BaseErrorModel: Error {
 }
 ```
 
-### 8.3 Result Type
+### Result Type
 
 ```swift
 Result<Model, BaseErrorModel>
@@ -49,7 +49,7 @@ expected(.success(model))
 expected(.failure(BaseErrorModel(message: "Network error")))
 ```
 
-### 8.4 Error Mapper
+### Error Mapper
 
 ```swift
 // Shared/Data/Mapper/BaseErrorModelMapper.swift
@@ -72,11 +72,11 @@ class BaseErrorModelMapper {
 
 ---
 
-## 9. Utilities
+## Utilities
 
 > For StorageService and DateService specs, see `.claude/reference/core-services.md`.
 
-### 9.3 Null Safety Extensions
+### Null Safety Extensions
 
 **CRITICAL PATTERN:** Always use extension methods for optional unwrapping.
 
@@ -164,7 +164,7 @@ let appBarTitle = ($0.dataState.data?.appBarTitle).orEmpty()
 let isHidden = (state.dataState.data?.actionContainerIsHidden).orFalse()
 ```
 
-### 9.4 Logger
+### Logger
 
 Centralized logging with severity levels.
 
@@ -261,7 +261,7 @@ enum Log {
 }
 ```
 
-### 9.5 Helper Extensions Index
+### Helper Extensions Index
 
 Extension files live in `Talenta/Shared/Extension/`. Use this index to find helpers without searching.
 

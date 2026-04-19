@@ -4,7 +4,7 @@ description: Create a reusable presentational Widget that takes plain entities a
 user-invocable: false
 ---
 
-Create a presentational Widget following `.claude/reference/contract/presentation.md §6`.
+Create a presentational Widget following `.claude/reference/contract/presentation.md ## Screen Structure section`.
 
 ## Steps
 

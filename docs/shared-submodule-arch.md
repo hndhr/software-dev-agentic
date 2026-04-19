@@ -1,5 +1,5 @@
 > Author: Puras Handharmahua · 2026-04-09
-> Updated: 2026-04-19 — v16: `contract/` subfolder for platform-contract skills and cross-platform reference docs; worker skill resolution via `.claude/skills/<name>/SKILL.md`; symlink behavior difference documented
+> Updated: 2026-04-19 — v17: Normalized heading structure across all 24 contract reference files — `#` title, `##` canonical sections, `###` subsections; added error-handling.md and utilities.md to the 8-file contract; removed legacy §N section numbering from all reference files and skills
 > Synced with: software-dev-agentic v3.21.0
 > Related: Agentic Coding Assistant — Core Design Principles
 
@@ -10,7 +10,7 @@ This document extends the Core Design Principles — it does not replace them. A
 | Principle | What Changes |
 |---|---|
 | 5 — Preloaded Skills | Shared skills remain preloaded. Platform-contract skills live in `lib/platforms/<platform>/skills/contract/`; platform-only skills flat under `lib/platforms/<platform>/skills/` — all linked at setup time, land flat in `.claude/skills/<name>/`. |
-| 7 — Three-Tier Knowledge | Tier 3 reference docs now live in the shared submodule: `lib/core/reference/clean-arch/` for universal CLEAN principles; `lib/platforms/<platform>/reference/contract/` for six cross-platform standard files (same name on all platforms, preserved as `contract/` subdir downstream); `lib/platforms/<platform>/reference/` (flat) for platform-unique patterns. Accessed via Grep-first. |
+| 7 — Three-Tier Knowledge | Tier 3 reference docs now live in the shared submodule: `lib/core/reference/clean-arch/` for universal CLEAN principles; `lib/platforms/<platform>/reference/contract/` for eight cross-platform standard files (same name on all platforms, preserved as `contract/` subdir downstream); `lib/platforms/<platform>/reference/` (flat) for platform-unique patterns. Accessed via Grep-first. |
 | 8 — Orchestrators Coordinate | Orchestrators AND workers live in `lib/core/agents/` — both platform-agnostic. Platform knowledge lives exclusively in `lib/platforms/<platform>/skills/`. Platform-specific agents (e.g., iOS `test-orchestrator`) live in `lib/platforms/<platform>/agents/` only when the agent itself is inherently platform-specific. |
 | 9 — Delegation Threshold | Tasks touching >3 architectural layers must delegate to `feature-orchestrator` with `isolation: worktree`. Inline execution at that scope is a P9 violation. |
 | 13 — Naming Convention | Flutter and Android must adopt the `-orchestrator` / `-worker` suffix convention as a prerequisite for migration into the shared submodule. |
@@ -124,10 +124,12 @@ Three-pass linking priority: `agents.local` > platform > core (first link wins)
 **Decision:** Reference docs live in three locations within the submodule:
 - `lib/core/reference/README.md` — taxonomy doc: placement rules for reference vs agent body vs skills (agentic use)
 - `lib/core/reference/clean-arch/` — conceptual, language-agnostic CLEAN Architecture principles (DI containers, domain purity, layer contracts)
-- `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns with code examples. Same six filenames on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`. This makes the mandatory same-name-across-platforms contract explicit in the folder structure.
+- `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns with code examples. Same eight filenames on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`, `error-handling.md`, `utilities.md`. This makes the mandatory same-name-across-platforms contract explicit in the folder structure.
 - `lib/platforms/<platform>/reference/` (flat) — platform-specific patterns unique to that platform (e.g. `ssr.md`, `server-actions.md` for web).
 
-**Rationale:** Within a platform's reference directory, some docs describe concepts mandatory on all platforms (the CLEAN layer contracts) while others are platform-unique. The `contract/` subfolder makes the cross-platform mandate visible — adding a new platform means the engineer must provide all six files under `contract/`. Platform-only refs remain flat.
+**Rationale:** Within a platform's reference directory, some docs describe concepts mandatory on all platforms (the CLEAN layer contracts) while others are platform-unique. The `contract/` subfolder makes the cross-platform mandate visible — adding a new platform means the engineer must provide all eight files under `contract/`. Platform-only refs remain flat.
+
+Every contract file follows a strict heading structure: `#` platform+topic title, `##` canonical sections (agent-greppable keywords), `###` subsections. This makes `grep "^## Keyword"` deterministic across all platforms — agents never need to search at `###` depth or deeper.
 
 **Downstream behavior (different from skills):** The `contract/` subdir is **preserved** in downstream projects — skills and workers reference these files as `.claude/reference/contract/<name>.md`. This is intentional: skills contain hard-coded paths like `reference/contract/presentation.md`; flattening would break them. Platform-specific reference docs land as `.claude/reference/<name>.md` (flat).
 

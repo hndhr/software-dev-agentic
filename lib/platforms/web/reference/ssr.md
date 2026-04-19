@@ -1,8 +1,9 @@
-## 15. Server vs Client Rendering Reference
+# Web — Server-Side Rendering
+
 
 Next.js App Router runs some code on the server and some in the browser. Each component, hook, and utility in this architecture has a rendering context — understanding it prevents runtime bugs (e.g., `window is not defined`) and ensures best performance (e.g., pre-fetching data in Server Components to eliminate client waterfalls).
 
-### 15.1 Next.js Rendering Rules (Quick Recap)
+## Next.js Rendering Rules (Quick Recap)
 
 | Feature | Server Component | Client Component |
 |---------|-----------------|-----------------|
@@ -17,7 +18,7 @@ Next.js App Router runs some code on the server and some in the browser. Each co
 
 > **`'use client'` is a module-graph boundary.** Every module imported inside a `'use client'` file becomes part of the client bundle, whether or not it itself has `'use client'`. This means even a plain TypeScript utility will be bundled client-side if it is imported from a Client Component.
 
-### 15.2 Domain Layer — Isomorphic
+## Domain Layer — Isomorphic
 
 All Domain layer code is **isomorphic** — it runs correctly on both the server and in the browser. It has no framework dependencies (`react`, `next`, browser APIs), making it safe to import from Server Components, Client Components, or any utility.
 
@@ -32,7 +33,7 @@ All Domain layer code is **isomorphic** — it runs correctly on both the server
 
 > **Rule:** Domain code must never import from `react`, `next`, or browser-specific APIs. This is what keeps it isomorphic and independently testable.
 
-### 15.3 Data Layer — Isomorphic Code, Split Instantiation
+## Data Layer — Isomorphic Code, Split Instantiation
 
 Data layer **classes and interfaces** are isomorphic — just TypeScript. What determines their runtime is **which container instantiates them**: `container.server.ts` (server) or `container.client.ts` (client).
 
@@ -57,7 +58,7 @@ The `TokenStorage` implementations are where the split actually happens:
 
 > **Why Axios works on both:** Axios detects its environment and picks the right adapter — `http`/`https` modules in Node.js, `XMLHttpRequest` in the browser. You write the same code either way.
 
-### 15.4 DI Layer — Strictly Split
+## DI Layer — Strictly Split
 
 This is the only layer where the server/client boundary is enforced at **compile time** via `server-only` and `client-only` packages.
 
@@ -80,7 +81,7 @@ Client Component ('use client'):
   ❌ import { getEmployeesUseCase } from '@/di/container.server'  ← server-only guard blocks this
 ```
 
-### 15.5 Presentation Layer — Mostly Client
+## Presentation Layer — Mostly Client
 
 The Presentation layer is almost entirely client-side because it depends on hooks, state, and event handlers.
 
@@ -100,7 +101,7 @@ The Presentation layer is almost entirely client-side because it depends on hook
 
 > *Simple presentational components with no hooks or event handlers can be Server Components. As soon as they call `useDI()`, `useQuery`, or any hook, they become client-only.
 
-### 15.6 Navigation & App Directory
+## Navigation & App Directory
 
 | File | Runtime | Why |
 |------|---------|-----|
@@ -128,7 +129,7 @@ export default async function EmployeesPage() {
 
 The `initialData` prop must be **serializable** — plain objects and arrays only. No `Date` instances, no class instances, no functions. Convert `Date` to ISO string before passing across the boundary and parse it back in the Client Component.
 
-### 15.7 Core Services — Mixed
+## Core Services — Mixed
 
 | Class | Runtime | Why |
 |-------|---------|-----|
@@ -143,7 +144,7 @@ The `initialData` prop must be **serializable** — plain objects and arrays onl
 | `ImageCacheService` (in-memory) | **Both** | Plain `Map` cache — isomorphic |
 | Null safety utils (`orZero`, `orEmpty`, etc.) | **Both** | Pure functions, no deps |
 
-### 15.8 Third-Party Libraries
+## Third-Party Libraries
 
 | Library / API | Runtime | Notes |
 |---------------|---------|-------|
@@ -156,7 +157,7 @@ The `initialData` prop must be **serializable** — plain objects and arrays onl
 | `next/navigation` (`redirect`, `notFound`) | **Server only** | Used in Server Components and Route Handlers |
 | `next/headers` (`cookies`, `headers`) | **Server only** | Reads request headers/cookies — RSC and Route Handlers only |
 
-### 15.9 Complete Rendering Map (Quick Reference)
+## Complete Rendering Map (Quick Reference)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -211,7 +212,7 @@ The `initialData` prop must be **serializable** — plain objects and arrays onl
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 15.10 Common Mistakes to Avoid
+## Common Mistakes to Avoid
 
 | Mistake | Problem | Fix |
 |---------|---------|-----|

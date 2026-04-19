@@ -1,4 +1,5 @@
-## Project Setup Checklist
+# Web — Project Setup
+
 
 Things that are **intentionally left open** in this starter kit because they are project-specific decisions. Go through this list at the start of every new project. Each item affects generated code, DI wiring, or agent behavior.
 
@@ -7,7 +8,7 @@ Things that are **intentionally left open** in this starter kit because they are
 
 ---
 
-### 1. Styling / UI Library — REQUIRED
+## Styling / UI Library — REQUIRED
 
 The starter kit has no opinion on styling. Pick one and stick to it.
 
@@ -28,7 +29,7 @@ The starter kit has no opinion on styling. Pick one and stick to it.
 
 ---
 
-### 2. Database / ORM — REQUIRED for full-stack, skip for frontend-only
+## Database / ORM — REQUIRED for full-stack, skip for frontend-only
 
 The DB data source layer is generated as ORM-agnostic stubs. Fill in the impl when the ORM is chosen.
 
@@ -50,7 +51,7 @@ The DB data source layer is generated as ORM-agnostic stubs. Fill in the impl wh
 
 ---
 
-### 3. Authentication — REQUIRED if the app has any protected routes
+## Authentication — REQUIRED if the app has any protected routes
 
 | Option | When to choose |
 |--------|---------------|
@@ -71,7 +72,7 @@ The DB data source layer is generated as ORM-agnostic stubs. Fill in the impl wh
 
 ---
 
-### 4. Environment Variables
+## Environment Variables
 
 Set up `.env.local` before running the project. Never commit this file.
 
@@ -103,7 +104,7 @@ NEXTAUTH_URL=http://localhost:3000                # your app's base URL
 
 ---
 
-### 5. Error Monitoring — OPTIONAL
+## Error Monitoring — OPTIONAL
 
 Unhandled errors in production need somewhere to go.
 
@@ -120,7 +121,7 @@ Unhandled errors in production need somewhere to go.
 
 ---
 
-### 6. Feature Flags — OPTIONAL
+## Feature Flags — OPTIONAL
 
 If the project needs gradual rollout or A/B testing.
 
@@ -133,7 +134,7 @@ If the project needs gradual rollout or A/B testing.
 
 ---
 
-### 7. Deployment Target — OPTIONAL (affects config)
+## Deployment Target — OPTIONAL (affects config)
 
 | Target | Notes |
 |--------|-------|
@@ -147,7 +148,7 @@ If the project needs gradual rollout or A/B testing.
 
 ---
 
-### 8. Testing Framework — REQUIRED before writing tests
+## Testing Framework — REQUIRED before writing tests
 
 The architecture docs reference both Vitest and Jest. Pick one.
 
@@ -163,7 +164,7 @@ The architecture docs reference both Vitest and Jest. Pick one.
 
 ---
 
-### 9. Linting & Formatting — OPTIONAL but strongly recommended
+## Linting & Formatting — OPTIONAL but strongly recommended
 
 | Tool | Config file |
 |------|------------|
@@ -188,7 +189,7 @@ This enforces the dependency rule at the linter level — presentation cannot im
 
 ---
 
-### Summary Table
+## Summary Table
 
 | Decision | Status | Blocking |
 |----------|--------|---------|

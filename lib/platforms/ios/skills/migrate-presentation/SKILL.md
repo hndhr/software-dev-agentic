@@ -14,7 +14,7 @@ Migrate one Presentation layer component at a time to the modern architecture st
 Read these before starting:
 - `.claude/reference/contract/presentation.md` — V2 ViewModel, State/Event/Action, Navigator, Coordinator
 - `.claude/reference/contract/presentation.md #Advanced-Patterns` — Navigator protocol pattern, Coordinator pattern
-- `.claude/reference/migration.md §15.4` — legacy code migration checklist
+- `.claude/reference/migration.md ## Legacy Code Migration Checklist section` — legacy code migration checklist
 - `.claude/reference/contract/di.md` — factory method pattern in DIContainer
 
 ## Scope
@@ -99,4 +99,4 @@ xcodebuild -project Talenta.xcodeproj -scheme Talenta -configuration Debug \
 ## Before/After Reference
 
 See `.claude/reference/contract/presentation.md` for full V2 ViewModel pattern.
-See `.claude/reference/migration.md §15.4` for legacy code migration checklist.
+See `.claude/reference/migration.md ## Legacy Code Migration Checklist section` for legacy code migration checklist.

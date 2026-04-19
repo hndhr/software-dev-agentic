@@ -1,8 +1,9 @@
-## 11. Modular Architecture (Large-Scale)
+# Web — Modular Architecture
+
 
 This starter kit scales from a single Next.js app to a Turborepo mono-repo with independently deployable packages.
 
-### 11.1 When to Modularize
+## When to Modularize
 
 | Signal | Action |
 |--------|--------|
@@ -12,7 +13,7 @@ This starter kit scales from a single Next.js app to a Turborepo mono-repo with 
 
 Don't modularize prematurely. Start with a single `src/` structure and extract packages when build times or team conflicts become real problems.
 
-### 11.2 Module Structure (Turborepo)
+## Module Structure (Turborepo)
 
 ```
 starterkit/                          # Turborepo root
@@ -82,7 +83,7 @@ starterkit/                          # Turborepo root
 └── turbo.json
 ```
 
-### 11.3 Package Dependencies
+## Package Dependencies
 
 ```
 App (web) → feature-employee, feature-leave, feature-auth, ui
@@ -96,7 +97,7 @@ core → (none)
 
 **Rule:** Feature packages never depend on each other. Cross-feature communication goes through the App layer or shared interfaces in `core`.
 
-### 11.4 Package Configuration
+## Package Configuration
 
 ```json
 // packages/feature-employee/package.json
@@ -130,7 +131,7 @@ core → (none)
 }
 ```
 
-### 11.5 Feature Module Public API
+## Feature Module Public API
 
 Each feature package exposes a **public interface** — views, hooks, and a factory. Internal implementation details stay unexported.
 
@@ -174,7 +175,7 @@ export function createEmployeeFeatureDI(httpClient: HTTPClient) {
 }
 ```
 
-### 11.6 App-Level Composition
+## App-Level Composition
 
 The main app wires feature packages together:
 
@@ -218,7 +219,7 @@ export function createClientContainer() {
 }
 ```
 
-### 11.7 Cross-Feature Communication
+## Cross-Feature Communication
 
 Features don't depend on each other. When they need to communicate:
 
@@ -246,7 +247,7 @@ export const useEmployeeSelectionStore = create<...>(...);
 // Both features import this store — no direct dependency on each other
 ```
 
-### 11.8 Benefits at Scale
+## Benefits at Scale
 
 | Benefit | How |
 |---------|-----|
@@ -257,4 +258,3 @@ export const useEmployeeSelectionStore = create<...>(...);
 | **Incremental adoption** | Start single `src/`, extract packages one feature at a time |
 
 ---
-

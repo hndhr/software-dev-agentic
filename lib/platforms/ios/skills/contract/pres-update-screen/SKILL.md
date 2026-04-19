@@ -5,7 +5,7 @@ description: |
 user-invocable: false
 ---
 
-Update an existing ViewController following `.claude/reference/contract/presentation.md §5.4`.
+Update an existing ViewController following `.claude/reference/contract/presentation.md ## ViewController section`.
 
 ## Steps
 

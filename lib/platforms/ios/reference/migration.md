@@ -1,8 +1,8 @@
-# Talenta iOS — Architecture V2: 15. Migration Guide
+# iOS — Migration Guide
 
-## 15. Migration Guide
+## Migration Guide
 
-### 15.1 Legacy → Modern Code
+### Legacy → Modern Code
 
 **Legacy** (root-level folders):
 ```
@@ -17,7 +17,7 @@ Talenta/Module/[Feature]/Data|Domain|Presentation/
 Talenta/Shared/Data|Domain|Presentation/
 ```
 
-### 15.2 Modern UseCase Migration
+### Modern UseCase Migration
 
 **Migrating from old Param pattern to nested Params:**
 
@@ -84,7 +84,7 @@ final class PostSubmitCICOUseCase: UseCaseProtocol {
 5. **Delete old Param files** from `Domain/Param/Query/` and `Domain/Param/Path/`
 6. **Run tests** to ensure everything works
 
-### 15.3 Moving Mappers from Domain to Data Layer
+### Moving Mappers from Domain to Data Layer
 
 **Important:** The current codebase has Mappers in `Domain/Mapper/`, but following Clean Architecture principles, they should be in `Data/Mapper/`.
 
@@ -174,7 +174,7 @@ xcodebuild test -scheme Talenta -destination 'platform=iOS Simulator,name=iPhone
 # Build and run app to ensure no runtime issues
 ```
 
-### 15.4 Legacy Code Migration Checklist
+### Legacy Code Migration Checklist
 
 When migrating legacy code to modern architecture:
 
@@ -188,7 +188,7 @@ When migrating legacy code to modern architecture:
 - [ ] Write unit tests for all layers
 - [ ] Delete legacy code only after tests pass
 
-### 15.5 Adopting Manual DI Container
+### Adopting Manual DI Container
 
 **Goal:** Replace scattered singleton instances with centralized DI Container per module.
 

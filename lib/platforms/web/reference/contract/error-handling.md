@@ -22,7 +22,7 @@ Component shows error UI
 // domain/errors/DomainError.ts (already defined above)
 ```
 
-Error type definitions live in `contract/domain.md §3.5`. See `§8.3` for layer mapping and `§8.4` for UI display.
+Error type definitions live in `contract/domain.md ## Domain Errors`. See `## Error Mapping` for layer mapping and `## Error UI` for UI display.
 
 ## Error Mapping
 

@@ -1,8 +1,8 @@
-# Talenta iOS — Architecture V2: 11. Modular Architecture (Feature-Based)
+# iOS — Project Structure
 
-## 11. Modular Architecture (Feature-Based)
+## Modular Architecture (Feature-Based)
 
-### 11.1 Current Module Structure
+### Current Module Structure
 
 ```
 Talenta/Module/
@@ -44,7 +44,7 @@ Talenta/Module/
 
 **Key Change:** No more separate `Param/Query/` or `Param/Path/` directories! Params now live **inside** each UseCase as nested structs. ✅
 
-### 11.2 AppLayer
+### AppLayer
 
 The app shell — OS entry points, composition root, and platform event routing. Not a Clean Architecture layer in the Data/Domain/Presentation sense; it's the outermost ring that wires everything together.
 
@@ -63,7 +63,7 @@ Talenta/AppLayer/
 
 ---
 
-### 11.3 Shared Layer
+### Shared Layer
 
 ```
 Talenta/Shared/
@@ -103,7 +103,7 @@ Talenta/Shared/
 
 ---
 
-## 12. Project Structure
+## Project Structure
 
 ```
 talenta-ios/
@@ -145,9 +145,9 @@ talenta-ios/
 
 ---
 
-## 13. Conventions & Naming
+## Conventions & Naming
 
-### 13.1 File Naming
+### File Naming
 
 | Component | Naming | Example |
 |-----------|--------|---------|
@@ -173,7 +173,7 @@ talenta-ios/
 | Service | `[Feature][Verb/Noun]` | `LeaveBalanceCalculator` |
 | Mock | `[OriginalClassName]Mock` | `PostSubmitCICOUseCaseMock` |
 
-### 13.2 HTTP Method Prefix
+### HTTP Method Prefix
 
 | HTTP | UseCase Prefix | Example |
 |------|---------------|---------|
@@ -183,7 +183,7 @@ talenta-ios/
 | PATCH | `Patch` | `PatchUpdateStatusUseCase` |
 | DELETE | `Delete` | `DeleteTaskUseCase` |
 
-### 13.3 Code Style
+### Code Style
 
 - **Indentation**: 4 spaces
 - **Line length**: No strict limit (readable)
@@ -194,44 +194,44 @@ talenta-ios/
 
 ---
 
-## 14. Design Decisions & Rationale
+## Design Decisions & Rationale
 
-### 14.1 Why UIKit?
+### Why UIKit?
 
 - ✅ Maturity: Stable, battle-tested
 - ✅ Team expertise: Existing knowledge base
 - ✅ Third-party: Better library support
 - ✅ Fine-grained control: Complex layouts
 
-### 14.2 Why RxSwift?
+### Why RxSwift?
 
 - ✅ iOS 13+ support (Combine requires iOS 13+)
 - ✅ Existing codebase: Already uses RxSwift
 - ✅ Mature ecosystem: More operators/extensions
 - ✅ Community: Established resources
 
-### 14.3 Why Moya?
+### Why Moya?
 
 - ✅ Type safety: Enum-based API definitions
 - ✅ Testability: Protocol-based, easy mocking
 - ✅ Centralized: All endpoints in one place
 - ✅ RxSwift support: Built-in extensions
 
-### 14.4 Why Singleton + Constructor Injection?
+### Why Singleton + Constructor Injection?
 
 - ✅ Simplicity: No DI framework
 - ✅ Flexibility: Tests inject mocks via constructor
 - ✅ Performance: Singletons shared across app
 - ✅ Testability: Default params allow overrides
 
-### 14.5 Why BaseViewModelV2?
+### Why BaseViewModelV2?
 
 - ✅ UIKit compatibility: Works with UIKit
 - ✅ Reactive patterns: Full RxSwift power
 - ✅ Standardization: Unified ViewModel interface
 - ✅ Type safety: Generic State/Event/Action
 
-### 14.6 Why Mappers in Data Layer?
+### Why Mappers in Data Layer?
 
 - ✅ **Dependency Rule**: Data depends on Domain, not vice versa. Mappers convert `Response` (Data) → `Entity` (Domain), so they live where both types are visible.
 - ✅ **Implementation Detail**: How we parse/transform API responses is infrastructure concern, not business logic.
@@ -240,7 +240,7 @@ talenta-ios/
 - ✅ **Flexibility**: Swap mappers for API versioning without touching Domain.
 - ✅ **Clean Architecture Compliance**: Industry standard practice — mappers are adapter pattern in outer layer.
 
-### 14.7 Why UseCase Mandatory?
+### Why UseCase Mandatory?
 
 - ✅ Single Responsibility: Each UseCase does one thing
 - ✅ Testability: ViewModels don't mock repositories

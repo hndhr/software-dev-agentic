@@ -13,7 +13,7 @@ Migrate one Domain layer component at a time to the modern architecture standard
 
 Read these before starting:
 - `.claude/reference/contract/domain.md` — V2 Domain patterns (entities, repo protocols, UseCases, Params)
-- `.claude/reference/migration.md §15.1–15.2` — folder structure + UseCase migration guide
+- `.claude/reference/migration.md ## Legacy → Modern Code, ## UseCase Migration sections` — folder structure + UseCase migration guide
 - `.claude/reference/contract/di.md` — DI Container wiring
 
 ## Scope
@@ -90,4 +90,4 @@ xcodebuild -project Talenta.xcodeproj -scheme Talenta -configuration Debug \
 
 ## Before/After Reference
 
-See `.claude/reference/migration.md §15.2` for full before/after code examples.
+See `.claude/reference/migration.md ## UseCase Migration section` for full before/after code examples.

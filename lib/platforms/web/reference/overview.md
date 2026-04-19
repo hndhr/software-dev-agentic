@@ -99,7 +99,7 @@
 
 ---
 
-## 1. Overview
+## Overview
 
 ### What This Is
 
@@ -138,7 +138,7 @@ A reusable Next.js project starter kit built with **Clean Architecture** and **T
 
 ---
 
-## 2. Architecture Layers
+## Architecture Layers
 
 ```
 ┌─────────────────────────────────────────────────────┐
