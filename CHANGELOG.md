@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.24.1] — 2026-04-19
+
+### Changed
+- `docs/contract/schema.md` → `docs/contract/arch-check.md`: renamed to reflect owning persona (`arch-check-conventions` / auditor); `docs/contract/` preserved as home for future persona contracts
+- `docs/contract/improvement-backlog.md` → `docs/contract-schema-improvement-backlog.md`: moved to flat `docs/` — backlog doc, not a contract spec
+- `skills/arch-check-conventions/SKILL.md`: schema path updated to `docs/contract/arch-check.md`
+
+---
+
 ## [3.24.0] — 2026-04-19
 
 ### Added

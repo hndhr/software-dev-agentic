@@ -70,7 +70,7 @@ How to check: `Read` the template file; flag any comment that explains the skill
 
 ## Contract Reference Schema Check
 
-For each `lib/platforms/<platform>/reference/contract/` directory being audited, verify all 8 files contain their required canonical heading keywords. Required keywords are defined in `docs/contract/schema.md`.
+For each `lib/platforms/<platform>/reference/contract/` directory being audited, verify all 8 files contain their required canonical heading keywords. Required keywords are defined in `docs/contract/arch-check.md`.
 
 **How to check:** For each file, `Grep` for pattern `^## .*<keyword>` within that file. A keyword must appear as a substring of a `##` heading — `###` or deeper does not satisfy the requirement.
 
