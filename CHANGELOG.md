@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.21.0] — 2026-04-19
+
+### Added
+- `lib/core/reference/clean-arch/contract-schema.md`: canonical keyword registry for all 8 contract reference files — defines required `##` headings per file; enforced by `arch-check-conventions`
+- `error-handling.md` and `utilities.md` added to `lib/platforms/{flutter,ios,web}/reference/contract/` — contract now has 8 mandatory files on every platform
+
+### Changed
+- **Contract heading structure normalized** across all 24 contract files (8 files × 3 platforms): `#` platform+topic title, `##` canonical keyword sections (agent-greppable), `###` subsections — agents grep with `^## Keyword` for deterministic lookup without depth guessing
+- **`§N` section references removed** from all 37 skills (iOS + Flutter) — replaced with canonical `## Heading` names; agents no longer grep for numbered anchors that don't exist in the files
+- **Numbered headings stripped** from all non-contract reference files: web (modular, ssr, server-actions, api-routes, database, project, project-setup, overview) and iOS (project, migration, error-utilities, core-services) and Flutter (project) — `## 12. Project Structure` → `## Project Structure`
+- iOS `domain.md`: removed 113-line Overview + Architecture Layers intro sections (moved concept to `project.md`); file now opens directly with `## Entities`
+- iOS reference file H1 titles normalized: `# Talenta iOS — Architecture V2: N. Topic` → `# iOS — Topic`; web files (non-contract) gain `# Web — Topic` H1 where missing
+- `arch-check-conventions` SKILL: contract schema check updated to grep `^## .*keyword` — `###` depth no longer satisfies the canonical keyword requirement
+- `docs/core-design-principles.md` v38, `docs/shared-submodule-arch.md` v17: contract file count updated (6 → 8), heading structure rule documented
+
 ## [3.20.0] — 2026-04-18
 
 ### Added
