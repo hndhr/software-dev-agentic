@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.24.0] — 2026-04-19
+
+### Added
+- `docs/contract/schema.md`: contract keyword registry relocated here from `lib/core/reference/clean-arch/` — internal-only spec; no longer ships to downstream projects via symlink
+- `docs/contract/improvement-backlog.md`: documents 4 schema gaps confirmed not yet safe to register (pending platform `##` heading alignment): `presentation.md` Events/Input + Actions/Output, `testing.md` Use Case Tests naming reconciliation, `di.md` Scope Rules + Registration Order
+
+### Changed
+- `docs/contract/schema.md`: `Services` keyword added to `domain.md` table — substring of `## Services` (web/iOS) and `## Domain Services` (flutter); `arch-check-conventions` now enforces this on all platforms
+- `skills/arch-check-conventions/SKILL.md`: schema reference path updated to `docs/contract/schema.md`
+- `docs/core-design-principles.md`: `contract-schema.md` removed from P7 "universal theory" list — spec docs are not architecture theory
+- `docs/shared-submodule-arch.md`: same — removed from Decision 4 universal theory list
+
+### Removed
+- `lib/core/reference/clean-arch/contract-schema.md`: misplaced as architecture reference theory; superseded by `docs/contract/schema.md`
+
+---
+
 ## [3.23.1] — 2026-04-19
 
 ### Fixed

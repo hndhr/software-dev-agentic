@@ -119,7 +119,7 @@ This gives agents full procedural knowledge without embedding it in their body. 
 
 **Reference doc organization in software-dev-agentic:**
 - `lib/core/reference/clean-arch/` — two kinds of files, both preserved as `clean-arch/` subdir downstream (`.claude/reference/clean-arch/<name>.md`):
-  - **Universal theory** (`layer-contracts.md`, `domain-purity.md`, `di-containers.md`, `contract-schema.md`) — cross-cutting CLEAN Architecture principles, not layer-specific.
+  - **Universal theory** (`layer-contracts.md`, `domain-purity.md`, `di-containers.md`) — cross-cutting CLEAN Architecture principles, not layer-specific.
   - **Layer canonical templates** (`domain.md`, and `data.md`, `presentation.md` in progress) — platform-agnostic concept definitions per CLEAN layer: what each artifact IS, its invariants, when to use it. Workers reference these for concepts; platform contract files implement the same headings in platform syntax.
 - `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns (same 8 filenames on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`, `error-handling.md`, `utilities.md`). Each file: `#` platform+topic title, `##` canonical keyword sections (agent-greppable), `###` subsections. Preserved as `contract/` subdir in downstream (`.claude/reference/contract/<name>.md`). Syntax and platform-specific patterns only — conceptual definitions belong in the corresponding `lib/core/reference/clean-arch/<layer>.md` template.
 - `lib/platforms/<platform>/reference/` (flat) — platform-specific code patterns unique to that platform. Linked only to matching platform as `.claude/reference/<name>.md`.

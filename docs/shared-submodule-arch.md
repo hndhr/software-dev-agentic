@@ -124,7 +124,7 @@ Three-pass linking priority: `agents.local` > platform > core (first link wins)
 **Decision:** Reference docs live in four locations within the submodule:
 - `lib/core/reference/README.md` — taxonomy doc: placement rules for reference vs agent body vs skills (agentic use)
 - `lib/core/reference/clean-arch/` — two kinds of files, both preserved as `clean-arch/` subdir downstream (`.claude/reference/clean-arch/<name>.md`):
-  - **Universal theory** (`layer-contracts.md`, `domain-purity.md`, `di-containers.md`, `contract-schema.md`) — cross-cutting CLEAN Architecture principles shared across all layers.
+  - **Universal theory** (`layer-contracts.md`, `domain-purity.md`, `di-containers.md`) — cross-cutting CLEAN Architecture principles shared across all layers.
   - **Layer canonical templates** (`domain.md`, and `data.md`, `presentation.md` in progress) — platform-agnostic concept definitions per CLEAN layer. Defines what each artifact IS, its invariants, and when to use it. Workers reference these for concepts; platform `contract/` files implement the same headings in platform syntax.
 - `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns with code examples. Same eight filenames on every platform. Preserved as `contract/` subdir downstream (`.claude/reference/contract/<name>.md`). Syntax and platform-specific patterns only — conceptual definitions belong in the corresponding `lib/core/reference/clean-arch/<layer>.md` template.
 - `lib/platforms/<platform>/reference/` (flat) — platform-specific patterns unique to that platform (e.g. `ssr.md`, `server-actions.md` for web). Lands flat as `.claude/reference/<name>.md`.

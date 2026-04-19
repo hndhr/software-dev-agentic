@@ -15,7 +15,7 @@ Platforms may add platform-specific `##` sections and adapt content to their syn
 
 ```bash
 # Check one file — exits non-zero if any keyword is missing
-for keyword in "Entities" "Repository" "Use Cases" "Domain Errors"; do
+for keyword in "Entities" "Repository" "Use Cases" "Services" "Domain Errors"; do
   grep -q "^## .*$keyword" lib/platforms/web/reference/contract/domain.md \
     || echo "MISSING: $keyword"
 done
@@ -32,6 +32,7 @@ done
 | `Entities` | Domain entity definitions |
 | `Repository` | Repository interface/protocol |
 | `Use Cases` | UseCase definitions and patterns |
+| `Services` | Domain service definitions (pure business logic spanning multiple entities) |
 | `Domain Errors` | Domain-level error type |
 
 ---
