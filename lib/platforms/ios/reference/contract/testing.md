@@ -1,8 +1,8 @@
 # Talenta iOS — Architecture V2: 10. Testing Strategy
 
-## 10. Testing Strategy
+## Testing Strategy
 
-### 10.1 Test Pyramid
+### Test Pyramid
 
 ```
           ┌───────────┐
@@ -17,7 +17,7 @@
         └───────────────┘
 ```
 
-### 10.2 Service Tests
+### Service Tests
 
 Highest priority. Pure input → output, no mocks needed.
 
@@ -48,7 +48,7 @@ final class LeaveBalanceCalculatorTests: XCTestCase {
 }
 ```
 
-### 10.3 ViewModel Tests
+### ViewModel Tests
 
 ```swift
 final class CICOLocationViewModelTest: XCTestCase {
@@ -114,7 +114,7 @@ final class CICOLocationViewModelTest: XCTestCase {
 }
 ```
 
-### 10.4 Mock Pattern
+### Mock Pattern
 
 ```swift
 // TalentaTests/Mock/Module/TalentaTM/Domain/UseCase/PostSubmitCICOUseCaseMock.swift
@@ -153,3 +153,96 @@ class PostSubmitCICOUseCaseMock: UseCaseProtocol {
 - Reset mocks in `tearDown()`
 - Test state changes via `stateDriver`
 - Test actions via `actionDriver`
+
+### Mapper Tests
+
+Test that Response DTOs are correctly converted to Domain Models.
+
+```swift
+// TalentaTests/Mock/Module/[Feature]/Data/Mapper/[Feature]ModelMapperTests.swift
+class EmployeeModelMapperTests: XCTestCase {
+    var sut: EmployeeModelMapper!
+
+    override func setUp() {
+        super.setUp()
+        sut = EmployeeModelMapper()
+    }
+
+    func test_fromResponseToModel_mapsAllFields() {
+        let response = EmployeeResponse(id: 1, name: "John Doe", isActive: true)
+
+        let model = sut.fromResponseToModel(from: response)
+
+        XCTAssertEqual(model.id, 1)
+        XCTAssertEqual(model.name, "John Doe")
+        XCTAssertTrue(model.isActive)
+    }
+
+    func test_fromResponseToModel_handlesNilFields() {
+        let response = EmployeeResponse(id: nil, name: nil, isActive: nil)
+
+        let model = sut.fromResponseToModel(from: response)
+
+        XCTAssertEqual(model.id, 0)    // .orZero()
+        XCTAssertEqual(model.name, "") // .orEmpty()
+        XCTAssertFalse(model.isActive) // .orFalse()
+    }
+}
+```
+
+**Rules:**
+- One test for the happy path (all fields present)
+- One test for nil handling — verify `.orZero()`, `.orEmpty()`, `.orFalse()` defaults
+- Every Entity field must appear in at least one assertion
+
+### Repository Tests
+
+Test that RepositoryImpl correctly bridges DataSource results to Domain completions.
+
+```swift
+// TalentaTests/Mock/Module/[Feature]/Data/Repository/[Feature]RepositoryImplTests.swift
+class EmployeeRepositoryImplTests: XCTestCase {
+    var sut: EmployeeRepositoryImpl!
+    var dataSourceMock: EmployeeDataSourceMock!
+    var mapperMock: EmployeeModelMapperMock!
+
+    override func setUp() {
+        super.setUp()
+        dataSourceMock = EmployeeDataSourceMock()
+        mapperMock = EmployeeModelMapperMock()
+        sut = EmployeeRepositoryImpl(dataSource: dataSourceMock, mapper: mapperMock)
+    }
+
+    func test_getEmployee_success_callsCompletion_withMappedModel() {
+        let response = EmployeeResponse(id: 1, name: "John")
+        let expectedModel = EmployeeModel(id: 1, name: "John")
+        dataSourceMock.resultToReturn = .success(response)
+        mapperMock.modelToReturn = expectedModel
+
+        var receivedResult: Result<EmployeeModel, BaseErrorModel>?
+        sut.getEmployee(params: .init(id: "1")) { receivedResult = $0 }
+
+        XCTAssertEqual(try? receivedResult?.get().id, 1)
+        XCTAssertEqual(mapperMock.fromResponseCallCount, 1)
+    }
+
+    func test_getEmployee_failure_propagatesError() {
+        let error = BaseErrorModel(message: "Not found")
+        dataSourceMock.resultToReturn = .failure(error)
+
+        var receivedResult: Result<EmployeeModel, BaseErrorModel>?
+        sut.getEmployee(params: .init(id: "99")) { receivedResult = $0 }
+
+        if case .failure(let e) = receivedResult {
+            XCTAssertEqual(e.message, "Not found")
+        } else {
+            XCTFail("Expected failure")
+        }
+    }
+}
+```
+
+**Rules:**
+- Mock both DataSource and Mapper — test RepositoryImpl in isolation
+- One success test, one failure test per method
+- Verify mapper is called on success; verify error is passed through unchanged on failure

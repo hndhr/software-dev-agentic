@@ -1,6 +1,6 @@
-## 8. Error Handling
+## Error Handling
 
-### 8.1 Error Flow
+### Error Flow
 
 ```
 DataSource throws NetworkError
@@ -14,36 +14,16 @@ ViewModel hook → TanStack Query error state
 Component shows error UI
 ```
 
-### 8.2 Error Types
+### Error Types
 
 ```typescript
 // data/networking/NetworkError.ts (already defined above)
-
 // domain/errors/DomainError.ts (already defined above)
-
-// For React boundaries — wrap pages
-// app/employees/error.tsx
-'use client';
-
-export default function EmployeesError({
-  error,
-  reset,
-}: {
-  error: Error;
-  reset: () => void;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-4 p-8">
-      <p className="text-error">{error.message}</p>
-      <button onClick={reset} className="btn btn-primary">
-        Try again
-      </button>
-    </div>
-  );
-}
 ```
 
-### 8.3 Error Mapping
+Error type definitions live in `contract/domain.md §3.5`. See `§8.3` for layer mapping and `§8.4` for UI display.
+
+### Error Mapping
 
 `ErrorMapperImpl` follows the same interface-based pattern as other mappers (see Section 4.2). Repositories inject `ErrorMapper` to convert `NetworkError` → `DomainError`:
 
@@ -72,6 +52,39 @@ export function humanizeError(code: DomainErrorCode): string {
 // Note: humanizeError lives in the presentation layer — user-facing message
 // strings are a display concern, not a domain concept.
 ```
+
+### Error UI
+
+React error boundaries catch rendering errors; TanStack Query's error state surfaces data-fetch errors.
+
+```typescript
+// app/employees/error.tsx — Next.js error boundary (per route segment)
+'use client';
+
+export default function EmployeesError({
+  error,
+  reset,
+}: {
+  error: Error;
+  reset: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 p-8">
+      <p className="text-error">{error.message}</p>
+      <button onClick={reset} className="btn btn-primary">Try again</button>
+    </div>
+  );
+}
+
+// In components — TanStack Query error state (non-blocking)
+const { error } = useQuery({ ... });
+if (error) return <ErrorView message={humanizeError(error.code)} />;
+```
+
+**Rules:**
+- Place `error.tsx` at the route segment level, not globally — scope errors to the affected section
+- Never expose raw error codes or stack traces to users — use `humanizeError(code)`
+- `humanizeError` lives in `presentation/common/utils/errorMessages.ts` (presentation layer, not domain)
 
 ---
 

@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Setup
+## Setup
 
 ```yaml
 # pubspec.yaml
@@ -19,7 +19,7 @@ dev_dependencies:
 
 ---
 
-## 2. Global Locator
+## Global Locator
 
 ```dart
 // di/injection.dart
@@ -42,7 +42,7 @@ dart run build_runner build --delete-conflicting-outputs
 
 ---
 
-## 3. Annotations
+## Annotations
 
 | Annotation | Lifecycle | Use For |
 |------------|-----------|---------|
@@ -54,7 +54,7 @@ dart run build_runner build --delete-conflicting-outputs
 
 ---
 
-## 4. Feature DI Module
+## Feature DI Module
 
 Each feature owns its DI registration. Scope all registrations to the feature's directory.
 
@@ -75,7 +75,7 @@ Or use the global `@InjectableInit` and annotate each class in the feature folde
 
 ---
 
-## 5. Registering Classes
+## Registering Classes
 
 ### Repositories and Use Cases
 
@@ -126,7 +126,7 @@ BlocProvider(
 
 ---
 
-## 6. External Dependencies Module
+## External Dependencies Module
 
 Register third-party instances (Dio, SharedPreferences) via `@module`:
 
@@ -161,7 +161,7 @@ abstract class AppModule {
 
 ---
 
-## 7. Environment-Based Registration
+## Environment-Based Registration
 
 ```dart
 @module
@@ -191,7 +191,7 @@ Future<void> main() async {
 
 ---
 
-## 8. DI Principles
+## DI Principles
 
 | Component | Lifecycle | Why |
 |-----------|-----------|-----|
@@ -204,7 +204,7 @@ Future<void> main() async {
 
 ---
 
-## 9. Testing with getIt
+## Testing with getIt
 
 Override registrations in tests by unregistering and re-registering:
 

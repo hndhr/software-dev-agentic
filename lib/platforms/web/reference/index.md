@@ -12,14 +12,14 @@ Load only the file relevant to your task.
 | contract/navigation.md | App Router structure, route definitions, middleware, redirects |
 | contract/di.md | DI container, server/client context, DI principles |
 | contract/testing.md | Test pyramid, component/hook/repository/mapper tests |
+| contract/error-handling.md | Error flow, error types, error mapping, error boundaries |
+| contract/utilities.md | StorageService, DateService, Logger, Validator, null safety, NetworkMonitor |
 
 ## Platform-Specific References
 
 | File | Contents |
 |------|----------|
 | overview.md | Core principles, layer diagram, dependency rule |
-| error-handling.md | Error flow, error types, error boundaries |
-| utilities.md | StorageService, DateService, Logger, API client, Validator, etc. |
 | modular.md | Turborepo packages, module structure, cross-package communication |
 | project.md | Project layout, naming conventions, design decisions, appendix |
 | ssr.md | Server vs client rendering decision table and patterns |

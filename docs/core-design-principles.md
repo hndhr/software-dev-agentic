@@ -1,6 +1,6 @@
 > Author: Puras Handharmahua · 2026-04-08
-> Updated: 2026-04-18 — v36: P8 orchestrator contract hardened (platform param, output validation, worktree exception); P10 fail-fast expanded to four gates (Input/Preconditions/Output/Orchestrator); P15 convention table updated (sonnet default, new required worker sections)
-> Synced with: software-dev-agentic v3.20.0
+> Updated: 2026-04-19 — v37: P3 platform-contract skills now in `contract/` subfolder; Taxonomy Skills by Scope updated with `contract/` location; Decision Rules updated for contract reference path
+> Synced with: software-dev-agentic v3.21.0
 > Related: Shared Agentic Submodule Architecture — Cross-Platform Scaling
 
 ## What is an Agentic Coding Assistant?
@@ -44,13 +44,13 @@ Skills are focused, reusable workflow procedures. Each skill:
 
 Target: under 30 lines per skill
 
-> Split by intent: `create-*` for new components, `update-*` for existing ones. Naming convention: `<layer>-<action>-<target>` — flat under `skills/`, prefixed by layer for logical grouping.
+> Split by intent: `create-*` for new components, `update-*` for existing ones. Naming convention: `<layer>-<action>-<target>` — platform-contract skills live under `skills/contract/` to make the cross-platform mandate explicit; platform-only skills remain flat under `skills/`. Both land flat in `.claude/skills/<name>/` in downstream projects — the `contract/` grouping is transparent at runtime.
 
 > Keep `SKILL.md` under 500 lines. Move detailed reference material to separate files within the skill directory.
 
 **By Caller — two categories:**
 
-**Core-dependency skills** — called by core workers or orchestrators. Must be implemented by every platform that wants core agent support. Same name across platforms, different syntax per platform.
+**Core-dependency skills** — called by core workers or orchestrators. Must be implemented by every platform that wants core agent support. Same name across platforms, different syntax per platform. Located in `lib/platforms/<platform>/skills/contract/` — the `contract/` subfolder signals the mandatory cross-platform contract.
 
 | Skill name | Called by | Must exist in |
 |---|---|---|
@@ -66,7 +66,7 @@ Target: under 30 lines per skill
 | `test-create-data` | `test-worker` (core) | all platforms |
 | `test-create-presentation` | `test-worker` (core) | all platforms |
 
-**Platform-specific skills** — called by platform agents only. Implemented only by the platform that owns the calling agent. Examples: iOS `review-pr` (called by iOS `pr-review-worker`), iOS `arch-check-ios`.
+**Platform-specific skills** — called by platform agents only. Implemented only by the platform that owns the calling agent. Located flat under `lib/platforms/<platform>/skills/`. Examples: iOS `review-pr` (called by iOS `pr-review-worker`), iOS `arch-check-ios`.
 
 ---
 
@@ -119,7 +119,8 @@ This gives agents full procedural knowledge without embedding it in their body. 
 
 **Reference doc organization in software-dev-agentic:**
 - `lib/core/reference/clean-arch/` — conceptual, language-agnostic principles. Linked to all platforms.
-- `lib/platforms/<platform>/reference/` — platform-specific code patterns. Linked only to matching platform.
+- `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns (same filename on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`). Preserved as `contract/` subdir in downstream (`.claude/reference/contract/<name>.md`).
+- `lib/platforms/<platform>/reference/` (flat) — platform-specific code patterns unique to that platform. Linked only to matching platform as `.claude/reference/<name>.md`.
 
 **Placement decision rule — reference vs agent body:**
 
@@ -384,8 +385,8 @@ Shared to all downstream projects via symlink. Current personas: `builder`, `det
 | Scope | Location | Ships downstream? |
 |---|---|---|
 | **Toolkit skill** | `lib/core/skills/` | Yes — all platforms. Platform-agnostic, intended for use in downstream projects. |
-| **Platform-contract skill** | `lib/platforms/<platform>/skills/` | Yes — matching platform. Same name across all platforms; each implements for its syntax — called by persona workers. |
-| **Platform-only skill** | `lib/platforms/<platform>/skills/` | Yes — matching platform only. Called by platform agents. |
+| **Platform-contract skill** | `lib/platforms/<platform>/skills/contract/` | Yes — matching platform. Same name across all platforms; each implements for its syntax — called by persona workers. Lands flat in `.claude/skills/<name>/` downstream. |
+| **Platform-only skill** | `lib/platforms/<platform>/skills/` (flat) | Yes — matching platform only. Called by platform agents. |
 | **Project skill** | `.claude/skills.local/` | No — project-owned, not in this repo. |
 | **Repo skill** | `skills/` (root) | No — internal tooling only. Used by this repo's internal agents; never symlinked to downstream projects. |
 
@@ -413,9 +414,10 @@ Not all combinations are meaningful. Use this as the decision gate when adding a
 |---|---|
 | New CLEAN-layer behaviour, same on all platforms | Core worker |
 | New orchestration flow, same on all platforms | Core orchestrator |
-| New code generation pattern for one platform | Platform-contract skill (same name, platform implements) |
-| Workflow too platform-specific for any core agent | Platform agent + platform skill |
-| Architecture reference knowledge | `lib/platforms/<platform>/reference/` |
+| New code generation pattern for one platform | Platform-contract skill (same name, platform implements) → `lib/platforms/<platform>/skills/contract/` |
+| Workflow too platform-specific for any core agent | Platform agent + platform skill → `lib/platforms/<platform>/skills/` (flat) |
+| Architecture reference knowledge (cross-platform standard) | `lib/platforms/<platform>/reference/contract/` — same filename on every platform; accessible as `.claude/reference/contract/<name>.md` downstream |
+| Architecture reference knowledge (platform-specific) | `lib/platforms/<platform>/reference/` (flat) |
 
 ---
 
@@ -559,6 +561,13 @@ prompt-debug-worker ← reads perf-report + domain-worker.md
 ---
 
 ## Changelog
+
+**v37 — 2026-04-19 · software-dev-agentic v3.21.0**
+- P3: Platform-contract skills moved to `lib/platforms/<platform>/skills/contract/` subfolder — makes the mandatory cross-platform contract explicit in folder structure; platform-only skills remain flat; both land flat in `.claude/skills/<name>/` downstream (transparent at runtime)
+- P3: Reference doc organization updated — `lib/platforms/<platform>/reference/contract/` introduced for six cross-platform standard files (domain, data, presentation, navigation, di, testing); preserved as `contract/` subdir downstream (`.claude/reference/contract/<name>.md`); platform-specific refs remain flat
+- P7: Reference doc organization note expanded with three-tier breakdown: `lib/core/reference/clean-arch/`, `lib/platforms/<platform>/reference/contract/`, and flat platform-specific refs
+- Taxonomy Skills by Scope: Platform-contract skill location updated to `lib/platforms/<platform>/skills/contract/`; downstream behavior noted (lands flat); Platform-only clarified as flat
+- Decision Rules: Architecture reference knowledge split into two rows — contract/ for cross-platform, flat for platform-specific; platform-contract skill row updated with `contract/` path
 
 **v36 — 2026-04-18 · software-dev-agentic v3.20.0**
 - P8: Orchestrator step 3 updated — `platform` parameter now gathered in Phase 0 and passed to every worker spawn; step 4 updated — `isolation: worktree` conditional, not universal; step 6 added — orchestrator validates worker `## Output` (section exists + paths on disk) before proceeding; P8 table updated: model row changed from haiku/sonnet split to sonnet default; isolation row clarified with exception note

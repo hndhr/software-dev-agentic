@@ -68,6 +68,25 @@ How to check: `Read` the template file; flag any comment that explains the skill
 - [ ] Skill directory name follows `<layer>-<action>-<target>` convention
 - [ ] Layer prefix matches the agent that calls it (`domain-`, `data-`, `pres-`, `test-`, `debug-`, `review-`)
 
+## Contract Reference Schema Check
+
+For each `lib/platforms/<platform>/reference/contract/` directory being audited, verify all 8 files contain their required canonical heading keywords. Required keywords are defined in `lib/core/reference/clean-arch/contract-schema.md`.
+
+**How to check:** For each file, `Grep` for each required keyword within that file. A keyword must appear as a substring in at least one `##` or `###` heading line.
+
+| File | Required keywords |
+|---|---|
+| `domain.md` | `Entities`, `Repository`, `Use Cases`, `Domain Errors` |
+| `data.md` | `DTOs`, `Mappers`, `Data Sources`, `Repository Impl` |
+| `presentation.md` | `State`, `Shared Component Paths` |
+| `navigation.md` | `Route Constants` OR `Navigator` OR `Coordinator` (at least one) |
+| `di.md` | `DI Principles` |
+| `testing.md` | `Test Pyramid`, `Repository Tests`, `Mapper Tests` |
+| `error-handling.md` | `Error Flow`, `Error Types`, `Error Mapping`, `Error UI` |
+| `utilities.md` | `StorageService`, `DateService`, `Logger`, `Null Safety` |
+
+Severity: **Critical** — a missing required keyword means core agents cannot reliably Grep for that concept on this platform, breaking cross-platform portability.
+
 ## Prompt Clarity Check
 
 For each agent file, flag instructions that are likely to cause bad decisions at runtime:

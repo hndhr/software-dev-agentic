@@ -1,8 +1,8 @@
-## 4. Data Layer
+## Data Layer
 
 Implements Domain interfaces. Handles all I/O: network, storage, caching.
 
-### 4.1 DTOs (Data Transfer Objects)
+### DTOs (Data Transfer Objects)
 
 Network response models. Separate from domain entities.
 
@@ -45,7 +45,7 @@ export interface APIResponse<T> {
 - DTOs never escape the Data layer
 - Nested API objects get their own DTO + Mapper pair
 
-### 4.2 Mappers
+### Mappers
 
 Transform DTOs to domain entities and vice versa. **Each DTO-Entity pair gets its own dedicated mapper.** Mappers are interface-based and injectable — this lets you mock them in repository tests and swap mapping strategies when needed.
 
@@ -144,7 +144,7 @@ export class ErrorMapperImpl implements ErrorMapper {
 - Mappers compose via injection: `EmployeeMapperImpl` receives `DepartmentMapper` in its constructor
 - Default parameter injection: `constructor(departmentMapper = new DepartmentMapperImpl())` — overridable in tests
 
-### 4.3 Data Sources
+### Data Sources
 
 Abstract the data origin (remote API, local storage, cache).
 
@@ -193,7 +193,7 @@ export class EmployeeRemoteDataSourceImpl implements EmployeeRemoteDataSource {
 }
 ```
 
-### 4.4 Repository Implementation
+### Repository Implementation
 
 Repositories receive mappers through injection — this lets you mock mappers in tests and isolate repository logic.
 
@@ -262,7 +262,7 @@ export class EmployeeRepositoryImpl implements EmployeeRepository {
 }
 ```
 
-### 4.5 HTTP Client
+### HTTP Client
 
 Uses **Axios** with **axios-retry**. The `HTTPClient` interface keeps the Data layer decoupled from Axios internals — swap the implementation without touching repositories or data sources.
 

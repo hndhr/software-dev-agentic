@@ -1,6 +1,6 @@
 # Talenta iOS — Architecture V2: 1. Overview
 
-## 1. Overview
+## Overview
 
 ### What This Is
 
@@ -41,7 +41,7 @@ The **Talenta iOS** application is an enterprise HR/attendance tracking platform
 
 ---
 
-## 2. Architecture Layers
+## Architecture Layers
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -111,11 +111,11 @@ import Foundation // OK for Date, Codable, etc.
 
 ---
 
-## 3. Domain Layer
+## Domain Layer
 
 The innermost layer. Defines **what** the app does, not **how**.
 
-### 3.1 Entities
+### Entities
 
 Pure business models. No framework dependencies.
 
@@ -187,7 +187,7 @@ extension RequestLiveAttendanceModel {
 - ❌ No `import UIKit` or heavy framework dependencies
 - ❌ No business logic (pure data)
 
-### 3.2 Repository Protocols
+### Repository Protocols
 
 Define data access contracts. Implementations live in Data layer.
 
@@ -220,7 +220,7 @@ protocol LiveAttendanceRepository {
 - ✅ Params are domain Param objects, not raw dictionaries
 - ❌ No implementation details (no Moya, no network code)
 
-### 3.3 UseCases
+### Use Cases
 
 Single-responsibility operations. Each UseCase does **one thing**.
 
@@ -564,7 +564,7 @@ getCurrentUserUseCase.execute(params: ()) { [weak self] result in
 - Discoverable — autocomplete shows params right from the UseCase type
 - Colocated — params definition lives next to the code that uses it
 
-### 3.4 Services
+### Services
 
 Pure business decision functions. **No I/O, no side effects, no async.**
 
@@ -914,7 +914,22 @@ class InboxApprovalListViewModel: BaseViewModelV2<State, Event, Action> {
 
 **Key Principle:** Services contain pure business logic. UseCases orchestrate I/O. ViewModels orchestrate UI.
 
-### 3.5 Domain Enums
+### Domain Errors
+
+```swift
+// Shared/Domain/Entities/BaseErrorModel.swift
+struct BaseErrorModel: Error {
+    let status: Int?
+    let message: String
+    let errors: [String: [String]]?
+}
+```
+
+`BaseErrorModel` is the canonical error type for all UseCase and Repository completions (`Result<Model, BaseErrorModel>`). Repositories map `NetworkError` → `BaseErrorModel` before propagating upward. See `reference/contract/error-handling.md` for full error flow and mapping patterns.
+
+---
+
+### Domain Enums
 
 ```swift
 // Domain/enum/CICOType.swift

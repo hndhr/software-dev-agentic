@@ -4,7 +4,7 @@ BLoC pattern for state management. Widgets are dumb — they react to state and 
 
 ---
 
-## 1. ViewDataState
+## ViewDataState
 
 A generic state wrapper for async data operations. Used in every BLoC state that holds fetched or submitted data.
 
@@ -67,7 +67,7 @@ class ViewDataState<T> extends Equatable {
 
 ---
 
-## 2. Events
+## Events
 
 Sealed classes with freezed. Name with **verb + noun** pattern.
 
@@ -104,7 +104,7 @@ sealed class EmployeeEvent with _$EmployeeEvent {
 
 ---
 
-## 3. States
+## States
 
 Single immutable state class per BLoC. Use `ViewDataState<T>` for each async operation.
 
@@ -137,7 +137,7 @@ class EmployeeState with _$EmployeeState {
 
 ---
 
-## 4. BLoC
+## BLoC
 
 ```dart
 // presentation/blocs/employee_bloc.dart
@@ -225,7 +225,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
 
 ---
 
-## 5. Cubit (Simpler Alternative)
+## Cubit (Simpler Alternative)
 
 Use Cubit when there are no events — only method calls.
 
@@ -257,7 +257,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
 
 ---
 
-## 6. Screen Structure
+## Screen Structure
 
 ```dart
 // presentation/screens/employee_screen.dart
@@ -316,7 +316,7 @@ class _EmployeeView extends StatelessWidget {
 
 ---
 
-## 7. BlocListener (Side Effects)
+## BlocListener (Side Effects)
 
 Use `BlocListener` for navigation, toasts, dialogs — one-time reactions not reflected in UI.
 
@@ -350,7 +350,7 @@ BlocListener<EmployeeBloc, EmployeeState>(
 
 ---
 
-## 8. MultiBlocProvider
+## MultiBlocProvider
 
 For screens needing multiple BLoCs:
 
@@ -372,7 +372,7 @@ MultiBlocProvider(
 
 ---
 
-## 9. State Access from Child Widgets
+## State Access from Child Widgets
 
 ```dart
 // In a child widget — read without listening

@@ -1,6 +1,6 @@
 > Author: Puras Handharmahua · 2026-04-09
-> Updated: 2026-04-18 — v15: Decision 3 runtime platform param; Decision 8a sonnet for all workers; Decision 8b worktree isolation conditional; Convention Compliance table updated with new required worker sections and output validation
-> Synced with: software-dev-agentic v3.20.0
+> Updated: 2026-04-19 — v16: `contract/` subfolder for platform-contract skills and cross-platform reference docs; worker skill resolution via `.claude/skills/<name>/SKILL.md`; symlink behavior difference documented
+> Synced with: software-dev-agentic v3.21.0
 > Related: Agentic Coding Assistant — Core Design Principles
 
 ## Relationship to Core Design Principles
@@ -9,8 +9,8 @@ This document extends the Core Design Principles — it does not replace them. A
 
 | Principle | What Changes |
 |---|---|
-| 5 — Preloaded Skills | Shared skills remain preloaded. Platform-specific skills live in `lib/platforms/<platform>/skills/` — linked at setup time, not loaded on-demand at runtime. |
-| 7 — Three-Tier Knowledge | Tier 3 reference docs now live in the shared submodule: `lib/core/reference/clean-arch/` for universal CLEAN principles; `lib/platforms/<platform>/reference/` for platform-specific code patterns. Accessed via Grep-first, never Read in full unless necessary. |
+| 5 — Preloaded Skills | Shared skills remain preloaded. Platform-contract skills live in `lib/platforms/<platform>/skills/contract/`; platform-only skills flat under `lib/platforms/<platform>/skills/` — all linked at setup time, land flat in `.claude/skills/<name>/`. |
+| 7 — Three-Tier Knowledge | Tier 3 reference docs now live in the shared submodule: `lib/core/reference/clean-arch/` for universal CLEAN principles; `lib/platforms/<platform>/reference/contract/` for six cross-platform standard files (same name on all platforms, preserved as `contract/` subdir downstream); `lib/platforms/<platform>/reference/` (flat) for platform-unique patterns. Accessed via Grep-first. |
 | 8 — Orchestrators Coordinate | Orchestrators AND workers live in `lib/core/agents/` — both platform-agnostic. Platform knowledge lives exclusively in `lib/platforms/<platform>/skills/`. Platform-specific agents (e.g., iOS `test-orchestrator`) live in `lib/platforms/<platform>/agents/` only when the agent itself is inherently platform-specific. |
 | 9 — Delegation Threshold | Tasks touching >3 architectural layers must delegate to `feature-orchestrator` with `isolation: worktree`. Inline execution at that scope is a P9 violation. |
 | 13 — Naming Convention | Flutter and Android must adopt the `-orchestrator` / `-worker` suffix convention as a prerequisite for migration into the shared submodule. |
@@ -75,7 +75,7 @@ A `domain-worker` is the same brain on iOS (Swift entities) and web (TypeScript 
 | Workers | CLEAN UseCase | `lib/core/agents/` |
 | Skills | CLEAN Repository Implementation | `lib/platforms/<platform>/skills/` |
 
-**Core-dependency skills** — called by core workers. Must be implemented by every platform that wants core agent support. Same name across platforms, different syntax per platform:
+**Core-dependency skills** — called by core workers. Must be implemented by every platform that wants core agent support. Same name across platforms, different syntax per platform. Located in `lib/platforms/<platform>/skills/contract/` to make the mandatory cross-platform contract explicit. At setup time, the `contract/` group is transparent — skills land flat in `.claude/skills/<name>/` in the downstream project.
 
 | Skill name | Called by | Must exist in |
 |---|---|---|
@@ -111,24 +111,25 @@ Adding a new persona: Create `lib/core/agents/<persona>/`, add worker(s)/orchest
 
 **Decision:** The correct platform skill files are linked at project setup time via the `--platform=` flag. There is no `.claude/platform` file — platform identity is baked into the symlinks themselves. At runtime, orchestrators also pass `platform` explicitly in every worker spawn prompt so workers can resolve skill paths without relying solely on symlink structure.
 
-**Rationale:** With workers being platform-agnostic files in `lib/core/agents/`, and skills being the platform-specific layer, setup-time symlinks wire the right skill implementations into `.claude/skills/`. The runtime platform parameter (`web`/`ios`/`flutter`) lets workers resolve `lib/platforms/<platform>/skills/<skill>/SKILL.md` deterministically — a second safety net that works even in repos with non-standard symlink layouts.
+**Rationale:** With workers being platform-agnostic files in `lib/core/agents/`, and skills being the platform-specific layer, setup-time symlinks wire the right skill implementations into `.claude/skills/`. Workers resolve skills via the symlinked path `.claude/skills/<name>/SKILL.md` — no runtime platform path construction needed. The runtime platform parameter (`web`/`ios`/`flutter`) is still passed in every spawn prompt for workers that need to reference platform-specific conventions, but skill execution always goes through the downstream symlink.
 
 Three-pass linking priority: `agents.local` > platform > core (first link wins)
 
-**Result:** `.claude/skills/domain-create-entity/` points to the correct platform skill implementation. `.claude/agents/domain-worker.md` points to the single shared core worker. The worker calls `domain-create-entity` by name and gets the right implementation automatically.
+**Result:** `.claude/skills/domain-create-entity/` points to the correct platform skill implementation (from `lib/platforms/<platform>/skills/contract/domain-create-entity/`). `.claude/agents/domain-worker.md` points to the single shared core worker. The worker calls `domain-create-entity` by name and gets the right implementation automatically.
 
 ---
 
 ### 4. Reference Docs Split by Scope
 
-**Decision:** Reference docs live in two locations within the submodule:
+**Decision:** Reference docs live in three locations within the submodule:
 - `lib/core/reference/README.md` — taxonomy doc: placement rules for reference vs agent body vs skills (agentic use)
 - `lib/core/reference/clean-arch/` — conceptual, language-agnostic CLEAN Architecture principles (DI containers, domain purity, layer contracts)
-- `lib/platforms/<platform>/reference/` — platform-specific patterns with code examples (TypeScript, Swift, Dart)
+- `lib/platforms/<platform>/reference/contract/` — cross-platform standard patterns with code examples. Same six filenames on every platform: `domain.md`, `data.md`, `presentation.md`, `navigation.md`, `di.md`, `testing.md`. This makes the mandatory same-name-across-platforms contract explicit in the folder structure.
+- `lib/platforms/<platform>/reference/` (flat) — platform-specific patterns unique to that platform (e.g. `ssr.md`, `server-actions.md` for web).
 
-**Rationale:** Previously all reference docs lived flat in `reference/`. Some (like `di-containers.md`) describe pure CLEAN theory with no code. Others (like `domain.md`, `data.md`) contain TypeScript-specific examples that would confuse an iOS worker. Splitting by scope ensures each platform's skills only load reference docs relevant to their language.
+**Rationale:** Within a platform's reference directory, some docs describe concepts mandatory on all platforms (the CLEAN layer contracts) while others are platform-unique. The `contract/` subfolder makes the cross-platform mandate visible — adding a new platform means the engineer must provide all six files under `contract/`. Platform-only refs remain flat.
 
-From the downstream project's perspective, all reference docs are accessible as `.claude/reference/<name>.md` — the split is internal to the submodule.
+**Downstream behavior (different from skills):** The `contract/` subdir is **preserved** in downstream projects — skills and workers reference these files as `.claude/reference/contract/<name>.md`. This is intentional: skills contain hard-coded paths like `reference/contract/presentation.md`; flattening would break them. Platform-specific reference docs land as `.claude/reference/<name>.md` (flat).
 
 **Grep-first rule (P7 enforcement):** Workers Grep reference files by section keyword before reading in full. If uncertain which file covers a topic, check `reference/index.md` first.
 
@@ -147,6 +148,17 @@ From the downstream project's perspective, all reference docs are accessible as 
 **Decision:** `.claude/agents/` and `.claude/skills/` contain only symlinks — never real files. Real files live in `agents.local/` and `skills.local/`.
 
 > The setup scripts recurse into persona subdirectories when linking agents — all agents land flat in `.claude/agents/` regardless of their subdir in the submodule.
+
+**Skills vs References — different downstream behavior:**
+
+| Source location | Downstream path | Subdir preserved? |
+|---|---|---|
+| `lib/platforms/<platform>/skills/contract/<name>/` | `.claude/skills/<name>/` | No — lands flat |
+| `lib/platforms/<platform>/skills/<name>/` | `.claude/skills/<name>/` | No — already flat |
+| `lib/platforms/<platform>/reference/contract/<name>.md` | `.claude/reference/contract/<name>.md` | **Yes** — `contract/` preserved |
+| `lib/platforms/<platform>/reference/<name>.md` | `.claude/reference/<name>.md` | No — already flat |
+
+Skills land flat because workers resolve via `.claude/skills/<name>/SKILL.md` — the `contract/` grouping is a source-level convention only. References preserve `contract/` because skill files contain hard-coded paths like `reference/contract/presentation.md`.
 
 ---
 
@@ -262,10 +274,12 @@ Flow:
 | Internal repo tooling | `software-dev-agentic/agents/` | Convention reviewer + doc sync worker — NOT symlinked to downstream projects |
 | Platform-specific agents (`test-orchestrator`, `pr-review-worker`) | `software-dev-agentic/lib/platforms/<platform>/agents/` | Agent itself is inherently platform-specific |
 | Core skills | `software-dev-agentic/lib/core/skills/` | Identical across platforms |
-| Platform-specific skills | `software-dev-agentic/lib/platforms/<platform>/skills/` | Platform language/framework specific |
+| Platform-contract skills | `software-dev-agentic/lib/platforms/<platform>/skills/contract/` | Same name on all platforms, platform-specific implementation; lands flat in `.claude/skills/<name>/` downstream |
+| Platform-only skills | `software-dev-agentic/lib/platforms/<platform>/skills/` (flat) | Called by platform agents only |
 | Internal repo skills | `software-dev-agentic/skills/` | Convention checker, report formatter, doc sync skills — NOT symlinked to downstream projects |
 | Universal reference docs | `software-dev-agentic/lib/core/reference/clean-arch/` | Language-agnostic CLEAN theory |
-| Platform reference docs | `software-dev-agentic/lib/platforms/<platform>/reference/` | Platform-specific code patterns |
+| Cross-platform contract reference docs | `software-dev-agentic/lib/platforms/<platform>/reference/contract/` | Same six files on all platforms; preserved as `contract/` subdir downstream |
+| Platform-specific reference docs | `software-dev-agentic/lib/platforms/<platform>/reference/` (flat) | Platform-unique patterns; lands flat in `.claude/reference/<name>.md` downstream |
 | Project-specific agents | `.claude/agents.local/` | Only relevant to one project |
 | Agent/skill extensions | `.claude/*/extensions/` | Additive delta, project-scoped |
 | Agent memory | `.claude/agent-memory/` | Project-scoped institutional knowledge |
@@ -284,10 +298,11 @@ Flow:
 feature-orchestrator   (core orchestrator)
   └─ domain-worker     (core worker)       ← knows the rules
         └─ domain-create-entity            ← flutter skill, knows the syntax
-             lib/platforms/flutter/skills/domain-create-entity/SKILL.md
+             source:     lib/platforms/flutter/skills/contract/domain-create-entity/SKILL.md
+             downstream: .claude/skills/domain-create-entity/SKILL.md
 ```
 
-The worker knows the rules (no framework imports, single responsibility). The skill knows the syntax (Dart, `@freezed`, file naming). `domain-create-entity` is a core-dependency skill — it must exist in every platform's `lib/platforms/<platform>/skills/`.
+The worker knows the rules (no framework imports, single responsibility). The skill knows the syntax (Dart, `@freezed`, file naming). `domain-create-entity` is a core-dependency skill — it lives in every platform's `lib/platforms/<platform>/skills/contract/` and resolves at runtime via `.claude/skills/domain-create-entity/SKILL.md`.
 
 **iOS PR review** — "Review my PR before merging"
 
@@ -422,6 +437,15 @@ Both scripts are idempotent — re-running never overwrites existing files (`lin
 ---
 
 ## Changelog
+
+**v16 — 2026-04-19 · software-dev-agentic v3.21.0**
+- Decision 1: Core-dependency skills now in `lib/platforms/<platform>/skills/contract/` subfolder — makes the mandatory cross-platform contract explicit; platform-only skills remain flat; setup scripts handle both transparently
+- Decision 3: Worker skill resolution updated — workers resolve via `.claude/skills/<name>/SKILL.md` (downstream symlink), not `lib/platforms/<platform>/skills/<name>/SKILL.md` source path; runtime platform param still passed for workers needing platform context
+- Decision 4: Reference docs split into three tiers — `lib/core/reference/clean-arch/`, `lib/platforms/<platform>/reference/contract/` (six cross-platform files, preserved as `contract/` subdir downstream), flat platform-specific refs; downstream behavior difference from skills documented
+- Decision 6: Added table documenting different downstream symlink behavior — skills land flat regardless of `contract/` source grouping; references preserve `contract/` subdir because skill files hard-code that path
+- "What Goes Where" table: Platform-contract skill and Platform-only skill rows split; cross-platform contract reference and platform-specific reference rows split
+- Examples: Flutter entity creation updated to show both source path (`lib/platforms/flutter/skills/contract/...`) and downstream resolution (`.claude/skills/.../SKILL.md`)
+- Principle modifications table: P5 and P7 rows updated with `contract/` subfolder and downstream behavior
 
 **v15 — 2026-04-18 · software-dev-agentic v3.20.0**
 - Decision 3: Updated — platform now passed at runtime in every worker spawn prompt, not just resolved via setup-time symlinks; rationale updated to explain dual safety net

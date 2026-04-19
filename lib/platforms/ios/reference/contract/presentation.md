@@ -1,8 +1,8 @@
 # Talenta iOS — Architecture V2: 5. Presentation Layer
 
-## 5. Presentation Layer
+## Presentation Layer
 
-### 5.1 ViewModel State Management
+### ViewModel State Management
 
 Talenta iOS uses **BaseViewModelV2** with generic State/Event/Action pattern.
 
@@ -83,7 +83,7 @@ enum CICOLocationViewModelAction: ViewModelAction {
 }
 ```
 
-### 5.2 BaseViewModelV2
+### BaseViewModelV2
 
 Generic base class for all ViewModels with reactive state management.
 
@@ -172,7 +172,7 @@ class BaseViewModelV2<State: ViewModelState, Event: ViewModelEvent, Action: View
 - Subclasses override `emitEvent(_ event:)` for user interactions
 - Subclasses override `setBinders()` for RxSwift bindings
 
-### 5.3 Concrete ViewModel
+### Concrete ViewModel
 
 ```swift
 // Presentation/ViewModel/CICOLocation/CICOLocationViewModel.swift
@@ -301,7 +301,7 @@ class CICOLocationViewModel: BaseViewModelV2<
 - Use `weak self` in closures
 - Dispose subscriptions via `disposeBag`
 
-### 5.4 ViewController
+### ViewController
 
 ```swift
 // Presentation/View/CICOLocation/CICOLocationViewController.swift

@@ -1,8 +1,8 @@
-## 3. Domain Layer
+## Domain Layer
 
 The innermost layer. Defines **what** the app does, not **how**.
 
-### 3.1 Entities
+### Entities
 
 Pure data models representing business concepts. No framework imports.
 
@@ -38,7 +38,7 @@ export interface PaginatedResult<T> {
 - Plain TypeScript interfaces — no class inheritance, no decorators
 - Represent business concepts, not API shapes
 
-### 3.2 Repository Interfaces
+### Repository Interfaces
 
 Define data access contracts. Implementations live in the Data layer.
 
@@ -62,7 +62,7 @@ export interface EmployeeRepository {
 - Return domain entities, never DTOs
 - Interface must be in the Domain layer — implementations go in Data
 
-### 3.3 Use Cases
+### Use Cases
 
 Single-responsibility operations that orchestrate repositories. Each UseCase does **one thing**.
 
@@ -163,7 +163,7 @@ export class UpdateEmployeeUseCaseImpl implements UpdateEmployeeUseCase {
 
 **Naming convention:** `[Verb][Feature]UseCase` — e.g., `GetEmployeeUseCase`, `SubmitAttendanceUseCase`, `CalculateLeaveBalanceUseCase`
 
-### 3.4 Services
+### Services
 
 Services handle **pure business decisions** — no I/O, no side effects, no async. Use them when business logic is complex enough to warrant extraction from a UseCase or ViewModel hook.
 
@@ -300,7 +300,7 @@ A service computing only dashboard display logic belongs in `dashboard`.
 
 **Naming convention:** `[Feature][Noun]` interface + `[Feature][Noun]Service` class — e.g., `LeaveBalanceCalculator` / `LeaveBalanceCalculatorService`
 
-### 3.5 Domain Errors
+### Domain Errors
 
 ```typescript
 // domain/errors/DomainError.ts

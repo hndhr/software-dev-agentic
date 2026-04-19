@@ -14,7 +14,7 @@ Domain imports only `dart:core` and functional packages (`fpdart`). Never import
 
 ---
 
-## 1. Entities
+## Entities
 
 Immutable business objects. **No `fromJson` — ever.**
 
@@ -44,7 +44,7 @@ class EmployeeEntity with _$EmployeeEntity {
 
 ---
 
-## 2. Repository Interfaces
+## Repository Interfaces
 
 Define data access contracts. Implementations live in the Data layer.
 
@@ -78,7 +78,7 @@ abstract class EmployeeRepository {
 
 ---
 
-## 3. Use Cases
+## Use Cases
 
 Single-responsibility operations. One use case per business operation.
 
@@ -232,7 +232,7 @@ class GetCurrentUserUseCase
 
 ---
 
-## 4. Domain Services
+## Domain Services
 
 Pure synchronous functions. No I/O, no async, no side effects.
 
@@ -276,7 +276,7 @@ class LeaveBalanceCalculator {
 
 ---
 
-## 5. Failure
+## Domain Errors
 
 The unified error type returned from all repository and use case calls.
 
@@ -322,7 +322,7 @@ abstract class Failure<T> with _$Failure<T> {
 
 ---
 
-## 6. Domain Enums
+## Domain Enums
 
 Business-level constants. Place in `domain/enums/`.
 

@@ -1,10 +1,10 @@
 # Talenta iOS — Architecture V2: 6. Navigation (Coordinator)
 
-## 6. Navigation (Coordinator)
+## Navigation (Coordinator)
 
 Talenta uses the **Coordinator pattern** with `BaseCoordinator` to handle navigation and decouple ViewControllers from navigation logic.
 
-### 6.1 Navigator Protocol
+### Navigator Protocol
 
 Define navigation methods as a protocol that the coordinator implements:
 
@@ -30,7 +30,7 @@ protocol DashboardNavigator: AnyObject {
 - Methods with simple navigation return `Void`
 - All methods take necessary parameters (IDs, flags, models)
 
-### 6.2 BaseCoordinator Pattern (V2 Recommended)
+### BaseCoordinator Pattern (V2 Recommended)
 
 ```swift
 // Presentation/Coordinator/DashboardCoordinator.swift
@@ -73,7 +73,7 @@ final class DashboardCoordinator: BaseCoordinator<Void> {
 }
 ```
 
-### 6.3 Navigator Implementation
+### Navigator Implementation
 
 ```swift
 extension DashboardCoordinator: DashboardNavigator {
@@ -142,7 +142,7 @@ extension DashboardCoordinator: DashboardNavigator {
 }
 ```
 
-### 6.4 Coordinator Lifecycle Management
+### Coordinator Lifecycle Management
 
 **Child Coordinator Pattern:**
 
@@ -176,7 +176,7 @@ func openAnotherFeature() {
 - `defaultNavigationController` - Shared navigation controller
 - `defaultController` - Reference to created view controller
 
-### 6.5 V2 Pattern with DI Container
+### V2 Pattern with DI Container
 
 **In Coordinator:**
 ```swift
@@ -208,7 +208,7 @@ final class TalentaDashboardDIContainer {
 }
 ```
 
-### 6.6 Coordinator Patterns Summary
+### Coordinator Patterns Summary
 
 | Pattern | When to Use | Example |
 |---------|-------------|---------|
@@ -218,7 +218,7 @@ final class TalentaDashboardDIContainer {
 | **Bottom sheet** | Modal presentation with custom view | `presentBottomSheet(view: customView, ...)` |
 | **Feature module manager** | Cross-module navigation | `timeManagementManager.openTmTimeOffIndex()` |
 
-### 6.7 Complete Example: Feature Coordinator
+### Complete Example: Feature Coordinator
 
 ```swift
 // Presentation/Coordinator/CustomFormListCoordinator.swift
