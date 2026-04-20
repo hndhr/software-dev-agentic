@@ -25,7 +25,7 @@ No build, lint, or test commands — all files are Markdown and Bash.
 
 `lib/` — ships downstream · `agents/` + `skills/` — internal tooling · `docs/` — design docs · `evaluation/` — observations
 
-See `docs/core-design-principles.md` and `docs/shared-submodule-arch.md` for the full structure and decision rules.
+See `docs/core-design-principles.md` and `docs/submodule-repo-structure.md` for the full structure and decision rules.
 
 ## Workflow
 

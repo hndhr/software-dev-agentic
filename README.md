@@ -158,7 +158,7 @@ Architecture reference docs live in `lib/core/reference/clean-arch/` (universal)
 
 Local source of truth (this repo):
 - [`docs/core-design-principles.md`](docs/core-design-principles.md) — all 15 principles, full taxonomy, decision rules
-- [`docs/shared-submodule-arch.md`](docs/shared-submodule-arch.md) — cross-platform submodule architecture
+- [`docs/submodule-repo-structure.md`](docs/submodule-repo-structure.md) — cross-platform submodule architecture
 
 Published view (Confluence):
 - [Agentic Coding Assistant — Core Design Principles](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51126370416)
