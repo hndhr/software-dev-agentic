@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.28.0] — 2026-04-20
+
+### Changed
+- `docs/core-design-principles.md`: extracted Goals, Core Design Decision, Three Consumer Modes, Context Cost Analysis, DI at Skill Level, and Layer Isolation into the principles doc as the single source of truth; removed `isolation: worktree` references
+- `docs/submodule-repo-structure.md` (renamed from `shared-submodule-arch.md`): now a pure structural reference — all principles moved to core doc; agent/skill names genericized; setup section merged back in
+- `docs/changelog-submodule-repo-structure.md` (renamed from `changelog-shared-submodule-arch.md`)
+
+### Added
+- **Layer Isolation** principle (P2): workers have bounded knowledge and write authority — each worker knows only its CLEAN layer's rules and writes only to that layer's files
+
+### Removed
+- `isolation: worktree` removed from all orchestrators (`arch-review-orchestrator`, `scaffold-worker`, `debug-orchestrator`, `test-orchestrator`) and from the `arch-check-conventions` checklist — layer isolation in this system means knowledge/authority boundaries, not git worktree isolation
+
+---
+
 ## [3.27.0] — 2026-04-20
 
 ### Changed
