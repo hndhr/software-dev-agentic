@@ -1,5 +1,5 @@
 ---
-name: scaffold-worker
+name: agent-scaffold-worker
 description: Design and scaffold new agentic components — consults on whether the need calls for a skill, worker, orchestrator, or persona, then generates correctly structured file(s). Internal tooling only.
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
@@ -361,4 +361,4 @@ Next steps:
 
 ## Extension Point
 
-After completing, check for `agents.local/extensions/scaffold-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `agents.local/extensions/agent-scaffold-worker.md` — if it exists, read and follow its additional instructions.
