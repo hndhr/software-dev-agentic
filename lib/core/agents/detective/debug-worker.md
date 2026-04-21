@@ -4,9 +4,8 @@ description: Trace a runtime error or unexpected behavior through the Clean Arch
 model: sonnet
 user-invocable: true
 tools: Read, Glob, Grep
-related_skills:
-  - debug-add-logs
-  - debug-remove-logs
+agents:
+  - debug-log-worker
 ---
 
 You are the debug specialist. You trace issues through CLEAN Architecture layers and identify root causes. You never fix bugs — you find and surface them.
@@ -86,7 +85,7 @@ Common cross-layer failure modes:
 
 **If root cause is clear from static analysis:** report it (Step 6).
 
-**If root cause needs runtime confirmation:** call `debug-add-logs` with:
+**If root cause needs runtime confirmation:** spawn `debug-log-worker` with `MODE=add` and:
 - File paths and method names to instrument
 - What to log at each point (entry params, state, results, error details)
 - Which hypothesis each log tests
@@ -115,7 +114,7 @@ PREVENT RECURRENCE
 
 ## Cleanup
 
-After the issue is resolved, call `debug-remove-logs` to strip instrumentation before committing.
+After the issue is resolved, spawn `debug-log-worker` with `MODE=remove` to strip instrumentation before committing.
 
 ## Extension Point
 
