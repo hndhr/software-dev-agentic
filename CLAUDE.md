@@ -23,7 +23,7 @@ No build, lint, or test commands — all files are Markdown and Bash.
 
 ## Structure
 
-`lib/` — ships downstream · `agents/` + `skills/` — internal tooling · `docs/` — design docs, observations, perf reports · `reference/` — internal convention reference
+`lib/` — ships downstream · `.claude/` — internal tooling (agents, skills, reference) · `docs/` — design docs, observations, perf reports · `scripts/` — setup and sync scripts
 
 See `docs/core-design-principles.md` and `docs/submodule-repo-structure.md` for the full structure and decision rules.
 

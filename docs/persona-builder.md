@@ -39,8 +39,8 @@ Location: `lib/core/agents/builder/`
 
 | Component | Location | Purpose |
 |---|---|---|
-| `arch-review-orchestrator`, `arch-review-worker` | `agents/` (root) | Convention review |
-| `arch-check-conventions`, `arch-generate-report` | `skills/` (root) | Convention checklist, report formatter |
+| `arch-review-orchestrator`, `arch-review-worker` | `.claude/agents/` | Convention review |
+| `arch-check-conventions`, `arch-generate-report` | `.claude/skills/` | Convention checklist, report formatter |
 
 ---
 

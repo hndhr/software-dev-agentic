@@ -132,10 +132,10 @@ software-dev-agentic enforces its own conventions through an automated internal 
 
 | Reviewer | Location | Audits |
 |---|---|---|
-| `arch-review-orchestrator` + `arch-review-worker` | `agents/` (repo root) | Agent `.md` files and `SKILL.md` files in this repo — convention compliance |
+| `arch-review-orchestrator` + `arch-review-worker` | `.claude/agents/` | Agent `.md` files and `SKILL.md` files in this repo — convention compliance |
 | `arch-review-worker` | `lib/core/agents/auditor/` | Application code in downstream projects — CLEAN Architecture violations |
 
-> Why separate locations? Root `agents/` and `skills/` are this repo's internal tooling — they are NOT symlinked into downstream projects. `lib/core/agents/` and `lib/core/skills/` ARE symlinked. The distinction prevents internal review tooling from polluting downstream project contexts.
+> Why separate locations? `.claude/agents/` and `.claude/skills/` are this repo's internal tooling — they are NOT symlinked into downstream projects. `lib/core/agents/` and `lib/core/skills/` ARE symlinked. The distinction prevents internal review tooling from polluting downstream project contexts.
 
 **What `arch-check-conventions` enforces:**
 
@@ -169,7 +169,7 @@ software-dev-agentic enforces its own conventions through an automated internal 
 | All workers in `lib/core/agents/` | DI at skill level — platform-agnostic brains |
 | Persona subdirectories | Workflow cohesion; selective installation; self-documenting |
 | `perf-worker.md` stays flat | No persona peers yet |
-| Root `agents/` and `skills/` | Internal tooling — not downstream API surface |
+| `.claude/agents/` and `.claude/skills/` | Internal tooling — not downstream API surface |
 | `lib/` boundary | Explicit distributable surface — everything under `lib/` ships, everything outside is tooling |
 | `arch-review-worker` platform-agnostic (P6) | Core workers must not embed platform knowledge |
 | `setup-worker` in `lib/core/agents/installer/` | Platform-agnostic setup logic; delegates mechanical steps to platform setup skills |
@@ -201,7 +201,7 @@ software-dev-agentic enforces its own conventions through an automated internal 
 | `CLAUDE.md` | project root | Project-specific universal rules |
 | `settings.json` | `.claude/` | Project-specific Claude config |
 
-> Rule of thumb: if it describes CLEAN architecture theory → `lib/core/`. If it's platform implementation details → `lib/platforms/<platform>/skills/`. If it's project-specific quirks → `.claude/agents.local/`. If it only applies to reviewing or maintaining this repo's own files → root `agents/` or `skills/`.
+> Rule of thumb: if it describes CLEAN architecture theory → `lib/core/`. If it's platform implementation details → `lib/platforms/<platform>/skills/`. If it's project-specific quirks → `.claude/agents.local/`. If it only applies to reviewing or maintaining this repo's own files → `.claude/agents/` or `.claude/skills/`.
 
 ---
 
@@ -237,7 +237,7 @@ Both scripts are idempotent — re-running never overwrites existing files (`lin
 7. Copy `settings-template.json` → `.claude/settings.local.json` if not present
 8. Copy `CLAUDE-template.md` → `CLAUDE.md` if not present
 
-> Note: Root `agents/` and `skills/` (internal tooling) are NOT linked to downstream projects. Only content under `lib/` is symlinked.
+> Note: `.claude/agents/` and `.claude/skills/` (internal tooling) are NOT linked to downstream projects. Only content under `lib/` is symlinked.
 
 **Adopting Updates (`sync.sh`)**
 
@@ -276,7 +276,7 @@ Both scripts are idempotent — re-running never overwrites existing files (`lin
     CLAUDE.md
 ```
 
-> Root `agents/` and `skills/` (internal tooling) are never symlinked here. Only content under `lib/` reaches downstream projects.
+> `.claude/agents/` and `.claude/skills/` (internal tooling) are never symlinked here. Only content under `lib/` reaches downstream projects.
 
 ---
 

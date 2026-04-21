@@ -202,7 +202,7 @@ Shared to all downstream projects via symlink. Current personas: `builder`, `det
 | **Platform-contract skill** | `lib/platforms/<platform>/skills/contract/` | Yes — matching platform. Same name across all platforms; each implements for its syntax — called by persona workers. Lands flat in `.claude/skills/<name>/` downstream. |
 | **Platform-only skill** | `lib/platforms/<platform>/skills/` (flat) | Yes — matching platform only. Called by platform agents. |
 | **Project skill** | `.claude/skills.local/` | No — project-owned, not in this repo. |
-| **Repo skill** | `skills/` (root) | No — internal tooling only. Used by this repo's internal agents; never symlinked to downstream projects. |
+| **Repo skill** | `.claude/skills/` | No — internal tooling only. Used by this repo's internal agents; never symlinked to downstream projects. |
 
 > "Core-dependency skill" used in earlier sections of this doc refers to platform-contract skills — skills all platforms must implement under the same name (`domain-create-entity`, `data-create-mapper`, etc.).
 
@@ -333,7 +333,7 @@ Known undocumented but functional fields: `agents` field — empirically verifie
 
 ### 9. Convention Enforcement — Self-Auditing Architecture
 
-The agentic system enforces its own conventions through automated review — the same principle applied recursively. `arch-review-orchestrator` + `arch-review-worker` (root `agents/` — internal tooling) audits all agent and skill files in this repo. This is distinct from `lib/core/agents/auditor/arch-review-worker.md`, which reviews application code in downstream projects.
+The agentic system enforces its own conventions through automated review — the same principle applied recursively. `arch-review-orchestrator` + `arch-review-worker` (`.claude/agents/` — internal tooling) audits all agent and skill files in this repo. This is distinct from `lib/core/agents/auditor/arch-review-worker.md`, which reviews application code in downstream projects.
 
 For the full convention checklist, severity levels, and doc sync system, see [submodule-repo-structure.md — Convention Compliance System](submodule-repo-structure.md#convention-compliance-system).
 

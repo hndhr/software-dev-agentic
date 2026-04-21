@@ -1,6 +1,6 @@
 # Agent Conventions Reference
 
-Internal reference for `agents/` tooling. Grep into this file by section heading — never read in full.
+Internal reference for `.claude/agents/` tooling. Grep into this file by section heading — never read in full.
 
 ---
 
@@ -36,7 +36,7 @@ Decision tree — apply in order:
 | **Toolkit** | `lib/core/skills/` | Yes — all platforms |
 | **Platform-contract** | `lib/platforms/<platform>/skills/contract/` | Yes — matching platform |
 | **Platform-only** | `lib/platforms/<platform>/skills/` (flat) | Yes — matching platform only |
-| **Repo** | `skills/` | No — internal tooling only |
+| **Repo** | `.claude/skills/` | No — internal tooling only |
 
 ---
 
@@ -57,7 +57,7 @@ Decision tree — apply in order:
 |---|---|---|
 | **Persona agent** | `lib/core/agents/<persona>/` | Yes — all platforms |
 | **Platform agent** | `lib/platforms/<platform>/agents/` | Yes — matching platform only |
-| **Repo agent** | `agents/` | No — internal tooling only |
+| **Repo agent** | `.claude/agents/` | No — internal tooling only |
 
 ---
 
@@ -131,7 +131,7 @@ Applies to all files under `lib/core/agents/`. Critical violation if the body co
 
 Platform knowledge must be delegated to a skill in `related_skills` — never embedded inline.
 
-Does not apply to files under `agents/` (repo-internal tooling).
+Does not apply to files under `.claude/agents/`.
 
 ---
 
@@ -145,4 +145,4 @@ Every agent body must end with:
 After completing, check for `agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions.
 ```
 
-For repo agents (`agents/`), the path is `agents.local/extensions/<name>.md`.
+For repo agents (`.claude/agents/`), the path is `.claude/agents.local/extensions/<name>.md`.
