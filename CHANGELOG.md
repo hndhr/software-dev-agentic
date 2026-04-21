@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.33.0] — 2026-04-22
+
+### Added
+- `lib/platforms/ios/packages/ios.pkg`: iOS platform package — declares `test-orchestrator` and `pr-review-worker` so package-aware sync manages them correctly
+- `scripts/setup-packages.sh`: writes `.claude/config/installed-packages` lockfile after installation — records platform and selected package names for use by sync
+
+### Changed
+- `scripts/sync.sh`: package-aware sync — reads lockfile, links only installed packages, removes stale submodule-pointing symlinks automatically; falls back to `setup-symlinks.sh` if no lockfile found
+- `packages/builder.pkg`: added `feature-planner` to agents list
+
+---
+
 ## [3.32.0] — 2026-04-22
 
 ### Added
