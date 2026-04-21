@@ -1,6 +1,6 @@
 ---
 name: arch-check-conventions
-description: Audit a set of agent or skill files against software-dev-agentic conventions and evaluation/01-token-optimization.md fixes. Returns structured findings per file.
+description: Audit a set of agent or skill files against software-dev-agentic conventions and docs/evaluation/01-token-optimization.md fixes. Returns structured findings per file.
 user-invocable: false
 tools: Read, Glob, Grep
 ---

@@ -260,4 +260,4 @@ The architecture is sound. Gains at this point come from tuning compliance signa
 
 ---
 
-*Source data: `evaluation/01` through `evaluation/07`, `perf-report/` (10 session reports), `CHANGELOG.md` (v0.1.0 → v3.7.0).*
+*Source data: `docs/evaluation/01` through `docs/evaluation/07`, `docs/perf-report/` (10 session reports), `CHANGELOG.md` (v0.1.0 → v3.7.0).*

@@ -26,7 +26,7 @@ Each entry is numbered in sequence. Entries may be:
 
 ## How to Add an Entry
 
-1. Create `evaluation/NN-short-title.md` (next number in sequence)
+1. Create `docs/evaluation/NN-short-title.md` (next number in sequence)
 2. Add a row to the Log table above
 3. Use the header format:
 

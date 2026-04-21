@@ -296,10 +296,10 @@ Include the exact agent file path inferred from the `agent_spawns` subagent type
 
 The report lives in the software-dev-agentic submodule, not in the downstream project. The submodule path in any downstream project is always `PROJECT_PATH/.claude/software-dev-agentic/`.
 
-Create the `perf-report/` directory inside the submodule if it doesn't exist:
+Create the `docs/perf-report/` directory inside the submodule if it doesn't exist:
 
 ```bash
-mkdir -p PROJECT_PATH/.claude/software-dev-agentic/perf-report
+mkdir -p PROJECT_PATH/.claude/software-dev-agentic/docs/perf-report
 ```
 
 **File naming:** `[project]-[YYYY-MM-DD]-[session-id-short]-[short-session-description].md`
@@ -311,7 +311,7 @@ mkdir -p PROJECT_PATH/.claude/software-dev-agentic/perf-report
 
 Example: `wehire-2026-04-11-65e4df75-design-system-admin-ui.md`
 
-Write the report to: `PROJECT_PATH/.claude/software-dev-agentic/perf-report/[project]-[YYYY-MM-DD]-[session-id-short]-[short-session-description].md`
+Write the report to: `PROJECT_PATH/.claude/software-dev-agentic/docs/perf-report/[project]-[YYYY-MM-DD]-[session-id-short]-[short-session-description].md`
 
 **Report title:** If `ISSUE_REF` is provided, use `# Agentic Performance Report — Issue #<ISSUE_REF>`. If empty, use `# Agentic Performance Report — <short-session-description>`.
 
@@ -424,7 +424,7 @@ The commit and push happen inside the software-dev-agentic submodule directory, 
 cd PROJECT_PATH/.claude/software-dev-agentic
 git fetch origin main
 git rebase origin/main
-git add perf-report/[project]-[YYYY-MM-DD]-[session-id-short]-[short-session-description].md
+git add docs/perf-report/[project]-[YYYY-MM-DD]-[session-id-short]-[short-session-description].md
 # Commit message: include issue ref if provided, omit if not
 # With ISSUE_REF:    "perf(<project>): <short-session-description> #NNN"
 # Without ISSUE_REF: "perf(<project>): <short-session-description>"

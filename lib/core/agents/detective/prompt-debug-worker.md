@@ -22,7 +22,7 @@ Before any Read call, ask: "Do I need the full file, or just a specific symbol/s
 ## Step 1 — Gather Inputs
 
 Ask if not provided:
-- Path to the perf-report file (from `perf-report/`) — the D1–D7 scored report from perf-worker
+- Path to the perf-report file (from `docs/perf-report/`) — the D1–D7 scored report from perf-worker
 - Path to the agent `.md` file that underperformed
 - Which dimension(s) scored low — infer from the report if not given
 
