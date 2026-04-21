@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.34.0] — 2026-04-22
+
+### Changed
+- `scripts/setup-symlinks.sh`: writes `.claude/config/installed-packages` lockfile on first run, recording all available packages for the platform — ensures subsequent syncs are package-aware without requiring a re-run of `setup-packages.sh`
+
+---
+
 ## [3.33.0] — 2026-04-22
 
 ### Added
