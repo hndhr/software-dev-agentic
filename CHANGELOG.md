@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.30.0] — 2026-04-21
+
+### Added
+- `skills/scaffold.md`: new `/scaffold` trigger skill — entry point that invokes `agent-scaffold-worker` to generate CLEAN layer scaffolding
+- `agents/agent-scaffold-worker.md` (renamed from `scaffold-worker.md`): aligned naming with agent-prefixed convention
+
+### Changed
+- `packages/*/package.json`: `hooks` field now supported — builder package declares `require-feature-orchestrator` hook
+- `scripts/register-hooks.sh` (and related setup scripts): hooks registered in `settings.json` using relative paths instead of absolute paths
+- `scripts/setup-packages.sh`, `scripts/setup-symlinks.sh`: settings template renamed from `settings-template.json` to `settings-template.jsonc`
+
+### Fixed
+- `scripts/sync.sh`: falls back to `git pull` when `.claude/software-dev-agentic` is a plain clone (not a submodule), preventing sync failures in flat-clone setups
+
+---
+
 ## [3.29.0] — 2026-04-21
 
 ### Changed
