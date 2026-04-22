@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.36.0] — 2026-04-22
+
+### Changed
+- `lib/core/agents/detective/debug-worker.md`: always reports static analysis findings and ranked hypotheses before any instrumentation — asks the user explicitly before spawning `debug-log-worker`, preventing noisy log runs when static analysis already reveals the root cause
+- `lib/core/agents/detective/debug-orchestrator.md`: stripped to a thin router — removed duplicated static analysis and hypothesis formation; orchestrator now only scopes the failure to a CLEAN layer/module and routes to the right worker(s), with a consolidation step for multi-worker runs
+
+---
+
 ## [3.35.0] — 2026-04-22
 
 ### Added
