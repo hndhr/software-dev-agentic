@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.38.0] — 2026-04-22
+
+### Added
+- `scripts/update-ref-counts.sh`: rewrites `## Section` headings in all `lib/*/reference/*.md` files with `<!-- N -->` line count annotations — agents use N as the `Read` limit for targeted section reads; runs standalone (all docs) or per-file
+- `scripts/hooks/pre-commit`: auto-runs `update-ref-counts.sh` on staged reference docs only (path-constrained to `lib/*/reference/**/*.md`); silent on all other files
+- `docs/deck/agentic-deck.html`: 18-slide HTML presentation deck — covers problems, solutions, architecture, personas, Leave Request walkthrough, results; keyboard + touch swipe navigation
+- `docs/deck-plan.md`: planning doc for the deck
+
+### Changed
+- All 52 reference docs under `lib/*/reference/`: initial `<!-- N -->` section count annotations applied
+- Search Protocol in 8 agents (`domain-worker`, `data-worker`, `ui-worker`, `presentation-worker`, `test-worker`, `arch-review-worker`, `debug-worker`, `pr-review-worker`): updated to `Grep "^## SectionName"` → read `<!-- N -->` from heading → `Read(file, offset=line, limit=N)` — replaces imprecise "Grep for the section heading" instruction
+- `lib/core/reference/README.md` "How Agents Use This Directory": updated with same two-step Grep + targeted Read pattern as canonical reference
+
+---
+
 ## [3.37.0] — 2026-04-22
 
 ### Changed
