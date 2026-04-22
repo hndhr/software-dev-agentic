@@ -504,12 +504,12 @@
         <strong>Not building.</strong>
       </li>
       <li>
-        Three platforms. Three codebases. The same architecture decisions made differently,
+        Three platforms. Three codebases. <strong>The same architecture decisions made differently</strong>,
         drifting over time, slowing down every engineer who touches them next.
       </li>
       <li>
         Agents in Claude Code promised to help — but without a shared system,
-        every project grew its own. The problems got worse, not better.
+        every project grew its own. <strong>The problems got worse, not better.</strong>
       </li>
     </ul>
     <div class="divider"></div>
@@ -630,12 +630,12 @@ Grep(<span class="ac">"^## Entity"</span>,
     <div class="compare">
       <div class="code-panel">
         <div class="code-panel-header bad">❌  Each project maintains its own agents</div>
-        <pre>xpnsio/
+        <pre>mobile-talenta/
   .claude/agents/
     <span class="bd">domain-worker.md</span>  <span class="cm">← updated last month</span>
     <span class="bd">data-worker.md</span>    <span class="cm">← project hacks baked in</span>
 
-wehire/
+talenta-mobile-android/
   .claude/agents/
     <span class="bd">domain-worker.md</span>  <span class="cm">← copy from 3mo ago, drifted</span>
     <span class="bd">data-worker.md</span>    <span class="cm">← different conventions</span>
@@ -656,9 +656,9 @@ talenta-ios/
     ios/skills/     <span class="cm">← Swift here</span>
     web/skills/     <span class="cm">← TypeScript here</span>
 
-xpnsio/.claude/agents/
+mobile-talenta/.claude/agents/
   <span class="ac">domain-worker.md</span> → <span class="cm">symlink ──┐</span>
-wehire/.claude/agents/              <span class="cm">│</span>
+talenta-mobile-android/.claude/agents/              <span class="cm">│</span>
   <span class="ac">domain-worker.md</span> → <span class="cm">symlink ──┤ same file</span>
 talenta-ios/.claude/agents/         <span class="cm">│</span>
   <span class="ac">domain-worker.md</span> → <span class="cm">symlink ──┘</span></pre>
@@ -796,10 +796,10 @@ Read(<span class="ac">"reference/contract/builder/domain.md"</span>,
 
 <span class="dm">At setup time, symlinks wire the right platform skills into each project:</span>
 
-xpnsio/.claude/
+mobile-talenta/.claude/
   agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┐</span>
   skills/<span class="ac">domain-create-entity/</span>  → <span class="dm">symlink   │ flutter skills</span>
-wehire/.claude/
+talenta-mobile-android/.claude/
   agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┤ same agent</span>
 talenta-ios/.claude/
   agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┘ ios skills</span>
@@ -1062,7 +1062,7 @@ talenta-ios/.claude/
        SLIDE 17 — RESULTS
   ════════════════════════════════════════════ -->
   <section class="slide" id="s17">
-    <div class="label">Results — April 2026 · talenta-iOS · xpnsio · wehire</div>
+    <div class="label">Results — April 2026 · talenta-iOS · mobile-talenta · talenta-mobile-android</div>
     <h2 class="headline">Measured across three products, <em>four days of tuning.</em></h2>
     <div class="cards">
       <div class="card">
