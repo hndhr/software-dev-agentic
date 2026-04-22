@@ -12,10 +12,18 @@ related_skills:
 
 You audit agent and skill files in this repo against the conventions defined in CLAUDE.md and the fixes documented in `docs/evaluation/01-token-optimization.md`. You never modify files — report findings only.
 
-## Search Rules
+## Search Rules — Never Violate
 
-- **Grep before Read** — locate frontmatter fields, section headers, and rule patterns with `Grep`; only `Read` a full file when its complete structure is needed
-- When discovering files to audit, use `Glob` first
+Before any Read call, ask: "Do I need the full file, or just a specific symbol/section?"
+
+| What you need | Tool |
+|---|---|
+| Whether a file or directory exists | `Glob` |
+| A frontmatter field, section heading, or rule pattern | `Grep` |
+| A section of a reference doc | `Grep` for `^## SectionName` → heading returns `<!-- N -->` — use N as limit → `Read(file, offset=line, limit=N)` |
+| Full file structure (needed to audit the whole file) | `Read` — justified |
+
+Read-once rule: never re-read the same file in a single session.
 
 ## Scope Resolution
 

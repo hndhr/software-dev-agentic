@@ -4,7 +4,7 @@ Internal reference for `.claude/agents/` tooling. Grep into this file by section
 
 ---
 
-## Component Types
+## Component Types <!-- 14 -->
 
 Decision tree — apply in order:
 
@@ -18,7 +18,7 @@ Decision tree — apply in order:
 
 ---
 
-## Skill Invocation Types
+## Skill Invocation Types <!-- 11 -->
 
 | Type | Config | Who triggers | Use for |
 |---|---|---|---|
@@ -29,7 +29,7 @@ Decision tree — apply in order:
 
 ---
 
-## Skill Scopes
+## Skill Scopes <!-- 11 -->
 
 | Scope | Location | Ships downstream? |
 |---|---|---|
@@ -40,7 +40,7 @@ Decision tree — apply in order:
 
 ---
 
-## Valid Type × Scope Combinations
+## Valid Type × Scope Combinations <!-- 11 -->
 
 | Scope | A — Regular | B — Destructive | T — Trigger | U — Utility |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Decision tree — apply in order:
 
 ---
 
-## Agent Scopes
+## Agent Scopes <!-- 10 -->
 
 | Scope | Location | Ships downstream? |
 |---|---|---|
@@ -61,7 +61,7 @@ Decision tree — apply in order:
 
 ---
 
-## Frontmatter — Required Fields
+## Frontmatter — Required Fields <!-- 12 -->
 
 **All agents:** `name`, `description`, `model`, `tools`
 
@@ -73,7 +73,7 @@ Decision tree — apply in order:
 
 ---
 
-## Model Selection
+## Model Selection <!-- 10 -->
 
 | Role | Model | When |
 |---|---|---|
@@ -83,7 +83,7 @@ Decision tree — apply in order:
 
 ---
 
-## Worker Required Sections
+## Worker Required Sections <!-- 15 -->
 
 All workers must have these sections in their body:
 
@@ -98,7 +98,7 @@ Workers must also:
 
 ---
 
-## Orchestrator Required Sections
+## Orchestrator Required Sections <!-- 13 -->
 
 | Section | Purpose |
 |---|---|
@@ -111,7 +111,7 @@ Orchestrators never use Edit, Write, or file-writing Bash — zero inline work.
 
 ---
 
-## Naming Conventions
+## Naming Conventions <!-- 10 -->
 
 | Type | Pattern | Example |
 |---|---|---|
@@ -121,7 +121,7 @@ Orchestrators never use Edit, Write, or file-writing Bash — zero inline work.
 
 ---
 
-## Platform-Agnosticism Rules
+## Platform-Agnosticism Rules <!-- 14 -->
 
 Applies to all files under `lib/core/agents/`. Critical violation if the body contains:
 
@@ -135,12 +135,12 @@ Does not apply to files under `.claude/agents/`.
 
 ---
 
-## Extension Point — Standard Hook
+## Extension Point — Standard Hook <!-- 5 -->
 
 Every agent body must end with:
 
 ```
-## Extension Point
+## Extension Point <!-- 6 -->
 
 After completing, check for `agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions.
 ```
