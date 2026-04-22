@@ -366,6 +366,45 @@
       max-width: 820px;
     }
     .quote em { color: var(--accent); font-style: normal; }
+
+    /* ── Mobile ── */
+    @media (max-width: 767px) {
+      html, body { overflow: auto; height: auto; }
+
+      #deck { height: auto; position: static; }
+
+      .slide {
+        display: none;
+        position: static;
+        padding: 48px 24px 72px;
+        min-height: 100svh;
+        justify-content: flex-start;
+        overflow-y: visible;
+      }
+      .slide.active { display: flex; }
+
+      .slide-title { font-size: 32px; }
+      .headline    { font-size: 22px; }
+      .quote       { font-size: 20px; }
+
+      /* collapse all side-by-side grids to single column */
+      .compare,
+      .cards,
+      .t-head,
+      .t-row {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* inline grids on slides (set via style attribute) */
+      [style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .t-head-cell:first-child,
+      .t-cell.prob { border-right: none; border-bottom: 1px solid var(--border); }
+
+      #counter { bottom: 16px; right: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -729,7 +768,7 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 11 — THE ROLES
+       SLIDE 11 — THE ROLES (GENERIC)
   ════════════════════════════════════════════ -->
   <section class="slide" id="s11">
     <div class="label">Architecture</div>
@@ -737,28 +776,25 @@ talenta-ios/.claude/
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px;">
       <div class="card">
         <div class="card-label">Orchestrator</div>
-        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">feature-orchestrator</div>
         <div class="card-desc">
-          Coordinates workers in sequence. Validates each worker's output before proceeding.
-          <strong style="color: var(--text);">Never writes code directly</strong> — all writes go through workers.<br><br>
-          Passes file paths between phases, not file contents. Stops immediately if a worker fails.
+          Coordinates workers in a defined sequence. Validates each worker's output before proceeding.
+          <strong style="color: var(--text);">Never writes files directly</strong> — all writes go through workers.<br><br>
+          Passes only what each worker needs. Stops immediately if a worker fails.
         </div>
       </div>
       <div class="card">
         <div class="card-label">Worker</div>
-        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-worker · data-worker · ui-worker</div>
         <div class="card-desc">
-          Owns exactly one CLEAN layer. Reads reference docs via Grep, executes skills, writes files, returns paths.
-          <strong style="color: var(--text);">Platform-agnostic</strong> — the same worker runs on Flutter, iOS, and Web.<br><br>
-          Refuses work outside its layer. Stops and names the correct worker instead.
+          Owns exactly one responsibility. Reads reference docs on demand, executes skills, returns output.
+          <strong style="color: var(--text);">Refuses work outside its scope</strong> — names the correct worker instead.<br><br>
+          Platform-agnostic by design. The same worker logic runs across Flutter, iOS, and Web.
         </div>
       </div>
       <div class="card">
         <div class="card-label">Skill</div>
-        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-create-entity · data-create-mapper</div>
         <div class="card-desc">
-          Step-by-step procedure for one task. Does one thing only, under 30 lines.
-          <strong style="color: var(--text);">Platform-specific</strong> — the same skill name generates a Dart class on Flutter, a Swift struct on iOS.<br><br>
+          Step-by-step procedure for one atomic task. Does one thing only, under 30 lines.
+          <strong style="color: var(--text);">Platform-specific</strong> — the same skill name generates different output per platform.<br><br>
           Swapping the platform swaps the skills. No agent changes needed.
         </div>
       </div>
@@ -770,9 +806,47 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 12 — KNOWLEDGE ARCHITECTURE
+       SLIDE 12 — THE ROLES (BUILDER PERSONA EXAMPLE)
   ════════════════════════════════════════════ -->
   <section class="slide" id="s12">
+    <div class="label">Architecture — Builder Persona Example</div>
+    <h2 class="headline">Builder persona. <em>One example of what these roles look like in practice.</em></h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px;">
+      <div class="card">
+        <div class="card-label">Orchestrator</div>
+        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">feature-orchestrator</div>
+        <div class="card-desc">
+          Coordinates the full feature build across layers: domain → data → presentation → UI.
+          Validates each worker's output. Passes file paths, not file contents.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Worker</div>
+        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-worker · data-worker · ui-worker</div>
+        <div class="card-desc">
+          Each worker owns exactly one Clean Architecture layer.
+          Reads only the reference section it needs, executes the right skill, returns file paths.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Skill</div>
+        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-create-entity · data-create-mapper</div>
+        <div class="card-desc">
+          Generates a Dart class on Flutter, a Swift struct on iOS — same skill name, platform-specific output.
+          Under 30 lines. Single task.
+        </div>
+      </div>
+    </div>
+    <div class="caption">
+      This is the <strong>Builder</strong> persona — one example of how orchestrator/worker/skill roles are applied.
+      Other personas (Detective, Auditor, Tracker) follow the same structure with different responsibilities.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 13 — KNOWLEDGE ARCHITECTURE
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s13">
     <div class="label">Knowledge</div>
     <h2 class="headline">Three tiers. <em>Each loaded only when needed.</em></h2>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start;">
@@ -814,9 +888,9 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 13 — HOW IT WORKS
+       SLIDE 14 — HOW IT WORKS
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s13">
+  <section class="slide" id="s14">
     <div class="label">How It Works — Builder Persona (example)</div>
     <h2 class="headline">Describe the feature. <em>The team takes over.</em></h2>
     <div class="tree">
@@ -842,9 +916,9 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 14 — MEET THE TEAM
+       SLIDE 15 — MEET THE TEAM
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s14">
+  <section class="slide" id="s15">
     <div class="label">The Team</div>
     <h2 class="headline">Five personas <em>so far</em>. Anyone can add more.</h2>
     <table>
@@ -895,9 +969,9 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 15 — IN ACTION: LEAVE REQUEST
+       SLIDE 16 — IN ACTION: LEAVE REQUEST
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s15">
+  <section class="slide" id="s16">
     <div class="label">In Action — Leave Request (Flutter)</div>
     <h2 class="headline" style="margin-bottom: 18px;">One sentence in. <em>Complete feature out.</em></h2>
     <div class="tree" style="font-size: 12px; line-height: 1.68;">
@@ -925,9 +999,9 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 16 — RESULTS
+       SLIDE 17 — RESULTS
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s16">
+  <section class="slide" id="s17">
     <div class="label">Results — April 2026 · talenta-iOS · xpnsio · wehire</div>
     <h2 class="headline">Measured across three products, <em>four days of tuning.</em></h2>
     <div class="cards">
@@ -969,9 +1043,9 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 17 — WHERE WE'RE GOING
+       SLIDE 18 — WHERE WE'RE GOING
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s17">
+  <section class="slide" id="s18">
     <div class="label">Roadmap</div>
     <h2 class="headline">The foundation is in place. <em>Here's what's next.</em></h2>
     <div class="roadmap">
@@ -1004,9 +1078,9 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 18 — CLOSING
+       SLIDE 19 — CLOSING
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s18">
+  <section class="slide" id="s19">
     <div class="label">software-dev-agentic</div>
     <p class="quote">
       We built a system where an engineer describes what they want to build,
