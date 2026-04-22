@@ -26,6 +26,19 @@ Agents: `feature-orchestrator` · `backend-orchestrator` · `debug-worker` · `t
 
 Pass Explore output as a structured path list to the next agent — never raw file contents. This prevents duplicate reads in the receiving agent.
 
+## Stack
+
+Fill in your project's decisions here. Agents read this file every session — once filled, they pick up your choices automatically.
+
+| Concern | Decision |
+|---|---|
+| Backend type | <!-- local-db (Next.js owns the DB) / remote-api (external API you don't control) --> |
+| ORM | <!-- Prisma / Drizzle / Kysely / none --> |
+| Auth | <!-- NextAuth / Clerk / Lucia / Better Auth / none --> |
+| Styling | <!-- Tailwind+shadcn / Tailwind / Chakra / MUI / CSS Modules --> |
+| Testing | <!-- Vitest / Jest --> |
+| Deployment | <!-- Vercel / Docker / AWS --> |
+
 ## Known Configurations
 
 ### Tailwind v4 — Dynamic class scanning

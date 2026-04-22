@@ -39,11 +39,18 @@ cp .claude/software-dev-agentic/lib/platforms/web/CLAUDE-template.md CLAUDE.md
 ### 5 — Prompt for placeholder values
 
 Tell the user:
-> "I've created `CLAUDE.md` from the web template. Please fill in:
-> - `[AppName]` — your project name
-> - `[One-line description...]` — what the app does
-> - `[Database]`, `[ORM]`, `[Auth]`, `[UI library]`, `[Test framework]` — your chosen stack
-> - `src/features/{auth,[feature-a],...}` — your actual feature names"
+> "I've created `CLAUDE.md` from the web template. Fill in the `## Stack` section with your project's decisions — agents read this every session so they pick up your choices automatically:
+>
+> | Concern | Decision |
+> |---|---|
+> | Backend type | local-db (Next.js owns the DB) or remote-api (external API) |
+> | ORM | Prisma / Drizzle / Kysely / none |
+> | Auth | NextAuth / Clerk / Lucia / Better Auth / none |
+> | Styling | Tailwind+shadcn / Tailwind / Chakra / MUI / CSS Modules |
+> | Testing | Vitest / Jest |
+> | Deployment | Vercel / Docker / AWS |
+>
+> Also fill in `[AppName]` and `[One-line description...]` at the top of the file."
 
 ### 6 — Create agents.local stub
 
