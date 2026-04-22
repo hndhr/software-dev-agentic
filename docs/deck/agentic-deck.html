@@ -413,7 +413,12 @@
       }
       .t-cell.prob::before { content: 'Problem'; color: var(--muted); }
       .t-cell.sol::before  { content: 'Solution'; color: var(--accent); }
-      .t-cell.sol { border-top: 1px solid var(--border); }
+      .t-cell.sol {
+        border-top: 1px solid var(--border);
+        margin-left: 20px;
+        border-left: 3px solid var(--accent);
+        padding-left: 14px;
+      }
 
       #counter { bottom: 16px; right: 16px; }
     }
