@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.40.4] — 2026-04-23
+
+### Fixed
+- `feature-planner`: Phase 5 and Resume path now explicitly prohibit prose option presentation — `AskUserQuestion` is called immediately with no fallback text
+- `feature-planner`: "Edit" option renamed to "Discuss more"; agent stays in conversation and re-presents options instead of dropping out
+- `setup-packages.sh` / `setup-symlinks.sh`: detect and migrate stale `PROJECT_ROOT/hooks/` placeholder (from v3.4.0 template) to correct `.claude/hooks/` relative path on every run
+- `setup-packages.sh`: prune broken symlinks in `agents/`, `skills/`, and `hooks/` during every install run, removing stale links to deleted skills (e.g. `plan`)
+
 ## [3.40.3] — 2026-04-23
 
 ### Added
