@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.40.0] — 2026-04-23
+
+### Added
+- `plan-feature` skill: chains `feature-planner` → `feature-orchestrator` as a single trigger
+
+---
+
 ## [3.39.1] — 2026-04-22
 
 ### Fixed
