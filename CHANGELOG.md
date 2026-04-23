@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.40.10] — 2026-04-23
+
+### Fixed
+- `sync.sh`: add `link_reference` function and re-link `reference/` after every prune step — the lockfile path only linked agents and skills, leaving `reference/` empty after dangling symlinks were pruned
+- `setup-packages.sh`: same fix — add `link_reference` and call it after the prune step so reference files are always present
+
 ## [3.40.9] — 2026-04-23
 
 ### Fixed
