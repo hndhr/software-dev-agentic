@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.40.2] — 2026-04-23
+
+### Removed
+- `lib/core/skills/plan/` — replaced by `plan-feature`
+
+---
+
 ## [3.40.1] — 2026-04-23
 
 ### Fixed
