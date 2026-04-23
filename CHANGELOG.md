@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.40.1] — 2026-04-23
+
+### Fixed
+- `sync.sh`: strip trailing slash before `[ -L ]` check so stale skill symlinks are correctly detected and removed
+- `builder.pkg`: add `plan-feature` and `feature-orchestrator` to skills so sync links them in downstream projects
+
+---
+
 ## [3.40.0] — 2026-04-23
 
 ### Added

@@ -145,6 +145,7 @@ else
     fi
   done
   for link in "$PROJECT_ROOT/.claude/skills/"*/; do
+    link="${link%/}"
     [ -L "$link" ] || continue
     target="$(readlink "$link")"
     [[ "$target" == *"software-dev-agentic"* ]] || continue
