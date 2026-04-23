@@ -25,6 +25,18 @@ Required — return `MISSING INPUT: <param>` immediately if any are absent:
 
 Optional: `navigation-targets`, `screen-purpose` (inferred from feature name if not provided)
 
+## Context Shortcut
+
+If `context-path` is provided in the spawn prompt and the file exists on disk:
+
+1. `Read` it first — before any Glob, Grep, or style-match
+2. Use **Discovered Artifacts → Presentation** paths directly — skip the Glob+Grep style-match phase
+3. Use **Naming Conventions** for new artifact naming — skip style-match inference
+4. Use **Key Symbols** for update tasks — emitEvent cases, MARK sections, and constructor params are already resolved; skip those Greps
+5. Use **Discovered Artifacts → Domain** UseCase paths — skip UseCase signature Grep (signatures are in Key Symbols)
+
+Fall back to the standard Glob+Grep discovery flow only for artifacts not listed in context.md.
+
 ## Scope Boundary
 
 You write **presentation layer files only** — the StateHolder and its contract file.

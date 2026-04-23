@@ -54,12 +54,26 @@ Use Grep to extract the relevant layer sections. Do not read the full file unles
 
 Spawn an Explore agent to understand naming conventions and what already exists for this feature in the downstream project. Pass this exact instruction:
 
-> Use Grep for all symbol and pattern discovery — search for existing entities, use cases, repositories, DTOs, StateHolders, and screens related to `<feature>`. Search by likely class/file name keywords. Only Read a file in full after Grep confirms it is the right target. Return findings as a structured list of `{ path, artifact_type, relevance }` entries — no raw file contents.
+> Use Grep for all symbol and pattern discovery — search for existing entities, use cases, repositories, DTOs, StateHolders, and screens related to `<feature>`. Search by likely class/file name keywords. Only Read a file in full after Grep confirms it is the right target.
+>
+> Return a structured report with three sections:
+>
+> **Artifacts** — one row per found artifact:
+> `{ path, artifact_type, class_name, status: exists | partial }`
+>
+> **Naming conventions** — detected patterns:
+> `{ entity_suffix, usecase_suffix, viewmodel_suffix, file_location_pattern }`
+>
+> **Key symbols** — for each existing file that will be updated (StateHolder, ViewModel, BLoC):
+> `{ file_path, emitEvent_cases: [...], mark_sections: [...], constructor_params: [...] }`
+>
+> No raw file contents — structured data only.
 
 Use the Explore agent's findings to:
 - Identify artifacts that already exist (mark as `exists` in the plan)
 - Detect naming conventions (prefix/suffix patterns, file location patterns)
 - Flag any layer that is already fully built (mark as `skip`)
+- Store key symbols for update tasks — insertion points for workers
 
 ## Phase 3 — Synthesize Plan
 
@@ -71,17 +85,66 @@ For each layer that is not skipped, list:
 - Status: `create` or `update`
 - Any risk or note (e.g. "repository interface already exists — will reuse")
 
-## Phase 4 — Write plan.md
+## Phase 4 — Write plan.md and context.md
+
+Create the run directory if it does not exist:
+```bash
+mkdir -p "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/<feature>"
+```
 
 Write the plan to:
 ```
 .claude/agentic-state/runs/<feature>/plan.md
 ```
 
-Create the directory if it does not exist:
-```bash
-mkdir -p "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/<feature>"
+Then write the context file to:
 ```
+.claude/agentic-state/runs/<feature>/context.md
+```
+
+### context.md Format
+
+```markdown
+---
+feature: <name>
+platform: <platform>
+module-path: <detected module path>
+---
+
+## Discovered Artifacts
+
+### Domain
+| Artifact | Type | Path | Status |
+|---|---|---|---|
+| <ClassName> | Entity / UseCase / Repository | <exact path> | exists / create |
+
+### Data
+| Artifact | Type | Path | Status |
+|---|---|---|---|
+
+### Presentation
+| Artifact | Type | Path | Status |
+|---|---|---|---|
+
+## Naming Conventions
+
+- Entity suffix: `<suffix>` (e.g. `<example>`)
+- UseCase suffix: `<suffix>`
+- ViewModel/BLoC suffix: `<suffix>`
+- File location pattern: `<ModuleName>/<Layer>/<Type>/`
+
+## Key Symbols
+
+Only present for artifacts with `status: exists` that will be updated.
+
+### <FileName> (<artifact type>)
+- emitEvent cases: <case1>, <case2>
+- MARK sections: <section1>, <section2>
+- Constructor params: <param1>: <Type>, <param2>: <Type>
+- UseCase execute signature: `func execute(<params>) -> <return>`
+```
+
+Omit any section or row that has no data. Omit **Key Symbols** entirely for new-only tasks.
 
 ### plan.md Format
 

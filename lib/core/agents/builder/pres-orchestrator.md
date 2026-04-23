@@ -39,6 +39,16 @@ You run in one of two modes depending on how you were invoked:
 - Domain + data file paths are provided in the spawn prompt — skip the Grep gather; Grep those exact paths for UseCase signatures instead
 - Skip writing the state file — `feature-orchestrator` owns the state for this run
 
+## Context Shortcut
+
+If `context-path` is provided in the spawn prompt and the file exists on disk:
+
+1. `Read` it first — before any Grep for UseCase signatures
+2. Use **Key Symbols** UseCase execute signatures directly — skip the UseCase Grep in Phase 0
+3. Pass `context-path` through to `presentation-worker` and `ui-worker` spawn prompts
+
+Fall back to Grep for UseCase signatures only if context.md has no Key Symbols section.
+
 ## Your Role
 
 You do not write code. You:

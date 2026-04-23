@@ -25,6 +25,17 @@ Required — return `MISSING INPUT: <param>` immediately if any are absent:
 | `domain-artifacts` | File paths from `domain-worker ## Output` |
 | `backend-type` | `remote-api` or `local-db` (default: `remote-api` if not provided) |
 
+## Context Shortcut
+
+If `context-path` is provided in the spawn prompt and the file exists on disk:
+
+1. `Read` it first — before any Glob, Grep, or style-match
+2. Use **Discovered Artifacts → Data** paths directly — skip the Glob+Grep discovery phase
+3. Use **Naming Conventions** for new artifact naming — skip style-match inference
+4. Use **Discovered Artifacts → Domain** paths to locate repository interfaces and entities — skip domain Grep
+
+Fall back to the standard Glob+Grep discovery flow only for artifacts not listed in context.md.
+
 ## Scope Boundary
 
 You write **data layer files only** — DTOs, mappers, datasources, repository implementations.

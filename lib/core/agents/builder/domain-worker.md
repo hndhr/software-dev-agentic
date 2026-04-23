@@ -24,6 +24,17 @@ Required — return `MISSING INPUT: <param>` immediately if any are absent:
 | `platform` | `web`, `ios`, or `flutter` |
 | `operations` | Subset of: get-list, get-single, create, update, delete |
 
+## Context Shortcut
+
+If `context-path` is provided in the spawn prompt and the file exists on disk:
+
+1. `Read` it first — before any Glob, Grep, or style-match
+2. Use **Discovered Artifacts → Domain** paths directly — skip the Glob+Grep discovery phase
+3. Use **Naming Conventions** for new artifact naming — skip style-match inference
+4. Use **Key Symbols** for any update task insertion points — skip emitEvent/constructor Grep
+
+Fall back to the standard Glob+Grep discovery flow only for artifacts not listed in context.md.
+
 ## Scope Boundary
 
 You write **domain layer files only** — entities, repository interfaces, use cases, domain services.
