@@ -254,6 +254,52 @@ Not all combinations are meaningful. Use this as the decision gate when adding a
 
 > Toolkit skills are always user-facing (Type T or U) — agents don't call them, workers call platform-contract skills instead. Platform-contract skills are always Type A — they're called by workers programmatically, never by users directly.
 
+#### Anatomy of a Persona
+
+A persona is composed of layered components that connect user intent to executed code. Each layer has a defined role, authority boundary, and handoff contract.
+
+```
+User
+ │
+ ▼
+Trigger Skill (Type T)     — routes (resume vs new), pre-loads context, builds spawn prompt
+ │
+ ▼
+Orchestrator               — coordinates phases in order; never writes source files
+ │             │
+ ▼             ▼
+Planner     Planner        — explore only; produce plan.md + context.md; no source writes
+               │
+               ▼
+            Worker         — reads plan, calls skills, writes source files, validates output
+               │
+               ▼
+            Skill(s)       — concrete platform implementation (one per artifact type)
+```
+
+Not every persona uses all layers. A simple persona may have only a trigger skill + worker. A complex one adds an orchestrator, planners, and multiple workers. The anatomy is the same regardless of how many layers are present.
+
+**Handoff contracts — what each layer passes to the next:**
+
+| From → To | What is passed | What is never passed |
+|---|---|---|
+| Trigger Skill → Orchestrator | Pre-loaded context block (`context.md` + `state.json` inline) | Raw file reads from the main session |
+| Orchestrator → Planner | Feature name, platform, runs directory path | Source file contents |
+| Planner → Orchestrator | `plan.md` + `context.md` written to runs directory | Source file paths or contents |
+| Orchestrator → Worker | File path lists from prior phases | File contents |
+| Worker → Skill | Artifact name, target path, reference doc path | Cross-layer context |
+| Worker → Orchestrator | `## Output` section with Glob+Grep-verified paths | Partial or unverified paths |
+
+**State files — written and read across the lifecycle:**
+
+| File | Written by | Read by | Purpose |
+|---|---|---|---|
+| `state.json` | Orchestrator (after each phase) | Trigger skill (resume routing) | Phase completion + `next_phase` pointer |
+| `plan.md` | Planner | Worker | Per-artifact execution instructions |
+| `context.md` | Planner | Trigger skill (context relay) | Key symbols, conventions, existing artifacts |
+
+> A persona without a trigger skill is incomplete. The trigger skill is the only supported entry path — it owns routing, context relay, and spawn prompt construction.
+
 ---
 
 
