@@ -23,7 +23,7 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
 
    **If no runs exist** → go to step 4
 
-3. **Resume — spawn with pre-loaded context** (substitute actual file contents):
+3. **Resume — spawn `feature-orchestrator` using the Agent tool with pre-loaded context** (substitute actual file contents):
 
    > Feature: <feature name from state.json>
    >
@@ -37,7 +37,7 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
    >
    > Proceed directly to the next pending phase. Skip pre-flight reads for these files.
 
-4. **New call — spawn without context:**
+4. **New call — spawn `feature-orchestrator` using the Agent tool without context:**
 
    > Feature: <$ARGUMENTS, or empty if not provided>
    >

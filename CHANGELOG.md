@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.43.3] — 2026-04-24
+
+### Fixed
+- `feature-orchestrator` skill: made Agent tool usage explicit in spawn steps (Resume and New call) — same class of fix as `plan-feature` v3.43.2
+
 ## [3.43.2] — 2026-04-24
 
 ### Fixed
