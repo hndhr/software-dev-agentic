@@ -29,14 +29,17 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
 
 5. Read that `context.md` and the `state.json` in the same directory.
 
-6. Spawn `feature-orchestrator` using the Agent tool with the following prompt, substituting actual file contents:
+6. Spawn `feature-worker` using the Agent tool with the following prompt, substituting actual file contents:
 
-   > Approved plan ready. Pre-loaded context below — do not re-read context.md or state.json.
+   > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
+   >
+   > **plan.md**
+   > <content>
    >
    > **context.md**
    > <content>
    >
-   > **state.json**
+   > **state.json** (if exists)
    > <content>
    >
-   > Proceed directly to the first pending phase.
+   > Proceed directly to the first pending artifact.

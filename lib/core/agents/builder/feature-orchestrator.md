@@ -4,6 +4,8 @@ description: Coordinates Clean Architecture workers to build or update a feature
 model: sonnet
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 agents:
+  - feature-worker
+  - feature-planner
   - domain-worker
   - data-worker
   - pres-orchestrator

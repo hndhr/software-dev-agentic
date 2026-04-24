@@ -31,11 +31,14 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
 
    **If no runs exist** → go to step 4
 
-3. **Resume — spawn `feature-orchestrator` using the Agent tool with pre-loaded context** (substitute actual file contents):
+3. **Resume — spawn `feature-worker` using the Agent tool with pre-loaded context** (substitute actual file contents):
 
    > Feature: <feature name from state.json>
    >
-   > Pre-loaded context — do not re-read context.md or state.json:
+   > Pre-loaded context — do not re-read plan.md, context.md, or state.json:
+   >
+   > **plan.md**
+   > <content>
    >
    > **context.md**
    > <content>
@@ -43,10 +46,10 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
    > **state.json**
    > <content>
    >
-   > Proceed directly to the next pending phase. Skip pre-flight reads for these files.
+   > Proceed directly to the next pending artifact. Skip completed artifacts listed in state.json.
 
-4. **New call — spawn `feature-orchestrator` using the Agent tool without context:**
+4. **New call — spawn `feature-planner` using the Agent tool:**
 
    > Feature: <$ARGUMENTS, or empty if not provided>
    >
-   > No existing run. If no feature description was given, ask the user for it. Then ask: "Would you like to plan first (recommended) or build directly?"
+   > No existing run. If no feature description was given, ask the user for it. Produce a plan — the user will approve before execution begins.
