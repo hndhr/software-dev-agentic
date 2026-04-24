@@ -469,7 +469,7 @@
 <body>
 
 <div id="progress"></div>
-<div id="counter">1 / 16</div>
+<div id="counter">1 / 19</div>
 <div id="deck">
 
   <!-- ═══════════════════════════════════════════
@@ -762,6 +762,7 @@ Read(<span class="bd">"reference/contract/builder/domain.md"</span>)
           <li><strong>Preloaded skills injected once</strong> at startup, cached for the whole session.</li>
           <li><strong>CLAUDE.md is short (~1 page)</strong> — small stable prefix, high cache efficiency.</li>
           <li><strong>Compounds across workers</strong> — in a 5-worker feature build, the stable prefix is paid for once. Workers 2–5 reuse it from cache.</li>
+          <li><strong>Context relay</strong> — trigger skills read <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">context.md</code> and <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">state.json</code> in the same session (cache read: $0.30/MTok) and pass them inline. The orchestrator skips cold pre-flight reads entirely ($3.75/MTok avoided).</li>
         </ul>
       </div>
     </div>
@@ -827,14 +828,22 @@ talenta-ios/.claude/
   ════════════════════════════════════════════ -->
   <section class="slide" id="s11">
     <div class="label">Architecture</div>
-    <h2 class="headline">Three roles. <em>Each knows exactly what it owns.</em></h2>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px;">
+    <h2 class="headline">Four roles. <em>Each knows exactly what it owns.</em></h2>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px;">
+      <div class="card">
+        <div class="card-label">Trigger Skill</div>
+        <div class="card-desc">
+          The user-facing entry point for a persona. Invoked via slash command (e.g. <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/feature-orchestrator</code>).<br><br>
+          Owns routing (resume vs new), context pre-loading from the runs directory, and building the spawn prompt.
+          <strong style="color: var(--text);">Never calls an agent without first loading context.</strong>
+        </div>
+      </div>
       <div class="card">
         <div class="card-label">Orchestrator</div>
         <div class="card-desc">
           Coordinates workers in a defined sequence. Validates each worker's output before proceeding.
           <strong style="color: var(--text);">Never writes files directly</strong> — all writes go through workers.<br><br>
-          Passes only what each worker needs. Stops immediately if a worker fails.
+          Passes only file paths between phases. Stops immediately if a worker fails.
         </div>
       </div>
       <div class="card">
@@ -842,21 +851,21 @@ talenta-ios/.claude/
         <div class="card-desc">
           Owns exactly one responsibility. Reads reference docs on demand, executes skills, returns output.
           <strong style="color: var(--text);">Refuses work outside its scope</strong> — names the correct worker instead.<br><br>
-          Platform-agnostic by design. The same worker logic runs across Flutter, iOS, and Web.
+          Platform-agnostic by design. Same logic across Flutter, iOS, and Web.
         </div>
       </div>
       <div class="card">
         <div class="card-label">Skill</div>
         <div class="card-desc">
           Step-by-step procedure for one atomic task. Does one thing only, under 30 lines.
-          <strong style="color: var(--text);">Platform-specific</strong> — the same skill name generates different output per platform.<br><br>
+          <strong style="color: var(--text);">Platform-specific</strong> — same skill name, different output per platform.<br><br>
           Swapping the platform swaps the skills. No agent changes needed.
         </div>
       </div>
     </div>
     <div class="caption">
-      Workers are the brains — they decide what to do. Skills are the hands — they know how to do it.
-      <strong>This separation is what makes the system extensible across platforms without touching any agent.</strong>
+      Trigger skills are the enforced entry gate — they pre-load warm-cache context before any agent spawns.
+      <strong>Workers are the brains. Skills are the hands. The trigger skill is the front door.</strong>
     </div>
   </section>
 
@@ -866,7 +875,14 @@ talenta-ios/.claude/
   <section class="slide" id="s12">
     <div class="label">Architecture — Builder Persona Example</div>
     <h2 class="headline">Builder persona. <em>One example of what these roles look like in practice.</em></h2>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px;">
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px;">
+      <div class="card">
+        <div class="card-label">Trigger Skill</div>
+        <div style="font-size: 12px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">/feature-orchestrator · /plan-feature · /backend-orchestrator</div>
+        <div class="card-desc">
+          Three entry paths, one executor. <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/plan-feature</code> runs the planner first. <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/feature-orchestrator</code> resumes or builds directly. Both pre-load run context inline.
+        </div>
+      </div>
       <div class="card">
         <div class="card-label">Orchestrator</div>
         <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">feature-orchestrator</div>
@@ -893,8 +909,8 @@ talenta-ios/.claude/
       </div>
     </div>
     <div class="caption">
-      This is the <strong>Builder</strong> persona — one example of how orchestrator/worker/skill roles are applied.
-      Other personas (Detective, Auditor, Tracker) follow the same structure with different responsibilities.
+      This is the <strong>Builder</strong> persona — one example of how all four roles are applied.
+      Other personas (Detective, Auditor, Tracker, Installer) follow the same structure with different responsibilities.
     </div>
   </section>
 
@@ -947,10 +963,12 @@ talenta-ios/.claude/
   ════════════════════════════════════════════ -->
   <section class="slide" id="s14">
     <div class="label">How It Works — Builder Persona (example)</div>
-    <h2 class="headline">Describe the feature. <em>The team takes over.</em></h2>
+    <h2 class="headline">One slash command. <em>The team takes over.</em></h2>
     <div class="tree">
-<span class="ac">You:</span> <span class="dm">"Build the leave request feature."</span>
-     <span class="dm">↓</span>
+<span class="ac">You:</span>  /feature-orchestrator  <span class="dm">"leave request"</span>
+      <span class="dm">↓  (skill: detect existing run → resume or new?)</span>
+      <span class="dm">↓  (skill: read context.md + state.json → pass inline)</span>
+      <span class="dm">↓  (skill: spawn with pre-loaded context — no cold reads)</span>
 <span class="rl">Tech Lead</span>  <span class="dm">(feature-orchestrator)</span>
 <span class="dm">│</span>
 <span class="dm">├──</span> <span class="rl">Domain Engineer</span>   <span class="dm">← entities, use cases, repository interface</span>
@@ -960,13 +978,12 @@ talenta-ios/.claude/
 <span class="dm">├──</span> <span class="rl">State Engineer</span>    <span class="dm">← BLoC: events, states, business logic wiring</span>
 <span class="dm">│</span>
 <span class="dm">└──</span> <span class="rl">UI Engineer</span>       <span class="dm">← screens, widgets, navigation</span>
-     <span class="dm">↓</span>
+      <span class="dm">↓</span>
 <span class="ac">Complete feature, all layers, ready for review</span>
     </div>
     <div class="caption">
-      This is the <strong>Builder</strong> persona — one example of how the principles work in practice.
-      The system is not limited to feature building. Each persona applies the same architecture
-      to a different kind of engineering work.
+      Skills are the enforced entry — they route, pre-load warm-cache context, and spawn with it already inlined.
+      <strong>The orchestrator skips cold pre-flight reads entirely.</strong>
     </div>
   </section>
 
@@ -981,6 +998,7 @@ talenta-ios/.claude/
         <tr>
           <th>Persona</th>
           <th>What it handles</th>
+          <th>Trigger skill(s)</th>
           <th>Ships to</th>
         </tr>
       </thead>
@@ -988,38 +1006,44 @@ talenta-ios/.claude/
         <tr>
           <td>Builder</td>
           <td>Feature development — domain, data, state, UI delivered in sequence</td>
+          <td><strong>/feature-orchestrator · /plan-feature · /backend-orchestrator</strong></td>
           <td>iOS · Flutter · Web</td>
         </tr>
         <tr>
           <td>Detective</td>
           <td>Debugging, performance analysis, root cause investigation</td>
+          <td><strong>/debug-orchestrator</strong></td>
           <td>iOS · Flutter · Web</td>
         </tr>
         <tr>
           <td>Auditor</td>
           <td>Architecture review, standards enforcement, convention compliance</td>
+          <td><strong>/arch-review</strong></td>
           <td>iOS · Flutter · Web</td>
         </tr>
         <tr>
           <td>Tracker</td>
           <td>Issue management, backlog, branch coordination</td>
+          <td><strong>/issue-worker</strong></td>
           <td>iOS · Flutter · Web</td>
         </tr>
         <tr>
           <td>Installer</td>
           <td>Project setup, platform wiring, onboarding</td>
+          <td><strong>/setup-worker</strong></td>
           <td>iOS · Flutter · Web</td>
         </tr>
         <tr style="border-top: 1px dashed var(--accent-bd);">
           <td style="color: var(--accent);">+ Your persona</td>
-          <td style="color: var(--muted); font-style: italic;">Identify a recurring workflow → PR the agents and skills to the shared submodule</td>
+          <td style="color: var(--muted); font-style: italic;">Identify a recurring workflow → PR the agents + trigger skill to the shared submodule</td>
+          <td style="color: var(--muted); font-style: italic;">/your-skill</td>
           <td style="color: var(--accent);">All platforms</td>
         </tr>
       </tbody>
     </table>
     <div class="caption">
-      These are the <strong>currently active personas</strong> — not a fixed set.
-      Any engineer can propose and contribute a new persona. It ships to every project the same day it merges.
+      Every persona has a trigger skill — the enforced entry gate.
+      <strong>A persona without a trigger skill is incomplete.</strong> Any engineer can propose and contribute a new persona.
     </div>
   </section>
 
@@ -1028,9 +1052,10 @@ talenta-ios/.claude/
   ════════════════════════════════════════════ -->
   <section class="slide" id="s16">
     <div class="label">In Action — Leave Request (Flutter)</div>
-    <h2 class="headline" style="margin-bottom: 18px;">One sentence in. <em>Complete feature out.</em></h2>
+    <h2 class="headline" style="margin-bottom: 18px;">One command in. <em>Complete feature out.</em></h2>
     <div class="tree" style="font-size: 12px; line-height: 1.68;">
-<span class="dm">Input: "Build the leave request feature — submit, approve, reject, notify."</span>
+<span class="ac">/feature-orchestrator</span> <span class="dm">"Build the leave request feature — submit, approve, reject, notify."</span>
+<span class="dm">↓  skill: no existing run → spawn fresh</span>
 
 <span class="rl">feature-orchestrator</span>
 <span class="dm">├── 1.</span> <span class="rl">domain-worker</span>

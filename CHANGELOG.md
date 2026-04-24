@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.45.1] — 2026-04-24
+
+### Changed
+- `docs/deck/agentic-deck.html`: updated presentation deck to reflect Skill-First Entry architecture — added Trigger Skill as 4th role (slides 11, 12), updated entry flows to show slash commands (slides 14, 16), added trigger skill column to personas table (slide 15), added context relay bullet to caching slide (slide 8), fixed slide counter
+
 ## [3.45.0] — 2026-04-24
 
 ### Added
