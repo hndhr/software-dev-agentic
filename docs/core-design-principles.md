@@ -3,9 +3,9 @@
 
 ## What is an Agentic Coding Assistant?
 
-A coding assistant where Claude autonomously routes, decides, and executes based on natural language — without the user needing to know which tool, command, or workflow to invoke. The user describes intent. The assistant figures out the rest.
+A coding assistant where Claude autonomously routes, decides, and executes — without the user needing to know which tool, command, or workflow to invoke. Trigger skills are the preferred entry path: they own routing, context relay, and spawn prompt construction. Natural language routing is always available as a fallback.
 
-> No slash commands. No manual chaining. No context pollution.
+> Skills first. No manual chaining. No context pollution.
 
 ---
 
@@ -21,15 +21,13 @@ A coding assistant where Claude autonomously routes, decides, and executes based
 
 ## Core Design Principles
 
-### 1. Natural Language as the Entry Point
+### 1. Skill-First Entry
 
-There are two valid entry points into the agentic system:
+**Trigger skills are the preferred entry path.** A Type T skill owns the full entry sequence before any agent is spawned: routing (resume vs new run), context pre-loading from the runs directory, and building the spawn prompt with context already inlined. This eliminates cold pre-flight reads, gives the user clear options, and keeps orchestration efficient.
 
-**A — Natural language routing (default):** Users describe what they want; Claude matches the intent to an agent's description and spawns it automatically. No slash commands, no manual chaining.
+**Natural language routing is still valid** — describe intent in prose and Claude matches it to an agent's description and spawns it. Use this for quick one-off requests or exploration where no skill workflow exists. It does not get context relay or routing logic, so it costs more and skips the resume path.
 
-**B — Trigger skill:** A user-invocable skill (`user-invocable: true`) that explicitly spawns an agent workflow. Use this when the entry point is a specific, named operation — not open-ended intent. The skill owns the full entry sequence: routing (resume vs new run), context pre-loading from the runs directory, and spawning the agent with context already inlined. The agent handles the work.
-
-> Agent descriptions must be precise and use vocabulary developers naturally say. Routing is only as good as the description.
+> Agent descriptions must be precise and use vocabulary developers naturally say. Natural language routing is only as good as the description.
 
 > Not every request needs an agent. If a change is simple and localized (rename a variable, fix a typo, add an import), act directly — the cost of delegation exceeds the task itself.
 

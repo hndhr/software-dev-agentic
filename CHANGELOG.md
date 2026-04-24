@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.44.4] — 2026-04-24
+
+### Changed
+- `core-design-principles.md`: reframed Principle 1 from "Natural Language as the Entry Point" to "Skill-First Entry" — skills are the preferred path; natural language routing is valid but secondary; updated the intro tagline to match
+
 ## [3.44.3] — 2026-04-24
 
 ### Added
