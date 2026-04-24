@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.49.2] — 2026-04-25
+
+### Added
+- `docs/core-design-principles.md`: Anatomy of a Persona section — layer diagram, handoff contracts table, state files table
+- `docs/persona/builder.md`: Anatomy section — dual entry skill diagram, planner phase breakdown, execution phase description, standalone paths
+- `docs/persona/detective.md`: Anatomy section — investigation sequence diagram, tool isolation constraint, short-circuit path, handoff boundary
+
+### Changed
+- `docs/persona/builder.md`: Agent Roster updated — added `feature-worker`, `domain-planner`, `data-planner`, `pres-planner`; `feature-planner` reclassified as Planner; Layer-to-Agent Mapping adds Planner column; Skill Roster adds `domain-create-service`, removes stale update skills
+
 ## [3.49.1] — 2026-04-25
 
 ### Changed
