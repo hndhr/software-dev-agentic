@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.49.1] — 2026-04-25
+
+### Changed
+- `docs/core-design-principles.md`: added Planner as a first-class taxonomy entry — `-planner` suffix in naming convention table, Planner row in Agents By Role table, Planners in DI at Skill Level analogy, and "Planner vs Worker" decision rule (complexity/scale determines which to use first)
+
 ## [3.49.0] — 2026-04-25
 
 ### Added
