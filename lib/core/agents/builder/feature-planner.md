@@ -54,7 +54,11 @@ Use Grep to extract the relevant layer sections. Do not read the full file unles
 
 Spawn an Explore agent to understand naming conventions and what already exists for this feature in the downstream project. Pass this exact instruction:
 
-> Use Grep for all symbol and pattern discovery — search for existing entities, use cases, repositories, DTOs, StateHolders, and screens related to `<feature>`. Search by likely class/file name keywords. Only Read a file in full after Grep confirms it is the right target.
+> Use Grep for all symbol and pattern discovery — search for existing entities, use cases, repositories, DTOs, StateHolders, and screens related to `<feature>`. Search by likely class/file name keywords.
+>
+> **Read budget: never read more than 60 lines per file.** When a file is confirmed as the right target via Grep, use `offset` + `limit` to read only the relevant section — not the full file. To find the right offset, use the line number returned by Grep and read ±30 lines around it.
+>
+> For Key Symbols (StateHolder, ViewModel, BLoC): Grep for the class name to get its line number, then Read with `offset=<line-5> limit=60` to capture the constructor, event cases, and MARK sections. Do not read beyond what is needed to extract those three things.
 >
 > Return a structured report with three sections:
 >
@@ -234,11 +238,13 @@ Then concatenate the result with the target relative path before passing it to W
 | What you need | Tool |
 |---|---|
 | Whether a plan/run file exists | `Glob` |
-| A value inside plan.md or layer-contracts.md | `Grep` for the section heading first |
+| A value inside plan.md or layer-contracts.md | `Grep` for the section heading first, then `Read` with `offset` + `limit` |
 | Existing artifacts in the downstream project | Explore agent — never Read source files directly |
-| Full file when Grep returns nothing | `Read` — justified |
+| Full file when Grep returns nothing | `Read` with `limit=60` — justified, but never unbounded |
 
 You never Read production source files directly. Existing convention discovery always goes through the Explore agent.
+
+**Read budget:** Never read more than 60 lines per file in a single call. Use `offset` + `limit` — Grep gives you the line number, Read fetches the window around it. An unbounded Read on a large file is always a violation.
 
 **Read-once rule:** Once you have read a file, do not read it again. Note all relevant content from that single read before moving on. Re-reading the same file is a token waste signal.
 
