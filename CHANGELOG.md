@@ -7,6 +7,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.42.0] — 2026-04-24
+
+### Added
+- `plan-feature` skill: after `feature-planner` completes, reads `context.md` + `state.json` from the runs directory (cache hits in active session) and passes them inline to `feature-orchestrator` spawn — orchestrator starts with context pre-loaded, no cold pre-flight reads
+- `feature-orchestrator` skill: owns resume selection via `AskUserQuestion` (one option per existing run + "Start new"); reads selected run's `context.md` + `state.json` and passes inline; new-call path spawns lean and lets orchestrator collect intent
+- `feature-orchestrator` agent: `Pre-flight — Context Check` — detects pre-loaded context block in prompt, extracts all needed values, jumps directly to `next_phase`; direct invocation (no skill) warns user and falls back to approved-plan check
+
+### Changed
+- `feature-orchestrator` skill: `allowed-tools` expanded to `Bash, Read, AskUserQuestion, Agent`
+- `plan-feature` skill: `allowed-tools` expanded to `Bash, Read, Agent`
+- `feature-planner` agent: `context.md` added to allowed writes in Constraints
+- `clear-runs` skill: note updated to remove `delegation.json` reference
+
+### Removed
+- `feature-orchestrator` agent: `Pre-flight — Resume Check` (moved to skill), `Pre-flight — Set Delegation Flag`, and `delegation.json` clear in Phase 4 — delegation mechanism retired in favour of skill-enforced entry point
+- `lib/core/hooks/require-feature-orchestrator.sh` — delegation guard hook removed; skill is the enforced entry point, user accepts workflow boundary consciously
+- `scripts/setup-symlinks.sh`, `sync.sh`, `local-setup-symlinks.sh`, `local-sync.sh`, `local-setup-packages.sh`: hook wiring and `feature-dirs` creation removed; scripts now remove the hook from `settings.json`/`settings.local.json` if present (migration path for existing downstream projects)
+
 ## [3.41.0] — 2026-04-24
 
 ### Added
