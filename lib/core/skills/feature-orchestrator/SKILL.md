@@ -48,8 +48,11 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
    >
    > Proceed directly to the next pending artifact. Skip completed artifacts listed in state.json.
 
-4. **New call — spawn `feature-planner` using the Agent tool:**
+4. **New call — spawn `feature-orchestrator` using the Agent tool:**
 
    > Feature: <$ARGUMENTS, or empty if not provided>
    >
-   > No existing run. If no feature description was given, ask the user for it. Produce a plan — the user will approve before execution begins.
+   > No existing run. If no feature description was given, ask the user for it. Then ask: "Would you like to plan first (recommended) or build directly?"
+   >
+   > Plan first → spawn feature-planner, await approval, then spawn feature-worker with plan inline.
+   > Build directly → gather intent inline, then spawn feature-worker directly.
