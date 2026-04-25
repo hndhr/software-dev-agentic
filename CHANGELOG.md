@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.51.0] — 2026-04-25
+
+### Added
+- `feature-worker`: Search Protocol section — Grep-first table, Read-once rule, explicit ban on bash grep as a substitute for the Grep tool
+- `tracker-adjust-ticket`: Acceptance Criteria duplicate into Session Adjustment on every update; `### Work Items` checklist for per-session progress tracking
+
+### Changed
+- `debug-worker`: added bash-grep callout to existing Search Protocol — Bash grep does not reduce Read tool count and bypasses token-efficiency audit
+- `tracker-adjust-ticket`: write boundary now strictly locked to `## Session Adjustment` section only; original ticket content is never touched
+
 ## [3.50.1] — 2026-04-25
 
 ### Fixed
