@@ -25,6 +25,8 @@ Read a full file only when: (a) you need its complete structure to write a new m
 
 **Read-once rule:** Once you have read a file, do not read it again. Note all relevant content from that single read before moving on. Re-reading the same file is a token waste signal.
 
+**Bash grep does not substitute for the Grep tool.** Running `grep` via Bash does not reduce Read tool call count and bypasses the token-efficiency audit. Always use the `Grep` tool for symbol lookups.
+
 - Trace from the error location outward — read only what the error implicates
 
 ### Third-Party Library Investigation
