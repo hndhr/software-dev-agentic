@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.50.0] — 2026-04-25
+
+### Added
+- `/sync` toolkit skill (`lib/core/skills/sync/SKILL.md`): pull latest submodule + re-run setup-symlinks in one command; auto-detects platform from existing symlinks, falls back to asking user
+
+### Changed
+- `scripts/sync.sh`: `--platform` is now optional — auto-detected from `.claude/skills/domain-create-entity` symlink target when omitted; fails with a clear message only if detection fails and flag is absent
+
 ## [3.49.2] — 2026-04-25
 
 ### Added
