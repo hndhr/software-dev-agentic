@@ -89,32 +89,37 @@ Do not proceed until confirmed.
 
 ## Step 4 — Gather Details
 
-Ask only what's needed for the confirmed type.
+Use `AskUserQuestion` for each detail — one question at a time. Do not bundle questions. Wait for the answer before asking the next.
 
-**All types:**
-- Name — follow conventions: `<layer>-<action>-<target>` for skills; `<domain>-worker` / `<domain>-orchestrator` for agents
-- Description — used for routing; must use vocabulary developers naturally say
+**All types — ask in this order:**
 
-**Worker — additional:**
-- Which CLEAN layer or domain does it own?
-- Model: `haiku` or `sonnet`? (Grep `.claude/reference/agent-conventions.md` for `## Model Selection` if unsure)
-- Tools needed
-- Skills to preload (`related_skills`) — list known names or "TBD"
-- User-invocable? (`true` / `false`)
+1. > "What should this be named?" (Conventions: `<layer>-<action>-<target>` for skills; `<domain>-worker` or `<domain>-orchestrator` for agents)
+2. > "How would you describe it in one sentence? This is used for routing — use vocabulary developers naturally say."
 
-**Orchestrator — additional:**
-- Tools needed
-- Subordinate agents it will spawn
-- Phase count and brief description of each
-- Standalone or sub-orchestrator of an existing one?
+**Worker — ask additionally, one at a time:**
 
-**Skill — additional:**
-- Tools / `allowed-tools` needed
-- For platform-contract or platform-only: which platform(s)?
+3. > "Which CLEAN layer or domain does it own?"
+4. > "Which model — `haiku` (simple reads and writes) or `sonnet` (multi-step reasoning)?" (Grep `.claude/reference/agent-conventions.md` for `## Model Selection` if unsure which to suggest)
+5. > "What tools does it need?"
+6. > "Any skills to preload (`related_skills`)? List names, or say TBD."
+7. > "Should it be user-invocable? (`true` / `false`)"
 
-**New Persona — additional:**
-- Persona name
-- Which agents it needs → scaffold each after persona structure is created
+**Orchestrator — ask additionally, one at a time:**
+
+3. > "What tools does it need?"
+4. > "Which agents will it spawn?"
+5. > "How many phases does it have, and what does each phase do?"
+6. > "Is this standalone or a sub-orchestrator of an existing one?"
+
+**Skill — ask additionally, one at a time:**
+
+3. > "What tools or `allowed-tools` does it need?"
+4. (Platform-contract or platform-only only) > "Which platform(s) does it target?"
+
+**New Persona — ask additionally, one at a time:**
+
+3. > "What should the persona be named?"
+4. > "Which agents does it need? I'll scaffold each one after the persona structure is created."
 
 ## Step 5 — Pre-scaffold Checks
 

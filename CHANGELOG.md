@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.51.2] — 2026-04-26
+
+### Changed
+- `agent-scaffold-worker`: Step 4 "Gather Details" now asks each detail one question at a time via `AskUserQuestion` — numbered sequence per type (Worker, Orchestrator, Skill, New Persona) with explicit "do not bundle" rule, matching the interactive pattern used in `tracker-adjust-ticket`
+
 ## [3.51.1] — 2026-04-26
 
 ### Changed
