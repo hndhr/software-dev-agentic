@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.51.1] — 2026-04-26
+
+### Changed
+- `tracker-adjust-ticket`: split `### Decisions & Open Questions` into separate `### Decisions` (prose bullets with rationale) and `### Open Questions` (checklist) sections; both omitted when empty — aligns template to real ticket structure
+
 ## [3.51.0] — 2026-04-25
 
 ### Added
