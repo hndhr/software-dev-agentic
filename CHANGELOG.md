@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.51.4] — 2026-04-28
+
+### Changed
+- `debug-orchestrator` skill: intake now collects `Target files` from context/ticket (skips the question if already named); spawn prompt includes `Target files` field so the agent never needs to discover what the caller already knows
+- `debug-add-logs` iOS skill: added `## Inputs` section defining the expected contract (`Bug description`, `Entry point`, `Target files`, `Expected / Actual`) — aligns with what debug-orchestrator passes
+
 ## [3.51.3] — 2026-04-28
 
 ### Changed
