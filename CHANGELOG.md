@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.52.0] — 2026-04-28
+
+### Added
+- `build-from-ticket`: new one-shot skill for remote AI tools (CI jobs, API callers) — fetches a Jira ticket via `getJiraIssue` or `mmpa_get_jira`, derives planning inputs inline, runs `auto-feature-planner`, then `feature-worker`, and cleans up run state on exit. Fail-fast `error.md` writes surface failures in PR diffs rather than hung jobs.
+- `auto-feature-planner`: non-interactive fork of `feature-planner` — accepts pre-filled intent block, never calls `AskUserQuestion`, auto-approves plan after writing `plan.md` + `context.md`. Designed for `build-from-ticket` and future CI callers.
+
+### Changed
+- `feature-worker`: load platform `utilities.md` during pre-flight and enforce null safety extension methods (`.orZero()`, `.orEmpty()`, `.orFalse()`) over raw `??` and `!` across all artifacts and platforms
+- `feature-worker`: added Run Directory Ownership guard — cleanup of `runs/<feature>/` is the calling skill's responsibility, not the agent's
+- `feature-orchestrator` agent: refactored to mode-based routing (`plan-first` / `resume` / `new`); removed old `domain-worker`, `data-worker`, `pres-orchestrator` phase chain — replaced by single `feature-worker` spawn. Added hot/cold start guidance in Search Protocol.
+- `plan-feature` skill: simplified to a single `feature-orchestrator` agent spawn with `Trigger: plan-first` — all orchestration logic now lives in the agent
+- `feature-orchestrator` skill: resume path now routes through `feature-orchestrator` agent (previously spawned `feature-worker` directly, bypassing orchestrator)
+- `debug-orchestrator` agent: scoping budget capped at 2 tool calls; intake assessment table added; `.pbxproj` and build-system metadata reads blocked
+
 ## [3.51.4] — 2026-04-28
 
 ### Changed
