@@ -12,11 +12,12 @@ allowed-tools: Agent, AskUserQuestion
 
 1. If `$ARGUMENTS` is non-empty, treat it as the initial bug description.
 
-2. Collect any intake fields not covered by the description. Ask only for what is missing — one question at a time:
+2. Collect any intake fields not covered by the description or visible context (e.g. open ticket). Ask only for what is missing — one question at a time:
    - Error message or stack trace (if not described)
    - Expected vs actual behavior (if not described)
    - Entry point — the action, method, or screen where the failure occurs (if not described)
    - Platform: `web`, `ios`, or `flutter` (if not described)
+   - Target files or class names (if not already named in the description or ticket — skip this question if they are)
 
 3. Spawn `debug-orchestrator` with all collected intake in the spawn prompt:
 
@@ -25,3 +26,4 @@ allowed-tools: Agent, AskUserQuestion
    > Expected: <expected> / Actual: <actual>
    > Entry point: <entry-point>
    > Platform: <platform>
+   > Target files: <comma-separated file paths or class names, or "unknown" if not identified>

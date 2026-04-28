@@ -29,12 +29,26 @@ You perform minimal scoping reads only — full investigation belongs to workers
 
 **Read-once rule:** Once you have read a file for scoping, do not read it again. Pass the path to the worker.
 
+**Never read `.pbxproj`, `.xcworkspace`, or any build-system metadata.** These files do not contain source logic and are never needed for scoping.
+
 ## Step 2 — Scope
 
-Do a minimal read to determine which layer and module owns the failure:
-- `Grep` for the entry point symbol to locate the file
-- Identify the CLEAN layer: Presentation / Domain / Data / DI
-- Identify whether the failure is isolated to one module or crosses boundaries
+Your goal is to gather **just enough** to route — not to investigate. Stop the moment you can name a file and layer.
+
+### Assess intake before any tool call
+
+| What intake provides | What is missing | Action |
+|---|---|---|
+| Specific file paths or class names | Nothing | Scope resolved — skip to Step 3 |
+| Entry point symbol, no file path | File path | One `Grep` for the symbol name |
+| Entry point description, no symbol | File + symbol | One `Grep` for the most specific term in the description |
+| Vague description, no entry point | Everything | Route immediately with `layer: unknown` — let the worker investigate |
+
+### Exploration budget
+
+**Maximum 2 tool calls.** If scope is not resolved after 2 calls, stop and route with `layer: unknown`. Do not chain reads trying to resolve ambiguity — that is investigation, which belongs to the worker.
+
+Once you can name a file and identify its CLEAN layer (Presentation / Domain / Data / DI), scope is resolved. Stop.
 
 ## Step 3 — Route
 

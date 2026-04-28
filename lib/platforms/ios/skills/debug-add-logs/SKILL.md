@@ -5,6 +5,13 @@ description: |
 user-invocable: false
 ---
 
+## Inputs (always provided by the caller)
+
+- `Bug description` — what the issue is and when it occurs
+- `Entry point` — the action, method, or screen where the failure begins
+- `Target files` — comma-separated file paths or class names to instrument; if `unknown`, infer from the entry point using Grep before editing
+- `Expected / Actual` — optional; used to decide which branches and state changes to prioritize logging
+
 ## Architecture Rule
 
 **New code → V2 patterns always. Existing code → keep its current pattern. Never migrate unless explicitly asked.**
