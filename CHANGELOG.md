@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.52.1] — 2026-04-29
+
+### Fixed
+- `feature-orchestrator`: plan approval `AskUserQuestion` (Approve / Discuss more / Discard) moved from `feature-planner` to the orchestrator — sub-agents cannot surface interactive UI, causing the prompt to collapse to prose text
+
 ## [3.52.0] — 2026-04-28
 
 ### Added
