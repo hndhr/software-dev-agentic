@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.52.2] — 2026-04-29
+
+### Fixed
+- `plan-feature` skill: moved plan approval `AskUserQuestion` (Approve / Discuss more / Discard) out of `feature-orchestrator` and into the skill itself — `AskUserQuestion` with options only works in the main session, not inside spawned sub-agents
+- `feature-orchestrator`: added `execute-approved-plan` trigger for post-approval execution; removed approval loop that could never surface interactive options
+
 ## [3.52.1] — 2026-04-29
 
 ### Fixed
