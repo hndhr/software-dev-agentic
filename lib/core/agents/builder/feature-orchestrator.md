@@ -1,6 +1,6 @@
 ---
 name: feature-orchestrator
-description: Coordinates Clean Architecture feature builds. Detects trigger mode (plan-first, resume, new) and routes to feature-planner and/or feature-worker accordingly. Invoked only by /plan-feature or /feature-orchestrator skills — not directly.
+description: Coordinates Clean Architecture feature builds. Detects trigger mode (plan-first, execute-approved-plan, resume, build-directly) and routes to feature-planner and/or feature-worker accordingly. Invoked only by /plan-feature or /feature-orchestrator skills — not directly.
 model: sonnet
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 agents:
@@ -70,28 +70,20 @@ After `feature-worker` completes, proceed to **Wrap Up**.
 
 After `feature-worker` completes, proceed to **Wrap Up**.
 
-### Trigger: new (or no trigger / direct invocation)
+### Trigger: build-directly
 
-If invoked directly without a trigger, warn the user:
+Proceed directly to Phase 0. The calling skill has already asked the user whether to plan or build.
+
+### Trigger: no trigger / direct invocation
+
+Warn the user:
 > "This agent is designed to be invoked via `/plan-feature` or `/feature-orchestrator` skills. Proceeding anyway."
 
-Call `AskUserQuestion`:
-```
-question    : "How would you like to proceed?"
-header      : "Feature"
-multiSelect : false
-options     :
-  - label: "Plan first",     description: "Run feature-planner for a reviewable plan before building"
-  - label: "Build directly", description: "Skip planning — gather intent inline and go straight to building"
-```
-
-**Plan first** → spawn `feature-planner` and return. The calling skill owns the approval interaction.
-
-**Build directly** → proceed to Phase 0.
+Then proceed to Phase 0.
 
 ## Phase 0 — Gather Intent
 
-Only reached via **Build directly** path. Ask only what is needed:
+Only reached via **build-directly** trigger or direct invocation. Ask only what is needed:
 
 1. **Feature name** — used as the run directory key
 2. **Platform** — `web`, `ios`, or `flutter`
@@ -99,7 +91,7 @@ Only reached via **Build directly** path. Ask only what is needed:
 4. **Operations needed** — GET list / GET single / POST / PUT / DELETE
 5. **Separate UI layer?** — distinct UI layer from StateHolder? (yes for mobile, no for web)
 
-After gathering intent, spawn `feature-planner` with a structured prompt containing the collected answers so it skips its own Phase 0 questions. After approval, read plan.md + context.md and spawn `feature-worker` inline.
+After gathering intent, spawn `feature-planner` with a structured prompt containing the collected answers so it skips its own Phase 0 questions. After `feature-planner` returns, report completion — the calling skill owns the approval interaction.
 
 ## Correction Mode
 

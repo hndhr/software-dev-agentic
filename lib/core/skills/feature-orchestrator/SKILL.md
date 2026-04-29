@@ -49,9 +49,38 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
    >
    > Spawn `feature-worker` directly with this context. Skip Phase 0 and planning.
 
-4. **New — spawn `feature-orchestrator` using the Agent tool:**
+4. **New** — call `AskUserQuestion`:
+   ```
+   question    : "How would you like to proceed?"
+   header      : "Feature"
+   multiSelect : false
+   options     :
+     - label: "Plan first",     description: "Run feature-planner for a reviewable plan before building"
+     - label: "Build directly", description: "Skip planning — gather intent inline and go straight to building"
+   ```
 
-   > **Trigger: new**
-   > Feature: <$ARGUMENTS, or empty if not provided>
-   >
-   > No existing run. If no feature description was given, ask the user for it. Then ask whether to plan first or build directly.
+   - **Plan first** → spawn `feature-orchestrator` agent:
+     > **Trigger: plan-first**
+     > Feature: <$ARGUMENTS, or empty if not provided>
+     >
+     > Spawn `feature-planner`. Wait for it to complete and return — do not do anything else.
+
+     After the agent returns, call `AskUserQuestion`:
+     ```
+     question    : "What would you like to do with this plan?"
+     header      : "Plan"
+     multiSelect : false
+     options     :
+       - label: "Approve",      description: "Execute this plan with feature-worker"
+       - label: "Discuss more", description: "I have questions or changes before this plan is finalized"
+       - label: "Discard",      description: "Cancel and delete this plan"
+     ```
+     - **Approve** → spawn `feature-orchestrator` agent with `Trigger: execute-approved-plan`
+     - **Discuss more** → discuss inline, re-spawn `feature-planner` if needed, repeat approval question
+     - **Discard** → locate and delete the most recent run directory under `.claude/agentic-state/runs/` and stop
+
+   - **Build directly** → spawn `feature-orchestrator` agent:
+     > **Trigger: build-directly**
+     > Feature: <$ARGUMENTS, or empty if not provided>
+     >
+     > No existing run. If no feature description was given, ask the user for it. Then proceed directly to Phase 0.

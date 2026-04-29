@@ -1,12 +1,18 @@
 ---
 name: plan-feature
 description: Plan then build a feature — runs feature-planner, shows an interactive approval prompt, then executes with feature-orchestrator on approval.
-allowed-tools: Agent, AskUserQuestion
+allowed-tools: Agent, AskUserQuestion, Bash
 ---
 
 ## Step 1 — Plan
 
-Spawn `feature-planner` using the Agent tool. Wait for it to complete and write `plan.md`.
+Spawn `feature-orchestrator` using the Agent tool with the following prompt:
+
+> **Trigger: plan-first**
+>
+> Spawn `feature-planner`. Wait for it to complete and return — do not do anything else.
+
+Wait for the orchestrator to return before proceeding.
 
 ## Step 2 — Approve
 
@@ -26,7 +32,7 @@ options     :
 
 **Discuss more** → address the engineer's questions or requested changes inline, then call `AskUserQuestion` again with the same three options. If the plan itself needs rewriting, re-spawn `feature-planner`.
 
-**Discard** → spawn `feature-orchestrator` with prompt `Trigger: discard` and stop.
+**Discard** → locate and delete the most recent run directory under `.claude/agentic-state/runs/` and stop.
 
 ## Step 3 — Execute
 
