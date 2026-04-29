@@ -27,31 +27,17 @@ Read the trigger from the prompt and route accordingly:
 
 ### Trigger: plan-first
 
-**Cold start** — no context is pre-loaded. Spawn `feature-planner` immediately — do not ask the user anything.
+**Cold start** — no context is pre-loaded. Spawn `feature-planner` immediately — do not ask the user anything. Return after the planner completes. The calling skill owns the approval interaction.
 
-After `feature-planner` returns, locate and read `plan.md` (one Bash call):
+### Trigger: execute-approved-plan
+
+The user has already approved the plan in the calling skill. Locate the most recent `plan.md` (one Bash call):
 
 ```bash
 ls -t "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs"/*/plan.md 2>/dev/null | head -1
 ```
 
-Call `AskUserQuestion` **immediately** — do NOT describe choices in prose first:
-
-```
-question    : "What would you like to do with this plan?"
-header      : "Plan"
-multiSelect : false
-options     :
-  - label: "Approve",       description: "Execute this plan with feature-worker"
-  - label: "Discuss more",  description: "I have questions or changes before this plan is finalized"
-  - label: "Discard",       description: "Cancel and delete this plan"
-```
-
-If the user selects **Discuss more**: address the engineer's questions or requested changes (re-spawn `feature-planner` if plan.md needs rewriting), then call `AskUserQuestion` again with the same three options.
-
-If the user selects **Discard**: delete `plan.md` and the run directory if empty. Stop.
-
-If the user selects **Approve**: update `status` in `plan.md` frontmatter to `approved`. Then read `plan.md` and `context.md` from that directory — these are full reads, justified because feature-worker requires the complete content. **Read each file once only.** Then spawn `feature-worker` with both injected inline:
+Update `status` in `plan.md` frontmatter to `approved`. Read `plan.md` then `context.md` — full reads, justified because feature-worker requires the complete content. **Read each file once only.** Then spawn `feature-worker` with both injected inline:
 
 > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
 >
@@ -99,7 +85,7 @@ options     :
   - label: "Build directly", description: "Skip planning — gather intent inline and go straight to building"
 ```
 
-**Plan first** → spawn `feature-planner`. After it returns, follow the same approval loop as the plan-first trigger: call `AskUserQuestion` with Approve / Discuss more / Discard, handle each branch, then read plan.md + context.md and spawn `feature-worker` with both injected inline on Approve.
+**Plan first** → spawn `feature-planner` and return. The calling skill owns the approval interaction.
 
 **Build directly** → proceed to Phase 0.
 
