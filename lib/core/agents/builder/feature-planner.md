@@ -191,40 +191,23 @@ separate-ui-layer: true | false
 <anything the engineer should review before approving>
 ```
 
-## Phase 5 — Present and Confirm
+## Phase 5 — Present Plan
 
-After writing `plan.md`:
+After writing `plan.md`, state the path then list the planned artifacts as a flat numbered list — one line per artifact with its layer and status. Do NOT display the full markdown table. Example:
 
-1. State the path, then list the planned artifacts as a flat numbered list — one line per artifact with its layer and status. Do NOT display the full markdown table. Example:
-   ```
-   Plan written to .claude/agentic-state/runs/<feature>/plan.md
+```
+Plan written to .claude/agentic-state/runs/<feature>/plan.md
 
-   1. UserEntity → new entity
-   2. UserRepository → repository interface
-   3. GetUserListUseCase → fetch list
-   4. UserDto → map API response
-   5. UserRepositoryImpl → implement + wire data source
-   6. UserStateHolder → list + loading state
-   7. UserScreen → display list
-   ```
-2. Call `AskUserQuestion` **immediately after** — do NOT write "Plan approved", do NOT write "Approved", do NOT describe choices in prose:
-   ```
-   question : "What would you like to do with this plan?"
-   header   : "Plan"
-   multiSelect: false
-   options  :
-     - label: "Approve", description: "Run feature-orchestrator to execute this plan"
-     - label: "Discuss more", description: "I have questions or changes before this plan is finalized"
-     - label: "Discard", description: "Cancel and delete this plan"
-   ```
+1. UserEntity → new entity
+2. UserRepository → repository interface
+3. GetUserListUseCase → fetch list
+4. UserDto → map API response
+5. UserRepositoryImpl → implement + wire data source
+6. UserStateHolder → list + loading state
+7. UserScreen → display list
+```
 
-**Do NOT set status to `approved` or say "Plan approved" until the user selects Approve in the question above.**
-
-If the user selects **Approve**: update `status` in `plan.md` frontmatter to `approved`, then instruct the user to run `feature-orchestrator` — do not invoke it yourself.
-
-If the user selects **Discuss more**: stay in conversation and address the engineer's questions or requested changes, then call `AskUserQuestion` again with the same three options.
-
-If the user selects **Discard**: delete `plan.md` and the run directory if empty.
+Return after presenting the list. Do NOT call `AskUserQuestion` — the calling orchestrator handles approval.
 
 ## Write Path Rule
 
