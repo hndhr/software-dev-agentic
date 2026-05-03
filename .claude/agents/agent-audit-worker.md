@@ -33,6 +33,8 @@ If scope is not provided, ask:
 
 ## Checks
 
+> **Never infer or invent expected file names from framework or domain knowledge.** Every "missing" finding must be grounded in a Glob result — either the file is absent where it was declared, or it exists on other platforms but not the target. If a check requires knowing what *should* exist, derive it from Glob results on sibling directories or `.pkg` files — never from reasoning about what a framework typically needs.
+
 ### Persona checks (when scope is a persona name or `full`)
 
 For each `packages/<persona>.pkg`:
@@ -69,6 +71,16 @@ For each `SKILL.md` file in scope:
 
 6. **Reference doc paths resolve** — Grep the file for any path matching `reference/` — for each found:
    - Glob the path relative to repo root — BROKEN if not found
+
+### Platform skill parity (when scope is a platform directory)
+
+7. **Contract skill parity** — when scope is `lib/platforms/<platform>/` or a platform's `skills/contract/` dir:
+   - `Glob lib/platforms/ios/skills/contract/*/SKILL.md` → extract skill names from paths
+   - `Glob lib/platforms/web/skills/contract/*/SKILL.md` → extract skill names from paths
+   - `Glob lib/platforms/flutter/skills/contract/*/SKILL.md` → extract skill names from paths
+   - For each skill present on **both** other platforms but absent on the target: BROKEN
+   - For each skill present on only one other platform: WARNING (may be intentionally platform-specific)
+   - **Do not report any skill as missing unless it is confirmed absent via Glob on the target platform** — the presence check is always Glob-first, never name-guessing
 
 ## Output Format
 
