@@ -7,6 +7,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.53.0] — 2026-05-03
+
+### Added
+- `lib/platforms/flutter/reference/index.md`: new index listing all 6 contract reference files with sections and Grep pattern — enables workers to satisfy the P6 Grep-first rule when uncertain which file covers a topic
+- `agent-audit-worker`: Check 7 — platform skill parity via Glob comparison; audits a platform's `skills/contract/` dir against sibling platforms and reports gaps based on actual file presence, not assumed names
+
+### Changed
+- `docs/core-design-principles.md`: P1 Skill-First Entry — `build-from-ticket` added as third builder entry skill (CI/remote non-interactive path); P2 DI at Skill Level — skills-are-create-only rule added; P3 skill naming note — stale `update-*` reference removed
+- `docs/persona/builder.md`: Skill Roster — create-only callout added above table
+- `docs/submodule-repo-structure.md`: Decision 1 naming pattern and "What Goes Where" Platform-contract skills row both state create-only constraint
+- `docs/deck/agentic-deck.html`: Type A skill description updated from "Standard build / update procedures" to reflect create-only nature
+- `agent-audit-worker`: hard constraint added at top of Checks section — every "missing" finding must be grounded in a Glob result, never inferred from framework or domain knowledge
+
+### Fixed
+- `lib/platforms/flutter/skills/contract/` (all 9 skills): removed Fix G `Rules:` prose blocks; non-obvious constraints inlined as code comments in templates; reference docs carry the full specification
+- `data-create-repository-impl/SKILL.md`: corrected `reference/contract/builder/error-handling.md` → `.claude/reference/contract/builder/error-handling.md` (missing `.claude/` prefix)
+- `arch-review-orchestrator`: Intent Routing table phase labels aligned with three-phase body structure — audit/review now explicitly show they skip Phase 2 and go to Phase 3 (report)
+
+---
+
 ## [3.52.3] — 2026-04-29
 
 ### Fixed
