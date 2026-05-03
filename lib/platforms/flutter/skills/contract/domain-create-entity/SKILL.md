@@ -17,25 +17,19 @@ Create a Domain Entity following `.claude/reference/contract/builder/domain.md #
 ```dart
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part '[feature]_entity.freezed.dart';
+part '[feature]_entity.freezed.dart'; // .freezed.dart only — never .g.dart; entities are not serialised
 
 @freezed
 class [Feature]Entity with _$[Feature]Entity {
   const factory [Feature]Entity({
     required String id,
     required String name,
-    // all required fields first, optional last
+    // required fields first; T? only when domain genuinely allows null
     DateTime? createdAt,
   }) = _[Feature]Entity;
+  // no fromJson — entities are never deserialised from JSON
 }
 ```
-
-Rules:
-- `@freezed` only — `.freezed.dart` part only, **never** `.g.dart`
-- **No `fromJson` factory** — entities are not serialised
-- All immutable (`const factory`)
-- Field types use domain terminology, not API field names
-- `required` for mandatory fields; `T?` only when the domain genuinely allows null
 
 ## Output
 

@@ -20,7 +20,8 @@ import 'package:fpdart/fpdart.dart';
 import '../entities/[feature]_entity.dart';
 import '../../../../shared/domain/errors/failure.dart';
 
-abstract class [Feature]Repository {
+abstract class [Feature]Repository { // abstract class — never interface or mixin
+  // all methods return Either<Failure, T> — never throw; params use Params objects not Map
   Future<Either<Failure, [Feature]Entity>> get[Feature](String id);
   Future<Either<Failure, List<[Feature]Entity>>> get[Feature]s({
     int page = 1,
@@ -33,13 +34,6 @@ abstract class [Feature]Repository {
   Future<Either<Failure, void>> delete[Feature](String id);
 }
 ```
-
-Rules:
-- `abstract class` — no `interface`, no `mixin`
-- All methods return `Either<Failure, T>` — never throw
-- Parameters use domain Params objects, not raw `Map<String, dynamic>`
-- Return domain entities only — no models, no DTOs
-- Method names: `get*`, `create*`, `update*`, `delete*`
 
 ## Output
 

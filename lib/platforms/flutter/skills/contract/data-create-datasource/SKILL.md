@@ -19,7 +19,7 @@ Create a DataSource following `.claude/reference/contract/builder/data.md ## Dat
 ```dart
 import '../models/[feature]_model.dart';
 
-abstract class [Feature]RemoteDataSource {
+abstract class [Feature]RemoteDataSource { // no annotations — throws AppException, never returns Either
   Future<[Feature]Model> get[Feature](String id);
   Future<List<[Feature]Model>> get[Feature]s({int page = 1, int limit = 20});
   Future<[Feature]Model> update[Feature](String id, Update[Feature]Payload payload);
@@ -38,7 +38,7 @@ import '../models/update_[feature]_payload.dart';
 import '../exceptions/app_exception.dart';
 import '[feature]_remote_data_source.dart';
 
-@LazySingleton(as: [Feature]RemoteDataSource)
+@LazySingleton(as: [Feature]RemoteDataSource) // inject Dio — never create Dio() inside
 class [Feature]RemoteDataSourceImpl implements [Feature]RemoteDataSource {
   [Feature]RemoteDataSourceImpl({required this.dio});
 
@@ -55,14 +55,6 @@ class [Feature]RemoteDataSourceImpl implements [Feature]RemoteDataSource {
   }
 }
 ```
-
-Rules:
-- Abstract class: no implementation, no annotations
-- Impl: `@LazySingleton(as: [Feature]RemoteDataSource)`
-- Impl: inject `Dio` — never create `Dio()` inside
-- DataSource **throws** `AppException` — repository catches it
-- DataSource returns Models — never entities
-- Endpoints as constants in `configs/[feature]_endpoints.dart`
 
 ## Output
 

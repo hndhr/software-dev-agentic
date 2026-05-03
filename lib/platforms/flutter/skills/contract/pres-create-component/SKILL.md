@@ -48,13 +48,6 @@ class [Feature][Component] extends StatelessWidget {
 }
 ```
 
-Rules:
-- `const` constructor — always
-- Accept domain entities as parameters — never BLoC or use case references
-- No `context.read<XxxBloc>()` — no BLoC access whatsoever
-- No business logic in `build` — only layout and display decisions
-- Prefer `StatelessWidget` — use `StatefulWidget` only for purely local UI state (animations, form fields)
-
 ## Output
 
 Confirm file path and list all constructor parameters.

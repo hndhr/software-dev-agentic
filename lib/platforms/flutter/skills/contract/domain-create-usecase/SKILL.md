@@ -89,14 +89,6 @@ class Update[Feature]Params {
 }
 ```
 
-Rules:
-- `@lazySingleton` on every UseCase
-- `implements UseCase<ReturnType, ParamsType>`
-- One operation per UseCase
-- Params classes are pure Dart — no freezed, no `@JsonKey`
-- Use `NoParams` (from `use_case.dart`) when there are no inputs
-- Naming: `[Verb][Feature]UseCase` — `GetEmployeeUseCase`, `UpdateAttendanceUseCase`
-
 ## Output
 
 Confirm file paths (UseCase + Params if created) and the method signature.

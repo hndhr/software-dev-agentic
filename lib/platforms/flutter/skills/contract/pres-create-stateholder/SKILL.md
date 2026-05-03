@@ -86,13 +86,6 @@ class [Feature]Bloc extends Bloc<[Feature]Event, [Feature]State> {
 }
 ```
 
-Rules:
-- `@injectable` on BLoC — new instance per screen
-- Every state field that holds async data uses `ViewDataState<T>` — no raw `isLoading` booleans
-- Every handler emits `loading` before `await`, then `fold()`
-- `sealed` Event via freezed — no open inheritance
-- State has `factory [Feature]State.initial()` with all fields set to `ViewDataState.initial()`
-
 ## Output
 
 Confirm all file paths, list State fields, Event cases, and the use cases injected.

@@ -57,14 +57,6 @@ class [Feature]Mapper extends BaseMapper<[Feature]Model, [Feature]Entity> {
 }
 ```
 
-Rules:
-- Model: all fields nullable (`String?`, `int?`) — API is untrusted
-- Model: both `.freezed.dart` and `.g.dart` parts
-- Model: `@JsonKey(name:)` for every field that differs from the Dart name
-- Mapper: handle every nullable with an explicit default — never `!` without a null check
-- Mapper: `@lazySingleton`
-- Mapper: date strings parsed in the mapper, not in the entity
-
 ## Output
 
 Confirm both file paths and list all mapped fields with their source → target names.

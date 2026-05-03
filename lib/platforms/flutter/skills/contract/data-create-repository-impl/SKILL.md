@@ -4,7 +4,7 @@ description: Create a Repository implementation that bridges the domain interfac
 user-invocable: false
 ---
 
-Create a RepositoryImpl following `.claude/reference/contract/builder/data.md ## Repository Implementations section` and `reference/contract/builder/error-handling.md`.
+Create a RepositoryImpl following `.claude/reference/contract/builder/data.md ## Repository Implementations section` and `.claude/reference/contract/builder/error-handling.md`.
 
 ## Steps
 
@@ -48,14 +48,6 @@ class [Feature]RepositoryImpl implements [Feature]Repository {
   }
 }
 ```
-
-Rules:
-- `@LazySingleton(as: [Feature]Repository)` — binds to the interface
-- Every method: `try { ... } on AppException catch (e) { return Left(e.toFailure()); } catch (e) { ... }`
-- `AppException` caught **before** the generic `catch (e)` — order matters
-- Null-check `model` before mapping when datasource can return null
-- DataSources throw — repositories return `Either`
-- Never let raw Dart exceptions propagate out of repository methods
 
 ## Output
 

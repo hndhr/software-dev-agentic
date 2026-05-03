@@ -72,15 +72,6 @@ class _[Feature]View extends StatelessWidget {
 }
 ```
 
-Rules:
-- Screen owns `BlocProvider` — creates BLoC via `getIt<[Feature]Bloc>()`
-- Dispatch initial event in `BlocProvider.create` with `..add()`
-- `_[Feature]View` is private — never exported
-- `buildWhen` and `listenWhen` filter to the relevant state field
-- `BlocBuilder` for UI, `BlocListener` for side effects; `BlocConsumer` when both are needed
-- All sub-widgets receive plain entities — no BLoC references passed down
-- Handle all four states: initial/loading, error, empty/null, loaded
-
 ## Output
 
 Confirm file path and list all handled state cases and dispatched events.
