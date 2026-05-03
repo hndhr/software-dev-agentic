@@ -45,10 +45,10 @@ Do not proceed until intent is clear.
 
 | Intent | Workers spawned | Phases |
 |---|---|---|
-| `audit` | agent-audit-worker + arch-review-worker | Phase 1 parallel → Phase 2 report |
-| `review` | arch-review-worker only | Phase 1 → Phase 2 report |
-| `migrate` | agent-migrate-worker | Phase 1 → Phase 2 verify (arch-review-worker on migrated file) |
-| `scaffold` | agent-scaffold-worker | Phase 1 → Phase 2 verify (arch-review-worker on scaffolded file) |
+| `audit` | agent-audit-worker + arch-review-worker | Phase 1 (parallel) → Phase 3 (report) — skips Phase 2 |
+| `review` | arch-review-worker only | Phase 1 → Phase 3 (report) — skips Phase 2 |
+| `migrate` | agent-migrate-worker | Phase 1 → Phase 2 (verify) → Phase 3 (report) |
+| `scaffold` | agent-scaffold-worker | Phase 1 → Phase 2 (verify) → Phase 3 (report) |
 
 ## Phase 1 — Execute
 
