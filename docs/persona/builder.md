@@ -120,6 +120,8 @@ User
 
 ## Skill Roster (Platform-Contract — all platforms must implement)
 
+These skills cover **artifact creation only**. Workers handle modifications to existing artifacts via direct `Read` + `Edit` with reference docs — there are no `update-*` or `fix-*` skills.
+
 | Skill | Called by | Layer |
 |---|---|---|
 | `domain-create-entity` | `domain-worker`, `feature-worker` | Domain |

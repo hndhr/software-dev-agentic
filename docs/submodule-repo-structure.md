@@ -28,7 +28,7 @@ The submodule is the single source of truth — downstream projects get agents, 
 
 **Core-dependency skills** — called by core workers. Must be implemented by every platform that wants core agent support. Same name across platforms, different syntax per platform. Located in `lib/platforms/<platform>/skills/contract/` — at setup time the `contract/` group is transparent and skills land flat in `.claude/skills/<name>/` downstream.
 
-Naming pattern: `<layer>-<action>-<artifact>` (e.g. `<layer>-create-<artifact>`, `<layer>-update-<artifact>`). One skill per layer worker, covering each artifact the worker creates or updates. Every platform must implement the full set under the same names.
+Naming pattern: `<layer>-<action>-<artifact>` (e.g. `<layer>-create-<artifact>`). Skills cover **new artifact creation only** — workers handle modifications to existing artifacts via direct `Read` + `Edit` with reference docs. Every platform must implement the full create-only set under the same names.
 
 **Platform-specific skills** — called by platform agents only. Implemented only by the platform that owns the calling agent.
 
@@ -189,7 +189,7 @@ software-dev-agentic enforces its own conventions through an automated internal 
 | Internal repo tooling | `software-dev-agentic/agents/` | Convention reviewer — NOT symlinked to downstream projects |
 | Platform-specific agents (`test-orchestrator`, `pr-review-worker`) | `software-dev-agentic/lib/platforms/<platform>/agents/` | Agent itself is inherently platform-specific |
 | Core skills | `software-dev-agentic/lib/core/skills/` | Identical across platforms |
-| Platform-contract skills | `software-dev-agentic/lib/platforms/<platform>/skills/contract/` | Same name on all platforms, platform-specific implementation; lands flat in `.claude/skills/<name>/` downstream |
+| Platform-contract skills | `software-dev-agentic/lib/platforms/<platform>/skills/contract/` | Same name on all platforms, platform-specific implementation; create-only (`create-*`) — no update skills; lands flat in `.claude/skills/<name>/` downstream |
 | Platform-only skills | `software-dev-agentic/lib/platforms/<platform>/skills/` (flat) | Called by platform agents only |
 | Internal repo skills | `software-dev-agentic/skills/` | Convention checklist, report formatter — NOT symlinked to downstream projects |
 | Universal reference docs | `software-dev-agentic/lib/core/reference/builder/` | Language-agnostic CLEAN theory |

@@ -47,7 +47,7 @@ The trigger skill owns three responsibilities before spawning the agent:
 
 The agent detects the `Pre-loaded context` block in its prompt and jumps directly to the first pending phase. Without it, the agent warns that direct invocation is unsupported.
 
-**Multiple workflow skills per persona are allowed** — as long as they all route through the same primary entry agent. Example: the builder persona has two Type T skills: `feature-orchestrator` (direct build or resume) and `plan-feature` (planning-first workflow that sequences `feature-planner` → user approval → `feature-orchestrator`). Both converge on the same executor; the rule guards against direct-invocation bypasses, not workflow variations.
+**Multiple workflow skills per persona are allowed** — as long as they all route through the same primary entry agent. Example: the builder persona has three Type T skills: `feature-orchestrator` (direct build or resume), `plan-feature` (planning-first workflow that sequences `feature-planner` → user approval → `feature-orchestrator`), and `build-from-ticket` (non-interactive CI/remote path — fetches a Jira ticket, runs `auto-feature-planner`, then `feature-worker` without any user prompts). All converge on the same executor; the rule guards against direct-invocation bypasses, not workflow variations.
 
 A sub-agent used only as a step inside a workflow skill (e.g. `feature-planner` inside `plan-feature`) does not need its own standalone trigger skill.
 
@@ -88,6 +88,8 @@ Agents have a second axis — where they live and what they know.
 **DI at Skill Level:**
 
 Workers are platform-agnostic protocol-definers. Skills are the platform-specific implementations of that protocol. A `domain-worker` calls `domain-create-entity` by name — on iOS that creates a Swift struct, on web a TypeScript interface. The worker never knows which platform it's on and doesn't need to.
+
+**Skills are create-only.** Platform-contract skills cover new artifact creation only (`create-*`). There are no update or fix skills — workers handle modifications to existing artifacts via direct `Read` + `Edit` with reference docs. Workers invoke a skill only when the target artifact does not yet exist.
 
 | Role | Protocol analogy | Platform-aware? |
 |---|---|---|
@@ -139,7 +141,7 @@ Skills are focused, reusable workflow procedures. Each skill:
 
 Target: under 30 lines per skill
 
-> Naming: `<layer>-<action>-<target>`. Split by intent: `create-*` for new, `update-*` for existing. Keep `SKILL.md` under 500 lines. Skills are either **core-dependency** (same name on all platforms) or **platform-specific** (one platform only) — see [persona-builder.md](persona/builder.md).
+> Naming: `<layer>-<action>-<target>`. Platform-contract skills use `create-*` for new artifact creation only — there are no `update-*` skills. Keep `SKILL.md` under 500 lines. Skills are either **core-dependency** (same name on all platforms) or **platform-specific** (one platform only) — see [persona-builder.md](persona/builder.md).
 
 **Preloading skills:**
 
