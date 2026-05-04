@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.54.0] — 2026-05-04
+
+### Added
+- `lib/platforms/android/`: new Android platform for Kotlin/MVP (Dagger 2 + RxJava 3) projects
+- `lib/platforms/android/skills/contract/` (12 skills): full builder persona contract skill set — `domain-create-entity`, `domain-create-repository`, `domain-create-usecase`, `domain-create-service`, `data-create-datasource`, `data-create-mapper`, `data-create-repository-impl`, `pres-create-stateholder`, `pres-create-screen`, `test-create-domain`, `test-create-data`, `test-create-presentation`
+- `lib/platforms/android/reference/contract/builder/` (6 files): `domain.md`, `data.md`, `presentation.md`, `di.md`, `utilities.md`, `testing.md` — all reflecting real Talenta Android patterns (`BaseMvpVbActivity`, `BaseMvpPresenter`, `doOnSubscribe`/`doFinally`, `addToDisposables()`, `given/when/then` test naming)
+- `lib/platforms/android/reference/error-handling.md`: `ErrorHandler`, `ApiException`, `ErrorInterceptor` — platform-specific, not a contract file
+- `lib/platforms/android/reference/network.md`: Retrofit/OkHttp setup, `AuthInterceptor` — platform-specific
+- `lib/platforms/android/reference/project.md`: module structure, naming conventions, build commands
+- `lib/platforms/android/CLAUDE-template.md` and `settings-template.jsonc`
+
+### Changed
+- `scripts/setup-symlinks.sh`: added `android` to supported platforms list and usage/validation message
+- `docs/persona/builder.md`: updated Android implementation reference row to reflect new platform stub
+
+---
+
 ## [3.53.0] — 2026-05-03
 
 ### Added
