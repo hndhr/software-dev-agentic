@@ -7,6 +7,8 @@
 # Usage:
 #   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
 #   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
+#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=android
+#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=flutter
 #
 # Priority order: agents.local > platform > core  (first link wins)
 
@@ -29,7 +31,7 @@ done
 
 if [ -z "$PLATFORM" ]; then
   echo "Error: --platform is required."
-  echo "Usage: $0 --platform=web|ios|flutter"
+  echo "Usage: $0 --platform=web|ios|android|flutter"
   exit 1
 fi
 

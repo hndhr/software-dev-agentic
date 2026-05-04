@@ -226,7 +226,7 @@ prompt-debug-worker   ← reads perf-report + domain-worker.md
 |---|---|---|
 | talenta-ios | Swift/UIKit, 4 orchestrators, 7 workers, 27 skills | Content mirrored in `lib/platforms/ios/`. Still uses its own copy — submodule wiring pending. |
 | mobile-talenta (Flutter) | Dart/BLoC, get_it + injectable DI, 7 agents, 9 skills | `lib/platforms/flutter/` is a stub — needs agents, skills, reference docs |
-| talenta-mobile-android | MVP, Dagger 2, RxJava 3, 7 agents, 7 skills | Naming alignment required before migration (`-orchestrator`/`-worker` suffix) |
+| talenta-mobile-android | Kotlin MVP, Dagger 2, RxJava 3 | `lib/platforms/android/` scaffolded — 12 contract skills, 6 reference docs. Wire submodule with `setup-symlinks.sh --platform=android`. |
 | wehire, xpnsio | Next.js 15, 29 Type A skills, 0 Type B | Active — consuming submodule via web platform |
 
 > **Breaking:** downstream projects must re-run setup scripts after updating the submodule pointer.
