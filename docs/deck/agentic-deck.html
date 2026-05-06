@@ -1273,6 +1273,86 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
+       SLIDE — CONTRIBUTION SCALING
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s12d">
+    <div class="label">Contributing to the Toolkit</div>
+    <h2 class="headline">Start small. <em>Scale as the need proves it.</em></h2>
+    <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; align-items: start;">
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th>When your need is…</th>
+              <th>Build</th>
+              <th>Signs you've outgrown it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Automate one user-triggered task — no agent reasoning needed</td>
+              <td><strong>Skill — Type U</strong></td>
+              <td>You find yourself adding branching logic</td>
+            </tr>
+            <tr>
+              <td>Worker needs a repeatable, platform-specific artifact procedure</td>
+              <td><strong>Skill — Type A</strong></td>
+              <td>The skill starts doing more than one thing</td>
+            </tr>
+            <tr>
+              <td>Multi-step workflow scoped to one concern — Grep, reason, write</td>
+              <td><strong>Worker</strong> agent</td>
+              <td>You spawn other workers or need phase validation</td>
+            </tr>
+            <tr>
+              <td>Multiple workers need sequencing, validation, and a user entry gate</td>
+              <td><strong>Orchestrator</strong> + Trigger Skill (Type T)</td>
+              <td>Workers sometimes produce wasteful rework on complex features</td>
+            </tr>
+            <tr>
+              <td>Workflow benefits from read-first exploration before any source write</td>
+              <td>Add a <strong>Planner</strong></td>
+              <td>You have all the roles — you've built a persona</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="tree" style="font-size: 12px; line-height: 1.75;">
+<span class="dm">Maturity ladder</span>
+
+<span class="ac">Skill</span>          <span class="dm">← one task, one file, ≤30 lines</span>
+<span class="dm">  │</span>
+<span class="dm">  ▼  (need grows)</span>
+<span class="ac">+ Worker</span>       <span class="dm">← multi-step, scoped to one concern</span>
+<span class="dm">  │</span>
+<span class="dm">  ▼  (need grows)</span>
+<span class="ac">+ Orchestrator</span>  <span class="dm">← phases, validation, trigger gate</span>
+<span class="dm">  │</span>
+<span class="dm">  ▼  (need grows)</span>
+<span class="ac">+ Planner</span>      <span class="dm">← read-first, plan approval</span>
+<span class="dm">  │</span>
+<span class="dm">  ▼  (discipline proven)</span>
+<span class="rl">Full Persona</span>   <span class="dm">← formalizes an engineering discipline</span>
+        </div>
+        <div class="cache-box stable" style="font-size: 13px;">
+          <div class="cache-label">Before you build — use the internal toolkit</div>
+          <code style="font-family:var(--mono);color:var(--accent);">/consult [subject]</code><br>
+          <span style="color:var(--muted);">Reason through design with an agent that reads the repo, asks about intent, and recommends exactly what to build.</span><br><br>
+          <code style="font-family:var(--mono);color:var(--accent);">/scaffold</code><br>
+          <span style="color:var(--muted);">Generate a correctly-structured file with arch-review built in. No convention violations out of the gate.</span>
+        </div>
+      </div>
+    </div>
+    <div class="caption">
+      A persona earns its shape — don't design five roles on day one.
+      A Skill that proves recurring value becomes a Worker.
+      A Worker that proves orchestration need earns an Orchestrator.
+      <strong>Personas are the outcome of scaling, not the starting point.</strong>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
        SLIDE 13 — KNOWLEDGE ARCHITECTURE
   ════════════════════════════════════════════ -->
   <section class="slide" id="s13">
