@@ -1,5 +1,64 @@
 # Android — Testing Patterns
 
+## Test Pyramid <!-- 11 -->
+
+| Layer | Type | Tool | Target ratio |
+|---|---|---|---|
+| Domain (use cases, services) | Unit | JUnit4 + Mockito | Heavy — fast, isolated |
+| Data (mappers, repository impl) | Unit | JUnit4 + Mockito | Heavy |
+| Presentation (presenters) | Unit | JUnit4 + Mockito + RxJava test schedulers | Medium |
+| UI (activity/fragment) | Instrumented | Espresso | Light — slow, avoid |
+
+Run `./gradlew test` for unit tests; `./gradlew connectedAndroidTest` for instrumented.
+
+## Repository Tests <!-- 48 -->
+
+Test that the repository implementation calls the API and maps the response correctly. Mock the API (`TimeOffApi`) and mapper (`TimeOffRequestMapper`).
+
+```kotlin
+@RunWith(MockitoJUnitRunner::class)
+class TimeOffRepositoryImplTest {
+
+    @Mock lateinit var mockApi: TimeOffApi
+    @Mock lateinit var mockMapper: TimeOffRequestMapper
+
+    private lateinit var repository: TimeOffRepositoryImpl
+
+    @Before
+    fun setUp() {
+        repository = TimeOffRepositoryImpl(mockApi, mockMapper)
+    }
+
+    @Test
+    fun test_givenApiSuccess_whenGetRequests_thenMapperIsCalledAndEntityReturned() {
+        val response = TimeOffRequestListResponse(data = listOf(TimeOffRequestResponse("1", null, null, null, null, null, 3)), meta = null)
+        val entity = TimeOffRequest("1", "", "", "", "", "", 3)
+        given(mockApi.getTimeOffRequests(1, 20)).willReturn(Single.just(response))
+        given(mockMapper.map(response.data!!.first())).willReturn(entity)
+
+        val result = repository.getTimeOffRequests(1, 20).blockingGet()
+
+        assertEquals(listOf(entity), result)
+        then(mockMapper).should().map(response.data!!.first())
+    }
+
+    @Test
+    fun test_givenApiError_whenGetRequests_thenDomainExceptionPropagated() {
+        given(mockApi.getTimeOffRequests(1, 20)).willReturn(Single.error(ApiException(401, "Unauthorized")))
+
+        val error = assertThrows(DomainException.Unauthorized::class.java) {
+            repository.getTimeOffRequests(1, 20).blockingGet()
+        }
+        assertNotNull(error)
+    }
+}
+```
+
+Rules:
+- Mock `Api` and `Mapper` — never the repository itself
+- Test success path, error path (ApiException → DomainException), and empty list
+- Use `.blockingGet()` for synchronous assertion in unit tests
+
 ## Unit Test Setup <!-- 70 -->
 
 Test naming convention: `test_given[Condition]_when[Action]_then[ExpectedResult]`

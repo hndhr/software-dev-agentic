@@ -77,3 +77,40 @@ Rules:
 - `Params` is a nested data class inside the use case
 - Return type wraps the domain entity — never raw response types
 - Name: `[Action][Entity]UseCase` (e.g. `GetTimeOffRequestsUseCase`, `SubmitTimeOffUseCase`)
+
+## Services <!-- 18 -->
+
+Domain services encapsulate business logic that spans multiple entities or does not naturally belong to a single use case. In Android MVP, these are plain Kotlin classes with no Android framework dependencies.
+
+```kotlin
+// domain/service/TimeOffEligibilityService.kt
+class TimeOffEligibilityService @Inject constructor() {
+    fun isEligible(employee: Employee, requestDays: Int): Boolean {
+        return employee.remainingLeave >= requestDays && !employee.isProbation
+    }
+}
+```
+
+Rules:
+- Pure Kotlin — no Android imports, no RxJava, no framework dependencies
+- Injected into use cases via `@Inject constructor`, never into presenters directly
+- Name: `[Domain][Concept]Service`
+
+## Domain Errors <!-- 19 -->
+
+Typed exceptions thrown from the domain boundary. Repository implementations map transport errors to these before returning.
+
+```kotlin
+// domain/exception/DomainException.kt
+sealed class DomainException(message: String) : Exception(message) {
+    class Unauthorized(message: String = "Unauthorized") : DomainException(message)
+    class NotFound(message: String = "Resource not found") : DomainException(message)
+    class NetworkError(message: String = "Network unavailable") : DomainException(message)
+    class Unknown(message: String = "Unknown error") : DomainException(message)
+}
+```
+
+Rules:
+- Sealed class — exhaustive `when` in presenter error handling
+- No transport types leak out — `ApiException`, `IOException` are mapped in `RepositoryImpl`
+- Presenters catch `DomainException` subtypes via `ErrorHandler`

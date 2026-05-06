@@ -2,6 +2,28 @@
 
 > Concepts and invariants: `reference/builder/presentation.md`. This file covers Android MVP patterns with Kotlin.
 
+## State <!-- 18 -->
+
+Android MVP has no explicit state container. The **View interface** is the state surface — the Presenter drives it imperatively via `view?.show*` / `view?.hide*` calls. Loading, success, and error states are expressed as discrete View methods rather than a sealed state class.
+
+```kotlin
+interface TimeOffRequestContract {
+    interface View : BaseMvpView {
+        fun showLoading()        // loading state
+        fun hideLoading()        // loading cleared
+        fun showTimeOffRequests(requests: List<TimeOffRequest>)  // success state
+        fun showError(error: Throwable)   // error state
+        fun showEmptyState()              // empty state
+    }
+}
+```
+
+For screens that need richer state (e.g. multi-section loading), define a `ViewState` data class and expose it via a single `renderState(state: ViewState)` method on the View interface.
+
+## Shared Component Paths <!-- 4 -->
+
+> Android shared components are not yet catalogued. Add common widget paths here when established (e.g. `presentation/common/`, `base/ui/`).
+
 ## MVP Contract <!-- 70 -->
 
 Interface defining the View and Presenter contracts for a feature screen.
