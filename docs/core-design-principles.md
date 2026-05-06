@@ -373,6 +373,18 @@ Read a full file only when: (a) you need its complete structure to write a new m
 
 > Read:Grep ratio should stay below 3. A ratio above 6 is a P6 violation.
 
+**Authoring rule — reference doc sections:**
+
+Every `##` section heading in a reference doc must carry a line-count comment: `## Section Name <!-- N -->` where N is the number of lines from this heading to the line before the next `##` heading (or EOF for the last section). This is not cosmetic — agents extract N as the `limit` in `Read(file, offset=heading_line, limit=N)` to read exactly one section without loading the whole file. A missing or non-integer `<!-- N -->` forces a full-file Read.
+
+```markdown
+## DTOs <!-- 35 -->        ← correct: integer line count
+## Mappers <!-- stub -->   ← wrong: agent cannot extract a limit
+## Data Sources            ← wrong: no comment at all
+```
+
+`arch-check-conventions` enforces this — a missing integer is a Warning violation.
+
 ---
 
 

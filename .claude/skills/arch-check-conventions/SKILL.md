@@ -86,6 +86,16 @@ For each `lib/platforms/<platform>/reference/contract/` directory being audited,
 
 Severity: **Critical** — a missing required keyword means core agents cannot reliably Grep for that concept on this platform, breaking cross-platform portability.
 
+## Reference Doc Section Line-Count Check
+
+For each reference doc file being audited (`lib/platforms/<platform>/reference/**/*.md`, `lib/core/reference/**/*.md`), verify every `##` section heading carries a valid integer line-count comment.
+
+**How to check:** `Grep` for `^## ` in the file. For each match, verify the heading line matches the pattern `^## .+ <!-- \d+ -->`. A heading that matches `^## .+ <!-- [^0-9] -->` or has no `<!--` at all is a violation.
+
+**Why:** Agents use the Grep-first pattern to read exactly one section: grep the heading → extract `<!-- N -->` → `Read(file, offset=heading_line, limit=N)`. A missing or non-integer `<!-- N -->` forces the agent to read the entire file, burning tokens and violating the Search Protocol.
+
+Severity: **Warning** — the section is readable but forces a full-file Read instead of a targeted section Read.
+
 ## Prompt Clarity Check
 
 For each agent file, flag instructions that are likely to cause bad decisions at runtime:

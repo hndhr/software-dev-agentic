@@ -32,14 +32,22 @@ Accept one of:
 - A directory path — audit all `*.md` files (agents) or `SKILL.md` files (skills) within it
 - A persona name (`builder`, `detective`, `tracker`, `auditor`) — audit `lib/core/agents/<persona>/`
 - `lib/core` — audit `lib/core/agents/**` and `lib/core/skills/**`
-- `lib/platforms/ios` — audit `lib/platforms/ios/agents/` and `lib/platforms/ios/skills/`
-- `lib/platforms/web` — audit `lib/platforms/web/agents/` and `lib/platforms/web/skills/`
+- `lib/platforms/<platform>` — audit three targets:
+  1. `lib/platforms/<platform>/agents/` — all agent `.md` files
+  2. `lib/platforms/<platform>/skills/` — all `SKILL.md` files
+  3. `lib/platforms/<platform>/reference/contract/**/*.md` — all reference contract docs (checked against the Contract Reference Schema in `arch-check-conventions`)
 
 ## Workflow
 
 1. **Resolve scope** — Glob all target files
-2. **Classify each file** — agent (`.md` in an `agents/` dir) or skill (`SKILL.md` in a `skills/` dir)
-3. **Run `arch-check-conventions`** — pass the file list and type classification
+2. **Classify each file** into one of three types:
+   - `agent` — `.md` file in an `agents/` directory
+   - `skill` — `SKILL.md` file in a `skills/` directory
+   - `reference-doc` — `.md` file under `reference/`
+3. **Run `arch-check-conventions`** — pass the file list with type classifications. Each type activates different checks:
+   - `agent` → Agent Checklist + Prompt Clarity Check
+   - `skill` → Skill Checklist
+   - `reference-doc` → Contract Reference Schema Check + Reference Doc Section Line-Count Check
 4. **Run `arch-generate-report`** — pass raw findings and scope label
 5. **Return the formatted report**
 
