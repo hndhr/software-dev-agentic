@@ -781,13 +781,20 @@ Read(<span class="bd">"reference/contract/builder/domain.md"</span>)
     <div class="tree" style="font-size: 12.5px; line-height: 1.72;">
 <span class="ac">software-dev-agentic/</span>  <span class="dm">← git submodule — single source of truth</span>
   lib/
-    core/agents/builder/
-      <span class="ac">feature-orchestrator.md</span>  <span class="dm">← coordinates all workers</span>
-      <span class="ac">feature-worker.md</span>        <span class="dm">← single executor across all CLEAN layers</span>
-      <span class="ac">feature-planner.md</span>       <span class="dm">← pre-build exploration + plan.md</span>
+    core/
+      agents/builder/
+        <span class="ac">feature-orchestrator.md</span>  <span class="dm">← coordinates all workers</span>
+        <span class="ac">feature-worker.md</span>        <span class="dm">← single executor across all CLEAN layers</span>
+        <span class="ac">feature-planner.md</span>       <span class="dm">← pre-build exploration + plan.md</span>
+      reference/builder/       <span class="dm">← what each concept IS (platform-agnostic)</span>
+        <span class="rl">domain.md · data.md · presentation.md · di.md ···</span>
     platforms/
-      flutter/skills/          <span class="dm">← Dart/BLoC implementations</span>
-      ios/skills/              <span class="dm">← Swift/UIKit implementations</span>
+      flutter/
+        skills/                <span class="dm">← Dart/BLoC implementations</span>
+        reference/contract/builder/  <span class="dm">← how Flutter implements each concept</span>
+      ios/
+        skills/                <span class="dm">← Swift/UIKit implementations</span>
+        reference/contract/builder/  <span class="dm">← how iOS implements each concept</span>
       web/skills/              <span class="dm">← TypeScript/Next.js implementations</span>
       android/skills/          <span class="dm">← Kotlin/MVP implementations</span>
 
@@ -805,6 +812,66 @@ talenta-ios/.claude/
       Adding a new platform requires only a new
       <strong>lib/platforms/&lt;platform&gt;/skills/</strong> directory.
       No changes to any agent.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE — REFERENCE TIERS
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s9b">
+    <div class="label">Solution — Reference Architecture</div>
+    <h2 class="headline">Two tiers of reference docs. <em>Same Grep pattern. Different purpose.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="cache-box stable">
+          <div class="cache-label">Tier 1 — Core reference · lib/core/reference/builder/</div>
+          <strong style="color: var(--text);">What each concept IS</strong> — canonical, platform-agnostic.<br>
+          <span style="color: var(--muted); font-size: 13px;">Defines the contract: "A use case encapsulates one business rule." "A repository is an interface, not an implementation." Shared by every platform.</span><br><br>
+          <code style="font-family:var(--mono);font-size:12px;color:var(--accent);">domain.md · data.md · presentation.md · di.md</code>
+        </div>
+        <div class="cache-arrow">↓  agents read Tier 1 first, then look up Tier 2</div>
+        <div class="cache-box dynamic">
+          <div class="cache-label">Tier 2 — Platform contract · lib/platforms/&lt;p&gt;/reference/contract/builder/</div>
+          <strong style="color: var(--text);">How to implement it in this platform</strong> — Swift, Dart, Kotlin, TypeScript.<br>
+          <span style="color: var(--muted); font-size: 13px;">Provides the code pattern: "In Swift a UseCase is a final class with a nested Params struct." "In Flutter use @JsonSerializable on the DTO." Each platform has its own copy.</span><br><br>
+          <code style="font-family:var(--mono);font-size:12px;color:var(--accent);">ios/reference/contract/builder/domain.md</code><br>
+          <code style="font-family:var(--mono);font-size:12px;color:var(--accent);">flutter/reference/contract/builder/domain.md</code>
+        </div>
+      </div>
+      <div>
+        <table style="margin-bottom: 18px;">
+          <thead>
+            <tr><th></th><th>Core reference</th><th>Platform reference</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Answers</td>
+              <td>What is a UseCase?<br>What belongs in Domain?</td>
+              <td>How do I write a UseCase in Swift?<br>Which class pattern does Flutter use?</td>
+            </tr>
+            <tr>
+              <td>Contains</td>
+              <td>Definitions, invariants, layer rules</td>
+              <td>Code templates, platform idioms, import conventions</td>
+            </tr>
+            <tr>
+              <td>Shared by</td>
+              <td>All platforms</td>
+              <td>One platform only</td>
+            </tr>
+            <tr>
+              <td>Read by</td>
+              <td>feature-worker when reasoning about architecture</td>
+              <td>feature-worker when generating code</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="caption">
+          The files cross-reference each other — Tier 1 says "platform syntax: see contract/"
+          and Tier 2 says "concepts: see core/reference/".
+          <strong>A worker Greps Tier 1 to understand the contract, then Greps Tier 2 to write the correct code. One Grep each. Never the full file.</strong>
+        </div>
+      </div>
     </div>
   </section>
 
