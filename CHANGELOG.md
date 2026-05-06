@@ -7,6 +7,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.55.0] — 2026-05-06
+
+### Added
+- `lib/platforms/android/reference/contract/builder/error-handling.md`: new — `## Error Flow`, `## Error Types`, `## Error Mapping`, `## Error UI` covering `DomainException`, `ErrorHandler`, and `onErrorResumeNext` patterns
+- `lib/platforms/android/reference/contract/builder/navigation.md`: new — `## Navigator` (custom `NavigationImpl` pattern) and `## Route Constants` stub
+- `lib/platforms/android/reference/contract/builder/domain.md`: added `## Services` and `## Domain Errors` sections
+- `lib/platforms/android/reference/contract/builder/presentation.md`: added `## State` (MVP View interface as state surface) and `## Shared Component Paths`
+- `lib/platforms/android/reference/contract/builder/testing.md`: added `## Test Pyramid` and `## Repository Tests` with full Mockito example
+- `lib/platforms/android/reference/contract/builder/utilities.md`: added `## StorageService`, `## DateService`, `## Logger` stubs
+- `arch-check-conventions`: new `## Reference Doc Section Line-Count Check` — every `##` heading must carry `<!-- N -->` integer; missing or non-integer is a Warning violation
+- `docs/core-design-principles.md §6`: authoring rule for `<!-- N -->` line-count convention (writer-side documentation)
+
+### Changed
+- `lib/platforms/ios/reference/contract/builder/data.md`: `## Response Models (DTOs)` → `## DTOs`; iOS naming explained in section body
+- `lib/platforms/android/reference/contract/builder/data.md`: `## Response Models` → `## DTOs`; `## API Service` → `## Data Sources`; platform naming explained in body
+- `arch-review-worker`: platform scope now includes `reference/contract/**/*.md`; adds `reference-doc` as third file classification routing to Contract Schema + Line-Count checks
+- `docs/deck/agentic-deck.html`: corrected `feature-orchestrator` flow (spawns `feature-worker`, not individual layer workers); Android promoted from "coming soon" to active; removed false pre-commit hook claim
+
+### Fixed
+- All Android reference contract files now satisfy `builder-auditor-schema.md` keyword requirements — schema check passes for all 8 required files
+
+---
+
 ## [3.54.0] — 2026-05-04
 
 ### Added
