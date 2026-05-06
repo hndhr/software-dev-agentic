@@ -2,9 +2,9 @@
 
 > Concepts and invariants: `reference/builder/data.md`. This file covers Kotlin/Android-specific data layer patterns.
 
-## Response Models <!-- 70 -->
+## DTOs <!-- 70 -->
 
-Data classes with Gson `@SerializedName` annotations. All fields nullable (defensive deserialization).
+Android calls these **Response Models** (`*Response` suffix, placed in `data/response/`). Same contract as core — raw API shape, all fields nullable, `@SerializedName` for every field, no business logic. Never returned from repository — always mapped to an entity first.
 
 ```kotlin
 // data/response/TimeOffRequestListResponse.kt
@@ -34,6 +34,7 @@ Rules:
 - All fields `val` and nullable (`?`) — server may omit any field
 - Use `@SerializedName` for every field
 - No business logic in response models
+- Class suffix is `*Response`; file lives in `data/response/`
 
 ## Mappers <!-- 70 -->
 
@@ -70,9 +71,9 @@ Rules:
 - Add `mapList(responses: List<Response>?)` helper for list mappings
 - For nested objects: create a nested mapper class
 
-## API Service <!-- 70 -->
+## Data Sources <!-- 70 -->
 
-Retrofit interface — one per feature module, placed in `service/`.
+Android implements the DataSource contract as a **Retrofit interface** (`*Api` suffix, placed in `service/`). The interface is the abstraction; Retrofit generates the implementation at runtime via Dagger injection — no separate `*Impl` class needed.
 
 ```kotlin
 // service/TimeOffApi.kt
