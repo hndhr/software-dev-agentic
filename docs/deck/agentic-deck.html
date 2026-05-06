@@ -831,49 +831,84 @@ talenta-ios/.claude/
     <div class="label">Architecture</div>
     <h2 class="headline">Five roles. <em>Each knows exactly what it owns.</em></h2>
     <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 11px; margin-bottom: 18px;">
-      <div class="card">
+      <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Trigger Skill</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 12px; letter-spacing: 0.04em;">Skill — Type T</div>
-        <div class="card-desc">
-          The user-facing entry point for a persona. Invoked via slash command (e.g. <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/feature-orchestrator</code>).<br><br>
-          Owns routing (resume vs new), context pre-loading from the runs directory, and building the spawn prompt.
-          <strong style="color: var(--text);">Never calls an agent without first loading context.</strong>
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Skill — Type T</div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pre-load context.md + state.json before spawning</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Route: detect existing run vs new</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pass full context inline to agent</div>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
+        <div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Spawn without loading context</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Write or modify source files</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Perform investigation or analysis</div>
         </div>
       </div>
-      <div class="card">
+      <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Orchestrator</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 12px; letter-spacing: 0.04em;">Agent</div>
-        <div class="card-desc">
-          Coordinates workers in a defined sequence. Validates each worker's output before proceeding.
-          <strong style="color: var(--text);">Never writes files directly</strong> — all writes go through workers.<br><br>
-          Passes only file paths between phases. Stops immediately if a worker fails.
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent</div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Coordinate workers in defined phase order</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Validate each worker's output before advancing</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pass file paths only between phases</div>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
+        <div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Write source files directly</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Advance past a failed worker phase</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Read reference docs in full</div>
         </div>
       </div>
-      <div class="card">
+      <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Planner</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 12px; letter-spacing: 0.04em;">Agent</div>
-        <div class="card-desc">
-          Explores the codebase before any source file is written. May spawn layer-specialized sub-planners in parallel.
-          <strong style="color: var(--text);">Writes only plan.md + context.md</strong> — never source files.<br><br>
-          Stops and waits for human approval. Always read-only with respect to source code.
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent</div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Explore codebase read-only before any source write</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Spawn sub-planners in parallel per layer</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Write plan.md + context.md; stop for approval</div>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
+        <div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Write source files</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Proceed to execution without user approval</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Duplicate output across sub-planners</div>
         </div>
       </div>
-      <div class="card">
+      <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Worker</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 12px; letter-spacing: 0.04em;">Agent</div>
-        <div class="card-desc">
-          Owns exactly one responsibility. Reads reference docs on demand, executes skills, returns output.
-          <strong style="color: var(--text);">Refuses work outside its scope</strong> — names the correct worker instead.<br><br>
-          Platform-agnostic by design. Same logic across Flutter, iOS, and Web.
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent</div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Grep reference docs on demand, per task</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Execute skills for each artifact type</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Return Glob+Grep-verified file paths</div>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
+        <div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Work outside assigned scope or layer</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Re-read a reference section already read</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Skip skill — write artifact code directly</div>
         </div>
       </div>
-      <div class="card">
+      <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Skill</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 12px; letter-spacing: 0.04em;">Skill — Type A / B / U</div>
-        <div class="card-desc">
-          Step-by-step procedure for one atomic task. Does one thing only, under 30 lines.
-          <strong style="color: var(--text);">Platform-specific</strong> — same skill name, different output per platform.<br><br>
-          Swapping the platform swaps the skills. No agent changes needed.
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Skill — Type A / B / U</div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Execute exactly one atomic task</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Produce platform-specific output</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Stay under 30 lines</div>
+        </div>
+        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
+        <div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Spawn agents</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Handle more than one task</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Add routing or decision logic</div>
         </div>
       </div>
     </div>
@@ -962,29 +997,35 @@ talenta-ios/.claude/
     <h2 class="headline">Two entry paths. <em>Same executor. Same anatomy.</em></h2>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
       <div class="tree" style="font-size: 12px; line-height: 1.78;">
-<span class="dm">User</span>
+<span class="rl">/plan-feature</span>  <span class="dm">(Skill — Type T)</span>
+<span class="dm"> 1. spawn feature-orchestrator  </span><span class="ac">[trigger=plan-first]</span>
+<span class="dm"> 2. AskUserQuestion →  </span><span class="ac">Approve</span>  <span class="dm">·  Discuss more  ·  </span><span class="bd">Discard</span>
+<span class="dm"> 3. on Approve → spawn feature-orchestrator  </span><span class="ac">[trigger=execute-approved-plan]</span>
+
+<span class="rl">/feature-orchestrator</span>  <span class="dm">(Skill — Type T)</span>
+<span class="dm"> if runs exist → AskUserQuestion:  </span><span class="ac">Resume &lt;run&gt;</span>  <span class="dm">·  Start new</span>
+<span class="dm">   Resume → pre-load context.md + state.json → spawn  </span><span class="ac">[trigger=resume]</span>
+<span class="dm"> if no runs  → AskUserQuestion:  </span><span class="ac">Plan first</span>  <span class="dm">·  </span><span class="ac">Build directly</span>
+<span class="dm">   → spawn feature-orchestrator with matching trigger</span>
+
+<span class="dm">──────────────────────────────────────────────────────────────</span>
+<span class="dm">Both skills route to the same agent — trigger parameter differs</span>
+<span class="dm">──────────────────────────────────────────────────────────────</span>
+
+<span class="rl">feature-orchestrator</span>          <span class="dm">← coordinates phases; never writes source files</span>
 <span class="dm"> │</span>
-<span class="dm"> ├─ </span><span class="ac">/plan-feature</span>           <span class="dm">(Type T) — planner-first path</span>
+<span class="dm"> ├── [plan-first trigger]</span>
+<span class="dm"> │          ▼</span>
+<span class="dm"> │   </span><span class="rl">feature-planner</span>           <span class="dm">← writes plan.md + context.md only</span>
+<span class="dm"> │       ├──</span> <span class="ac">domain-planner</span>  <span class="dm">·</span>  <span class="ac">data-planner</span>  <span class="dm">·</span>  <span class="ac">pres-planner</span>  <span class="dm">← parallel</span>
+<span class="dm"> │       └── [user approves plan.md → proceed]</span>
 <span class="dm"> │</span>
-<span class="dm"> └─ </span><span class="ac">/feature-orchestrator</span>   <span class="dm">(Type T) — direct or resume</span>
-<span class="dm">          │</span>
-<span class="dm">          ▼</span>
-<span class="rl">feature-orchestrator</span>        <span class="dm">— coordinates phases; passes file paths only</span>
-<span class="dm">          │</span>
-<span class="dm">          ▼  (plan-first path)</span>
-<span class="rl">feature-planner</span>             <span class="dm">— scopes build; writes plan.md + context.md</span>
-<span class="dm">    │          │         │</span>
-<span class="dm">    ▼          ▼         ▼</span>
-<span class="ac">domain-</span>   <span class="ac">data-</span>   <span class="ac">pres-</span>
-<span class="ac">planner</span>   <span class="ac">planner</span> <span class="ac">planner</span>  <span class="dm">← parallel layer exploration</span>
-<span class="dm">          │</span>
-<span class="dm">          │  [user reviews + approves plan.md]</span>
-<span class="dm">          │</span>
-<span class="dm">          ▼</span>
-<span class="rl">feature-worker</span>              <span class="dm">— reads plan; executes skills in layer order</span>
-<span class="dm">          │</span>
-<span class="dm">          ▼</span>
-<span class="ac">platform-contract skills</span>    <span class="dm">— Flutter / iOS / Web implementation per layer</span>
+<span class="dm"> └── [resume · execute-approved-plan · build-directly]</span>
+<span class="dm">            ▼</span>
+<span class="dm">    </span><span class="rl">feature-worker</span>            <span class="dm">← reads plan; executes skills layer by layer</span>
+<span class="dm">            │</span>
+<span class="dm">            ▼</span>
+<span class="ac">    platform-contract skills</span>   <span class="dm">← Flutter / iOS / Web / Android per layer</span>
       </div>
       <div>
         <table style="margin-bottom: 18px;">
@@ -1079,6 +1120,82 @@ talenta-ios/.claude/
     <div class="caption">
       This is the <strong>Builder</strong> persona — one example of how all five roles are applied.
       Other personas (Detective, Auditor, Tracker, Installer) follow the same structure with different responsibilities.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE — DETECTIVE PERSONA
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s12c">
+    <div class="label">Architecture — Detective Persona Example</div>
+    <h2 class="headline">Different goal. <em>Different shape. No Planner. No platform skills.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+      <div class="tree" style="font-size: 12px; line-height: 1.78;">
+<span class="rl">/debug-orchestrator</span>  <span class="dm">(Skill — Type T)</span>
+<span class="dm"> collect intake: error · expected/actual · entry point · platform</span>
+<span class="dm"> spawn debug-orchestrator with full intake inlined</span>
+
+<span class="rl">debug-orchestrator</span>  <span class="dm">← scopes only; never investigates directly</span>
+<span class="dm"> Step 1: assess intake</span>
+<span class="dm"> Step 2: scope  ← </span><span class="bd">max 2 Grep/Glob calls</span><span class="dm">, then route</span>
+<span class="dm">   named file + CLEAN layer → route immediately</span>
+<span class="dm">   ambiguous               → route with layer: unknown</span>
+<span class="dm"> Step 3: route to worker(s)</span>
+
+<span class="dm"> ├── single module →  </span><span class="rl">debug-worker</span>  <span class="dm">(one instance)</span>
+<span class="dm"> └── multi-module  →  </span><span class="rl">debug-worker</span>  <span class="dm">(parallel, one per module)</span>
+
+<span class="rl">debug-worker</span>  <span class="dm">← traces root cause; never fixes code</span>
+<span class="dm"> Step 1: map error to CLEAN layer</span>
+<span class="dm"> Step 2: trace call chain  Domain → Data → Pres → DI</span>
+<span class="dm"> Step 3: report ranked hypotheses + evidence</span>
+<span class="dm"> Step 4: ask user → confirm instrumentation?</span>
+
+<span class="dm">   └──  </span><span class="rl">debug-log-worker</span>  <span class="dm">← spawned ONLY after user confirms</span>
+<span class="dm">         MODE=add    → inserts log statements per hypothesis</span>
+<span class="dm">         [user reproduces · shares logs → root cause confirmed]</span>
+<span class="dm">         MODE=remove → strips all log statements before commit</span>
+      </div>
+      <div>
+        <table style="margin-bottom: 18px;">
+          <thead>
+            <tr><th>Role</th><th>Builder</th><th>Detective</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Trigger Skill</td>
+              <td><strong>/feature-orchestrator</strong></td>
+              <td><strong>/debug-orchestrator</strong></td>
+            </tr>
+            <tr>
+              <td>Orchestrator</td>
+              <td style="color: var(--accent);">✓ feature-orchestrator</td>
+              <td style="color: var(--accent);">✓ debug-orchestrator</td>
+            </tr>
+            <tr>
+              <td>Planner</td>
+              <td style="color: var(--accent);">✓ feature-planner + sub-planners</td>
+              <td style="color: var(--bad);">✗  not present — orchestrator scopes with 2-call budget</td>
+            </tr>
+            <tr>
+              <td>Worker</td>
+              <td style="color: var(--accent);">✓ feature-worker (writes source)</td>
+              <td style="color: var(--accent);">✓ debug-worker (analysis) + debug-log-worker</td>
+            </tr>
+            <tr>
+              <td>Platform Skills</td>
+              <td style="color: var(--accent);">✓ domain / data / pres / ui skills</td>
+              <td style="color: var(--bad);">✗  not present — workers investigate directly</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="caption">
+          Not every persona needs all five roles. Detective omits Planner
+          (scoping is minimal — 2 calls max, then route) and Platform Skills
+          (goal is root-cause analysis, not artifact creation).
+          <strong>Output = ranked hypotheses + fix recommendation, not source files.</strong>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1212,15 +1329,18 @@ talenta-ios/.claude/
       <span class="dm">↓  (skill: spawn with pre-loaded context — no cold reads)</span>
 <span class="rl">Tech Lead</span>  <span class="dm">(feature-orchestrator)</span>
 <span class="dm">│</span>
-<span class="dm">└──</span> <span class="rl">feature-worker</span>  <span class="dm">← single executor; reads plan.md; calls skills layer by layer</span>
+<span class="dm">└──</span> <span class="rl">feature-worker</span>  <span class="dm">← reads plan.md; calls platform-contract skills per layer</span>
     <span class="dm">│</span>
-    <span class="dm">├──</span> <span class="rl">Domain</span>   <span class="dm">← entities, use cases, repository interface</span>
+    <span class="dm">├──</span> <span class="rl">Domain</span>   <span class="dm">→</span>  <span class="ac">domain-create-entity</span>  <span class="dm">·</span>  <span class="ac">domain-create-usecase</span>
+    <span class="dm">│             </span><span class="ac">domain-create-repository</span>  <span class="dm">·</span>  <span class="ac">domain-create-service</span>
+    <span class="dm">│             </span><span class="dm">↳ each skill generates one artifact type</span>
     <span class="dm">│</span>
-    <span class="dm">├──</span> <span class="rl">Data</span>     <span class="dm">← API models, mappers, repository implementation</span>
+    <span class="dm">├──</span> <span class="rl">Data</span>     <span class="dm">→</span>  <span class="ac">data-create-datasource</span>  <span class="dm">·</span>  <span class="ac">data-create-mapper</span>
+    <span class="dm">│             </span><span class="ac">data-create-repository-impl</span>
     <span class="dm">│</span>
-    <span class="dm">├──</span> <span class="rl">State</span>    <span class="dm">← BLoC: events, states, business logic wiring</span>
+    <span class="dm">├──</span> <span class="rl">State</span>    <span class="dm">→</span>  <span class="ac">pres-create-stateholder</span>
     <span class="dm">│</span>
-    <span class="dm">└──</span> <span class="rl">UI</span>       <span class="dm">← screens, widgets, navigation</span>
+    <span class="dm">└──</span> <span class="rl">UI</span>       <span class="dm">→</span>  <span class="ac">pres-create-screen</span>  <span class="dm">·</span>  <span class="ac">pres-create-component</span>
       <span class="dm">↓</span>
 <span class="ac">Complete feature, all layers, ready for review</span>
     </div>
