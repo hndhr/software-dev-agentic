@@ -782,23 +782,24 @@ Read(<span class="bd">"reference/contract/builder/domain.md"</span>)
 <span class="ac">software-dev-agentic/</span>  <span class="dm">← git submodule — single source of truth</span>
   lib/
     core/agents/builder/
-      <span class="ac">domain-worker.md</span>         <span class="dm">← platform-agnostic brain</span>
-      <span class="ac">data-worker.md</span>           <span class="dm">← platform-agnostic brain</span>
       <span class="ac">feature-orchestrator.md</span>  <span class="dm">← coordinates all workers</span>
+      <span class="ac">feature-worker.md</span>        <span class="dm">← single executor across all CLEAN layers</span>
+      <span class="ac">feature-planner.md</span>       <span class="dm">← pre-build exploration + plan.md</span>
     platforms/
       flutter/skills/          <span class="dm">← Dart/BLoC implementations</span>
       ios/skills/              <span class="dm">← Swift/UIKit implementations</span>
       web/skills/              <span class="dm">← TypeScript/Next.js implementations</span>
+      android/skills/          <span class="dm">← Kotlin/MVP implementations</span>
 
 <span class="dm">At setup time, symlinks wire the right platform skills into each project:</span>
 
 mobile-talenta/.claude/
-  agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┐</span>
+  agents/<span class="ac">feature-worker.md</span>      → <span class="dm">symlink ──┐</span>
   skills/<span class="ac">domain-create-entity/</span>  → <span class="dm">symlink   │ flutter skills</span>
 talenta-mobile-android/.claude/
-  agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┤ same agent</span>
+  agents/<span class="ac">feature-worker.md</span>      → <span class="dm">symlink ──┤ same agent</span>
 talenta-ios/.claude/
-  agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┘ ios skills</span>
+  agents/<span class="ac">feature-worker.md</span>      → <span class="dm">symlink ──┘ ios skills</span>
     </div>
     <div class="caption">
       Adding a new platform requires only a new
