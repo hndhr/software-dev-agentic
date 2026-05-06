@@ -487,7 +487,7 @@
       <span class="tag">iOS · Swift/UIKit</span>
       <span class="tag">Flutter · Dart/BLoC</span>
       <span class="tag">Web · Next.js 15</span>
-      <span class="tag" style="border-color: var(--border); color: var(--muted);">Android · coming soon</span>
+      <span class="tag">Android · Kotlin/MVP</span>
     </div>
   </section>
 
@@ -728,9 +728,9 @@ Read(<span class="bd">"reference/contract/builder/domain.md"</span>)
       </div>
     </div>
     <div class="caption">
-      The annotation is maintained automatically by a pre-commit hook —
-      engineers edit the doc freely, the hook rewrites the count on every commit.
-      <strong>No hardcoded limits. No stale counts.</strong>
+      The line count is maintained manually when authoring a section.
+      The internal arch-reviewer (<strong>arch-check-conventions</strong>) enforces the format on every audit —
+      a missing or non-integer count is flagged as a Warning violation before the file ships downstream.
     </div>
   </section>
 
@@ -801,7 +801,7 @@ talenta-ios/.claude/
   agents/<span class="ac">domain-worker.md</span>       → <span class="dm">symlink ──┘ ios skills</span>
     </div>
     <div class="caption">
-      Adding a 4th platform (Android, React Native) requires only a new
+      Adding a new platform requires only a new
       <strong>lib/platforms/&lt;platform&gt;/skills/</strong> directory.
       No changes to any agent.
     </div>
@@ -1055,10 +1055,10 @@ talenta-ios/.claude/
       </div>
       <div class="card">
         <div class="card-label">Worker</div>
-        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-worker · data-worker · ui-worker</div>
+        <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">feature-worker (orchestrated) · domain-worker · data-worker · ui-worker (standalone)</div>
         <div class="card-desc">
-          Each worker owns exactly one Clean Architecture layer.
-          Reads only the reference section it needs, executes the right skill, returns file paths.
+          <strong style="color: var(--text);">feature-worker</strong> is the orchestrated-path executor — reads the approved plan and calls skills across all CLEAN layers in sequence.<br><br>
+          <strong style="color: var(--text);">domain-worker · data-worker · ui-worker</strong> handle single known artifacts directly, bypassing the orchestrator.
         </div>
       </div>
       <div class="card">
@@ -1206,13 +1206,15 @@ talenta-ios/.claude/
       <span class="dm">↓  (skill: spawn with pre-loaded context — no cold reads)</span>
 <span class="rl">Tech Lead</span>  <span class="dm">(feature-orchestrator)</span>
 <span class="dm">│</span>
-<span class="dm">├──</span> <span class="rl">Domain Engineer</span>   <span class="dm">← entities, use cases, repository interface</span>
-<span class="dm">│</span>
-<span class="dm">├──</span> <span class="rl">Data Engineer</span>     <span class="dm">← API models, mappers, repository implementation</span>
-<span class="dm">│</span>
-<span class="dm">├──</span> <span class="rl">State Engineer</span>    <span class="dm">← BLoC: events, states, business logic wiring</span>
-<span class="dm">│</span>
-<span class="dm">└──</span> <span class="rl">UI Engineer</span>       <span class="dm">← screens, widgets, navigation</span>
+<span class="dm">└──</span> <span class="rl">feature-worker</span>  <span class="dm">← single executor; reads plan.md; calls skills layer by layer</span>
+    <span class="dm">│</span>
+    <span class="dm">├──</span> <span class="rl">Domain</span>   <span class="dm">← entities, use cases, repository interface</span>
+    <span class="dm">│</span>
+    <span class="dm">├──</span> <span class="rl">Data</span>     <span class="dm">← API models, mappers, repository implementation</span>
+    <span class="dm">│</span>
+    <span class="dm">├──</span> <span class="rl">State</span>    <span class="dm">← BLoC: events, states, business logic wiring</span>
+    <span class="dm">│</span>
+    <span class="dm">└──</span> <span class="rl">UI</span>       <span class="dm">← screens, widgets, navigation</span>
       <span class="dm">↓</span>
 <span class="ac">Complete feature, all layers, ready for review</span>
     </div>
@@ -1293,19 +1295,18 @@ talenta-ios/.claude/
 <span class="dm">↓  skill: no existing run → spawn fresh</span>
 
 <span class="rl">feature-orchestrator</span>
-<span class="dm">├── 1.</span> <span class="rl">domain-worker</span>
-<span class="dm">│       →</span> <span class="ac">LeaveRequest</span> <span class="dm">(pure Dart entity, no imports)</span>
-<span class="dm">│       →</span> <span class="ac">LeaveRequestRepository</span> <span class="dm">(interface — domain contract)</span>
-<span class="dm">│       →</span> <span class="ac">SubmitLeaveRequestUseCase</span>
-<span class="dm">│       →</span> <span class="ac">ApproveLeaveRequestUseCase</span>  ·  <span class="ac">RejectLeaveRequestUseCase</span>
-<span class="dm">├── 2.</span> <span class="rl">data-worker</span>
-<span class="dm">│       →</span> <span class="ac">LeaveRequestResponse</span> <span class="dm">(@JsonSerializable)</span>  ·  <span class="ac">LeaveRequestMapper</span>
-<span class="dm">│       →</span> <span class="ac">LeaveRequestRemoteDataSource</span> <span class="dm">(dio)</span>  ·  <span class="ac">LeaveRequestRepositoryImpl</span>
-<span class="dm">├── 3.</span> <span class="rl">presentation-worker</span>
-<span class="dm">│       →</span> <span class="ac">LeaveRequestBloc</span>  ·  <span class="ac">LeaveRequestEvent</span>  ·  <span class="ac">LeaveRequestState</span>
-<span class="dm">├── 4.</span> <span class="rl">ui-worker</span>
-<span class="dm">│       →</span> <span class="ac">LeaveRequestScreen</span>  ·  <span class="ac">LeaveRequestWidget</span> <span class="dm">(observes BLoC)</span>
-<span class="dm">└──</span> <span class="rl">feature-orchestrator</span> <span class="dm">opens PR, linked to ticket</span>
+<span class="dm">│</span>
+<span class="dm">├──</span> <span class="rl">feature-planner</span>
+<span class="dm">│       ├──</span> <span class="ac">domain-planner</span>  ·  <span class="ac">data-planner</span>  ·  <span class="ac">pres-planner</span>  <span class="dm">← parallel exploration</span>
+<span class="dm">│       [plan.md written → user approves]</span>
+<span class="dm">│</span>
+<span class="dm">└──</span> <span class="rl">feature-worker</span>  <span class="dm">← reads plan; calls skills in CLEAN layer order</span>
+    <span class="dm">├── domain →</span>  <span class="ac">LeaveRequest</span>  ·  <span class="ac">LeaveRequestRepository</span>
+    <span class="dm">│             </span><span class="ac">SubmitLeaveRequestUseCase</span>  ·  <span class="ac">ApproveLeaveRequestUseCase</span>  ·  <span class="ac">RejectLeaveRequestUseCase</span>
+    <span class="dm">├── data   →</span>  <span class="ac">LeaveRequestResponse</span> <span class="dm">(@JsonSerializable)</span>  ·  <span class="ac">LeaveRequestMapper</span>
+    <span class="dm">│             </span><span class="ac">LeaveRequestRemoteDataSource</span> <span class="dm">(dio)</span>  ·  <span class="ac">LeaveRequestRepositoryImpl</span>
+    <span class="dm">├── pres   →</span>  <span class="ac">LeaveRequestBloc</span>  ·  <span class="ac">LeaveRequestEvent</span>  ·  <span class="ac">LeaveRequestState</span>
+    <span class="dm">└── ui     →</span>  <span class="ac">LeaveRequestScreen</span>  ·  <span class="ac">LeaveRequestWidget</span> <span class="dm">(observes BLoC)</span>
     </div>
     <div class="caption">
       <strong>Total engineer time: one sentence and a code review.</strong>
@@ -1368,9 +1369,9 @@ talenta-ios/.claude/
         <div class="roadmap-num">01</div>
         <div class="roadmap-text">
           <strong>Android</strong>
-          <span>iOS and Flutter are active today. Android is the next platform — same shared agents,
-          same architecture, same standards. Adding it requires only a new platform skills directory.
-          No changes to any agent.</span>
+          <span>Android is scaffolded — 12 contract skills, 6 reference docs, schema-compliant headings across all layers.
+          Wire into a downstream project with <code style="font-family:var(--mono);font-size:12px;">setup-symlinks.sh --platform=android</code>.
+          No changes to any core agent needed.</span>
         </div>
       </div>
       <div class="roadmap-item">
@@ -1479,7 +1480,7 @@ talenta-ios/.claude/
     const open = '\x3C!--', close = '--\x3E';
     grepEx.innerHTML =
       `<span class="cm"># Reference doc heading carries its own line count:</span>\n` +
-      `<span class="cm"># ## Entity ${open} 15 ${close}   ← auto-updated by pre-commit hook</span>\n\n` +
+      `<span class="cm"># ## Entity ${open} 15 ${close}   ← maintained manually; enforced by arch-check-conventions</span>\n\n` +
       `<span class="cm"># Step 1: locate section, read count from heading</span>\n` +
       `Grep(<span class="ac">"^## Entity"</span>,\n` +
       `  <span class="ac">"reference/contract/builder/domain.md"</span>)\n` +
