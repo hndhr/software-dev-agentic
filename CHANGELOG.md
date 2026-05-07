@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.57.0] — 2026-05-07
+
+### Added
+- `lib/core/skills/builder-groom-ticket/SKILL.md`: new user-invocable skill — entry trigger for the ticket grooming workflow; accepts optional ticket path, reads ticket content, spawns `groom-orchestrator`
+- `lib/core/agents/builder/groom-orchestrator.md`: new orchestrator — maps ticket acceptance criteria to CLEAN layers, spawns only in-scope layer planners (domain/data/pres) in parallel using grooming-only mode, aggregates a compact grooming summary, then auto-chains to `tracker-adjust-ticket`; sits between ticket fetch and `/plan-feature` in the pre-build workflow
+
+---
+
 ## [3.56.0] — 2026-05-07
 
 ### Added
