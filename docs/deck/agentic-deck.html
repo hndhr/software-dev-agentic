@@ -469,7 +469,7 @@
 <body>
 
 <div id="progress"></div>
-<div id="counter">1 / 19</div>
+<div id="counter">1 / 20</div>
 <div id="deck">
 
   <!-- ═══════════════════════════════════════════
@@ -870,6 +870,75 @@ talenta-ios/.claude/
           The files cross-reference each other — Tier 1 says "platform syntax: see contract/"
           and Tier 2 says "concepts: see core/reference/".
           <strong>A worker Greps Tier 1 to understand the contract, then Greps Tier 2 to write the correct code. One Grep each. Never the full file.</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 9c — UBIQUITOUS LANGUAGE
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s9c">
+    <div class="label">Solution — Reference Architecture</div>
+    <h2 class="headline">Headings are the <em>agent's grep key.</em> One term. Every platform.</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="code-panel">
+          <div class="code-panel-header bad">✗ &nbsp;inconsistent — agent grep misses iOS</div>
+          <pre><span class="cm"># ios/domain.md</span>
+<span class="bd">## Repository Protocols</span>   <span class="cm">← Swift dialect in the heading</span>
+
+<span class="cm"># web/domain.md</span>
+<span class="ac">## Repository Interfaces</span>
+
+<span class="cm"># android/domain.md</span>
+<span class="ac">## Repository Interfaces</span>
+
+<span class="cm"># flutter/domain.md</span>
+<span class="ac">## Repository Interfaces</span></pre>
+        </div>
+        <div class="code-panel">
+          <div class="code-panel-header good">✓ &nbsp;canonical — one grep, all four platforms</div>
+          <pre><span class="cm"># ios/domain.md</span>
+<span class="ac">## Repository Interfaces <!-- 31 --></span>
+<span class="cm">In Swift, these are declared as protocols...</span>
+<span class="cm">protocol UserRepository { ... }</span>
+
+<span class="cm"># flutter/domain.md</span>
+<span class="ac">## Repository Interfaces <!-- 28 --></span>
+<span class="cm">abstract class UserRepository { ... }</span></pre>
+        </div>
+        <div class="caption">
+          <strong>The heading is the interface. The body is the implementation.</strong> Platform dialect belongs in the body — never the heading.
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <table>
+          <thead>
+            <tr><th></th><th>Vertical contract</th><th>Horizontal contract</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Axis</td>
+              <td>Within one file</td>
+              <td>Across all platforms</td>
+            </tr>
+            <tr>
+              <td>Rule</td>
+              <td><code style="font-family:var(--mono);font-size:12px;color:var(--accent);">## Section &lt;!-- N --&gt;</code><br>agents extract N as read limit</td>
+              <td>Same <code style="font-family:var(--mono);font-size:12px;color:var(--accent);">##</code> text for the same concept — one grep finds all platforms</td>
+            </tr>
+            <tr>
+              <td>Broken by</td>
+              <td>Missing or non-integer comment</td>
+              <td>Platform synonym in the heading</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="cache-box stable">
+          <div class="cache-label">Ubiquitous Language &nbsp;·&nbsp; Domain-Driven Design</div>
+          One concept = one term = one heading, everywhere. No synonyms at the <code style="font-family:var(--mono);font-size:12px;">##</code> level.<br><br>
+          A generic agent grepping <code style="font-family:var(--mono);font-size:12px;color:var(--accent);">## Repository Interfaces</code> finds all four platforms — or none, if any platform uses a dialect instead.
         </div>
       </div>
     </div>
@@ -1689,7 +1758,7 @@ talenta-ios/.claude/
 <!-- mobile prev/next bar — hidden on desktop via CSS -->
 <div id="mobile-nav" style="display:none">
   <button id="btn-prev" onclick="goTo(current - 1)">← Prev</button>
-  <span id="mobile-counter">1 / 19</span>
+  <span id="mobile-counter">1 / 20</span>
   <button id="btn-next" class="primary" onclick="goTo(current + 1)">Next →</button>
 </div>
 
