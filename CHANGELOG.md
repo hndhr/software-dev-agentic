@@ -7,6 +7,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.56.0] — 2026-05-07
+
+### Added
+- `docs/core-design-principles.md §6`: ubiquitous language authoring rule — H2 headings in cross-platform reference docs must be identical for the same concept (horizontal contract); documents vertical vs horizontal contract distinction
+- `docs/deck/agentic-deck.html`: new slide s9c — canonical headings and Ubiquitous Language (DDD); bad/good code panels, vertical vs horizontal contract table; deck is now 20 slides
+
+### Fixed
+- All cross-platform `reference/contract/builder/` H2 headings standardized to canonical terms: `## Repository Interfaces` (was `## Repository Protocols` on iOS), `## State Management` (was `## State` / `## QueryState` / `## ViewModel State Management` / `## ViewDataState`), `## Null Safety Extensions` (was `## Null Safety Utilities` on web/flutter), `## Presenter Tests` (was `## ViewModel Tests` / `## ViewModel Hook Tests` / `## BLoC Tests`), `## HTTP Client` (was `## Networking (Moya)` on iOS), `## HTTP Error Interceptor` (was `## Dio Error Interceptor` on flutter/error-handling)
+- iOS `domain-create-repository` skill: grep target `## Repository Protocols` → `## Repository Interfaces`
+- iOS `pres-create-stateholder` skill: grep target `## ViewModel State Management` → `## State Management`
+- iOS `test-create-presentation` skill: grep target `## ViewModel Tests` → `## Presenter Tests`
+- Web `test-create-presentation` skill: grep target `## ViewModel Hook Tests` → `## Presenter Tests`
+- Web `test-create-mock` skill: grep target `## ViewModel Hook Tests` → `## Presenter Tests`
+- Flutter `test-create-presentation` skill: grep target `## BLoC Tests` → `## Presenter Tests`
+- Flutter `reference/index.md`: section description updated to `Presenter Tests`
+- Flutter `error-handling.md`: cross-reference updated to `## HTTP Error Interceptor`
+- Line counts refreshed across all affected reference files via `update-ref-counts.sh`
+
 ## [3.55.0] — 2026-05-06
 
 ### Added
