@@ -385,6 +385,28 @@ Every `##` section heading in a reference doc must carry a line-count comment: `
 
 `arch-check-conventions` enforces this — a missing integer is a Warning violation.
 
+**Authoring rule — ubiquitous language (canonical headings):**
+
+Every `##` section heading in a cross-platform reference doc is a **grep key** — it is the exact string a generic agent searches for across all platforms. This creates a second contract on top of the line-count rule: the heading must be identical across all platform files that cover the same concept.
+
+This is *Ubiquitous Language* from Domain-Driven Design applied to agent tooling. One concept = one term = one heading, everywhere. No synonyms at the `##` level. Platform-specific terminology belongs in the body, not the heading.
+
+```markdown
+## Repository Interfaces <!-- 31 -->
+In Swift, these are declared as protocols...   ← platform dialect lives here
+
+## Repository Protocols <!-- 31 -->            ← wrong: breaks agent grep across platforms
+```
+
+The heading is the interface. The body is the implementation.
+
+| Contract | Axis | Rule |
+|---|---|---|
+| Vertical (line count) | Within one file | `## Section <!-- N -->` — agents extract N as read limit |
+| Horizontal (canonical heading) | Across all platforms | Same `##` text for the same concept — agents grep once, find all platforms |
+
+When adding a new section to a platform reference file, check whether the same concept exists in other platforms first. If it does, use that heading exactly. If it's net-new, choose a platform-agnostic term and apply it to all platforms that need it.
+
 ---
 
 
