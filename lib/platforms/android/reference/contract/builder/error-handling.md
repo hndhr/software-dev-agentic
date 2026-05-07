@@ -51,7 +51,7 @@ Presenter delegates to `ErrorHandler` — never inspect the error directly in th
 errorHandler.handle(error) { message -> view?.showError(message) }
 ```
 
-## Error UI <!-- 6 -->
+## Error UI <!-- 5 -->
 
 > Android error UI patterns not yet catalogued. Add toast/snackbar/inline error conventions here when established.
 

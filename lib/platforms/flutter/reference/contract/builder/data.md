@@ -414,7 +414,7 @@ extension AppExceptionX on AppException {
 
 ---
 
-## Dio Error Interceptor <!-- 44 -->
+## HTTP Client <!-- 44 -->
 
 Translate Dio errors → `AppException` before they reach the repository.
 

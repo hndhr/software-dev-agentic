@@ -48,7 +48,7 @@ final class LeaveBalanceCalculatorTests: XCTestCase {
 }
 ```
 
-## ViewModel Tests <!-- 66 -->
+## Presenter Tests <!-- 66 -->
 
 ```swift
 final class CICOLocationViewModelTest: XCTestCase {

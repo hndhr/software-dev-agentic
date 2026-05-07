@@ -1,6 +1,6 @@
 # Android — Project Structure & Conventions
 
-## Project Structure <!-- 70 -->
+## Project Structure <!-- 30 -->
 
 Feature modules follow this layout. Package prefix is `co.talenta.feature_[module]`:
 
@@ -30,7 +30,7 @@ Shared modules: `domain/` and `data/` at project root for cross-feature entities
 Core libraries: `lib_core_[name]` (e.g. `lib_core_network`, `lib_core_helper`).
 Base classes: `base/` module — `BaseMvpVbActivity`, `BaseMvpVbFragment`, `BasePresenter`.
 
-## Conventions & Naming <!-- 70 -->
+## Conventions & Naming <!-- 14 -->
 
 - Classes/interfaces/enums — PascalCase (`AttendancePresenter`)
 - Methods/properties/variables — camelCase (`onCheckInClicked`)
@@ -44,7 +44,7 @@ Base classes: `base/` module — `BaseMvpVbActivity`, `BaseMvpVbFragment`, `Base
 - Disposable cleanup — `addToDisposables()` (never `addToDisposeBag()`)
 - Loading pattern — `doOnSubscribe { showLoading() }.doFinally { hideLoading() }`
 
-## Build Commands <!-- 70 -->
+## Build Commands <!-- 14 -->
 
 ```bash
 ./gradlew assembleDevelopDebug    # dev debug build
@@ -58,7 +58,7 @@ Base classes: `base/` module — `BaseMvpVbActivity`, `BaseMvpVbFragment`, `Base
 ./gradlew createDebugCoverageReport  # Jacoco coverage
 ```
 
-## Key Dependencies <!-- 70 -->
+## Key Dependencies <!-- 8 -->
 
 - Kotlin 1.9.25, AGP 8.6.0, min SDK 23, target SDK 35
 - DI: Dagger 2.50 (`@Module`, `@Provides`, `@ContributesAndroidInjector`)

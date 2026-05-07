@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/presentation.md`. This file covers Swift syntax and iOS-specific patterns.
 
-## ViewModel State Management <!-- 81 -->
+## State Management <!-- 81 -->
 
 Talenta iOS uses **BaseViewModelV2** with generic State/Event/Action pattern.
 

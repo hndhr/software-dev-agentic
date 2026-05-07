@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/presentation.md`. This file covers TypeScript syntax and web-specific patterns.
 
-## QueryState <!-- 33 -->
+## State Management <!-- 33 -->
 
 A unified state type for all view states — mirrors the `ViewState<T>` enum from the SwiftUI kit.
 

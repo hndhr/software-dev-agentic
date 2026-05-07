@@ -80,7 +80,7 @@ Generated file: `employee_mocks.mocks.dart` — import this in tests.
 
 ---
 
-## BLoC Tests <!-- 95 -->
+## Presenter Tests <!-- 95 -->
 
 Use `bloc_test` — never test BLoC state by calling `act` and inspecting `state` manually.
 

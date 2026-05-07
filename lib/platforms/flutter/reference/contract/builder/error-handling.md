@@ -66,7 +66,7 @@ Errors are converted at two boundaries:
 | HTTP → DataSource | `ErrorInterceptor` catches `DioException`, attaches `AppException` as the error |
 | DataSource → Repository | `catch (e on AppException)` → `Left(e.toFailure())` |
 
-See `## AppException (Data)` and `## Dio Error Interceptor` sections for code patterns.
+See `## AppException (Data)` and `## HTTP Error Interceptor` sections for code patterns.
 
 ---
 
@@ -110,7 +110,7 @@ try {
 
 ---
 
-## Dio Error Interceptor <!-- 15 -->
+## HTTP Error Interceptor <!-- 15 -->
 
 Converts Dio network errors into `AppException` before they reach repositories. See `data.md` for the full `ErrorInterceptor`.
 

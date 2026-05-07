@@ -59,7 +59,7 @@ Rules:
 - Test success path, error path (ApiException → DomainException), and empty list
 - Use `.blockingGet()` for synchronous assertion in unit tests
 
-## Unit Test Setup <!-- 70 -->
+## Unit Test Setup <!-- 30 -->
 
 Test naming convention: `test_given[Condition]_when[Action]_then[ExpectedResult]`
 
@@ -89,7 +89,7 @@ class GetTimeOffRequestsUseCaseTest {
 }
 ```
 
-## Use Case Tests <!-- 70 -->
+## Use Case Tests <!-- 35 -->
 
 ```kotlin
 @Test
@@ -124,7 +124,7 @@ fun test_givenNullSchedulerAndLogger_whenExecute_thenWorksWithoutThem() {
 }
 ```
 
-## Mapper Tests <!-- 70 -->
+## Mapper Tests <!-- 42 -->
 
 ```kotlin
 @RunWith(MockitoJUnitRunner::class)
@@ -166,7 +166,7 @@ class TimeOffRequestMapperTest {
 }
 ```
 
-## Presenter Tests <!-- 70 -->
+## Presenter Tests <!-- 82 -->
 
 ```kotlin
 @RunWith(MockitoJUnitRunner::class)

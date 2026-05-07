@@ -31,6 +31,6 @@ Rules:
 - Activity provides `Context` via `view?.getContext()` — never store Activity reference in Presenter
 - Each Activity exposes a `companion object { fun newIntent(...) }` factory
 
-## Route Constants <!-- 4 -->
+## Route Constants <!-- 3 -->
 
 > Android does not use string route constants. Activity class references serve as the routing mechanism. If deep links are added, register URI patterns here.

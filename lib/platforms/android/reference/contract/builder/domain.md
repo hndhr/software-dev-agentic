@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/domain.md`. This file covers Kotlin syntax and Android-specific patterns.
 
-## Entities <!-- 70 -->
+## Entities <!-- 23 -->
 
 Pure Kotlin data classes — no JSON annotations, no Android framework imports.
 
@@ -25,7 +25,7 @@ Rules:
 - Field names use domain terminology, not API field names
 - Immutable — use `val` for all properties
 
-## Repository Interfaces <!-- 70 -->
+## Repository Interfaces <!-- 18 -->
 
 Defined in `domain/repository/` — platform-agnostic contracts only.
 
@@ -43,7 +43,7 @@ Rules:
 - Params are domain types — never response/DTO types
 - Name: `[Module]Repository` (one interface per feature module)
 
-## Use Cases <!-- 70 -->
+## Use Cases <!-- 35 -->
 
 Extend `SingleUseCase<Result, Params>` from `domain/usecase/base/`.
 
@@ -96,7 +96,7 @@ Rules:
 - Injected into use cases via `@Inject constructor`, never into presenters directly
 - Name: `[Domain][Concept]Service`
 
-## Domain Errors <!-- 19 -->
+## Domain Errors <!-- 18 -->
 
 Typed exceptions thrown from the domain boundary. Repository implementations map transport errors to these before returning.
 

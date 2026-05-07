@@ -1,6 +1,6 @@
 # Android — Error Handling
 
-## ErrorHandler <!-- 70 -->
+## ErrorHandler <!-- 24 -->
 
 Central error handler injected into presenters. Never call `view?.showError(error.message)` directly.
 
@@ -24,7 +24,7 @@ class FeaturePresenter @Inject constructor(
 }
 ```
 
-## Error Response Models <!-- 70 -->
+## Error Response Models <!-- 25 -->
 
 ```kotlin
 data class ErrorResponse(
@@ -49,7 +49,7 @@ class ApiException(
 ) : Exception(message)
 ```
 
-## Error Interceptor <!-- 70 -->
+## Error Interceptor <!-- 21 -->
 
 ```kotlin
 class ErrorInterceptor @Inject constructor(private val gson: Gson) : Interceptor {
@@ -70,7 +70,7 @@ class ErrorInterceptor @Inject constructor(private val gson: Gson) : Interceptor
 }
 ```
 
-## Repository Error Mapping <!-- 70 -->
+## Repository Error Mapping <!-- 22 -->
 
 Map `ApiException` to domain exceptions in the repository impl:
 

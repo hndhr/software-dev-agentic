@@ -4,7 +4,7 @@
 
 Implements Domain protocols. Handles all I/O: network, storage, caching.
 
-## DTOs <!-- 67 -->
+## DTOs <!-- 69 -->
 
 iOS calls these **Response Models** (`*Response` / `*ResponseData` structs). Same contract as core — raw API shape, all fields optional (`?`), `CodingKeys` for snake_case mapping, no business logic. Never escape the Data layer.
 
@@ -368,7 +368,7 @@ class LiveAttendanceRepositoryImpl: LiveAttendanceRepository {
 - Map errors to `BaseErrorModel`
 - Return `Result<Model, BaseErrorModel>` via completion
 
-## Networking (Moya) <!-- 62 -->
+## HTTP Client <!-- 62 -->
 
 Talenta iOS uses **Moya** for type-safe networking.
 

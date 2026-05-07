@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/data.md`. This file covers Kotlin/Android-specific data layer patterns.
 
-## DTOs <!-- 70 -->
+## DTOs <!-- 34 -->
 
 Android calls these **Response Models** (`*Response` suffix, placed in `data/response/`). Same contract as core — raw API shape, all fields nullable, `@SerializedName` for every field, no business logic. Never returned from repository — always mapped to an entity first.
 
@@ -36,7 +36,7 @@ Rules:
 - No business logic in response models
 - Class suffix is `*Response`; file lives in `data/response/`
 
-## Mappers <!-- 70 -->
+## Mappers <!-- 35 -->
 
 Extend `BaseMapper<Response, Entity>` — map every entity field, use null-safety extensions.
 
@@ -71,7 +71,7 @@ Rules:
 - Add `mapList(responses: List<Response>?)` helper for list mappings
 - For nested objects: create a nested mapper class
 
-## Data Sources <!-- 70 -->
+## Data Sources <!-- 28 -->
 
 Android implements the DataSource contract as a **Retrofit interface** (`*Api` suffix, placed in `service/`). The interface is the abstraction; Retrofit generates the implementation at runtime via Dagger injection — no separate `*Impl` class needed.
 
@@ -99,7 +99,7 @@ Rules:
 - Use `@Query` for URL params, `@Path` for path segments, `@Body` for request body
 - One interface per feature module
 
-## Repository Implementations <!-- 70 -->
+## Repository Implementations <!-- 38 -->
 
 Implement domain repository interface — inject API and mapper via Dagger.
 

@@ -215,7 +215,7 @@ class DateServiceImpl implements DateService {
 
 ---
 
-## Null Safety Utilities <!-- 39 -->
+## Null Safety Extensions <!-- 39 -->
 
 Dart has built-in null safety — prefer `??` operators and extension methods for clean fallbacks.
 

@@ -6,7 +6,7 @@ BLoC pattern for state management. Widgets are dumb — they react to state and 
 
 ---
 
-## ViewDataState <!-- 63 -->
+## State Management <!-- 63 -->
 
 A generic state wrapper for async data operations. Used in every BLoC state that holds fetched or submitted data.
 

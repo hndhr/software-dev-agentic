@@ -1,6 +1,6 @@
 # Android — Network Layer (Retrofit + OkHttp)
 
-## Retrofit Setup <!-- 70 -->
+## Retrofit Setup <!-- 44 -->
 
 ```kotlin
 @Module
@@ -44,7 +44,7 @@ class NetworkModule {
 }
 ```
 
-## Auth Interceptor <!-- 70 -->
+## Auth Interceptor <!-- 19 -->
 
 ```kotlin
 class AuthInterceptor @Inject constructor(
@@ -63,7 +63,7 @@ class AuthInterceptor @Inject constructor(
 }
 ```
 
-## Retrofit API Interface <!-- 70 -->
+## Retrofit API Interface <!-- 31 -->
 
 ```kotlin
 interface FeatureApi {

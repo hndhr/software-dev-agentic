@@ -72,7 +72,7 @@ extension RequestLiveAttendanceModel {
 - ❌ No `import UIKit` or heavy framework dependencies
 - ❌ No business logic (pure data)
 
-## Repository Protocols <!-- 31 -->
+## Repository Interfaces <!-- 31 -->
 
 ```swift
 // Domain/Repository/LiveAttendanceRepository.swift

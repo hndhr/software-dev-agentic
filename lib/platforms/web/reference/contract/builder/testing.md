@@ -81,7 +81,7 @@ describe('LeaveRequestValidatorService', () => {
 });
 ```
 
-## ViewModel Hook Tests <!-- 52 -->
+## Presenter Tests <!-- 52 -->
 
 ```typescript
 // __tests__/presentation/hooks/useEmployeeListViewModel.test.ts

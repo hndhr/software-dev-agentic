@@ -234,7 +234,7 @@ export class DateServiceImpl implements DateService {
 
 ---
 
-## Null Safety Utilities <!-- 40 -->
+## Null Safety Extensions <!-- 40 -->
 
 Convenient fallbacks for nullable values. Use sparingly — prefer explicit null-handling for business logic.
 

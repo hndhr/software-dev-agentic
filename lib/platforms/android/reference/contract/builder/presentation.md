@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/presentation.md`. This file covers Android MVP patterns with Kotlin.
 
-## State <!-- 18 -->
+## State Management <!-- 18 -->
 
 Android MVP has no explicit state container. The **View interface** is the state surface — the Presenter drives it imperatively via `view?.show*` / `view?.hide*` calls. Loading, success, and error states are expressed as discrete View methods rather than a sealed state class.
 
@@ -24,7 +24,7 @@ For screens that need richer state (e.g. multi-section loading), define a `ViewS
 
 > Android shared components are not yet catalogued. Add common widget paths here when established (e.g. `presentation/common/`, `base/ui/`).
 
-## MVP Contract <!-- 70 -->
+## MVP Contract <!-- 28 -->
 
 Interface defining the View and Presenter contracts for a feature screen.
 
@@ -52,7 +52,7 @@ Rules:
 - Presenter methods correspond to user interactions and lifecycle events
 - Name: `[Feature]Contract`
 
-## Presenter <!-- 70 -->
+## Presenter <!-- 39 -->
 
 Extends `BasePresenter<View>` — injects use case and `ErrorHandler` via Dagger.
 Uses `doOnSubscribe`/`doFinally` for loading state, `addToDisposables()` for cleanup.
@@ -91,7 +91,7 @@ Rules:
 - `view?.` guard on all view calls — view may be null after `detachView()`
 - One presenter per screen
 
-## Activity / Fragment <!-- 70 -->
+## Activity / Fragment <!-- 56 -->
 
 Extends `BaseMvpVbActivity<Binding, Presenter>` — ViewBinding via `bindingInflater`, presenter injected via `@Inject`.
 
@@ -147,7 +147,7 @@ Rules:
 - Use `companion object { fun newIntent(...) }` for activity launch — not direct `startActivity`
 - `BaseMvpVbFragment` for Fragment-based screens — same pattern
 
-## Navigation <!-- 70 -->
+## Navigation <!-- 36 -->
 
 Custom `NavigationImpl` classes — not Android Navigation Component. Each feature defines an interface and implements it.
 

@@ -12,7 +12,7 @@
 
 > Android Logger patterns not yet catalogued. Add structured logging utility here (e.g. Timber wrapper) when established.
 
-## Null Safety Extensions <!-- 70 -->
+## Null Safety Extensions <!-- 24 -->
 
 All extensions live in `com.mekari.commons.extension`. Import only what you use.
 

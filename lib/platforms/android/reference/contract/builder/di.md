@@ -1,13 +1,13 @@
 # Android — Dependency Injection (Dagger 2)
 
-## DI Principles <!-- 70 -->
+## DI Principles <!-- 7 -->
 
 - Prefer constructor injection (`@Inject constructor`) — avoid field injection except in Activities/Fragments
 - Dagger modules live in each feature's `di/` package
 - `app/` composes the top-level component graph
 - Use `@ContributesAndroidInjector` for activities and fragments
 
-## DI Module <!-- 70 -->
+## DI Module <!-- 27 -->
 
 ```kotlin
 // di/TimeOffModule.kt
@@ -34,7 +34,7 @@ class TimeOffModule {
 }
 ```
 
-## Activity Binding <!-- 70 -->
+## Activity Binding <!-- 16 -->
 
 ```kotlin
 // di/TimeOffActivityModule.kt
