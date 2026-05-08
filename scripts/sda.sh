@@ -2,9 +2,11 @@
 # sda.sh — CLI entry point for software-dev-agentic setup and sync.
 #
 # Usage:
-#   scripts/sda.sh                        # interactive menu
-#   scripts/sda.sh setup --platform=ios   # first-time wiring
-#   scripts/sda.sh sync                   # pull latest from main
+#   scripts/sda.sh                               # interactive menu
+#   scripts/sda.sh setup --platform=ios          # first-time Claude Code wiring
+#   scripts/sda.sh sync                          # pull latest from main
+#   scripts/sda.sh add-ai --ai=copilot --platform=ios
+#   scripts/sda.sh remove-ai --ai=gemini
 
 set -euo pipefail
 
@@ -19,6 +21,21 @@ print_header() {
   echo ""
   echo "$(bold 'software-dev-agentic')"
   echo "$(dim '─────────────────────')"
+  echo ""
+}
+
+ask_ai() {
+  echo "  AI assistant:"
+  echo "    1) copilot  — GitHub Copilot (.github/copilot-instructions.md)"
+  echo "    2) gemini   — Gemini CLI (GEMINI.md)"
+  echo ""
+  printf "  Choice: "
+  read -r choice
+  case "$choice" in
+    1|copilot) AI="copilot" ;;
+    2|gemini)  AI="gemini"  ;;
+    *) AI="$choice" ;;
+  esac
   echo ""
 }
 
@@ -51,8 +68,8 @@ PASSTHROUGH=()
 
 for arg in "$@"; do
   case "$arg" in
-    setup|sync) COMMAND="$arg" ;;
-    *)          PASSTHROUGH+=("$arg") ;;
+    setup|sync|add-ai|remove-ai) COMMAND="$arg" ;;
+    *) PASSTHROUGH+=("$arg") ;;
   esac
 done
 
@@ -62,15 +79,19 @@ if [ -z "$COMMAND" ]; then
   print_header
   echo "  What do you want to do?"
   echo ""
-  echo "    1) $(bold Setup)  — first-time wiring into a project"
-  echo "    2) $(bold Sync)   — pull latest from main"
+  echo "    1) $(bold Setup)      — first-time Claude Code wiring into a project"
+  echo "    2) $(bold Sync)       — pull latest from main"
+  echo "    3) $(bold Add AI)     — set up Copilot or Gemini alongside Claude"
+  echo "    4) $(bold Remove AI)  — clean up a Copilot or Gemini config"
   echo ""
-  printf "  Choice [1/2]: "
+  printf "  Choice [1-4]: "
   read -r choice
   echo ""
   case "$choice" in
-    1|setup) COMMAND="setup" ;;
-    2|sync)  COMMAND="sync"  ;;
+    1|setup)     COMMAND="setup"     ;;
+    2|sync)      COMMAND="sync"      ;;
+    3|add-ai)    COMMAND="add-ai"    ;;
+    4|remove-ai) COMMAND="remove-ai" ;;
     *)
       echo "Invalid choice. Exiting."
       exit 1
@@ -78,12 +99,14 @@ if [ -z "$COMMAND" ]; then
   esac
 fi
 
-# ── Detect platform from passthrough args ────────────────────────────────────
+# ── Detect platform and ai from passthrough args ──────────────────────────────
 
 PLATFORM=""
+AI=""
 for arg in "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"; do
   case "$arg" in
     --platform=*) PLATFORM="${arg#--platform=}" ;;
+    --ai=*)       AI="${arg#--ai=}" ;;
   esac
 done
 
@@ -100,9 +123,27 @@ case "$COMMAND" in
   sync)
     exec "$SCRIPTS/sync.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
     ;;
+  add-ai)
+    if [ -z "$AI" ]; then
+      ask_ai
+      PASSTHROUGH+=("--ai=$AI")
+    fi
+    if [ -z "$PLATFORM" ]; then
+      ask_platform
+      PASSTHROUGH+=("--platform=$PLATFORM")
+    fi
+    exec "$SCRIPTS/setup-ai.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
+    ;;
+  remove-ai)
+    if [ -z "$AI" ]; then
+      ask_ai
+      PASSTHROUGH+=("--ai=$AI")
+    fi
+    exec "$SCRIPTS/clean-ai.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
+    ;;
   *)
     echo "Unknown command: $COMMAND"
-    echo "Usage: $0 [setup|sync] [--platform=<platform>]"
+    echo "Usage: $0 [setup|sync|add-ai|remove-ai]"
     exit 1
     ;;
 esac

@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.59.0] — 2026-05-08
+
+### Added
+- `scripts/setup-ai.sh`: generates AI assistant config file from template — `--ai=copilot|gemini`, `--platform=<platform>`, `--app-name=<name>`; writes `.github/copilot-instructions.md` or `GEMINI.md`; prompts before overwriting
+- `scripts/clean-ai.sh`: removes AI assistant config file — `--ai=copilot|gemini`; prompts before deleting
+- `lib/ai-platforms/copilot/template.md`: Copilot instructions template — Clean Architecture layers, creation order, naming conventions, hard rules; placeholders for `[APP_NAME]` and `[PLATFORM]`
+- `lib/ai-platforms/gemini/template.md`: Gemini instructions template — same content as Copilot template plus `@import` directives for `.claude/reference/` docs
+- `docs/multi-ai-platform-initiative.md`: planning doc for multi-AI platform support — Phase 1 (context files), Phase 2 (native skills), Phase 3 (hooks); capability gap table per platform
+
+### Changed
+- `scripts/sda.sh`: extended interactive menu with `Add AI` (option 3) and `Remove AI` (option 4); wires to `setup-ai.sh` and `clean-ai.sh`; Claude setup and sync unchanged
+
 ## [3.58.0] — 2026-05-08
 
 ### Added
