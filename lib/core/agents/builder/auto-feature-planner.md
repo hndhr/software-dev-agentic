@@ -194,7 +194,7 @@ Then concatenate with the relative path before passing to Write or Edit.
 
 - Never write any file other than `plan.md`, `context.md`, and `error.md`
 - Never call `AskUserQuestion`
-- Never spawn `domain-worker`, `data-worker`, or any layer worker
+- Never spawn `feature-worker`, `backend-orchestrator`, or any builder agent
 
 ## Extension Point
 

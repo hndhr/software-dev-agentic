@@ -77,7 +77,7 @@ error    →  domain error type; UI decides how to display it
 
 ## StateHolder Contract <!-- 15 -->
 
-The **StateHolder contract** is a written handoff artifact that `presentation-worker` produces for `ui-worker`. It is not a code file — it is a structured summary written to `.claude/runs/<feature>/stateholder-contract.md`.
+The **StateHolder contract** is a written handoff artifact that `feature-worker` produces for `ui-worker`. It is not a code file — it is a structured summary written to `.claude/runs/<feature>/stateholder-contract.md`.
 
 **Required fields:**
 - StateHolder class/hook name and file path
@@ -93,7 +93,7 @@ The **StateHolder contract** is a written handoff artifact that `presentation-wo
 ## Creation Order <!-- 10 -->
 
 ```
-Use Cases (from domain-worker) → StateHolder → StateHolder contract → Screen (ui-worker)
+Use Cases (from backend-orchestrator) → StateHolder → StateHolder contract → Screen (ui-worker)
 ```
 
 Never write the screen before the StateHolder contract exists.

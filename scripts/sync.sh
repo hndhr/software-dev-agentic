@@ -49,7 +49,7 @@ if grep -qsF 'software-dev-agentic' "$PROJECT_ROOT/.gitmodules" 2>/dev/null; the
   git -C "$PROJECT_ROOT" submodule update --remote .claude/software-dev-agentic
 else
   echo "  (plain clone detected — using git pull)"
-  git -C "$SUBMODULE" pull
+  git -C "$SUBMODULE" pull origin main
 fi
 
 # ── Re-link everything ────────────────────────────────────────────────────────

@@ -67,9 +67,9 @@ Score each dimension **1–10**. Provide a one-line justification for each score
 
 - **N/A (8/10)** if no orchestrators were spawned — inline work is often correct per P9
 - Check `agent_spawns` for orchestrator types
-- Deduct if orchestrator did file reads itself (it should only coordinate)
+- Deduct if an orchestrator spawned sub-agents instead of calling skills directly
 - Deduct if it accumulated worker outputs unnecessarily
-- Deduct if it passed file contents instead of intent to workers (P8)
+- Deduct if it passed file contents instead of paths
 
 ### D2 — Worker Invocation
 
@@ -80,26 +80,23 @@ Score each dimension **1–10**. Provide a one-line justification for each score
 - Deduct if a worker was spawned when inline execution was clearly cheaper
 - +1 if workers were explicitly isolated (worktree) when appropriate
 
-**Layer-to-worker mapping** — cross-check each spawn's `description` against the expected worker type:
+**Skill-to-layer mapping** — cross-check each `skill_calls` entry against the expected layer:
 
-| Work category | Expected worker |
+| Work category | Expected executor |
 |---|---|
-| Entity / repository interface / use case | `domain-worker` |
-| DTO / mapper / datasource / repository impl | `data-worker` |
-| StateHolder / ViewModel / BLoC | `presentation-worker` |
+| Entity / repository interface / use case / data layer | `feature-worker` or `backend-orchestrator` (via skills) |
 | View / screen / component | `ui-worker` |
 | Debugging | `debug-worker` via `debug-orchestrator` |
 | Architecture review | `arch-review-worker` |
 
-- Deduct `-1` each time a worker's `description` implies work from a different layer (e.g. `data-worker` spawned with a description about creating use cases)
-- Deduct `-2` if a worker was entirely skipped for a layer that clearly needed changes (e.g. no `data-worker` spawn but `write_paths` contains mapper/DTO files)
+- Deduct `-2` if domain or data artifacts were written without corresponding skill calls (skills bypassed)
+- Deduct `-2` if UI artifacts were produced before domain/data layers existed
 
-**Cross-layer ordering** — inspect the sequence in `agent_spawns`:
+**Cross-layer ordering** — inspect `skill_calls` sequence:
 
 - Domain → Data → Presentation → UI is the required order for new features
-- Deduct `-2` if `data-worker` appears before `domain-worker` (precondition violation: entity/repository interface must exist first)
-- Deduct `-2` if `presentation-worker` appears before `data-worker` (use cases must exist before StateHolder wires them)
-- Deduct `-1` if `ui-worker` appears before `presentation-worker` (StateHolder contract must exist first)
+- Deduct `-2` if data skills appear before domain skills (entity/repository interface must exist first)
+- Deduct `-1` if UI skills appear before presentation skills (StateHolder contract must exist first)
 
 **Input quality** — orchestrators must pass file path lists only, never file contents:
 
@@ -194,7 +191,7 @@ Start at 10 and deduct:
   - `chore/` → maintenance
   - `design/` or `style/` → UI/design work
 - Check `skill_calls[0].args` — did the issue title match the branch type chosen?
-- Check `agent_spawns` subagent types — were Explore agents used for exploration (correct), domain-worker for domain work, etc.?
+- Check `agent_spawns` subagent types — were Explore agents used for exploration (correct), feature-worker or backend-orchestrator for build work, etc.?
 - Deduct if branch prefix mismatches task type (e.g. design work on `fix/` branch)
 - Deduct if wrong worker type was spawned for the work category
 
@@ -293,10 +290,8 @@ Include the exact agent file path inferred from the `agent_spawns` subagent type
 | Subagent type | Agent file |
 |---|---|
 | feature-orchestrator | lib/core/agents/builder/feature-orchestrator.md |
-| pres-orchestrator | lib/core/agents/builder/pres-orchestrator.md |
-| domain-worker | lib/core/agents/builder/domain-worker.md |
-| data-worker | lib/core/agents/builder/data-worker.md |
-| presentation-worker | lib/core/agents/builder/presentation-worker.md |
+| feature-worker | lib/core/agents/builder/feature-worker.md |
+| backend-orchestrator | lib/core/agents/builder/backend-orchestrator.md |
 | ui-worker | lib/core/agents/builder/ui-worker.md |
 | test-worker | lib/core/agents/builder/test-worker.md |
 | debug-worker | lib/core/agents/detective/debug-worker.md |

@@ -1,6 +1,6 @@
 ---
 name: ui-worker
-description: Create the UI layer — screens, components, and navigation — bound to an existing StateHolder contract. Handles UI tasks routed directly or spawned by pres-orchestrator.
+description: Create the UI layer — screens, components, and navigation — bound to an existing StateHolder contract. Handles UI tasks routed directly or spawned by feature-worker.
 model: sonnet
 user-invocable: true
 tools: Read, Write, Edit, Glob, Grep
@@ -9,7 +9,7 @@ related_skills:
   - pres-create-component
 ---
 
-You are the UI layer specialist. You bind the StateHolder contract to a screen — observing state, sending events, and handling navigation. You never write business logic or state management — that belongs in `presentation-worker`.
+You are the UI layer specialist. You bind the StateHolder contract to a screen — observing state, sending events, and handling navigation. You never write business logic or state management.
 
 ## Input
 
@@ -25,12 +25,12 @@ Required — return `MISSING INPUT: <param>` immediately if any are absent:
 
 You write **UI layer files only** — screens, components, and navigation.
 
-| If the task touches… | Delegate to |
+| If the task touches… | Action |
 |---|---|
-| StateHolder logic or state contract | `presentation-worker` |
-| Domain or data layer | `domain-worker` / `data-worker` |
+| StateHolder logic or state contract | Stop — StateHolder must be built first via `/plan-feature` |
+| Domain or data layer | Stop — backend layers must be built first via `/plan-feature` |
 
-If you find yourself writing state management or business logic, STOP — that belongs in `presentation-worker`.
+If you find yourself writing state management or business logic, STOP.
 
 ## UI Layer Rules — Never Violate
 
@@ -73,7 +73,7 @@ Never skip this check. Creating a duplicate of an existing component is a worse 
 
 ## Preconditions — Fail Fast
 
-- StateHolder must exist — run `presentation-worker` first if missing
+- StateHolder must exist — run `/plan-feature` or `/backend-orchestrator` first if missing
 
 ## Workflow
 

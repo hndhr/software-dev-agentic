@@ -146,7 +146,7 @@ All ticket mutations go through the `tracker-adjust-ticket` skill in Phase 4.
 ## Constraints
 
 - Never produce `plan.md` or `context.md`
-- Never spawn `domain-worker`, `data-worker`, `feature-worker`, or any layer worker
+- Never spawn `feature-worker`, `backend-orchestrator`, or any builder agent
 - Grooming summary must be compact — no prose analysis, no implementation detail
 - Detailed file paths, exact symbols, and operation breakdowns are left to `feature-planner`
 

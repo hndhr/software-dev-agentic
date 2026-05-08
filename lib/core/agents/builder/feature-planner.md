@@ -237,7 +237,7 @@ You never Read production source files directly. Existing convention discovery a
 ## Constraints
 
 - Never write any file other than `plan.md` and `context.md`
-- Never spawn `domain-worker`, `data-worker`, or any layer worker
+- Never spawn `feature-worker`, `backend-orchestrator`, or any builder agent
 - Pass only the plan.md path to the user — never its raw contents as an artifact
 
 ## Extension Point
