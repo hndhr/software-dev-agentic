@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.58.0] — 2026-05-08
+
+### Added
+- `scripts/sda.sh`: new CLI entry point — interactive menu for `setup` (first-time wiring) and `sync` (pull latest + re-wire); prompts for platform when not passed; delegates to `setup-symlinks.sh` and `sync.sh`
+- `lib/platforms/ios/skills/`: promoted 13 skills from `talenta-ios/.claude/skills.local/` — `data-create-datasource`, `data-create-mapper`, `data-create-repository-impl`, `domain-create-entity`, `domain-create-repository`, `domain-create-service`, `domain-create-usecase`, `pres-create-component`, `pres-create-screen`, `pres-create-stateholder`, `test-create-data`, `test-create-domain`, `test-create-presentation`
+- `lib/core/agents/builder/backend-orchestrator.md`: rebuilt — calls skills directly in layer order (no sub-agents); handles Domain + Data layers for a feature
+- `lib/core/skills/backend-orchestrator/SKILL.md`: entry trigger for the rebuilt `backend-orchestrator`
+
+### Changed
+- `scripts/sync.sh`: explicit `git pull origin main` for plain-clone path
+
+### Removed
+- `lib/core/agents/builder/domain-worker.md`: dead weight — superseded by `feature-worker` and `backend-orchestrator`
+- `lib/core/agents/builder/data-worker.md`: dead weight — superseded by `feature-worker` and `backend-orchestrator`
+- `lib/core/agents/builder/presentation-worker.md`: dead weight — superseded by `feature-worker`
+- `lib/core/agents/builder/pres-orchestrator.md`: dead weight — no active skill entry point
+
 ## [3.57.0] — 2026-05-07
 
 ### Added
