@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.60.0] — 2026-05-08
+
+### Added
+- `scripts/setup-symlinks.sh`: `reference.local/` support — created at setup time, linked with highest priority (local > platform > core); override-only, no extension mechanism
+- `docs/deck/agentic-deck.html`: new slide s9a — "Override without forking. Extend without copying." — local directories table, priority order, reference override-only rationale
+- `docs/core-design-principles.md`: reference docs taxonomy section (Core / Platform / Project by scope); expanded consumer modes table to include `reference.local/`; local directories table with override/extend support per directory
+
 ## [3.59.0] — 2026-05-08
 
 ### Added

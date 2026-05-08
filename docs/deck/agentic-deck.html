@@ -816,6 +816,63 @@ talenta-ios/.claude/
   </section>
 
   <!-- ═══════════════════════════════════════════
+       SLIDE — LOCAL OVERRIDES
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s9a">
+    <div class="label">Solution — Project Customisation</div>
+    <h2 class="headline">Override without forking. <em>Extend without copying.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; margin-top: 8px;">
+      <div>
+        <div class="cache-box stable" style="margin-bottom: 16px;">
+          <div class="cache-label">Priority order — first link wins</div>
+          <code style="font-family:var(--mono);font-size:12px;">*.local/ &gt; platform/ &gt; core/</code><br><br>
+          Drop a file in <code style="font-family:var(--mono);font-size:12px;">*.local/</code> and it silently shadows the submodule version. The submodule is never touched — <code style="font-family:var(--mono);font-size:12px;">sync.sh</code> never overwrites local files.
+        </div>
+        <div class="cache-box dynamic">
+          <div class="cache-label">Three local directories</div>
+          <code style="font-family:var(--mono);font-size:12px;">agents.local/</code> — override or extend agents<br>
+          <code style="font-family:var(--mono);font-size:12px;">skills.local/</code> — override skills<br>
+          <code style="font-family:var(--mono);font-size:12px;">reference.local/</code> — override reference docs
+        </div>
+      </div>
+      <div>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="color:var(--muted);text-align:left;border-bottom:1px solid #333;">
+              <th style="padding:6px 8px;">Directory</th>
+              <th style="padding:6px 8px;">Override</th>
+              <th style="padding:6px 8px;">Extend</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid #222;">
+              <td style="padding:6px 8px;font-family:var(--mono);font-size:12px;">agents.local/</td>
+              <td style="padding:6px 8px;color:#4ade80;">✓</td>
+              <td style="padding:6px 8px;color:#4ade80;">✓ via <code style="font-family:var(--mono);font-size:11px;">extensions/</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #222;">
+              <td style="padding:6px 8px;font-family:var(--mono);font-size:12px;">skills.local/</td>
+              <td style="padding:6px 8px;color:#4ade80;">✓</td>
+              <td style="padding:6px 8px;color:var(--muted);">—</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px;font-family:var(--mono);font-size:12px;">reference.local/</td>
+              <td style="padding:6px 8px;color:#4ade80;">✓</td>
+              <td style="padding:6px 8px;color:var(--muted);">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;font-size:12px;color:var(--muted);line-height:1.6;">
+          Reference docs are <strong style="color:var(--text);">override-only</strong> — they use <code style="font-family:var(--mono);">## Section <!-- N --></code> line-count headers that agents Grep by offset. Extending would corrupt those offsets.
+        </div>
+      </div>
+    </div>
+    <div class="caption">
+      Agent extensions (<code>agents.local/extensions/&lt;name&gt;.md</code>) contain only the delta — the base agent still runs and inherits all submodule updates automatically.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
        SLIDE — REFERENCE TIERS
   ════════════════════════════════════════════ -->
   <section class="slide" id="s9b">

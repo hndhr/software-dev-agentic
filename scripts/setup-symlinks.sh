@@ -78,6 +78,7 @@ mkdir -p \
   "$CLAUDE_DIR/reference" \
   "$CLAUDE_DIR/agents.local/extensions" \
   "$CLAUDE_DIR/skills.local/extensions" \
+  "$CLAUDE_DIR/reference.local" \
   "$CLAUDE_DIR/agentic-state/runs"
 
 # ── Link function (local > platform > core) ───────────────────────────────────
@@ -142,6 +143,7 @@ echo ""
 echo "1/3 Linking local overrides..."
 link_agents "$CLAUDE_DIR/agents.local" "../agents.local"
 link_skills "$CLAUDE_DIR/skills.local" "../skills.local"
+link_reference "$CLAUDE_DIR/reference.local" "../reference.local"
 
 # ── 2. Platform agents/skills/reference ──────────────────────────────────────
 

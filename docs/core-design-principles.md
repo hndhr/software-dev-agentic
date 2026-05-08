@@ -154,15 +154,25 @@ Agents load their procedure skills at startup via the `skills` field — full sk
 
 **Three consumer modes:**
 
-Downstream projects interact with shared agents and skills in one of three modes:
+Downstream projects interact with shared agents, skills, and reference docs in one of three modes:
 
-| Mode | Mechanism | When to use |
-|---|---|---|
-| **Use** | Shared symlink → submodule file | Works as-is — standard workflow |
-| **Extend** | Shared symlink + `*.local/extensions/<name>.md` | Add behavior without losing submodule updates |
-| **Override** | Real file in `*.local/` | Fundamentally different behavior needed |
+| Mode | Applies to | Mechanism | When to use |
+|---|---|---|---|
+| **Use** | agents, skills, reference | Shared symlink → submodule file | Works as-is — standard workflow |
+| **Extend** | agents only | Shared symlink + `agents.local/extensions/<name>.md` | Add behavior without losing submodule updates |
+| **Override** | agents, skills, reference | Real file in `*.local/` | Fundamentally different behavior needed |
 
 Extension files contain only the delta — not a full copy. Updates to the submodule are inherited automatically.
+
+Reference docs are override-only (no extension mechanism) — they are structured with `## Section` headers and line counts that agents Grep by offset. Appending to a reference doc would corrupt those offsets and break the Grep contract.
+
+**Local directories and their scope:**
+
+| Directory | Override | Extend | Notes |
+|---|---|---|---|
+| `agents.local/` | ✓ | ✓ via `extensions/` | Workers check `extensions/<name>.md` at the end of their run |
+| `skills.local/` | ✓ | — | Replace the whole skill dir |
+| `reference.local/` | ✓ | — | Shadows platform/core reference docs; override-only by design |
 
 > Skills have four invocation types (A, B, T, U) — see [Taxonomy §Skills — By Invocation Type](#skills--by-invocation-type) for the full breakdown and decision rules.
 
@@ -241,6 +251,14 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 | **Repo skill** | `.claude/skills/` | No — internal tooling only. Used by this repo's internal agents; never symlinked to downstream projects. |
 
 > "Core-dependency skill" used in earlier sections of this doc refers to platform-contract skills — skills all platforms must implement under the same name (`domain-create-entity`, `data-create-mapper`, etc.).
+
+#### Reference Docs — By Scope
+
+| Scope | Location | Ships downstream? |
+|---|---|---|
+| **Core reference** | `lib/core/reference/` | Yes — all platforms. Defines what each concept IS (platform-agnostic). |
+| **Platform reference** | `lib/platforms/<platform>/reference/` | Yes — matching platform. Defines how each concept is implemented in that platform's syntax. |
+| **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides platform/core docs for project-specific conventions. |
 
 #### Skills — Valid Type × Scope Combinations
 
