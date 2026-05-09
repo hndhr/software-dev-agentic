@@ -762,7 +762,7 @@ Read(<span class="bd">"reference/contract/builder/domain.md"</span>)
           <li><strong>Preloaded skills injected once</strong> at startup, cached for the whole session.</li>
           <li><strong>CLAUDE.md is short (~1 page)</strong> — small stable prefix, high cache efficiency.</li>
           <li><strong>Compounds across workers</strong> — in a 5-worker feature build, the stable prefix is paid for once. Workers 2–5 reuse it from cache.</li>
-          <li><strong>Context relay</strong> — trigger skills read <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">context.md</code> and <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">state.json</code> in the same session (cache read: $0.30/MTok) and pass them inline. The orchestrator skips cold pre-flight reads entirely ($3.75/MTok avoided).</li>
+          <li><strong>Context relay</strong> — on resume, trigger skills read <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">plan.md</code>, <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">context.md</code>, and <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">state.json</code> from disk and pass them inline to the spawn prompt. The orchestrator receives context on its first token and skips all pre-flight reads — works in both same-session and new-session resumes.</li>
         </ul>
       </div>
     </div>
@@ -1029,7 +1029,7 @@ talenta-ios/.claude/
         <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Skill — Type T</div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
         <div style="margin-bottom: 10px;">
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pre-load context.md + state.json before spawning</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pre-load plan.md + context.md + state.json before spawning</div>
           <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Route: detect existing run vs new</div>
           <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pass full context inline to agent</div>
         </div>
@@ -1148,7 +1148,7 @@ talenta-ios/.claude/
           <tbody>
             <tr>
               <td>Trigger Skill → Orch</td>
-              <td><strong>context.md + state.json inline</strong></td>
+              <td><strong>plan.md + context.md + state.json inline</strong></td>
               <td>Raw file reads</td>
             </tr>
             <tr>

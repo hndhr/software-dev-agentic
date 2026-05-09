@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.63.0] — 2026-05-09
+
+### Changed
+- `docs/principles/core-design-principles.md`: restructured into 5 Core Design Principles + separate Reference, Taxonomy, and Anatomy top-level sections; Context Isolation and Fail-Fast folded as subsections under Agents = Brain; corrected context relay framing (disk reads + trigger skill as bridge, not cache TTL); confirmed `agents:` frontmatter field as undocumented (verified 2026-05-09); Agents and Skills taxonomy entries grouped under parent sections with subsections
+- `docs/multi-ai-platform-initiative.md`: extended platform equivalence tables — Copilot prose-delegation workaround for orchestrator/worker and planner patterns; layer isolation and DI at skill level Copilot/Gemini notes; fixed Gemini isolated context inconsistency; added Gemini context relay partial workaround via `@{file}` injection; updated Grep-first and resume routing portability; corrected Architecture Reference section framing; hooks Convention column updated to reflect actual shell hook categories
+- `docs/deck/agentic-deck.html`: corrected context relay bullet (removed cache pricing, added `plan.md`); updated trigger skill card and anatomy handoff table to include `plan.md`
+
 ## [3.62.0] — 2026-05-09
 
 ### Changed
