@@ -7,6 +7,7 @@ agents:
   - domain-planner
   - data-planner
   - pres-planner
+  - app-planner
 ---
 
 You are the Clean Architecture feature planner. You produce a reviewable plan before any code is written. You never write source files — your only output is `plan.md`.
@@ -56,15 +57,16 @@ Use Grep to extract the relevant layer sections. Do not read the full file unles
 
 ## Phase 2 — Discover Existing Conventions
 
-Spawn all three layer planners **in parallel** (single Agent tool call with all three) — do not wait for one before spawning the next. Pass the feature name, platform, and module-path to each:
+Spawn all four planners **in parallel** (single Agent tool call with all four) — do not wait for one before spawning the next. Pass the feature name, platform, and module-path to each:
 
 - **`domain-planner`** — discovers entities, use cases, repository interfaces, domain services
 - **`data-planner`** — discovers DTOs, mappers, data sources, repository implementations
 - **`pres-planner`** — discovers StateHolders, screens, components, navigators
+- **`app-planner`** — discovers DI registration, route registration, and module registration patterns
 
-Each planner returns a structured findings block (`## Domain Findings`, `## Data Findings`, `## Presentation Findings`).
+Each planner returns a structured findings block (`## Domain Findings`, `## Data Findings`, `## Presentation Findings`, `## App Findings`).
 
-Aggregate all three findings to:
+Aggregate all four findings to:
 - Identify artifacts that already exist (mark as `exists` in the plan)
 - Detect naming conventions per layer
 - Flag any layer that is already fully built (mark as `skip`)
@@ -72,7 +74,7 @@ Aggregate all three findings to:
 
 ## Phase 3 — Synthesize Plan
 
-Using Phase 1 (layer contracts) + Phase 2 (existing conventions), produce the plan.
+Using Phase 1 (layer contracts) + Phase 2 (existing conventions), produce the plan. Include the App Layer section using `## App Findings` from `app-planner`.
 
 For each layer that is not skipped, list:
 - Artifact name (following detected naming convention)
@@ -119,6 +121,10 @@ module-path: <detected module path>
 
 ### Presentation
 | Artifact | Type | Path | Status |
+|---|---|---|---|
+
+### App
+| Concern | File | Action | Notes |
 |---|---|---|---|
 
 ## Naming Conventions
@@ -183,6 +189,14 @@ separate-ui-layer: true | false
 | Artifact | Type | Status | Notes |
 |---|---|---|---|
 | <Name>Screen | Screen | create | |
+
+## App Layer
+
+| Concern | File | Action | Notes |
+|---|---|---|---|
+| Dependency Registration | <path> | create / update | <di pattern> |
+| Route Registration | <path> | create / update | <route pattern> |
+| Module Registration | <path or N/A> | update / N/A | <module pattern or N/A for iOS> |
 
 ## Skipped Layers
 <list any layers skipped and why>

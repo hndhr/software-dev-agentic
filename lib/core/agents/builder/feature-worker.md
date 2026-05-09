@@ -67,6 +67,7 @@ Always execute in this layer sequence — never reorder:
 | 2 | Data | Mapper/DTO → DataSourceInterface → RepositoryImpl |
 | 3 | Presentation | StateHolder |
 | 4 | UI | Screen → Component → Navigator |
+| 5 | App | Dependency Registration → Route Registration → Module Registration |
 
 Within each layer, follow the order artifacts appear in plan.md.
 
@@ -135,6 +136,20 @@ After `pres-create-stateholder` completes, capture the contract file path from i
 `.claude/agentic-state/runs/<feature>/stateholder-contract.md`
 Pass this path in the skill prompt when executing `pres-create-screen`. Do not pass the contract contents inline — the skill reads the file directly.
 
+**App Layer — direct edits only (no skill):**
+
+App layer wiring always modifies existing files via direct `Read` + `Edit` — no create skill is needed. For each row in the `## App Layer` section of `plan.md`:
+
+1. Load the platform app-layer reference to confirm the exact pattern:
+   ```
+   reference/contract/builder/app-layer.md
+   ```
+   Grep for the section heading, then `Read` with `offset` + `limit`.
+2. `Read` the target file using `offset` + `limit` around the insertion point (Grep for a known symbol or section marker first).
+3. Apply the targeted edit — add only what the plan specifies.
+4. Validate: `Grep` for the newly added symbol or registration call in the modified file.
+5. Update `state.json` after each app-layer entry completes.
+
 ## Validation
 
 After each artifact is written, before updating state:
@@ -166,7 +181,8 @@ Write `.claude/agentic-state/runs/<feature>/state.json` after each artifact comp
     "domain": ["<path>", ...],
     "data": ["<path>", ...],
     "presentation": ["<path>"],
-    "ui": ["<path>", ...]
+    "ui": ["<path>", ...],
+    "app": ["<path>", ...]
   },
   "stateholder_contract": "<path or null>",
   "next_artifact": "<name of next pending artifact or null>"
@@ -207,6 +223,9 @@ Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skil
 - <path>
 
 ### UI
+- <path>
+
+### App
 - <path>
 ```
 

@@ -95,14 +95,14 @@ Workers are platform-agnostic protocol-definers. Skills are the platform-specifi
 
 **Layer Isolation — Bounded Knowledge and Authority:**
 
-Each worker's knowledge and write authority is strictly bounded to its own CLEAN layer.
+Layer isolation is enforced at the **planner** level, not the worker level. `feature-worker` is a single executor that handles all CLEAN layers sequentially, guided by `plan.md`. The planners are what are layer-bounded:
 
-- A worker knows only the rules, patterns, and conventions of its layer
-- A worker writes only to its layer's files — it never reads or modifies files owned by another layer
-- Cross-layer knowledge (shared contracts, interfaces) lives in reference docs and skills, not in worker bodies
-- If a task requires cross-layer work, the orchestrator coordinates multiple workers — it never asks one worker to reach into another layer
+- Each layer planner (`domain-planner`, `data-planner`, `pres-planner`, `app-planner`) is restricted to read-only tools (`Glob`, `Grep`, `Read`) — it physically cannot write files
+- Each planner's glob patterns and instructions scope it to its own layer's directories and artifact types
+- Cross-layer knowledge (shared contracts, interfaces) lives in reference docs and skills, not in planner bodies
+- `feature-planner` coordinates all four planners in parallel — it never asks one planner to explore another layer's artifacts
 
-This keeps each worker's context small and its reasoning correct for its scope. When a worker receives out-of-scope work, it stops and names the correct worker instead of proceeding.
+`feature-worker` executes all layers in a fixed order (domain → data → presentation → UI) using skills as the platform-specific hands. Layer correctness in the worker comes from following `plan.md` and calling the right skill per artifact type — not from a boundary enforcement mechanism.
 
 **Context Isolation = Efficiency:**
 
@@ -492,6 +492,8 @@ Not every persona uses all layers. A simple persona may have only a trigger skil
 | Large-scale change across many modules or unknown conventions | Planner first — sub-planners explore in parallel, findings aggregated before a single line is written |
 
 > The rule of thumb: if a worker would spend significant time exploring before it can execute, a planner is the better investment. If the scope is clear and bounded, skip the planner and go straight to the worker.
+
+> **Build-directly is a deliberate opt-out, not a default.** It skips all layer isolation guarantees — `feature-worker` makes layer assignment decisions inline with no plan, no human gate, and no tool restriction. The resume routing gate limits the risk: build-directly is only reachable for brand-new features with no prior run. Any feature that was previously planned always resumes against its existing `plan.md` — the worker never re-makes layer decisions that were already validated.
 
 > For execution examples and the current agent roster, see [persona-builder.md](persona/builder.md).
 

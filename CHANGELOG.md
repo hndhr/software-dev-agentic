@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.64.0] — 2026-05-10
+
+### Added
+- `lib/core/agents/builder/app-planner.md`: new planner agent — explores DI registration, route registration, and module registration patterns for a feature; returns structured `## App Findings` block; no writes
+- `lib/core/reference/builder/app-layer.md`: platform-agnostic theory for Dependency Registration, Route Registration, and Module Registration concepts
+- `lib/platforms/ios/reference/contract/builder/app-layer.md`: iOS/Needle/Coordinator patterns for all three app-layer concerns
+- `lib/platforms/flutter/reference/contract/builder/app-layer.md`: Flutter/get_it/BaseModule patterns for all three app-layer concerns
+
+### Changed
+- `lib/core/agents/builder/feature-planner.md`: Phase 2 spawns `app-planner` in parallel alongside the three layer planners; Phase 3 aggregates `## App Findings`; `context.md` format gains `### App` discovered-artifacts table; `plan.md` format gains `## App Layer` table after `## UI Layer`
+- `lib/core/agents/builder/feature-worker.md`: execution order extended with App Layer (order 5); per-artifact workflow section adds App Layer direct-edit procedure (no skill — always `Read` + `Edit`); `state.json` schema gains `"app"` key; Output block gains `### App` section
+- `docs/principles/core-design-principles.md`: Layer Isolation section updated — references all four planners (`app-planner` added); `feature-planner` description corrected to "four planners in parallel"
+
 ## [3.63.0] — 2026-05-09
 
 ### Changed
