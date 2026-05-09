@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.65.4] — 2026-05-10
+
+### Added
+- `lib/platforms/android/reference/contract/builder/app-layer.md`: Android app-layer reference doc
+- `lib/core/agents/builder/app-planner.md`: Android glob patterns
+
+### Changed
+- `lib/core/skills/builder-plan-feature/SKILL.md`, `lib/core/skills/builder-build-feature/SKILL.md`: renamed from `plan-feature` / `feature-orchestrator`
+
+### Fixed
+- `lib/core/skills/builder-build-feature/SKILL.md`: name collision resolved, `user-invocable` added, app-planner web path corrected
+- `lib/core/agents/builder/feature-orchestrator.md`: extension point path restored after sed rename corruption
+
+---
+
 ## [3.65.0] — 2026-05-10
 
 ### Added
