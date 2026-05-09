@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.61.0] — 2026-05-09
+
+### Changed
+- `docs/multi-ai-platform-initiative.md`: Copilot section rewritten — no skill invocation primitive, Phase 2 does not apply; expanded platform equivalence tables
+- `docs/`: reorganized root files into semantic subdirectories — `core-design-principles.md` + `submodule-repo-structure.md` → `principles/`; `stakeholder-brief.md` → `deck/`; `contract-schema-improvement-backlog.md` → `initiatives/`; all inbound references updated
+
+### Removed
+- `docs/collaboration.md`: obsolete PM–engineer workflow referencing `/pickup-issue` and `/create-issue` skills
+- `docs/changelog-core-design-principles.md`: stale since v3.21.0; superseded by `CHANGELOG.md`
+- `docs/changelog-submodule-repo-structure.md`: stale since v3.21.0; superseded by `CHANGELOG.md`
+- `docs/detective-agent-design.md`: draft superseded by `docs/persona/detective.md`
+- `docs/deck-plan.md`: planning doc superseded by `docs/deck/agentic-deck.html`
+- `docs/plugin-vs-submodule.md`: one-time architectural decision doc, no inbound references
+- `docs/agentic-performance-report-apr-2026.md`: narrative summary, no inbound references
+- `docs/ai-fluency-test-study.md`: study doc, no inbound references
+
 ## [3.60.0] — 2026-05-08
 
 ### Added
