@@ -4,10 +4,10 @@ Internal design docs for the software-dev-agentic repo. Not shipped to downstrea
 
 | File | Description | Confluence |
 |---|---|---|
-| `core-design-principles.md` | 15 core principles — agent/skill design, token efficiency, conventions | [Link](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51126370416) |
-| `submodule-repo-structure.md` | Cross-platform submodule architecture — decisions, setup, what goes where | [Link](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51129909710) |
-| `collaboration.md` | Team collaboration guidelines |  |
-| `agentic-performance-report-apr-2026.md` | Performance analysis — April 2026 sessions |  |
+| `principles/core-design-principles.md` | 15 core principles — agent/skill design, token efficiency, conventions | [Link](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51126370416) |
+| `principles/submodule-repo-structure.md` | Cross-platform submodule architecture — decisions, setup, what goes where | [Link](https://jurnal.atlassian.net/wiki/spaces/~611df3da650a26006e44928d/pages/51129909710) |
+| `deck/stakeholder-brief.md` | Non-technical stakeholder brief |  |
+| `initiatives/contract-schema-improvement-backlog.md` | Contract schema gap backlog |  |
 
 ## Workflow
 

@@ -543,4 +543,4 @@ The agentic system enforces its own conventions through automated review — the
 
 ## Changelog
 
-See [changelog-core-design-principles.md](changelog-core-design-principles.md).
+See git history for this file.

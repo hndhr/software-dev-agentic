@@ -287,4 +287,4 @@ Idempotent — re-running never overwrites existing files (`link_if_absent` guar
 
 ## Changelog
 
-See [changelog-submodule-repo-structure.md](changelog-submodule-repo-structure.md).
+See git history for this file.
