@@ -1,5 +1,5 @@
 ---
-name: plan-feature
+name: builder-plan-feature
 description: Plan then build a feature — runs feature-planner, shows an interactive approval prompt, then executes with feature-orchestrator on approval.
 allowed-tools: Agent, AskUserQuestion, Bash
 ---

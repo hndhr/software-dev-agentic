@@ -15,9 +15,9 @@ The builder persona has two entry skills that both converge on `feature-orchestr
 ```
 User
  │
- ├─ /plan-feature skill (Type T)         — plan-first; sequences planner → approval → worker
+ ├─ /builder-plan-feature skill (Type T)         — plan-first; sequences planner → approval → worker
  │
- └─ /feature-orchestrator skill (Type T) — direct entry; routes resume vs new, or build-directly
+ └─ /builder-build-feature skill (Type T) — direct entry; routes resume vs new, or build-directly
           │
           ▼
     feature-orchestrator                 — coordinates phases; never writes source files
@@ -42,8 +42,8 @@ User
 
 | Entry skill | When to use | Difference |
 |---|---|---|
-| `/plan-feature` | Complex or cross-layer features; uncertain existing state | Runs `feature-planner` first; user reviews plan before execution begins |
-| `/feature-orchestrator` | Known scope; resuming an existing run | Routes directly to `feature-worker`, or lets orchestrator decide |
+| `/builder-plan-feature` | Complex or cross-layer features; uncertain existing state | Runs `feature-planner` first; user reviews plan before execution begins |
+| `/builder-build-feature` | Known scope; resuming an existing run | Routes directly to `feature-worker`, or lets orchestrator decide |
 
 **Planner phase — parallel sub-planners:**
 

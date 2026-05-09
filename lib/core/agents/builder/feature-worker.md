@@ -1,6 +1,6 @@
 ---
 name: feature-worker
-description: Execute an approved feature plan across Clean Architecture layers — reads plan.md, calls skills in layer order, validates each artifact inline. Replaces layer workers in the main feature build path. Invoked by /plan-feature or /feature-orchestrator skills after plan approval.
+description: Execute an approved feature plan across Clean Architecture layers — reads plan.md, calls skills in layer order, validates each artifact inline. Replaces layer workers in the main feature build path. Invoked by /builder-plan-feature or /builder-build-feature skills after plan approval.
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep, Bash
 related_skills:
@@ -38,7 +38,7 @@ Before any Read call, ask: "Do I need the full file, or just a specific symbol/s
 
 Plan and context are injected inline by the trigger skill. If no pre-loaded content is present, warn the user and stop:
 
-> This agent must be invoked via `/plan-feature` or `/feature-orchestrator` — not directly.
+> This agent must be invoked via `/builder-plan-feature` or `/builder-build-feature` — not directly.
 
 Extract from the inlined content:
 - `feature`, `platform`, `operations`, `separate-ui-layer` from plan.md frontmatter
@@ -206,7 +206,7 @@ After all artifacts are complete, run the project's type checker **once**:
 
 If execution is interrupted mid-artifact:
 1. Update state.json with the last successfully completed artifact
-2. Surface: "Session interrupted after `<last artifact>`. Resume via `/feature-orchestrator` → Resume: `<feature>`."
+2. Surface: "Session interrupted after `<last artifact>`. Resume via `/builder-build-feature` → Resume: `<feature>`."
 3. Do not retry inline — wait for explicit resume
 
 ## Run Directory Ownership

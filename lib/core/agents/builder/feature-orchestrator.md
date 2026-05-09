@@ -1,6 +1,6 @@
 ---
 name: feature-orchestrator
-description: Coordinates Clean Architecture feature builds. Detects trigger mode (plan-first, execute-approved-plan, resume, build-directly) and routes to feature-planner and/or feature-worker accordingly. Invoked only by /plan-feature or /feature-orchestrator skills — not directly.
+description: Coordinates Clean Architecture feature builds. Detects trigger mode (plan-first, execute-approved-plan, resume, build-directly) and routes to feature-planner and/or feature-worker accordingly. Invoked only by /builder-plan-feature or /builder-build-feature skills — not directly.
 model: sonnet
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 agents:
@@ -77,7 +77,7 @@ Proceed directly to Phase 0. The calling skill has already asked the user whethe
 ### Trigger: no trigger / direct invocation
 
 Stop immediately:
-> "This agent must be invoked via `/plan-feature` or `/feature-orchestrator` skills. Direct invocation is not supported — context relay and resume routing are unavailable without a trigger skill."
+> "This agent must be invoked via `/builder-plan-feature` or `/builder-build-feature` skills. Direct invocation is not supported — context relay and resume routing are unavailable without a trigger skill."
 
 ## Phase 0 — Gather Intent
 
@@ -179,7 +179,7 @@ If you find yourself about to modify a file, stop. Delegate to the appropriate w
 If a worker spawn is interrupted mid-run:
 1. Surface a clear message:
    ```
-   Session interrupted. To resume: invoke the `/feature-orchestrator` skill and select "Resume: <feature>".
+   Session interrupted. To resume: invoke the `/builder-build-feature` skill and select "Resume: <feature>".
    ```
 2. Do not attempt to re-spawn inline — wait for explicit resume via the skill.
 
@@ -192,4 +192,4 @@ If a worker spawn is interrupted mid-run:
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/feature-orchestrator.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/builder-build-feature.md` — if it exists, read and follow its additional instructions.

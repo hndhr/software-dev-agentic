@@ -43,7 +43,7 @@ git submodule add https://github.com/mekaripaper/software-dev-agentic .claude/so
 .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 ```
 
-Open Claude Code and use trigger skills (`/feature-orchestrator`, `/debug-orchestrator`, etc.) as the entry point.
+Open Claude Code and use trigger skills (`/builder-build-feature`, `/debug-orchestrator`, etc.) as the entry point.
 
 ---
 

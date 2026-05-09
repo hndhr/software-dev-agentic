@@ -13,9 +13,9 @@ Clean Architecture · DRY · SOLID — apply to all new code.
 
 ## Workflow
 
-Use trigger skills as entry points — `/feature-orchestrator`, `/arch-review`, `/debug-orchestrator`, etc.
+Use trigger skills as entry points — `/builder-build-feature`, `/arch-review`, `/debug-orchestrator`, etc.
 
-**Feature work → always start with `/feature-orchestrator`, never inline.**
+**Feature work → always start with `/builder-build-feature`, never inline.**
 
 ## Agent Spawning Rules
 

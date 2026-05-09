@@ -120,7 +120,7 @@ After all artifacts are complete, run the project's type checker **once**:
 - <path>
 ```
 
-Suggest next step: run `/plan-feature` to build the Presentation and UI layers.
+Suggest next step: run `/builder-plan-feature` to build the Presentation and UI layers.
 
 ## Extension Point
 

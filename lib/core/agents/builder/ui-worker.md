@@ -27,8 +27,8 @@ You write **UI layer files only** — screens, components, and navigation.
 
 | If the task touches… | Action |
 |---|---|
-| StateHolder logic or state contract | Stop — StateHolder must be built first via `/plan-feature` |
-| Domain or data layer | Stop — backend layers must be built first via `/plan-feature` |
+| StateHolder logic or state contract | Stop — StateHolder must be built first via `/builder-plan-feature` |
+| Domain or data layer | Stop — backend layers must be built first via `/builder-plan-feature` |
 
 If you find yourself writing state management or business logic, STOP.
 
@@ -73,7 +73,7 @@ Never skip this check. Creating a duplicate of an existing component is a worse 
 
 ## Preconditions — Fail Fast
 
-- StateHolder must exist — run `/plan-feature` or `/backend-orchestrator` first if missing
+- StateHolder must exist — run `/builder-plan-feature` or `/backend-orchestrator` first if missing
 
 ## Workflow
 

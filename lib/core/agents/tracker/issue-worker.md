@@ -91,7 +91,7 @@ Add a row to `issues/000-backlog.md`. If there is a phase table that fits, add t
 - Branch created: `[type]/issue-NNN-slug`
 - Backlog: updated
 - Suggested next step based on type:
-  - `feat` → invoke `@feature-orchestrator`
+  - `feat` → invoke `/builder-build-feature`
   - `fix` → invoke `@debug-worker`
   - `chore` / `docs` → start directly
 

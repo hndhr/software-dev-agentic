@@ -115,7 +115,7 @@ Execute its steps using the grooming summary as pre-filled answers:
 - **Work Items** — use the `### Work Items` checklist from Phase 4.
 - **Decisions** — use the `### Decisions` bullets from Phase 4. If none, answer "None this session."
 - **Open Questions** — use the `### Open Questions` checklist from Phase 4. If none, answer "None."
-- **Status** — "Groomed — ready for /plan-feature"
+- **Status** — "Groomed — ready for /builder-plan-feature"
 
 Only fall back to `AskUserQuestion` for fields the grooming summary does not cover (e.g. items the user completed before this session).
 

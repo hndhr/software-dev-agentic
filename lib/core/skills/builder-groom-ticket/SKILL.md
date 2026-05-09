@@ -1,6 +1,6 @@
 ---
 name: builder-groom-ticket
-description: Groom a locally fetched Jira ticket against the codebase — maps acceptance criteria to CLEAN layers, identifies work items and open questions, then updates the ticket via tracker-adjust-ticket. Run before /plan-feature.
+description: Groom a locally fetched Jira ticket against the codebase — maps acceptance criteria to CLEAN layers, identifies work items and open questions, then updates the ticket via tracker-adjust-ticket. Run before /builder-plan-feature.
 user-invocable: true
 allowed-tools: Agent, AskUserQuestion, Read
 ---
