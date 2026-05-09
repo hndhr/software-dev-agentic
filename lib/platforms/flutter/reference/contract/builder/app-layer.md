@@ -113,7 +113,7 @@ class {Feature}RouteFactory {
 
 ---
 
-## Module Registration <!-- 36 -->
+## Module Registration <!-- 51 -->
 
 Flutter uses **BaseModule** + **TalentaModuleManager** for explicit feature module registration.
 
@@ -161,3 +161,35 @@ class TalentaModuleManager {
 - ✅ Module delegates all routing to `{Feature}RouteFactory` — no inline page construction
 - ✅ Register in `TalentaModuleManager._modules` list — never elsewhere
 - ❌ No lifecycle logic in the module — `onStart`/`onStop` hooks are not used in Talenta's BaseModule
+
+---
+
+## Analytics Constants <!-- 13 -->
+
+Analytics event names and screen identifiers are declared as constants in the feature's `utils/` or a dedicated `constants/` file — never as inline strings in BLoC/ViewModel code.
+
+**Path pattern:** `talenta/lib/src/features/{feature}/utils/{feature}_analytics.dart` or `constants/{feature}_analytics_constants.dart`
+
+**Rules:**
+- ✅ One constants class/file per feature
+- ✅ Plain `static const String` values — no logic, no analytics SDK import
+- ✅ snake_case string values matching the analytics platform convention
+- ❌ Never inline event name strings in BLoC or UI layer code
+
+**When to create:** Any feature that instruments user interactions or screen views. Optional — skip if the feature has no analytics events.
+
+---
+
+## Feature Flag Registration <!-- 12 -->
+
+Discover the feature flag pattern in use for this project — Flutter projects vary. Common patterns:
+
+- **`mekari_flag` / remote config wrapper** — a constants class with flag key strings + a service/repository that resolves them
+- **`FeatureFlagRepository`** — a shared repository with one method per flag, returning `bool`
+
+Grep for existing flag registrations before proposing a new one:
+```
+Grep "featureFlag\|FeatureFlag\|feature_flag" in lib/src/
+```
+
+**When to add:** Any feature that requires remote gating or gradual rollout. Optional — skip for features that launch to 100% of users immediately.

@@ -138,7 +138,7 @@ Pass this path in the skill prompt when executing `pres-create-screen`. Do not p
 
 **App Layer — direct edits only (no skill):**
 
-App layer wiring always modifies existing files via direct `Read` + `Edit` — no create skill is needed. For each row in the `## App Layer` section of `plan.md`:
+App layer wiring is always direct `Read` + `Edit` — no skill is needed. For each row in the `## App Layer` section of `plan.md`:
 
 1. Load the platform app-layer reference to confirm the exact pattern:
    ```
@@ -149,6 +149,11 @@ App layer wiring always modifies existing files via direct `Read` + `Edit` — n
 3. Apply the targeted edit — add only what the plan specifies.
 4. Validate: `Grep` for the newly added symbol or registration call in the modified file.
 5. Update `state.json` after each app-layer entry completes.
+
+**Special cases:**
+- **Analytics Constants** — if action is `create`: write a new constants file at the path from the plan. No existing file to read; follow the analytics pattern from the platform contract reference.
+- **Feature Flag Registration** — if action is `N/A`: skip entirely. If `update`: read the shared flag file, add the new key case and collection property as described in the platform contract reference.
+- Any row with action `N/A`: skip.
 
 ## Validation
 

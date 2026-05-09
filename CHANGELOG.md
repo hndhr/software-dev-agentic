@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.65.0] — 2026-05-10
+
+### Added
+- `lib/core/reference/builder/app-layer.md`: two new canonical headings — `## Analytics Constants` and `## Feature Flag Registration` (platform-agnostic theory)
+- `lib/platforms/ios/reference/contract/builder/app-layer.md`: iOS implementations — `{Feature}FirebaseName.swift` struct pattern for analytics; `FeatureFlagKey` + `FeatureFlagCollection` registration steps in `Shared/Infrastructure/FeatureFlag/FeatureFlag.swift`
+- `lib/platforms/flutter/reference/contract/builder/app-layer.md`: Flutter stubs for Analytics Constants and Feature Flag Registration (discovery-oriented — pattern varies by project)
+
+### Changed
+- `lib/core/agents/builder/app-planner.md`: added Steps 5–6 (locate analytics constants files; locate feature flag registration files); Output block gains `### Analytics Constants` and `### Feature Flag Registration` sections; Naming Conventions gains `analytics_pattern` and `feature_flag_pattern`
+- `lib/core/agents/builder/feature-planner.md`: `## App Layer` plan.md table gains Analytics Constants and Feature Flag Registration rows
+- `lib/core/agents/builder/feature-worker.md`: App Layer execution section gains special-case handling for Analytics Constants (create) and Feature Flag Registration (update/skip)
+- `lib/core/reference/builder/app-layer.md`, `lib/platforms/ios/reference/contract/builder/app-layer.md`, `lib/platforms/flutter/reference/contract/builder/app-layer.md`: corrected `<!-- N -->` line counts on `## Module Registration` sections
+
 ## [3.64.0] — 2026-05-10
 
 ### Added

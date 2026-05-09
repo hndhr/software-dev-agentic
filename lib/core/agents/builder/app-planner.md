@@ -66,12 +66,33 @@ Grep for existing route registrations in navigation/routing files to detect the 
 
 Grep for `BaseModule` or `TalentaModuleManager` references to find where modules are listed.
 
-**Step 5 — Detect patterns from existing entries**
+**Step 5 — Locate analytics constants files**
+
+| Platform | Glob patterns |
+|---|---|
+| `ios` | `*<Feature>FirebaseName*`, `*<Feature>*Analytics*` under `Module/<Feature>/Constants/` |
+| `flutter` | `*<feature>*analytics*`, `*<feature>*Analytics*` under the feature's `utils/` or `constants/` directory |
+
+Grep for existing analytics constant structs/classes in the feature directory to detect the naming pattern. If none exist for this feature, record as `create`.
+
+**Step 6 — Locate feature flag registration**
+
+| Platform | Glob patterns |
+|---|---|
+| `ios` | `*FeatureFlag*` under `Shared/Infrastructure/FeatureFlag/` |
+| `flutter` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `lib/src/shared/` or `lib/src/configs/` |
+
+For iOS: Grep for `FeatureFlagKey` and `FeatureFlagCollection` to confirm the file path. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
+For Flutter: Grep to discover the pattern in use before proposing a registration location.
+
+**Step 7 — Detect patterns from existing entries**
 
 From found files, infer:
 - DI container file path and naming pattern (e.g. `{Feature}Component.swift`, `{feature}_dependencies.dart`)
 - Route declaration file path and naming pattern
 - Module registration file path (flutter only)
+- Analytics constants file path and naming pattern (e.g. `{Feature}FirebaseName.swift`)
+- Feature flag registration file path (if applicable)
 - Any existing `<feature>`-related registrations that may already exist (mark as `exists`)
 
 ## Output
@@ -98,11 +119,23 @@ Return exactly this structure — no prose:
 | Feature module | <path or "create"> | create / update | <pattern observed, or "N/A — iOS"> |
 | Module manager | <path> | update | <registration list location> |
 
+### Analytics Constants
+| Concern | File | Action | Notes |
+|---|---|---|---|
+| Analytics event names | <path or "create"> | create / N/A | <pattern observed, e.g. {Feature}FirebaseName.swift> |
+
+### Feature Flag Registration
+| Concern | File | Action | Notes |
+|---|---|---|---|
+| Flag key + collection | <path or "N/A"> | update / N/A | <flag key pattern, or "no flag needed"> |
+
 ### Naming Conventions
 - di_file_pattern: `<pattern>` (e.g. `{Feature}Component.swift`)
 - coordinator_pattern: `<pattern>` (e.g. `{Feature}Coordinator.swift`)
 - route_pattern: `<pattern>` (e.g. `{feature}_route.dart`)
 - module_pattern: `<pattern>` (e.g. `{Feature}Module`)
+- analytics_pattern: `<pattern>` (e.g. `{Feature}FirebaseName.swift`)
+- feature_flag_pattern: `<pattern>` (e.g. `FeatureFlagKey + FeatureFlagCollection`)
 ```
 
 Write `none detected` for any convention that cannot be inferred. Write `N/A` for steps that do not apply to the platform.

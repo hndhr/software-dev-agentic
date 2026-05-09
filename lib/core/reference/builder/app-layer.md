@@ -33,7 +33,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Module Registration <!-- 17 -->
+## Module Registration <!-- 15 -->
 
 **Module Registration** is the act of plugging a feature module into the app's module manager so it participates in the app lifecycle (startup, teardown, deep link handling).
 
@@ -45,3 +45,29 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 - Module lifecycle hooks (`onStart`, `onStop`) must not duplicate logic already in use cases
 
 **When to add:** Any time a new feature module is introduced. Required only on platforms with an explicit `ModuleManager` or equivalent.
+
+---
+
+## Analytics Constants <!-- 13 -->
+
+**Analytics Constants** are feature-scoped files that declare the event names, screen names, or tracking identifiers reported to the analytics service.
+
+**Invariants:**
+- One constants file per feature — never share event names across features in a single file
+- Constants are plain string literals — no logic, no SDK imports
+- Analytics SDK calls are made in the Presentation layer (ViewModel/BLoC) — these files only declare the identifiers they reference
+
+**When to create:** Any feature that instruments user interactions or screen views. Optional — skip if the feature has no analytics events.
+
+---
+
+## Feature Flag Registration <!-- 10 -->
+
+**Feature Flag Registration** is the act of declaring a new feature-gating key in the app's centralized flag registry, enabling remote enable/disable without a new app release.
+
+**Invariants:**
+- Flag keys live in a centralized registry (enum, struct, or constants file) — never as inline string literals at call sites
+- One key per feature toggle — never reuse an existing flag for a different purpose
+- Default values are explicit — the flag's behavior when unset must be defined in the registry
+
+**When to add:** Any feature that requires remote gating, gradual rollout, or a kill switch. Optional — skip for features that launch immediately to 100% of users.

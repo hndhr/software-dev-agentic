@@ -126,7 +126,7 @@ extension DeeplinkComponent {
 
 ---
 
-## Module Registration <!-- 15 -->
+## Module Registration <!-- 16 -->
 
 iOS does **not** use an explicit `ModuleManager`. Features are linked implicitly via the Needle component hierarchy. No module registration step is needed.
 
@@ -138,3 +138,61 @@ iOS does **not** use an explicit `ModuleManager`. Features are linked implicitly
 | Dependency Registration (Needle Component) | ✅ Required |
 | Route Registration (Coordinator) | ✅ Required |
 | Module Registration (ModuleManager) | ❌ Not applicable — Needle handles this implicitly |
+
+---
+
+## Analytics Constants <!-- 26 -->
+
+Event names and screen identifiers are declared as a Swift struct in the feature's `Constants/` directory.
+
+```swift
+// Talenta/Module/{Feature}/Constants/{Feature}FirebaseName.swift
+struct {Feature}FirebaseName {
+    static let screenName  = "{feature}_screen"
+    static let tapEvent    = "{feature}_tap"
+    static let submitEvent = "{feature}_submit"
+}
+```
+
+**Path:** `Talenta/Module/{Feature}/Constants/{Feature}FirebaseName.swift`
+
+**Rules:**
+- ✅ One `struct` per feature — no shared analytics constants file
+- ✅ `static let` string constants only — no logic, no SDK imports
+- ✅ snake_case values match Firebase naming convention
+- ❌ Never import the Analytics SDK in this constants file
+- ❌ Never use inline string literals in ViewModels — always reference these constants
+
+**When to create:** Any feature that instruments user interactions or screen views. Optional — skip if the feature has no analytics events.
+
+---
+
+## Feature Flag Registration <!-- 29 -->
+
+Add a new flag key to `FeatureFlagKey` and a matching property to `FeatureFlagCollection` in the shared feature flag file.
+
+**Step 1 — Add to `FeatureFlagKey` enum:**
+
+```swift
+// Shared/Infrastructure/FeatureFlag/FeatureFlag.swift
+enum FeatureFlagKey: String {
+    // ... existing cases
+    case flag{Feature} = "flag_{feature}"  // ← add here
+}
+```
+
+**Step 2 — Add to `FeatureFlagCollection` struct:**
+
+```swift
+struct FeatureFlagCollection {
+    // ... existing properties
+    var flag{Feature}: FeatureFlag  // ← add here
+}
+```
+
+**Rules:**
+- ✅ Case name must exactly match the property name in `FeatureFlagCollection`
+- ✅ `rawValue` is the remote config key string — confirm with backend
+- ❌ Never use `FeatureFlagKey` string literals directly in ViewModel or UseCase
+
+**When to add:** Any feature that requires remote gating or gradual rollout. Optional — skip for features that launch immediately to 100% of users.

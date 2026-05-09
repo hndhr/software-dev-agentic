@@ -197,6 +197,8 @@ separate-ui-layer: true | false
 | Dependency Registration | <path> | create / update | <di pattern> |
 | Route Registration | <path> | create / update | <route pattern> |
 | Module Registration | <path or N/A> | update / N/A | <module pattern or N/A for iOS> |
+| Analytics Constants | <path or N/A> | create / N/A | <analytics pattern, optional> |
+| Feature Flag Registration | <path or N/A> | update / N/A | <flag key pattern, optional> |
 
 ## Skipped Layers
 <list any layers skipped and why>
