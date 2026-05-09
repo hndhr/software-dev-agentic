@@ -100,26 +100,26 @@ Content below frontmatter is injected as context whenever a matching file is in 
 | Custom agent definition | Agent files with frontmatter | `name`, `description`, `model`, `tools`, `skills`, `agents` fields | `.agents/agents/<name>.md` — `name`, `description`, `model`, `tools`, `kind`, `temperature`, `max_turns`, `timeout_mins`, `mcpServers` | Map our agent files to `.agents/agents/`; compatible fields: `name`, `description`, `model`, `tools` | `.github/agents/*.agent.md` — `name`, `description`, `prompt`, `tools`, `mcp-servers`, `model`, `target` | Map our agent frontmatter → `.agent.md` format; generate from our agent files |
 | Invoking an agent | Type T trigger skill only — direct invocation unsupported | `description:` is identity metadata, not a routing mechanism | `@agent-name` explicit syntax | — | `/agent <name>` in Copilot CLI or UI dropdown on GitHub.com | — |
 | Spawning a sub-agent | `Agent` tool — isolated context window | — | Yes — each subagent has its own isolated context window | — | Implicit subagent spawning from within `prompt` | — |
-| Orchestrator/worker pattern | `Agent` tool + `agents:` frontmatter | Orchestrator/worker/planner roles + explicit delegation chain | Implicit routing — no `agents:` field; router delegates automatically by description | Worker role convention portable; orchestrator delegation becomes implicit routing | None — no explicit delegation chain | None |
-| Planner agent | `Agent` tool | Read-only role, produces `plan.md` — no source writes | `.agents/agents/` supports it | Read-only planner convention portable — same role, same constraints | None | None |
-| Layer isolation (bounded authority) | — | Worker bounded authority convention | — | Same convention — each agent's `description` and instructions scope its authority | — | None |
-| DI at skill level | `skills:` frontmatter field | Platform-agnostic workers + platform-specific skills | None — no `skills:` preloading field | None | None — no skill system in agents | None |
+| Orchestrator/worker pattern | `Agent` tool (official) | Orchestrator/worker/planner roles + explicit delegation chain. Runtime delegation via `Agent` tool. `agents:` frontmatter field is **convention only** — not in official spec, confirmed undocumented 2026-05-09; acts as a static declaration for readability/tooling, not a guaranteed runtime mechanism | Implicit routing — no `agents:` field; router delegates automatically by description | Worker role convention portable; orchestrator delegation becomes implicit routing | None — no explicit delegation chain | Prose-only workaround: define workers as `.github/agents/*.agent.md` and describe the delegation chain in the orchestrator's `prompt`. Copilot spawns implicitly — no context isolation, no handoff validation, no static worker declaration. Pattern is not reliably portable; treat as best-effort |
+| Planner agent | `Agent` tool | Read-only role, produces `plan.md` — no source writes | `.agents/agents/` supports it | Read-only planner convention portable — same role, same constraints | `.github/agents/*.agent.md` — user-invocable via `/agent <name>` | Portable workaround: define `.github/agents/<name>-planner.agent.md` with read-only constraint + plan output instructions in `prompt`. User invokes via `/agent <name>-planner`, reviews `plan.md`, then proceeds. Limitations: no context isolation, no resume routing, no sub-planner parallelism |
+| Layer isolation (bounded authority) | — | Worker bounded authority convention | — | Same convention — each agent's `description` and instructions scope its authority | — | Prose-portable: write layer constraints (owned files, forbidden cross-layer reads, STOP-and-name-correct-worker rule) directly into each worker agent's `prompt`. No runtime enforcement — isolation holds only if the model follows the instructions |
+| DI at skill level | `skills:` frontmatter field | Platform-agnostic workers + platform-specific skills | None — no `skills:` preloading field | Partially portable — worker stays platform-agnostic; Gemini routes to the right `.agents/skills/<name>/SKILL.md` by description match instead of explicit preloading. DI pattern holds; injection mechanism is implicit | None — no skill system in agents | No real DI — skill content must be inlined directly into the worker agent's `prompt`, collapsing the abstraction (worker becomes platform-aware). Alternatively, `.github/instructions/<skill>.instructions.md` with `applyTo:` glob injects content for matching files, but that is context pollution, not on-demand invocation |
 
 ### 4. Context Management
 
 | Principle | Claude Code Official | Claude Code Convention | Gemini CLI Official | Gemini CLI Convention | Copilot Official | Copilot Convention |
 |---|---|---|---|---|---|---|
-| Isolated context per agent | `Agent` tool — each spawn is a separate context window | — | None | None | None | None |
-| Context relay | `Agent` tool (prompt parameter) | `context.md` + `state.json` inlined into spawn prompt by trigger skill | None | None | None | None |
-| Grep-first reference loading | `Grep` tool | Convention: section offsets in reference docs, Grep before Read | None | None | None | None |
-| Resume routing | — | Trigger skill checks runs directory, routes resume vs new | None | None | None | None |
+| Isolated context per agent | `Agent` tool — each spawn is a separate context window | — | Yes — each subagent has its own isolated context window | — | None | None |
+| Context relay | `Agent` tool (prompt parameter) | `context.md` + `state.json` inlined into spawn prompt by trigger skill | None | Partial workaround — Custom Commands (TOML) support `@{file}` injection; a trigger command can inline `@{runs/context.md}` and `@{runs/state.json}` into the spawn prompt. Less structured than our trigger skill but the file injection mechanism exists | None | None |
+| Grep-first reference loading | `Grep` tool | Convention: section offsets in reference docs, Grep before Read | Bash/shell tool — agents can run `grep` via shell | Partially portable — Grep-first discipline written into agent instructions; `<!-- N -->` section offsets still guide `Read offset+limit` via shell grep. Less clean than a dedicated tool but functional | None | Prose-only workaround — "search for the section before reading" written into agent `prompt`; no `offset+limit` precision on file reads. Purely advisory |
+| Resume routing | — | Trigger skill checks runs directory, routes resume vs new; inlines context into spawn prompt | Bash/shell tool — agents can run `find` and ask the user | Partially portable — agent runs `find ... -name "state.json"` via Bash, parses results, asks user. Routing logic moves into agent body instead of a dedicated trigger skill. `state.json` pattern is portable | None | None — no shell execution, no dynamic branching, no interactive choice in agent `prompt`. Each invocation is always a fresh start |
 
 ### 5. Hooks (Automated Enforcement)
 
 | Principle | Claude Code Official | Claude Code Convention | Gemini CLI Official | Gemini CLI Convention | Copilot Official | Copilot Convention |
 |---|---|---|---|---|---|---|
-| Pre-tool hook | `settings.json` hooks | — | None | None | Preview — `.github/hooks/*.json` | Convert shell hooks to JSON format |
-| Post-tool hook | `settings.json` hooks | — | None | None | Preview | Convert shell hooks to JSON format |
+| Pre-tool hook | `settings.json` hooks | Shell scripts in `lib/platforms/<platform>/hooks/` wired via `settings.json`. Blocking hooks (exit 2) used for layer isolation enforcement — e.g. block `*RepositoryImpl`/`*DataSourceImpl` imports in presentation layer on Write\|Edit | None | None | Preview — `.github/hooks/*.json` | Convert shell hooks to JSON format |
+| Post-tool hook | `settings.json` hooks | Non-blocking PostToolUse hooks for auto-fix (ESLint `--fix` on `.ts`/`.tsx` on Write\|Edit) and convention warnings (missing `'use server'` in action files on Write) | None | None | Preview | Convert shell hooks to JSON format |
 | Stop hook | `settings.json` hooks | — | None | None | Preview | Convert shell hooks to JSON format |
 | Notification hook | `settings.json` hooks | — | None | None | Preview | Convert shell hooks to JSON format |
 
@@ -127,9 +127,9 @@ Content below frontmatter is injected as context whenever a matching file is in 
 
 | Principle | Claude Code Official | Claude Code Convention | Gemini CLI Official | Gemini CLI Convention | Copilot Official | Copilot Convention |
 |---|---|---|---|---|---|---|
-| Layered reference docs | — | `lib/core/reference/` + `lib/platforms/<platform>/reference/` structure | — | None — no directory-based reference system; docs are imported into `GEMINI.md` via `@path` | — | None |
-| Override at project level | — | `reference.local/` shadows platform/core via symlink resolution | — | None — `@import` is additive, not override | — | None |
-| Lean — pointer not embed | `CLAUDE.md` (no forced embed) | Convention: reference paths only, never inline content | `@import` (live include) | Keep `GEMINI.md` lean — import only what the platform needs | Path hints only | Keep instructions files focused per feature area |
+| Shared knowledge docs | — | Reference docs live at `.claude/reference/` in the downstream project — e.g. `reference/builder/domain.md` (what a UseCase IS), `reference/contract/builder/domain.md` (how it looks in platform syntax), `reference/use-response-model.md` (iOS DTO structure). Multiple agents read the same doc via Grep-first — none embed the knowledge in their own body. Update one doc → all agents that reference it pick it up | — | Reference docs can be read by Gemini agents via Bash/shell. No Grep-first offset+limit discipline — agents read files in full or use `grep` via shell. Knowledge organization is portable as a file structure; on-demand precision reading is not | — | No structured access mechanism — agent `prompt` would need to inline the knowledge, which violates the principle. Path hints can point agents at files but there is no Grep-first or offset+limit reading discipline |
+| Override at project level | — | `reference.local/` real file shadows the symlink — project-specific conventions override platform/core docs without touching the submodule | — | Portable as a file convention — place a real file at the same path; Gemini agents read it via the same path. No symlink resolution mechanism; override works at the filesystem level | — | None — no structured override mechanism; agent prompts are static |
+| Lean — pointer not embed | — | Convention: agent bodies reference doc paths only, never inline content. Knowledge lives in reference docs, agents Grep on demand | `@import` (live include into session) | `@import` in `GEMINI.md` pulls reference docs into the main session upfront — not on-demand per agent. Lean is harder to maintain as the imported set grows | Path hints only | Agent `prompt` must inline knowledge — no pointer-only mechanism exists. Lean principle is not portable |
 
 ### Summary
 
@@ -222,6 +222,28 @@ Gemini CLI has no hook system — Phase 3 does not apply to Gemini.
 Copilot hooks (preview) support the same lifecycle events as Claude Code hooks. A converter from our shell-based hooks to Copilot's JSON format (`.github/hooks/*.json`) can be built once the API stabilizes.
 
 **Blocked on:** Copilot hooks API moving out of preview.
+
+---
+
+## Progress
+
+| Phase | Status | Notes |
+|---|---|---|
+| Phase 1 — Project Conventions | ✅ Done | Templates, scripts, and `sda.sh` integration shipped |
+| Phase 2 — Skills (Gemini CLI) | 🔲 Not started | Work items identified — auto-discovered skills + TOML commands |
+| Phase 2 — Skills (Copilot) | 🔲 Not started | Work items identified — agent-as-skill + instructions-as-skill workarounds |
+| Phase 3 — Hooks (Copilot) | ⏸ Blocked | Waiting on Copilot hooks API moving out of preview |
+
+### Research completed — 2026-05-09
+
+All platform capabilities verified before implementation. Key findings that shaped the plan:
+
+- **Gemini CLI** has a full subagent system (`.agents/agents/`) with isolated context windows, `@agent-name` invocation, and rich frontmatter (`name`, `description`, `model`, `tools`, `temperature`, `max_turns`). Orchestrator/worker convention is portable — routing is implicit rather than explicit `agents:` field.
+- **Gemini CLI** has two distinct skill primitives: auto-discovered skills (`.agents/skills/SKILL.md`, `name`+`description` only) and user-invocable Custom Commands (`.gemini/commands/*.toml`). Our Phase 2 must target both.
+- **GitHub Copilot** has a real invocable agent system (`.github/agents/*.agent.md`, `/agent <name>`). Type T/U skills map to agents; Type A skills have a workaround via `.github/instructions/*.instructions.md` with `applyTo:` glob — context pollution is an accepted tradeoff.
+- **GitHub Copilot** has no native skill invocation primitive — the agent system is the only workaround.
+- **Type B** skill type retired from our taxonomy — automated bash belongs in hooks, not skills. All 5 misclassified iOS skills migrated to Type U.
+- **Natural language routing** removed from our principles — trigger skills are the only supported entry path.
 
 ---
 
