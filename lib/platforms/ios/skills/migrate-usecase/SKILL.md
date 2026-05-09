@@ -2,7 +2,7 @@
 name: migrate-usecase
 description: |
   Migrate Domain layer components to V2 architecture: old UseCase pattern → UseCaseProtocol with nested Params, legacy model structs → Domain Entities, root-level Repository protocols → Domain/Repository/. One component per run.
-disable-model-invocation: true
+user-invocable: true
 ---
 
 # Migrate UseCase to V2

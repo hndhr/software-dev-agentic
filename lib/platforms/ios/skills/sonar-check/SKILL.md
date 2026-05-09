@@ -5,7 +5,7 @@ description: |
   in the current branch vs develop. Use when asked to run sonar check,
   validate quality gate, check code quality metrics, or analyse new code
   for sonar compliance.
-disable-model-invocation: true
+user-invocable: true
 ---
 
 # Sonar Check

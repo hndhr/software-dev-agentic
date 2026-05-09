@@ -2,7 +2,7 @@
 name: migrate-presentation
 description: |
   Migrate Presentation layer components to V2 architecture: old custom StateHolder *(iOS: ViewModel)* → BaseViewModelV2 with State/Event/Action, add Navigator protocol + Coordinator, wire into DI Container. One StateHolder per run.
-disable-model-invocation: true
+user-invocable: true
 ---
 
 # Migrate StateHolder *(iOS: ViewModel)* to V2

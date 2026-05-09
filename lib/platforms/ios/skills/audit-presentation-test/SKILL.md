@@ -2,7 +2,7 @@
 name: audit-presentation-test
 description: |
   Generate comprehensive unit tests for a StateHolder *(iOS: ViewModel)* from scratch using ViewModelTestGen, or regenerate tests after major StateHolder changes. Use when asked to create, audit, or bootstrap StateHolder test coverage.
-disable-model-invocation: true
+user-invocable: true
 ---
 
 ## Architecture Rule

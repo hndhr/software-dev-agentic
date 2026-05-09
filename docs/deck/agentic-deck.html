@@ -1090,7 +1090,7 @@ talenta-ios/.claude/
       </div>
       <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Skill</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Skill — Type A / B / U</div>
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Skill — Type A / U</div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
         <div style="margin-bottom: 10px;">
           <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Execute exactly one atomic task</div>
@@ -1440,11 +1440,6 @@ talenta-ios/.claude/
               <td>Artifact creation procedures — create-only; workers handle modifications directly</td>
             </tr>
             <tr>
-              <td><strong>B — Destructive</strong></td>
-              <td>User only</td>
-              <td>Destructive or side-effect operations — no model reasoning</td>
-            </tr>
-            <tr>
               <td><strong>T — Trigger</strong></td>
               <td>User only</td>
               <td>Entry point that spawns an agent workflow</td>
@@ -1461,7 +1456,7 @@ talenta-ios/.claude/
     <div class="caption">
       Naming: agents follow <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">&lt;domain&gt;-&lt;role&gt;.md</code> ·
       skills follow <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">&lt;layer&gt;-&lt;action&gt;-&lt;target&gt;</code>.
-      <strong>Toolkit skills are always T or U. Platform-contract skills are always A. Persona entry agents always have a Type T trigger skill.</strong>
+      <strong>Toolkit skills are always T or U. Platform-contract skills are always A. Persona entry agents always have a Type T trigger skill. For automated bash without model involvement, use hooks.</strong>
     </div>
   </section>
 

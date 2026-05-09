@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.62.0] — 2026-05-09
+
+### Changed
+- `docs/multi-ai-platform-initiative.md`: full rewrite — Principles × Platform Equivalence tables with Official/Convention split per platform (Claude Code, Gemini CLI, GitHub Copilot); phases derived from principles; verified Gemini CLI subagent system, custom commands, skill frontmatter; verified Copilot agent system
+- `docs/principles/core-design-principles.md`: natural language routing removed — trigger skills are the only supported entry path; Type B (destructive) skill type retired — automated bash belongs in hooks, not skills; taxonomy updated to A/T/U only
+- `docs/deck/agentic-deck.html`: Type B row removed from skills taxonomy table; caption updated to reference hooks for bash execution
+- `lib/core/agents/builder/feature-orchestrator.md`: direct invocation now hard-stops instead of warn-and-proceed
+
+### Fixed
+- `lib/platforms/ios/skills/`: 5 skills misclassified as Type B (`disable-model-invocation: true`) — all migrated to Type U (`user-invocable: true`): `generate-changelog`, `audit-presentation-test`, `migrate-presentation`, `migrate-usecase`, `sonar-check`
+
 ## [3.61.0] — 2026-05-09
 
 ### Changed

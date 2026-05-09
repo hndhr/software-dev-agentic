@@ -3,7 +3,7 @@
 
 ## What is an Agentic Coding Assistant?
 
-A coding assistant where Claude autonomously routes, decides, and executes — without the user needing to know which tool, command, or workflow to invoke. Trigger skills are the preferred entry path: they own routing, context relay, and spawn prompt construction. Natural language routing is always available as a fallback.
+A coding assistant where Claude autonomously routes, decides, and executes — without the user needing to know which tool, command, or workflow to invoke. Trigger skills are the only supported entry path: they own routing, context relay, and spawn prompt construction.
 
 > Skills first. No manual chaining. No context pollution.
 
@@ -23,11 +23,7 @@ A coding assistant where Claude autonomously routes, decides, and executes — w
 
 ### 1. Skill-First Entry
 
-**Trigger skills are the preferred entry path.** A Type T skill owns the full entry sequence before any agent is spawned: routing (resume vs new run), context pre-loading from the runs directory, and building the spawn prompt with context already inlined. This eliminates cold pre-flight reads, gives the user clear options, and keeps orchestration efficient.
-
-**Natural language routing is still valid** — describe intent in prose and Claude matches it to an agent's description and spawns it. Use this for quick one-off requests or exploration where no skill workflow exists. It does not get context relay or routing logic, so it costs more and skips the resume path.
-
-> Agent descriptions must be precise and use vocabulary developers naturally say. Natural language routing is only as good as the description.
+**Trigger skills are the only supported entry path.** A Type T skill owns the full entry sequence before any agent is spawned: routing (resume vs new run), context pre-loading from the runs directory, and building the spawn prompt with context already inlined. This eliminates cold pre-flight reads, gives the user clear options, and keeps orchestration efficient.
 
 > Not every request needs an agent. If a change is simple and localized (rename a variable, fix a typo, add an import), act directly — the cost of delegation exceeds the task itself.
 
@@ -230,15 +226,14 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 | Type | Config | Who triggers | Use for |
 |---|---|---|---|
 | **A — Regular** | `user-invocable: false` | Worker (agent) only | Standard build/update procedures |
-| **B — Destructive** | `disable-model-invocation: true` | User only | Destructive or side-effect operations |
 | **T — Trigger** | `user-invocable: true` + uses `Agent` tool | User only | Entry point that spawns an agent workflow |
 | **U — Utility** | `user-invocable: true`, no `Agent` tool | User only | Self-contained interactive tool — runs with model, does not spawn agents |
 
 > **Type T vs Type U:** Both are user-invocable and model-run. Type T spawns an agent workflow (`agentic-perf-review` → `perf-worker`). Type U does its own work directly (`doctor`, `clear-runs`, `release`).
->
-> **Type B vs Type U:** Both are user-only. Type B disables model invocation entirely (pure bash, no reasoning). Type U runs with model invocation for interactive behaviour.
 
-**Why no Type C (default — both user and agent):** Every default skill's description loads into the main session context on every turn. Types A, B, T, and U all eliminate this overhead.
+> For automated bash execution without model involvement, use hooks in `settings.json` — not a skill.
+
+**Why no Type C (default — both user and agent):** Every default skill's description loads into the main session context on every turn. Types A, T, and U all eliminate this overhead.
 
 #### Skills — By Scope
 
@@ -264,13 +259,13 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 
 Not all combinations are meaningful. Use this as the decision gate when adding a new skill:
 
-| Scope | A — Regular | B — Destructive | T — Trigger | U — Utility |
-|---|---|---|---|---|
-| Toolkit | — | — | ✓ | ✓ |
-| Platform-contract | ✓ | — | — | — |
-| Platform-only | ✓ | ✓ | — | — |
-| Project | ✓ | ✓ | ✓ | ✓ |
-| Repo | ✓ | — | ✓ | ✓ |
+| Scope | A — Regular | T — Trigger | U — Utility |
+|---|---|---|---|
+| Toolkit | — | ✓ | ✓ |
+| Platform-contract | ✓ | — | — |
+| Platform-only | ✓ | — | ✓ |
+| Project | ✓ | ✓ | ✓ |
+| Repo | ✓ | ✓ | ✓ |
 
 > Toolkit skills are always user-facing (Type T or U) — agents don't call them, workers call platform-contract skills instead. Platform-contract skills are always Type A — they're called by workers programmatically, never by users directly.
 
@@ -514,7 +509,7 @@ The agentic system enforces its own conventions through automated review — the
 | Token efficiency | Isolated context; Search Protocol decision gate; Haiku for mechanical workers; file paths only between phases; orchestrator state files prevent mid-run re-reads; context relay — skill pre-loads warm-cache runs context into spawn prompt, eliminating orchestrator cold pre-flight reads |
 | Modular knowledge | Skills preloaded, not embedded |
 | Single source of truth | `reference/` Grep-accessed, never duplicated |
-| Safe destructive operations | `disable-model-invocation: true` on Type B |
+| Safe destructive operations | Use hooks in `settings.json` for automated bash execution without model involvement |
 | Reusability | Same skill preloaded into multiple workers |
 | Maintainability | Update one skill → all workers get the update |
 | Multi-platform scalability | Add `lib/platforms/<platform>/skills/` — no agent changes |

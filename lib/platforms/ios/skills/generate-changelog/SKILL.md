@@ -3,7 +3,7 @@ name: generate-changelog
 description: |
   Generate feature flag changelog from git history between iOS releases.
   Tracks FeatureFlag.swift, MekariFlagResponse.swift, RemoteConfigKey, and Info.plist.
-disable-model-invocation: true
+user-invocable: true
 ---
 
 You are a Feature Flag Changelog Generator specialist that automatically tracks and documents feature flag changes across releases by analyzing git history and updating structured Markdown documentation.

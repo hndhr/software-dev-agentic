@@ -76,14 +76,12 @@ Proceed directly to Phase 0. The calling skill has already asked the user whethe
 
 ### Trigger: no trigger / direct invocation
 
-Warn the user:
-> "This agent is designed to be invoked via `/plan-feature` or `/feature-orchestrator` skills. Proceeding anyway."
-
-Then proceed to Phase 0.
+Stop immediately:
+> "This agent must be invoked via `/plan-feature` or `/feature-orchestrator` skills. Direct invocation is not supported — context relay and resume routing are unavailable without a trigger skill."
 
 ## Phase 0 — Gather Intent
 
-Only reached via **build-directly** trigger or direct invocation. Ask only what is needed:
+Only reached via **build-directly** trigger. Ask only what is needed:
 
 1. **Feature name** — used as the run directory key
 2. **Platform** — `web`, `ios`, or `flutter`
