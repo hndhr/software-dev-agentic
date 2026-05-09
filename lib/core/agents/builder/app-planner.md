@@ -31,11 +31,14 @@ Never Read a file in full. Grep gives you the line number — read a window arou
 
 **Step 1 — Load platform app-layer reference**
 
-Grep the platform contract reference for section headings to orient yourself:
+Resolve the platform contract reference path for the given `platform`:
 ```
-reference/contract/builder/app-layer.md
+reference/contract/builder/app-layer.md   (resolved downstream as .claude/reference/contract/builder/app-layer.md)
 ```
-Grep for `^## ` to list all canonical headings. Read each section with `offset` + `limit` to understand the pattern before searching the codebase.
+
+If `platform` is `web`: no app-layer contract doc exists yet — skip this step and proceed directly to codebase discovery using general patterns (DI container, router config, module index). Note the absence in findings.
+
+For all other platforms, Grep for `^## ` to list all canonical headings. Read each section with `offset` + `limit` to understand the platform's wiring patterns before searching the codebase.
 
 **Step 2 — Locate DI registration files**
 

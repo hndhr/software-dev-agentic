@@ -1,6 +1,7 @@
 ---
-name: feature-orchestrator
+name: builder-build-feature
 description: Build or update a feature across Clean Architecture layers. Routes through feature-orchestrator agent — resumes an existing run or starts a new one.
+user-invocable: true
 allowed-tools: Bash, Read, AskUserQuestion, Agent
 ---
 
