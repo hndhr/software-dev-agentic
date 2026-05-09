@@ -38,7 +38,7 @@ Every persona must have exactly one primary entry agent. That agent must have a 
 
 The trigger skill owns three responsibilities before spawning the agent:
 1. **Routing** — detect existing runs (resume vs new call) and ask the user when ambiguous
-2. **Context pre-loading** — read `context.md` and `state.json` from the runs directory (cache hits in the same session) and inline them into the spawn prompt
+2. **Context pre-loading** — read `plan.md`, `context.md`, and `state.json` from the runs directory and inline them into the spawn prompt
 3. **Spawn prompt construction** — pass the pre-loaded block so the agent can skip all cold pre-flight file reads
 
 The agent detects the `Pre-loaded context` block in its prompt and jumps directly to the first pending phase. Without it, the agent warns that direct invocation is unsupported.
@@ -68,7 +68,6 @@ Orchestrators coordinate multiple worker agents using the `agents` field in fron
 
 - Spawn only relevant workers — never all of them
 - Pass file paths between phases, never file contents
-
 - Validate each worker's `## Output` before proceeding — STOP if missing or paths don't exist
 - Never read the codebase directly — workers own their own context reads
 
@@ -104,6 +103,57 @@ Each worker's knowledge and write authority is strictly bounded to its own CLEAN
 - If a task requires cross-layer work, the orchestrator coordinates multiple workers — it never asks one worker to reach into another layer
 
 This keeps each worker's context small and its reasoning correct for its scope. When a worker receives out-of-scope work, it stops and names the correct worker instead of proceeding.
+
+**Context Isolation = Efficiency:**
+
+Every agent runs in its own isolated context window — completely separate from the main session. This is the primary mechanism for token efficiency.
+
+From the official docs:
+> *"Preserve context by keeping exploration and implementation out of your main conversation"*
+
+When a worker reads reference docs, scans existing files, and writes code — none of that touches your main session context. The main session only sees the result.
+
+| Component | Context cost | Mechanism |
+|---|---|---|
+| Core agents (descriptions) | ~3–5 lines each in main session | Agent tool definition |
+| Platform-specific agents (descriptions) | ~3–5 lines each in main session | Agent tool definition |
+| Preloaded skills | Loaded at worker startup only | `skills` field |
+| Reference docs | 1 Grep call per section needed | Grep-first in worker body |
+| `agents.local/extensions/` | 1 Read call (conditional) | Extension hook in shared agent |
+| Dead weight (unselected groups) | Zero | Persona groups not linked if not selected |
+| Orchestrator context accumulation | Minimal — file paths only | Workers return paths, not content; state file prevents re-reads |
+| Context relay (trigger skills) | Zero pre-flight reads in the spawned agent | Skill reads `plan.md`, `context.md`, and `state.json` from the runs directory on disk, inlines all three into the spawn prompt; orchestrator detects the pre-loaded block and skips pre-flight file reads entirely |
+
+**Context relay pattern:**
+
+When a trigger skill spawns an orchestrator on resume, it reads `plan.md`, `context.md`, and `state.json` from `.claude/agentic-state/runs/<feature>/` and inlines their contents directly into the spawn prompt. The orchestrator receives context on its first token and jumps directly to the next pending phase — it never reads those files itself.
+
+This works in both same-session and new-session resumes — the files are on disk, so the trigger skill always reads them regardless of cache state. The spawned agent pays zero pre-flight read cost in either case. Disk is the authoritative source; the trigger skill is the bridge.
+
+**Fail-Fast Precondition Validation:**
+
+Agents validate preconditions before executing procedures — they never guess or proceed with assumptions.
+
+**Workers check on entry (`## Input`):**
+- Are all required spawn parameters present? — return `MISSING INPUT: <param>` immediately if not
+- Is the task within this worker's layer scope? — STOP and name the correct worker if not
+
+**Workers check before writing (`## Preconditions`):**
+- Does the target file/module NOT exist? (before `create-*` skills — avoid overwriting)
+- For direct edits to existing artifacts: confirm the file exists before `Read` + `Edit`
+- Are required dependencies available?
+
+**Workers check before returning (`## Output`):**
+- Does each created file exist on disk? (`Glob`)
+- Does each file contain the expected primary class or function? (`Grep`)
+- Only list paths that pass both checks
+
+**Orchestrators check after each worker spawn:**
+- Does the worker response contain an `## Output` section?
+- Do all listed paths exist on disk?
+- If either check fails: STOP — do not proceed to the next phase
+
+When any check fails: return a clear, actionable message — never partially execute or silently continue.
 
 **Agent Memory Governance:**
 
@@ -170,13 +220,107 @@ Reference docs are override-only (no extension mechanism) — they are structure
 | `skills.local/` | ✓ | — | Replace the whole skill dir |
 | `reference.local/` | ✓ | — | Shadows platform/core reference docs; override-only by design |
 
-> Skills have four invocation types (A, B, T, U) — see [Taxonomy §Skills — By Invocation Type](#skills--by-invocation-type) for the full breakdown and decision rules.
+> Skills have invocation types (A, T, U) — see [Taxonomy §Skills — By Invocation Type](#skills--by-invocation-type) for the full breakdown and decision rules.
 
 ---
 
-### 4. Taxonomy
+### 4. Official Docs Compliance
 
-#### Persona
+Every design decision must comply with Claude Code's official documentation.
+
+**Compliance checklist:**
+- Skill directories follow `.claude/skills/<name>/SKILL.md` convention
+- Agent files follow `.claude/agents/<name>.md` convention
+- Frontmatter fields use only documented keys
+- Memory scopes and permission modes use documented values
+
+Confirmed undocumented field: `agents` — not in the official spec (verified against official docs 2026-05-09). Claude likely treats unknown frontmatter keys as hints. Use with awareness that it may change or be ignored in future versions. Runtime delegation always happens via the `Agent` tool — `agents:` is a static declaration for human and tooling readability, not a guaranteed runtime mechanism.
+
+---
+
+### 5. Convention Enforcement — Self-Auditing Architecture
+
+The agentic system enforces its own conventions through automated review — the same principle applied recursively. Convention compliance tooling audits agent and skill files for structural violations before they reach downstream consumers.
+
+> For the internal reviewer setup, checklist, and severity levels, see [submodule-repo-structure.md — Convention Compliance System](submodule-repo-structure.md#convention-compliance-system).
+
+---
+
+## Reference
+
+**Three-tier structure:**
+
+| Tier | Location | What goes here |
+|---|---|---|
+| 1 | `CLAUDE.md` | Universal rules applying to every task — naming, principles, build command. ~1 page max |
+| 2 | Agent body | Decision logic for that agent only — what to do, when to do it |
+| 3 | `.claude/reference/` | Shared deep reference — patterns, examples, conventions. Loaded on demand via Grep-first |
+
+> Folder structure for reference docs: see [submodule-repo-structure.md](submodule-repo-structure.md).
+
+**Placement decision rule — reference vs agent body:**
+
+| Put it in reference if… | Keep it in the agent body if… |
+|---|---|
+| It is a fact true regardless of who reads it | It is an instruction specific to this agent's workflow |
+| It is an invariant, contract, or architectural principle | It is a decision: when to run, what to check, what to do on failure |
+| Multiple agents need the same knowledge | Only this agent needs it |
+| Removing it from the agent would lose shared truth | Removing it from the agent would lose execution behavior |
+
+> One-line test: can you state it as a rule without saying "you"? If yes — reference. If it only makes sense addressed to the agent — agent body.
+
+**Search Protocol (decision gate):**
+
+Before any `Read` call, workers answer: "Do I need the full file, or just a specific symbol/section?"
+
+| What you need | Tool |
+|---|---|
+| A specific class, function, or type | `Grep` for the name |
+| A section of a reference doc | `Grep` for the section heading |
+| The full file structure (style-matching a new file) | `Read` — justified |
+| Whether a file exists | `Glob` |
+
+Read a full file only when: (a) you need its complete structure to write a new matching file, or (b) Grep returned no results. Check `reference/index.md` first if uncertain which file covers a topic.
+
+> Read:Grep ratio should stay below 3. A ratio above 6 is a P6 violation.
+
+**Authoring rule — section line counts:**
+
+Every `##` section heading in a reference doc must carry a line-count comment: `## Section Name <!-- N -->` where N is the number of lines from this heading to the line before the next `##` heading (or EOF for the last section). This is not cosmetic — agents extract N as the `limit` in `Read(file, offset=heading_line, limit=N)` to read exactly one section without loading the whole file. A missing or non-integer `<!-- N -->` forces a full-file Read.
+
+```markdown
+## DTOs <!-- 35 -->        ← correct: integer line count
+## Mappers <!-- stub -->   ← wrong: agent cannot extract a limit
+## Data Sources            ← wrong: no comment at all
+```
+
+`arch-check-conventions` enforces this — a missing integer is a Warning violation.
+
+**Authoring rule — canonical headings (ubiquitous language):**
+
+Every `##` section heading in a cross-platform reference doc is a **grep key** — it is the exact string a generic agent searches for across all platforms. The heading must be identical across all platform files that cover the same concept.
+
+This is *Ubiquitous Language* from Domain-Driven Design applied to agent tooling. One concept = one term = one heading, everywhere. No synonyms at the `##` level. Platform-specific terminology belongs in the body, not the heading.
+
+```markdown
+## Repository Interfaces <!-- 31 -->
+In Swift, these are declared as protocols...   ← platform dialect lives here
+
+## Repository Protocols <!-- 31 -->            ← wrong: breaks agent grep across platforms
+```
+
+| Contract | Axis | Rule |
+|---|---|---|
+| Vertical (line count) | Within one file | `## Section <!-- N -->` — agents extract N as read limit |
+| Horizontal (canonical heading) | Across all platforms | Same `##` text for the same concept — agents grep once, find all platforms |
+
+When adding a new section to a platform reference file, check whether the same concept exists in other platforms first. If it does, use that heading exactly. If it's net-new, choose a platform-agnostic term and apply it to all platforms that need it.
+
+---
+
+## Taxonomy
+
+### Persona
 
 A named group of related agents serving a coherent workflow.
 
@@ -190,7 +334,9 @@ Shared to all downstream projects via symlink. Current personas: `builder`, `det
 
 > A persona is not just a folder. It represents a coherent workflow. Do not group unrelated agents into a persona subdirectory.
 
-#### Agents — By Role
+### Agents
+
+#### By Role
 
 | Role | Subordinates | Can write files? | Has `agents` field? | Has `skills` field? |
 |---|---|---|---|---|
@@ -211,7 +357,7 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 
 > Orchestrators may spawn other orchestrators when the inner orchestrator represents a fully bounded sub-workflow. The outer orchestrator owns the top-level state file and final report.
 
-#### Agents — By Scope
+#### By Scope
 
 | Scope | Location | Ships downstream? |
 |---|---|---|
@@ -221,7 +367,9 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 
 > Persona agents must be platform-agnostic — no platform paths, framework references, or language syntax in the body (Critical per P6).
 
-#### Skills — By Invocation Type
+### Skills
+
+#### By Invocation Type
 
 | Type | Config | Who triggers | Use for |
 |---|---|---|---|
@@ -235,7 +383,7 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 
 **Why no Type C (default — both user and agent):** Every default skill's description loads into the main session context on every turn. Types A, T, and U all eliminate this overhead.
 
-#### Skills — By Scope
+#### By Scope
 
 | Scope | Location | Ships downstream? |
 |---|---|---|
@@ -247,15 +395,7 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 
 > "Core-dependency skill" used in earlier sections of this doc refers to platform-contract skills — skills all platforms must implement under the same name (`domain-create-entity`, `data-create-mapper`, etc.).
 
-#### Reference Docs — By Scope
-
-| Scope | Location | Ships downstream? |
-|---|---|---|
-| **Core reference** | `lib/core/reference/` | Yes — all platforms. Defines what each concept IS (platform-agnostic). |
-| **Platform reference** | `lib/platforms/<platform>/reference/` | Yes — matching platform. Defines how each concept is implemented in that platform's syntax. |
-| **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides platform/core docs for project-specific conventions. |
-
-#### Skills — Valid Type × Scope Combinations
+#### Valid Type × Scope Combinations
 
 Not all combinations are meaningful. Use this as the decision gate when adding a new skill:
 
@@ -269,7 +409,21 @@ Not all combinations are meaningful. Use this as the decision gate when adding a
 
 > Toolkit skills are always user-facing (Type T or U) — agents don't call them, workers call platform-contract skills instead. Platform-contract skills are always Type A — they're called by workers programmatically, never by users directly.
 
-#### Anatomy of a Persona
+### Reference Docs
+
+#### By Scope
+
+| Scope | Location | Ships downstream? |
+|---|---|---|
+| **Core reference** | `lib/core/reference/` | Yes — all platforms. Defines what each concept IS (platform-agnostic). |
+| **Platform reference** | `lib/platforms/<platform>/reference/` | Yes — matching platform. Defines how each concept is implemented in that platform's syntax. |
+| **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides platform/core docs for project-specific conventions. |
+
+---
+
+## Anatomy
+
+### Anatomy of a Persona
 
 A persona is composed of layered components that connect user intent to executed code. Each layer has a defined role, authority boundary, and handoff contract.
 
@@ -298,7 +452,7 @@ Not every persona uses all layers. A simple persona may have only a trigger skil
 
 | From → To | What is passed | What is never passed |
 |---|---|---|
-| Trigger Skill → Orchestrator | Pre-loaded context block (`context.md` + `state.json` inline) | Raw file reads from the main session |
+| Trigger Skill → Orchestrator | Pre-loaded context block (`plan.md` + `context.md` + `state.json` inline) | Raw file reads from the main session |
 | Orchestrator → Planner | Feature name, platform, runs directory path | Source file contents |
 | Planner → Orchestrator | `plan.md` + `context.md` written to runs directory | Source file paths or contents |
 | Orchestrator → Worker | File path lists from prior phases | File contents |
@@ -316,165 +470,6 @@ Not every persona uses all layers. A simple persona may have only a trigger skil
 > A persona without a trigger skill is incomplete. The trigger skill is the only supported entry path — it owns routing, context relay, and spawn prompt construction.
 
 ---
-
-
-### 5. Context Isolation = Efficiency
-
-Every agent runs in its own isolated context window — completely separate from the main session. This is the primary mechanism for token efficiency.
-
-From the official docs:
-> *"Preserve context by keeping exploration and implementation out of your main conversation"*
-
-When a worker reads reference docs, scans existing files, and writes code — none of that touches your main session context. The main session only sees the result.
-
-**Context cost by component:**
-
-| Component | Context cost | Mechanism |
-|---|---|---|
-| Core agents (descriptions) | ~3–5 lines each in main session | Agent tool definition |
-| Platform-specific agents (descriptions) | ~3–5 lines each in main session | Agent tool definition |
-| Preloaded skills | Loaded at worker startup only | `skills` field |
-| Reference docs | 1 Grep call per section needed | Grep-first in worker body |
-| `agents.local/extensions/` | 1 Read call (conditional) | Extension hook in shared agent |
-| Dead weight (unselected groups) | Zero | Persona groups not linked if not selected |
-| Orchestrator context accumulation | Minimal — file paths only | Workers return paths, not content; state file prevents re-reads |
-| Context relay (trigger skills) | Zero cold reads on resume | Skill reads `context.md` + `state.json` from runs directory (cache hit — same session), passes inline to spawn prompt; orchestrator detects pre-loaded block and skips pre-flight file reads entirely |
-
-**Context relay pattern:**
-
-When a trigger skill spawns an orchestrator, it pre-loads the runs context into the spawn prompt rather than letting the orchestrator re-read files cold. The skill runs in the root agent's context — if `context.md` and `state.json` were written earlier in the same session, they are already in the prompt cache (cache reads at $0.30/MTok). The orchestrator receives context on its first token and jumps directly to execution.
-
-This eliminates the orchestrator's cold pre-flight penalty (cache misses at $3.75/MTok for cache creation, $3.00/MTok for full input) while keeping the disk files as the authoritative source for workers.
-
----
-
-### 6. Knowledge Architecture
-
-**Three-tier structure:**
-
-| Tier | Location | What goes here |
-|---|---|---|
-| 1 | `CLAUDE.md` | Universal rules applying to every task — naming, principles, build command. ~1 page max |
-| 2 | Agent body | Decision logic for that agent only — what to do, when to do it |
-| 3 | `.claude/reference/` | Shared deep reference — patterns, examples, conventions. Loaded on demand via Grep-first |
-
-> Folder structure for reference docs: see [submodule-repo-structure.md](submodule-repo-structure.md).
-
-**Placement decision rule — reference vs agent body:**
-
-| Put it in reference if… | Keep it in the agent body if… |
-|---|---|
-| It is a fact true regardless of who reads it | It is an instruction specific to this agent's workflow |
-| It is an invariant, contract, or architectural principle | It is a decision: when to run, what to check, what to do on failure |
-| Multiple agents need the same knowledge | Only this agent needs it |
-| Removing it from the agent would lose shared truth | Removing it from the agent would lose execution behavior |
-
-> One-line test: can you state it as a rule without saying "you"? If yes — reference. If it only makes sense addressed to the agent — agent body.
-
-**Enforcement — Search Protocol (decision gate):**
-
-Before any `Read` call, workers answer: "Do I need the full file, or just a specific symbol/section?"
-
-| What you need | Tool |
-|---|---|
-| A specific class, function, or type | `Grep` for the name |
-| A section of a reference doc | `Grep` for the section heading |
-| The full file structure (style-matching a new file) | `Read` — justified |
-| Whether a file exists | `Glob` |
-
-Read a full file only when: (a) you need its complete structure to write a new matching file, or (b) Grep returned no results. Check `reference/index.md` first if uncertain which file covers a topic.
-
-> Read:Grep ratio should stay below 3. A ratio above 6 is a P6 violation.
-
-**Authoring rule — reference doc sections:**
-
-Every `##` section heading in a reference doc must carry a line-count comment: `## Section Name <!-- N -->` where N is the number of lines from this heading to the line before the next `##` heading (or EOF for the last section). This is not cosmetic — agents extract N as the `limit` in `Read(file, offset=heading_line, limit=N)` to read exactly one section without loading the whole file. A missing or non-integer `<!-- N -->` forces a full-file Read.
-
-```markdown
-## DTOs <!-- 35 -->        ← correct: integer line count
-## Mappers <!-- stub -->   ← wrong: agent cannot extract a limit
-## Data Sources            ← wrong: no comment at all
-```
-
-`arch-check-conventions` enforces this — a missing integer is a Warning violation.
-
-**Authoring rule — ubiquitous language (canonical headings):**
-
-Every `##` section heading in a cross-platform reference doc is a **grep key** — it is the exact string a generic agent searches for across all platforms. This creates a second contract on top of the line-count rule: the heading must be identical across all platform files that cover the same concept.
-
-This is *Ubiquitous Language* from Domain-Driven Design applied to agent tooling. One concept = one term = one heading, everywhere. No synonyms at the `##` level. Platform-specific terminology belongs in the body, not the heading.
-
-```markdown
-## Repository Interfaces <!-- 31 -->
-In Swift, these are declared as protocols...   ← platform dialect lives here
-
-## Repository Protocols <!-- 31 -->            ← wrong: breaks agent grep across platforms
-```
-
-The heading is the interface. The body is the implementation.
-
-| Contract | Axis | Rule |
-|---|---|---|
-| Vertical (line count) | Within one file | `## Section <!-- N -->` — agents extract N as read limit |
-| Horizontal (canonical heading) | Across all platforms | Same `##` text for the same concept — agents grep once, find all platforms |
-
-When adding a new section to a platform reference file, check whether the same concept exists in other platforms first. If it does, use that heading exactly. If it's net-new, choose a platform-agnostic term and apply it to all platforms that need it.
-
----
-
-
-
-### 7. Fail-Fast Precondition Validation
-
-Agents validate preconditions before executing procedures — they never guess or proceed with assumptions.
-
-**Workers check on entry (`## Input`):**
-- Are all required spawn parameters present? — return `MISSING INPUT: <param>` immediately if not
-- Is the task within this worker's layer scope? — STOP and name the correct worker if not
-
-**Workers check before writing (`## Preconditions`):**
-- Does the target file/module NOT exist? (before `create-*` skills — avoid overwriting)
-- For direct edits to existing artifacts: confirm the file exists before `Read` + `Edit`
-- Are required dependencies available?
-
-**Workers check before returning (`## Output`):**
-- Does each created file exist on disk? (`Glob`)
-- Does each file contain the expected primary class or function? (`Grep`)
-- Only list paths that pass both checks
-
-**Orchestrators check after each worker spawn:**
-- Does the worker response contain an `## Output` section?
-- Do all listed paths exist on disk?
-- If either check fails: STOP — do not proceed to the next phase
-
-When any check fails: return a clear, actionable message — never partially execute or silently continue.
-
----
-
-
-### 8. Official Docs Compliance
-
-Every design decision must comply with Claude Code's official documentation.
-
-**Compliance checklist:**
-- Skill directories follow `.claude/skills/<name>/SKILL.md` convention
-- Agent files follow `.claude/agents/<name>.md` convention
-- Frontmatter fields use only documented keys
-- Memory scopes and permission modes use documented values
-
-Known undocumented but functional fields: `agents` field — empirically verified to work; not in official spec. Use with awareness that it may change.
-
----
-
-
-### 9. Convention Enforcement — Self-Auditing Architecture
-
-The agentic system enforces its own conventions through automated review — the same principle applied recursively. Convention compliance tooling audits agent and skill files for structural violations before they reach downstream consumers.
-
-> For the internal reviewer setup, checklist, and severity levels, see [submodule-repo-structure.md — Convention Compliance System](submodule-repo-structure.md#convention-compliance-system).
-
----
-
 
 ## Decision Rules
 
@@ -506,7 +501,7 @@ The agentic system enforces its own conventions through automated review — the
 
 | Goal | How it's achieved |
 |---|---|
-| Token efficiency | Isolated context; Search Protocol decision gate; Haiku for mechanical workers; file paths only between phases; orchestrator state files prevent mid-run re-reads; context relay — skill pre-loads warm-cache runs context into spawn prompt, eliminating orchestrator cold pre-flight reads |
+| Token efficiency | Isolated context; Search Protocol decision gate; Haiku for mechanical workers; file paths only between phases; orchestrator state files prevent mid-run re-reads; context relay — skill reads runs context from disk and inlines into spawn prompt, spawned agent pays zero pre-flight read cost |
 | Modular knowledge | Skills preloaded, not embedded |
 | Single source of truth | `reference/` Grep-accessed, never duplicated |
 | Safe destructive operations | Use hooks in `settings.json` for automated bash execution without model involvement |
