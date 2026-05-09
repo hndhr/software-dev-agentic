@@ -14,7 +14,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | Parameter | Description |
 |---|---|
 | `feature` | Feature name to search for |
-| `platform` | `web`, `ios`, or `flutter` |
+| `platform` | `web`, `ios`, `flutter`, or `android` |
 | `module-path` | Root path of the feature's module in the project |
 
 ## Search Protocol
@@ -35,7 +35,7 @@ Grep the platform contract reference for section headings to orient yourself:
 ```
 reference/contract/builder/app-layer.md
 ```
-Grep for `^## ` to list all three canonical headings. Read each section with `offset` + `limit` to understand the pattern before searching the codebase.
+Grep for `^## ` to list all canonical headings. Read each section with `offset` + `limit` to understand the pattern before searching the codebase.
 
 **Step 2 — Locate DI registration files**
 
@@ -45,6 +45,7 @@ Glob for DI container or component files related to `<feature>` under `<module-p
 |---|---|
 | `ios` | `*DIComponents*/<Feature>*`, `*<Feature>*Component*`, `*NeedleGenerated*` |
 | `flutter` | `*<feature>*_dependencies*`, `*talenta_dependencies*`, `*configs/di*` |
+| `android` | `*Feature<Feature>Module*`, `*<Feature>ActivityBindingModule*`, `*MainComponent*` under `app/di/` |
 
 Grep for the feature name in existing DI container files to find where similar features are registered.
 
@@ -54,6 +55,7 @@ Grep for the feature name in existing DI container files to find where similar f
 |---|---|
 | `ios` | `*<Feature>*Coordinator*`, `*DeeplinkComponent*` |
 | `flutter` | `*<feature>*_route*`, `*<feature>*_route_factory*` |
+| `android` | `*<Feature>Navigation*` under `base/navigation/`, `*<Feature>NavigationImpl*` under `app/navigator/`, `*NavigationModule*` under `app/di/` |
 
 Grep for existing route registrations in navigation/routing files to detect the naming pattern in use.
 
@@ -63,8 +65,9 @@ Grep for existing route registrations in navigation/routing files to detect the 
 |---|---|
 | `ios` | Not applicable — skip this step for iOS |
 | `flutter` | `*module_manager*`, `*<feature>*.dart` in feature root |
+| `android` | `settings.gradle` (Gradle include), `app/build.gradle` (dependency), `app/di/MainComponent*` (Dagger) |
 
-Grep for `BaseModule` or `TalentaModuleManager` references to find where modules are listed.
+Grep for `BaseModule` or `TalentaModuleManager` references (Flutter) or `MainComponent` (Android) to find where modules are listed.
 
 **Step 5 — Locate analytics constants files**
 
@@ -72,6 +75,7 @@ Grep for `BaseModule` or `TalentaModuleManager` references to find where modules
 |---|---|
 | `ios` | `*<Feature>FirebaseName*`, `*<Feature>*Analytics*` under `Module/<Feature>/Constants/` |
 | `flutter` | `*<feature>*analytics*`, `*<feature>*Analytics*` under the feature's `utils/` or `constants/` directory |
+| `android` | `*<Feature>AnalyticsConstants*` under `feature_{feature}/src/main/java/` |
 
 Grep for existing analytics constant structs/classes in the feature directory to detect the naming pattern. If none exist for this feature, record as `create`.
 
@@ -81,9 +85,10 @@ Grep for existing analytics constant structs/classes in the feature directory to
 |---|---|
 | `ios` | `*FeatureFlag*` under `Shared/Infrastructure/FeatureFlag/` |
 | `flutter` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `lib/src/shared/` or `lib/src/configs/` |
+| `android` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `app/src/` and `base/` |
 
 For iOS: Grep for `FeatureFlagKey` and `FeatureFlagCollection` to confirm the file path. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
-For Flutter: Grep to discover the pattern in use before proposing a registration location.
+For Flutter/Android: Grep to discover the pattern in use before proposing a registration location.
 
 **Step 7 — Detect patterns from existing entries**
 
