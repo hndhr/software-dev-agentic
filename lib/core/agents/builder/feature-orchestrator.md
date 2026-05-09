@@ -192,4 +192,4 @@ If a worker spawn is interrupted mid-run:
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/builder-build-feature.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/feature-orchestrator.md` — if it exists, read and follow its additional instructions.
