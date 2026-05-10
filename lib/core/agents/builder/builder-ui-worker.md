@@ -119,9 +119,8 @@ If the skill file does not exist for the given platform, check `lib/platforms/<p
 
 | Artifact | Skill |
 |----------|-------|
-| New screen | `pres-create-screen` |
-| New component / sub-view | `pres-create-component` |
-| Navigator / Coordinator | `pres-create-navigator` *(iOS only)* |
+| New screen | `builder-pres-create-screen` |
+| New component / sub-view | `builder-pres-create-component` |
 
 Reference: `reference/contract/builder/presentation.md`, `reference/contract/builder/navigation.md` — `Grep` for the relevant section; only `Read` the full file if the section can't be located. If uncertain which file covers a topic, check `reference/index.md` first.
 

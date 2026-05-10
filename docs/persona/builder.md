@@ -113,8 +113,8 @@ User
 | Layer | Planner | Worker | Skills |
 |---|---|---|---|
 | Domain | `builder-domain-planner` | `domain-worker` | `domain-create-entity`, `domain-create-usecase`, `domain-create-repository`, `domain-create-service` |
-| Data | `builder-data-planner` | `data-worker` | `data-create-datasource`, `data-create-mapper`, `data-create-response`, `data-create-repository-impl` |
-| Presentation | `builder-pres-planner` | `presentation-worker`, `builder-ui-worker` | `pres-create-stateholder`, `pres-create-screen`, `pres-create-component`, `pres-create-navigator` |
+| Data | `builder-data-planner` | `data-worker` | `builder-data-create-datasource`, `builder-data-create-mapper`, `builder-data-create-repository-impl` |
+| Presentation | `builder-pres-planner` | `presentation-worker`, `builder-ui-worker` | `builder-pres-create-stateholder`, `builder-pres-create-screen`, `builder-pres-create-component` |
 | Test | — | `builder-test-worker` | `test-create-domain`, `test-create-data`, `test-create-presentation` |
 
 ---
