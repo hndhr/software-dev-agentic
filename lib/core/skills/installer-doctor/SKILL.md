@@ -1,5 +1,5 @@
 ---
-name: doctor
+name: installer-doctor
 description: Audit the software-dev-agentic setup in a downstream project — checks submodule, symlinks, CLAUDE.md markers, settings, and GitHub CLI auth.
 user-invocable: true
 tools: Bash, Read, Glob

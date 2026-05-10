@@ -73,7 +73,7 @@ Never skip this check. Creating a duplicate of an existing component is a worse 
 
 ## Preconditions — Fail Fast
 
-- StateHolder must exist — run `/builder-plan-feature` or `/backend-orchestrator` first if missing
+- StateHolder must exist — run `/builder-plan-feature` or `/builder-backend` first if missing
 
 ## Workflow
 

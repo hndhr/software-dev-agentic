@@ -1,5 +1,5 @@
 ---
-name: sync
+name: installer-sync
 description: Pull the latest software-dev-agentic updates and re-link all agents, skills, hooks, and reference docs. Auto-detects the project platform from existing symlinks.
 user-invocable: true
 allowed-tools: Bash

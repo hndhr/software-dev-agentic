@@ -1,5 +1,5 @@
 ---
-name: backend-orchestrator
+name: builder-backend
 description: Build the Domain and Data layers for a feature — entities, repository interfaces, use cases, mappers, datasources, and repository implementations. Calls skills directly in layer order.
 user-invocable: true
 ---

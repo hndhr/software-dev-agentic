@@ -1,5 +1,5 @@
 ---
-name: debug-orchestrator
+name: detective-debug
 description: Trigger the debug-orchestrator agent. Accepts an optional bug description, collects any missing intake (error message, expected vs actual behavior, entry point, platform), then hands off to the agent.
 allowed-tools: Agent, AskUserQuestion
 ---

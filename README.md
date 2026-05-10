@@ -43,7 +43,7 @@ git submodule add https://github.com/mekaripaper/software-dev-agentic .claude/so
 .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 ```
 
-Open Claude Code and use trigger skills (`/builder-build-feature`, `/debug-orchestrator`, etc.) as the entry point.
+Open Claude Code and use trigger skills (`/builder-build-feature`, `/detective-debug`, etc.) as the entry point.
 
 ---
 
@@ -124,9 +124,9 @@ Always installed regardless of persona selection.
 | Skill | Purpose |
 |---|---|
 | `/release` | Cut a new release — bumps VERSION, prepends CHANGELOG entry, commits, tags |
-| `/doctor` | Audit the software-dev-agentic setup in this project |
+| `/installer-doctor` | Audit the software-dev-agentic setup in this project |
 | `/agentic-perf-review` | Analyze agentic session performance, write a scored D1–D7 report |
-| `/clear-runs` | Clear stale orchestrator run state from `.claude/agentic-state/runs/` |
+| `/builder-clear-runs` | Clear stale orchestrator run state from `.claude/agentic-state/runs/` |
 
 ---
 

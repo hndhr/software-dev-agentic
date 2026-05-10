@@ -1,5 +1,5 @@
 ---
-name: setup-worker
+name: installer-setup
 description: Set up or reconfigure a downstream project to use the software-dev-agentic toolkit.
 allowed-tools: AskUserQuestion, Agent
 ---

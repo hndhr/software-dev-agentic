@@ -29,8 +29,8 @@ See `docs/principles/core-design-principles.md` and `docs/principles/submodule-r
 Before any work, invoke the **issue-worker** agent with a title (new) or number (existing).
 
 ```
-issue-worker "add X"   → create GH issue + branch + backlog row
-issue-worker 42        → pick up existing GH issue + branch + backlog row
+tracker-issue "add X"   → create GH issue + branch + backlog row
+tracker-issue 42        → pick up existing GH issue + branch + backlog row
 ```
 
 Then work directly on the relevant files in `lib/core/` or `lib/platforms/<platform>/`.

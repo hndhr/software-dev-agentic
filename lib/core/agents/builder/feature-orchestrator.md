@@ -188,7 +188,7 @@ If a worker spawn is interrupted mid-run:
 - Never skip planning unless the trigger is `resume` or the user explicitly picks "Build directly"
 - Pass only **file path lists** between phases — never file contents
 - If a worker reports a blocker, surface it to the user before continuing
-- Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skill's responsibility — only `build-from-ticket` performs cleanup; local interactive triggers preserve the run for resume.
+- Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skill's responsibility — only `builder-build-from-ticket` performs cleanup; local interactive triggers preserve the run for resume.
 
 ## Extension Point
 

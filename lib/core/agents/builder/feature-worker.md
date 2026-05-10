@@ -211,7 +211,7 @@ If execution is interrupted mid-artifact:
 
 ## Run Directory Ownership
 
-Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skill's responsibility — not this agent's. Only `build-from-ticket` performs cleanup; local interactive triggers preserve the run for resume.
+Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skill's responsibility — not this agent's. Only `builder-build-from-ticket` performs cleanup; local interactive triggers preserve the run for resume.
 
 ## Output
 

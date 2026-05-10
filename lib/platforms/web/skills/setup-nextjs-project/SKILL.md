@@ -5,7 +5,7 @@ user-invocable: false
 tools: Read, Bash
 ---
 
-Configure a freshly wired Next.js project for software-dev-agentic. Called by `setup-worker`.
+Configure a freshly wired Next.js project for software-dev-agentic. Called by `installer-setup`.
 
 ## Steps
 

@@ -1,6 +1,6 @@
 ---
 name: arch-review-worker
-description: Review code for Clean Architecture violations — layer boundary breaches, entity immutability, service purity, mapper patterns, and naming conventions. Designed to be invoked only by the `/arch-review` skill — not directly.
+description: Review code for Clean Architecture violations — layer boundary breaches, entity immutability, service purity, mapper patterns, and naming conventions. Designed to be invoked only by the `/auditor-arch-review` skill — not directly.
 model: sonnet
 tools: Read, Glob, Grep
 permissionMode: plan

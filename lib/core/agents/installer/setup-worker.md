@@ -1,6 +1,6 @@
 ---
 name: setup-worker
-description: Set up or reconfigure a downstream project to use the software-dev-agentic starter kit. Designed to be invoked only by the `/setup-worker` skill — not directly.
+description: Set up or reconfigure a downstream project to use the software-dev-agentic starter kit. Designed to be invoked only by the `/installer-setup` skill — not directly.
 model: sonnet
 tools: Read, Glob, Grep, Bash
 related_skills:
@@ -56,8 +56,8 @@ What's installed:
   CLAUDE.md          — project instructions (fill in placeholders)
 
 Start working:
-  issue-worker "feature name"  → create GH issue + branch
-  issue-worker 42              → pick up existing issue
+  tracker-issue "feature name"  → create GH issue + branch
+  tracker-issue 42              → pick up existing issue
 
 Extend without modifying:
   .claude/agents.local/extensions/<agent-name>.md  → additive rules only
