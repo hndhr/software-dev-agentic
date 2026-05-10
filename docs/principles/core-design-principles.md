@@ -194,6 +194,8 @@ Skills are focused, reusable workflow procedures. Each skill:
 
 Target: under 30 lines per skill
 
+**Exception — Type U runbook skills:** Type U utility skills that consist entirely of Bash commands, pass/fail checks, and formatted output (e.g. `installer-doctor`, `installer-update`) are exempt from the 30-line limit. The rule exists to prevent skills from embedding logic that belongs in workers. All-Bash runbooks have nothing to extract — splitting them would just re-embed the same Bash in a worker, adding indirection with no benefit. These skills may exceed 30 lines freely.
+
 > Naming: `<layer>-<action>-<target>`. Platform-contract skills use `create-*` for new artifact creation only — there are no `update-*` skills. Keep `SKILL.md` under 500 lines. Skills are either **core-dependency** (same name on all platforms) or **platform-specific** (one platform only) — see [persona-builder.md](persona/builder.md).
 
 **Trigger skill naming — persona prefix rule:**
