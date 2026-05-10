@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.67.0] — 2026-05-10
+
+### Changed
+- All core trigger skills renamed to carry their persona name as prefix — consistent with existing `builder-*` convention:
+  `build-from-ticket` → `builder-build-from-ticket`, `clear-runs` → `builder-clear-runs`, `backend-orchestrator` → `builder-backend`, `debug-orchestrator` → `detective-debug`, `arch-review` → `auditor-arch-review`, `issue-worker` → `tracker-issue`, `doctor` → `installer-doctor`, `setup-worker` → `installer-setup`, `sync` → `installer-sync`
+- All slash-command references updated across agent descriptions, CLAUDE-templates (web/ios/flutter/android), platform setup skills, README, and CLAUDE.md
+- `agentic-perf-review` and `release` unchanged — `perf-worker` is ungrouped (no persona folder yet); `release` is a repo utility
+
+---
+
 ## [3.66.0] — 2026-05-10
 
 ### Added
