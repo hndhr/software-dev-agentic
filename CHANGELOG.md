@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.0.1] — 2026-05-10
+
+### Fixed
+- Reverted persona prefix from flat platform-specific skills (non-contract). Only contract skills under `/contract/` keep `builder-*` prefix. Flat platform skills (`arch-check-ios`, `debug-add-logs`, `setup-ios-project`, `pres-ssr-check`, etc.) are single-platform by definition — no cross-platform ambiguity, so the prefix added noise without benefit.
+
+---
+
 ## [5.0.0] — 2026-05-10
 
 ### Changed
