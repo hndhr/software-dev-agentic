@@ -192,11 +192,17 @@ Skills are focused, reusable workflow procedures. Each skill:
 - References architecture docs — never embeds them
 - Has no branching logic — agent decides which skill to call
 
-Target: under 30 lines per skill
+**Skill size rule — contain no more than the type demands:**
 
-**Exception — Type U runbook skills:** Type U utility skills that consist entirely of Bash commands, pass/fail checks, and formatted output (e.g. `installer-doctor`, `installer-update`) are exempt from the 30-line limit. The rule exists to prevent skills from embedding logic that belongs in workers. All-Bash runbooks have nothing to extract — splitting them would just re-embed the same Bash in a worker, adding indirection with no benefit. These skills may exceed 30 lines freely.
+| Type | Natural size | Reason |
+|---|---|---|
+| A — Regular (platform-contract) | Short — ~10–30 lines | Thin create-only procedure; logic belongs in the worker |
+| T — Trigger | Medium — ~15–50 lines | Routing logic, spawn prompt construction, optional approval loop |
+| U — Utility (runbook) | As long as needed | All-Bash diagnostic/operational steps; nothing to extract to a worker |
 
-> Naming: `<layer>-<action>-<target>`. Platform-contract skills use `create-*` for new artifact creation only — there are no `update-*` skills. Keep `SKILL.md` under 500 lines. Skills are either **core-dependency** (same name on all platforms) or **platform-specific** (one platform only) — see [persona-builder.md](persona/builder.md).
+There is no universal line limit. The constraint is not length — it is scope. A skill that grows because it is doing what a worker should do is wrong. A skill that grows because its type genuinely requires more steps is correct.
+
+> Naming: `<layer>-<action>-<target>`. Platform-contract skills use `create-*` for new artifact creation only — there are no `update-*` skills. Skills are either **core-dependency** (same name on all platforms) or **platform-specific** (one platform only) — see [persona-builder.md](persona/builder.md).
 
 **Trigger skill naming — persona prefix rule:**
 
