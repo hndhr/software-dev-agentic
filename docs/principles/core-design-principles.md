@@ -189,6 +189,17 @@ Target: under 30 lines per skill
 
 > Naming: `<layer>-<action>-<target>`. Platform-contract skills use `create-*` for new artifact creation only — there are no `update-*` skills. Keep `SKILL.md` under 500 lines. Skills are either **core-dependency** (same name on all platforms) or **platform-specific** (one platform only) — see [persona-builder.md](persona/builder.md).
 
+**Trigger skill naming — persona prefix rule:**
+
+Every Type T skill that is the entry point for a persona must be prefixed with the persona name: `<persona>-<action>`. This makes the relationship between skill and persona explicit at a glance and prevents naming collisions as the persona roster grows.
+
+| Pattern | Example | When to use |
+|---|---|---|
+| `<persona>-<action>` | `builder-build-feature`, `detective-debug`, `auditor-arch-review` | Type T trigger skill that enters a persona workflow |
+| `<layer>-<action>-<target>` | `domain-create-entity`, `data-create-mapper` | Type A platform-contract skill called by a worker |
+
+> Exception: standalone utility skills with no persona owner (e.g. `release`, `agentic-perf-review`) are named descriptively without a prefix until a persona is assigned.
+
 **Preloading skills:**
 
 Agents load their procedure skills at startup via the `skills` field — full skill content is injected at startup. This gives agents full procedural knowledge without embedding it in their body. Same procedures are reusable across multiple agents. One definition, updated once.
