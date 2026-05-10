@@ -27,8 +27,8 @@ Copy to `.claude/skills/` in the actual project (or symlink via submodule).
 | `builder-data-create-mapper` | Create a DTO + mapper (interface + Impl) |
 | `builder-data-create-datasource` | Create a remote data source interface + Axios impl |
 | `builder-data-create-repository-impl` | Create a remote repository implementation |
-| `builder-data-create-db-datasource` | Create a DB record, DB data source interface + ORM stub impl |
-| `builder-data-create-db-repository` | Create a DB mapper + DB repository implementation |
+| `data-create-db-datasource` | Create a DB record, DB data source interface + ORM stub impl |
+| `data-create-db-repository` | Create a DB mapper + DB repository implementation |
 
 ### Presentation layer
 | Skill | What it does |
@@ -36,14 +36,14 @@ Copy to `.claude/skills/` in the actual project (or symlink via submodule).
 | `builder-pres-create-stateholder` | Create a StateHolder hook or pure function |
 | `builder-pres-create-screen` | Create a View component + App Router page |
 | `builder-pres-create-component` | Create a reusable UI sub-component |
-| `builder-pres-create-server-action` | Create a next-safe-action Server Action |
-| `builder-pres-wire-di` | Wire use case and deps into DI containers |
-| `builder-pres-ssr-check` | Determine Server vs Client Component decision |
+| `pres-create-server-action` | Create a next-safe-action Server Action |
+| `pres-wire-di` | Wire use case and deps into DI containers |
+| `pres-ssr-check` | Determine Server vs Client Component decision |
 
 ### Test layer
 | Skill | What it does |
 |-------|-------------|
-| `builder-test-create-mock` | Scaffold a Mock class with vi.fn() for every interface method |
+| `test-create-mock` | Scaffold a Mock class with vi.fn() for every interface method |
 | `builder-test-create-domain` | Unit tests for use cases and domain services |
 | `builder-test-create-data` | Mapper unit tests + repository integration tests |
 | `builder-test-create-presentation` | StateHolder hook tests + View component tests |
@@ -54,5 +54,5 @@ Copy to `.claude/skills/` in the actual project (or symlink via submodule).
 |-------|---------|-------------|
 | `create-issue` | `/create-issue` | Create GitHub Issue + git branch + backlog entry |
 | `pickup-issue` | `/pickup-issue NNN` | Pick up a PM-created GitHub Issue |
-| `installer-setup-nextjs-project` | `/setup-nextjs-project` | Wire submodule + symlinks for a new project |
+| `setup-nextjs-project` | `/setup-nextjs-project` | Wire submodule + symlinks for a new project |
 | `release` | `/release` | Cut a new version — bumps VERSION, updates CHANGELOG, tags |
