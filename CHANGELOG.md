@@ -7,6 +7,30 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [4.0.0] — 2026-05-10
+
+### Changed
+- **BREAKING** — All 18 persona agent files renamed to carry the persona name as prefix (`<persona>-<domain>-<role>`):
+  `feature-orchestrator` → `builder-feature-orchestrator`, `feature-worker` → `builder-feature-worker`, `feature-planner` → `builder-feature-planner`, `backend-orchestrator` → `builder-backend-orchestrator`, `app-planner` → `builder-app-planner`, `auto-feature-planner` → `builder-auto-feature-planner`, `data-planner` → `builder-data-planner`, `domain-planner` → `builder-domain-planner`, `pres-planner` → `builder-pres-planner`, `groom-orchestrator` → `builder-groom-orchestrator`, `test-worker` → `builder-test-worker`, `ui-worker` → `builder-ui-worker`, `debug-orchestrator` → `detective-debug-orchestrator`, `debug-worker` → `detective-debug-worker`, `debug-log-worker` → `detective-debug-log-worker`, `arch-review-worker` → `auditor-arch-review-worker`, `setup-worker` → `installer-setup-worker`, `issue-worker` → `tracker-issue-worker`
+- `docs/principles/core-design-principles.md`: Agent Naming Convention updated to `<persona>-<domain>-<role>` format
+- All spawn prompts, `agents:` frontmatter, skill descriptions, README, `docs/persona/`, and `CLAUDE.md` updated to new names
+
+### Migration
+
+Downstream projects with extension files must rename them to match:
+
+```bash
+# Example renames in .claude/agents.local/extensions/
+mv feature-orchestrator.md builder-feature-orchestrator.md
+mv feature-worker.md        builder-feature-worker.md
+mv arch-review-worker.md    auditor-arch-review-worker.md
+mv setup-worker.md          installer-setup-worker.md
+mv issue-worker.md          tracker-issue-worker.md
+# ... etc for any other extensions you have
+```
+
+---
+
 ## [3.67.0] — 2026-05-10
 
 ### Changed
