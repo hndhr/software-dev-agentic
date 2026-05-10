@@ -1,5 +1,5 @@
 ---
-name: debug-add-logs
+name: detective-debug-add-logs
 description: Add strategic debug logs to a Next.js Clean Architecture codebase to trace execution flow at runtime.
 user-invocable: false
 tools: Read, Edit, Glob, Grep

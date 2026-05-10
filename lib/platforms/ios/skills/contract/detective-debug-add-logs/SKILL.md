@@ -1,5 +1,5 @@
 ---
-name: debug-add-logs
+name: detective-debug-add-logs
 description: |
   Add strategic debug logging to trace execution flow or diagnose issues. Use when troubleshooting a bug or instrumenting RxSwift chains for visibility.
 user-invocable: false

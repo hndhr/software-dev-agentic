@@ -1,5 +1,5 @@
 ---
-name: debug-remove-logs
+name: detective-debug-remove-logs
 description: Remove all [DebugTest] debug print statements from the codebase before committing.
 user-invocable: false
 tools: Grep, Edit, Glob
