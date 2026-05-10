@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [4.1.0] — 2026-05-10
+
+### Added
+- `lib/core/skills/installer-update/SKILL.md`: new Type U runbook skill — detects platform, runs `sync.sh`, then verifies submodule state, agent/skill symlinks, CLAUDE.md markers, settings, and gh auth. Prints a combined ✓/⚠/✗ report
+
+### Changed
+- `docs/principles/core-design-principles.md`: added Type U runbook exception to the 30-line skill limit — all-Bash diagnostic skills are exempt
+
+---
+
 ## [4.0.0] — 2026-05-10
 
 ### Changed
