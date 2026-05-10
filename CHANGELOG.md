@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [3.66.0] — 2026-05-10
+
+### Added
+- `scripts/setup-ai.sh`: Phase 2 skill compilation — compiles `lib/` skills into Gemini CLI (`.agents/skills/` symlinks + `.gemini/commands/*.toml`) and Copilot (`.github/agents/*.agent.md` + `.github/instructions/*.instructions.md`) formats after Phase 1 config generation
+- `scripts/clean-ai.sh`: Phase 2 cleanup — removes compiled skill artifacts; surgical for Copilot (`.github/` may have user files), aggressive for Gemini-owned dirs
+
+### Changed
+- `scripts/clean-ai.sh`: `--platform=` flag added (now required, symmetric with `setup-ai.sh`)
+- `docs/multi-ai-platform-initiative.md`: moved to `docs/initiatives/multi-ai-platform-initiative.md`
+
+---
+
 ## [3.65.4] — 2026-05-10
 
 ### Added
