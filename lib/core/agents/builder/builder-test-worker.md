@@ -99,7 +99,7 @@ If the skill file does not exist for the given platform, check `lib/platforms/<p
 1. `Grep` the target file for class/interface name, constructor, and public methods
 2. Identify the layer → assess task (direct edit or skill?)
 3. Check for existing mocks — reuse before creating
-4. Create missing mocks via `test-create-mock` first if needed
+4. Create missing mocks via `builder-test-create-mock` first if needed
 5. Execute the layer-appropriate skill, or edit directly if scoped
 6. Verify coverage: happy path + all error paths + edge cases
 

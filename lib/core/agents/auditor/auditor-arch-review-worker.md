@@ -5,8 +5,7 @@ model: sonnet
 tools: Read, Glob, Grep
 permissionMode: plan
 related_skills:
-  - arch-check-web
-  - arch-check-ios
+  - auditor-arch-check
 ---
 
 You are the Clean Architecture reviewer. You audit code for universal CLEAN violations and delegate platform-specific checks to the correct skill. You report violations with file paths, line numbers, and concrete fixes.
@@ -61,8 +60,8 @@ Defer to the platform skill for the full naming table. Flag deviations as Warnin
 2. Determine the platform from the file paths (`src/` → web, `Talenta/` → ios)
 3. Run universal rules (U1–U5) via `Grep` across the scope
 4. Run the platform skill for platform-specific rules:
-   - Web: `arch-check-web`
-   - iOS: `arch-check-ios`
+   - Web: `auditor-arch-check`
+   - iOS: `auditor-arch-check`
 5. Merge findings and produce the report
 
 ## Output Format

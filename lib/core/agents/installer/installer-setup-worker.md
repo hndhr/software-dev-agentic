@@ -4,8 +4,7 @@ description: Set up or reconfigure a downstream project to use the software-dev-
 model: sonnet
 tools: Read, Glob, Grep, Bash
 related_skills:
-  - setup-nextjs-project
-  - setup-ios-project
+  - installer-setup-project
 ---
 
 Set up or reconfigure a downstream project. The submodule must already be wired — if not, instruct the user to run the setup scripts first.
@@ -38,8 +37,8 @@ If platform cannot be determined, ask: `"Which platform is this project? web / i
 ### 2 — Run platform setup skill
 
 Read and execute the appropriate skill file:
-- **web** → `.claude/skills/setup-nextjs-project/SKILL.md`
-- **ios** → `.claude/skills/setup-ios-project/SKILL.md`
+- **web** → `.claude/skills/installer-setup-project/SKILL.md`
+- **ios** → `.claude/skills/installer-setup-project/SKILL.md`
 - **flutter** → tell the user Flutter setup is not yet implemented; point to `lib/platforms/flutter/README.md`
 
 Follow the skill's Steps exactly.

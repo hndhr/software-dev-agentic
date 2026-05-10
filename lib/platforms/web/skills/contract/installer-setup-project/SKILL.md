@@ -1,5 +1,5 @@
 ---
-name: setup-nextjs-project
+name: installer-setup-project
 description: Configure a Next.js project that has already wired the software-dev-agentic submodule. Copies the web CLAUDE-template.md, prompts for placeholder values, and creates an agents.local stub.
 user-invocable: false
 tools: Read, Bash

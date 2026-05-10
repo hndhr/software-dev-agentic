@@ -1,5 +1,5 @@
 ---
-name: test-create-mock
+name: builder-test-create-mock
 description: Scaffold a Mock class for any interface, using vi.fn() for every method. Called by builder-test-worker.
 user-invocable: false
 tools: Read, Write, Glob
