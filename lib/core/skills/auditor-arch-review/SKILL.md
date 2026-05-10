@@ -22,7 +22,7 @@ allowed-tools: AskUserQuestion, Agent
    ```
    Follow up with a second question for the path or feature name if needed.
 
-2. Spawn `arch-review-worker` using the Agent tool with:
+2. Spawn `auditor-arch-review-worker` using the Agent tool with:
 
    > Scope: <file path / feature folder / "full codebase">
    > Run the full review process — universal rules (U1–U5) and platform skill.

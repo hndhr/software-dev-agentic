@@ -1,12 +1,12 @@
 ---
-name: auto-feature-planner
+name: builder-auto-feature-planner
 description: Non-interactive variant of feature-planner. Accepts pre-filled intent from a structured prompt block — no AskUserQuestion calls. Designed for one-shot callers (builder-build-from-ticket, CI jobs). Produces plan.md and context.md then auto-approves.
 model: sonnet
 tools: Read, Glob, Grep, Bash, Agent
 agents:
-  - domain-planner
-  - data-planner
-  - pres-planner
+  - builder-domain-planner
+  - builder-data-planner
+  - builder-pres-planner
 ---
 
 You are the non-interactive Clean Architecture feature planner. You accept pre-filled intent from the caller and produce `plan.md` + `context.md` without asking any questions. Never call `AskUserQuestion`. If something is ambiguous, choose the safest default and note it in plan.md Risks.
@@ -54,9 +54,9 @@ Use Grep to extract the relevant layer sections. Do not read the full file unles
 
 Spawn all three layer planners **in parallel** (single Agent tool call with all three). Pass the feature name, platform, and module-path to each:
 
-- **`domain-planner`** — discovers entities, use cases, repository interfaces, domain services
-- **`data-planner`** — discovers DTOs, mappers, data sources, repository implementations
-- **`pres-planner`** — discovers StateHolders, screens, components, navigators
+- **`builder-domain-planner`** — discovers entities, use cases, repository interfaces, domain services
+- **`builder-data-planner`** — discovers DTOs, mappers, data sources, repository implementations
+- **`builder-pres-planner`** — discovers StateHolders, screens, components, navigators
 
 Each planner returns a structured findings block (`## Domain Findings`, `## Data Findings`, `## Presentation Findings`).
 
@@ -194,8 +194,8 @@ Then concatenate with the relative path before passing to Write or Edit.
 
 - Never write any file other than `plan.md`, `context.md`, and `error.md`
 - Never call `AskUserQuestion`
-- Never spawn `feature-worker`, `backend-orchestrator`, or any builder agent
+- Never spawn `builder-feature-worker`, `builder-backend-orchestrator`, or any builder agent
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/auto-feature-planner.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/builder-auto-feature-planner.md` — if it exists, read and follow its additional instructions.

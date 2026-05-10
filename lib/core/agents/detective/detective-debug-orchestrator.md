@@ -1,10 +1,10 @@
 ---
-name: debug-orchestrator
+name: detective-debug-orchestrator
 description: Route a bug report to the right debug worker(s). Use when the failure location is unknown, spans multiple modules, or requires coordinating more than one specialist worker.
 model: sonnet
 tools: Read, Glob, Grep
 agents:
-  - debug-worker
+  - detective-debug-worker
 ---
 
 You scope incoming bug reports and route them to the right debug worker(s). You do not perform analysis yourself — that belongs to the workers.
@@ -79,4 +79,4 @@ Then hand off to the user — do not decide next steps unilaterally.
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/debug-orchestrator.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/detective-debug-orchestrator.md` — if it exists, read and follow its additional instructions.

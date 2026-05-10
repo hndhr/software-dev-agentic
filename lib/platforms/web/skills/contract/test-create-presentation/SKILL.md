@@ -1,6 +1,6 @@
 ---
 name: test-create-presentation
-description: Write tests for ViewModel hooks and View components. Called by test-worker.
+description: Write tests for ViewModel hooks and View components. Called by builder-test-worker.
 user-invocable: false
 tools: Read, Write, Glob
 ---

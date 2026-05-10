@@ -1,6 +1,6 @@
 ---
 name: pres-create-screen
-description: Create a View component and App Router page. Handles both Client Component (hook pattern) and Server Component (build*ViewModel pattern). Called by ui-worker.
+description: Create a View component and App Router page. Handles both Client Component (hook pattern) and Server Component (build*ViewModel pattern). Called by builder-ui-worker.
 user-invocable: false
 tools: Read, Write, Edit, Glob
 ---

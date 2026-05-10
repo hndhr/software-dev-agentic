@@ -27,12 +27,12 @@ Tell the user:
 
 ### 3 — Create agents.local stub
 
-Create `.claude/agents.local/extensions/arch-review-worker.md`:
+Create `.claude/agents.local/extensions/auditor-arch-review-worker.md`:
 
 ```markdown
-# arch-review-worker — project-specific rules
+# auditor-arch-review-worker — project-specific rules
 
-> Additive rules for this project. Baseline: `.claude/software-dev-agentic/lib/core/agents/auditor/arch-review-worker.md`.
+> Additive rules for this project. Baseline: `.claude/software-dev-agentic/lib/core/agents/auditor/auditor-arch-review-worker.md`.
 
 <!-- Add project-specific audit rules below -->
 ```
@@ -45,4 +45,4 @@ git add .claude/ CLAUDE.md
 
 Tell the user what was done:
 - `CLAUDE.md` — copied from iOS template (fill in all `[placeholder]` values before starting work)
-- `.claude/agents.local/extensions/arch-review-worker.md` — stub for project-specific arch rules
+- `.claude/agents.local/extensions/auditor-arch-review-worker.md` — stub for project-specific arch rules

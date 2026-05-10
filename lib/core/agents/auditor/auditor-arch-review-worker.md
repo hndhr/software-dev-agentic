@@ -1,5 +1,5 @@
 ---
-name: arch-review-worker
+name: auditor-arch-review-worker
 description: Review code for Clean Architecture violations — layer boundary breaches, entity immutability, service purity, mapper patterns, and naming conventions. Designed to be invoked only by the `/auditor-arch-review` skill — not directly.
 model: sonnet
 tools: Read, Glob, Grep
@@ -89,4 +89,4 @@ Fix: [specific, actionable fix]
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/arch-review-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/auditor-arch-review-worker.md` — if it exists, read and follow its additional instructions.

@@ -1,4 +1,4 @@
 name=debug
 description=Debug and investigation worker for tracing bugs across layers
-agents=debug-worker
+agents=detective-debug-worker
 skills=

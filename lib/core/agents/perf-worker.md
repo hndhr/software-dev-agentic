@@ -63,7 +63,7 @@ Score each dimension **1–10**. Provide a one-line justification for each score
 
 ### D1 — Orchestration Quality
 
-*Did orchestrators (feature-orchestrator, backend-orchestrator) coordinate correctly?*
+*Did orchestrators (builder-feature-orchestrator, builder-backend-orchestrator) coordinate correctly?*
 
 - **N/A (8/10)** if no orchestrators were spawned — inline work is often correct per P9
 - Check `agent_spawns` for orchestrator types
@@ -84,10 +84,10 @@ Score each dimension **1–10**. Provide a one-line justification for each score
 
 | Work category | Expected executor |
 |---|---|
-| Entity / repository interface / use case / data layer | `feature-worker` or `backend-orchestrator` (via skills) |
-| View / screen / component | `ui-worker` |
-| Debugging | `debug-worker` via `debug-orchestrator` |
-| Architecture review | `arch-review-worker` |
+| Entity / repository interface / use case / data layer | `builder-feature-worker` or `builder-backend-orchestrator` (via skills) |
+| View / screen / component | `builder-ui-worker` |
+| Debugging | `detective-debug-worker` via `detective-debug-orchestrator` |
+| Architecture review | `auditor-arch-review-worker` |
 
 - Deduct `-2` if domain or data artifacts were written without corresponding skill calls (skills bypassed)
 - Deduct `-2` if UI artifacts were produced before domain/data layers existed
@@ -191,7 +191,7 @@ Start at 10 and deduct:
   - `chore/` → maintenance
   - `design/` or `style/` → UI/design work
 - Check `skill_calls[0].args` — did the issue title match the branch type chosen?
-- Check `agent_spawns` subagent types — were Explore agents used for exploration (correct), feature-worker or backend-orchestrator for build work, etc.?
+- Check `agent_spawns` subagent types — were Explore agents used for exploration (correct), builder-feature-worker or builder-backend-orchestrator for build work, etc.?
 - Deduct if branch prefix mismatches task type (e.g. design work on `fix/` branch)
 - Deduct if wrong worker type was spawned for the work category
 
@@ -206,8 +206,8 @@ Read the project's CLAUDE.md. Determine which rules apply before scoring:
 - `git add` with specific files (not `-A` or `.`) → check `bash_commands`
 - No `--no-verify` skipping hooks → check `bash_commands`
 
-**Conditional — only apply if the project's CLAUDE.md references issue tracking (e.g. mentions `issue-worker`, `pickup-issue`, a Jira/GitHub/Linear workflow):**
-- `issue-worker` / `pickup-issue` / `create-issue` called early → ✓
+**Conditional — only apply if the project's CLAUDE.md references issue tracking (e.g. mentions `tracker-issue-worker`, `pickup-issue`, a Jira/GitHub/Linear workflow):**
+- `tracker-issue-worker` / `pickup-issue` / `create-issue` called early → ✓
 - PR includes `Closes #N` → check `bash_commands` for `gh pr create`
 
 If the project's CLAUDE.md has no mention of issue tracking or PR workflow, skip both conditional checks entirely — do not penalise the session for omitting them.
@@ -289,12 +289,12 @@ Include the exact agent file path inferred from the `agent_spawns` subagent type
 
 | Subagent type | Agent file |
 |---|---|
-| feature-orchestrator | lib/core/agents/builder/feature-orchestrator.md |
-| feature-worker | lib/core/agents/builder/feature-worker.md |
-| backend-orchestrator | lib/core/agents/builder/backend-orchestrator.md |
-| ui-worker | lib/core/agents/builder/ui-worker.md |
-| test-worker | lib/core/agents/builder/test-worker.md |
-| debug-worker | lib/core/agents/detective/debug-worker.md |
+| builder-feature-orchestrator | lib/core/agents/builder/builder-feature-orchestrator.md |
+| builder-feature-worker | lib/core/agents/builder/builder-feature-worker.md |
+| builder-backend-orchestrator | lib/core/agents/builder/builder-backend-orchestrator.md |
+| builder-ui-worker | lib/core/agents/builder/builder-ui-worker.md |
+| builder-test-worker | lib/core/agents/builder/builder-test-worker.md |
+| detective-debug-worker | lib/core/agents/detective/detective-debug-worker.md |
 
 ## Step 6 — Write the report
 

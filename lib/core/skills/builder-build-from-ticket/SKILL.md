@@ -85,7 +85,7 @@ Inline — do not spawn an agent for this:
 
 Hold the derived `feature` value — it is used verbatim in the cleanup step.
 
-### 5. Spawn `auto-feature-planner`
+### 5. Spawn `builder-auto-feature-planner`
 
 Use the Agent tool. Inject the structured intent block and ticket context:
 
@@ -117,7 +117,7 @@ If not found, write `error.md` and stop:
 ```
 # Error: Planner Produced No Plan
 
-auto-feature-planner did not write context.md. Check the ticket content and retry.
+builder-auto-feature-planner did not write context.md. Check the ticket content and retry.
 Jira ticket: <key> — <summary>
 ```
 
@@ -125,7 +125,7 @@ Jira ticket: <key> — <summary>
 
 Read `plan.md` then `context.md` from the resolved run directory. Two reads, each once only.
 
-### 8. Spawn `feature-worker`
+### 8. Spawn `builder-feature-worker`
 
 Use the Agent tool with plan and context injected inline:
 
@@ -141,7 +141,7 @@ Use the Agent tool with plan and context injected inline:
 
 ### 9. Cleanup
 
-After feature-worker completes (success or unrecoverable errors), delete the run directory using the `feature` name derived in step 4:
+After builder-feature-worker completes (success or unrecoverable errors), delete the run directory using the `feature` name derived in step 4:
 
 ```bash
 rm -rf "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/<feature>"

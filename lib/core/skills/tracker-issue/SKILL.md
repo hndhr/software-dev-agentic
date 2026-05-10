@@ -10,6 +10,6 @@ allowed-tools: Agent
 
 ## Steps
 
-Spawn `issue-worker` using the Agent tool with:
+Spawn `tracker-issue-worker` using the Agent tool with:
 
 > <$ARGUMENTS>

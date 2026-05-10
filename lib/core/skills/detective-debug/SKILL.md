@@ -1,6 +1,6 @@
 ---
 name: detective-debug
-description: Trigger the debug-orchestrator agent. Accepts an optional bug description, collects any missing intake (error message, expected vs actual behavior, entry point, platform), then hands off to the agent.
+description: Trigger the detective-debug-orchestrator agent. Accepts an optional bug description, collects any missing intake (error message, expected vs actual behavior, entry point, platform), then hands off to the agent.
 allowed-tools: Agent, AskUserQuestion
 ---
 
@@ -19,7 +19,7 @@ allowed-tools: Agent, AskUserQuestion
    - Platform: `web`, `ios`, or `flutter` (if not described)
    - Target files or class names (if not already named in the description or ticket — skip this question if they are)
 
-3. Spawn `debug-orchestrator` with all collected intake in the spawn prompt:
+3. Spawn `detective-debug-orchestrator` with all collected intake in the spawn prompt:
 
    > Bug description: <description>
    > Error message: <error>

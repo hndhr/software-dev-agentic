@@ -1,5 +1,5 @@
 ---
-name: setup-worker
+name: installer-setup-worker
 description: Set up or reconfigure a downstream project to use the software-dev-agentic starter kit. Designed to be invoked only by the `/installer-setup` skill — not directly.
 model: sonnet
 tools: Read, Glob, Grep, Bash
@@ -69,4 +69,4 @@ Update the kit:
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/setup-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/installer-setup-worker.md` — if it exists, read and follow its additional instructions.

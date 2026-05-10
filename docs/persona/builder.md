@@ -10,7 +10,7 @@ Location: `lib/core/agents/builder/`
 
 ## Anatomy
 
-The builder persona has two entry skills that both converge on `feature-orchestrator`:
+The builder persona has two entry skills that both converge on `builder-feature-orchestrator`:
 
 ```
 User
@@ -20,19 +20,20 @@ User
  └─ /builder-build-feature skill (Type T) — direct entry; routes resume vs new, or build-directly
           │
           ▼
-    feature-orchestrator                 — coordinates phases; never writes source files
+    builder-feature-orchestrator         — coordinates phases; never writes source files
           │
           ▼  (plan-first path)
-    feature-planner                      — scopes build; produces plan.md + context.md
+    builder-feature-planner              — scopes build; produces plan.md + context.md
       │           │           │
       ▼           ▼           ▼
+ builder-      builder-    builder-
  domain-       data-       pres-
  planner       planner     planner       — explore each layer in parallel; no source writes
           │
           │  [user reviews and approves plan.md]
           │
           ▼
-    feature-worker                       — reads approved plan; executes skills in layer order
+    builder-feature-worker               — reads approved plan; executes skills in layer order
           │
           ▼
     platform-contract skills             — concrete artifact creation per platform and layer
@@ -42,29 +43,29 @@ User
 
 | Entry skill | When to use | Difference |
 |---|---|---|
-| `/builder-plan-feature` | Complex or cross-layer features; uncertain existing state | Runs `feature-planner` first; user reviews plan before execution begins |
-| `/builder-build-feature` | Known scope; resuming an existing run | Routes directly to `feature-worker`, or lets orchestrator decide |
+| `/builder-plan-feature` | Complex or cross-layer features; uncertain existing state | Runs `builder-feature-planner` first; user reviews plan before execution begins |
+| `/builder-build-feature` | Known scope; resuming an existing run | Routes directly to `builder-feature-worker`, or lets orchestrator decide |
 
 **Planner phase — parallel sub-planners:**
 
-`feature-planner` spawns all three layer planners simultaneously. Each explores its layer independently and returns a structured findings block. `feature-planner` aggregates the findings into `plan.md` and `context.md`, then stops for human approval.
+`builder-feature-planner` spawns all three layer planners simultaneously. Each explores its layer independently and returns a structured findings block. `builder-feature-planner` aggregates the findings into `plan.md` and `context.md`, then stops for human approval.
 
 | Sub-planner | Explores |
 |---|---|
-| `domain-planner` | Entities, use cases, repository interfaces, domain services |
-| `data-planner` | DTOs, mappers, datasources, repository implementations |
-| `pres-planner` | StateHolders, screens, components, navigators, key symbols |
+| `builder-domain-planner` | Entities, use cases, repository interfaces, domain services |
+| `builder-data-planner` | DTOs, mappers, datasources, repository implementations |
+| `builder-pres-planner` | StateHolders, screens, components, navigators, key symbols |
 
-**Execution phase — `feature-worker`:**
+**Execution phase — `builder-feature-worker`:**
 
-`feature-worker` is the only agent that writes source files. It reads the approved `plan.md` and calls skills in CLEAN layer order — domain → data → presentation → UI. Each artifact is validated via `Glob` + `Grep` before moving to the next. `state.json` is updated after each artifact so the run is resumable.
+`builder-feature-worker` is the only agent that writes source files. It reads the approved `plan.md` and calls skills in CLEAN layer order — domain → data → presentation → UI. Each artifact is validated via `Glob` + `Grep` before moving to the next. `state.json` is updated after each artifact so the run is resumable.
 
 **Standalone paths (no orchestrator or planner needed):**
 
 | Task | Path |
 |---|---|
-| Single known artifact | Worker directly (`domain-worker`, `data-worker`, `presentation-worker`, `ui-worker`) |
-| Test generation | `test-worker` directly |
+| Single known artifact | Worker directly (`domain-worker`, `data-worker`, `presentation-worker`, `builder-ui-worker`) |
+| Test generation | `builder-test-worker` directly |
 | Targeted edit to existing artifact | Worker with `context.md` Key Symbols if available |
 
 ---
@@ -75,21 +76,21 @@ User
 
 | Role | Agent | Responsibility |
 |---|---|---|
-| Orchestrator | `feature-orchestrator` | Full feature build — coordinates planner + feature-worker phases |
+| Orchestrator | `builder-feature-orchestrator` | Full feature build — coordinates planner + feature-worker phases |
 | Orchestrator | `pres-orchestrator` | Presentation + UI phase — standalone entry for pres-only tasks |
-| Orchestrator | `backend-orchestrator` | Backend API + data layer coordination |
-| Planner | `feature-planner` | Pre-build planning — spawns layer planners in parallel, produces plan.md |
-| Planner | `domain-planner` | Domain layer exploration — entities, use cases, repository interfaces |
-| Planner | `data-planner` | Data layer exploration — DTOs, mappers, datasources, repo implementations |
-| Planner | `pres-planner` | Presentation layer exploration — StateHolders, screens, key symbols |
-| Worker | `feature-worker` | Plan-driven executor — reads plan.md, calls skills in layer order, validates each artifact |
+| Orchestrator | `builder-backend-orchestrator` | Backend API + data layer coordination |
+| Planner | `builder-feature-planner` | Pre-build planning — spawns layer planners in parallel, produces plan.md |
+| Planner | `builder-domain-planner` | Domain layer exploration — entities, use cases, repository interfaces |
+| Planner | `builder-data-planner` | Data layer exploration — DTOs, mappers, datasources, repo implementations |
+| Planner | `builder-pres-planner` | Presentation layer exploration — StateHolders, screens, key symbols |
+| Worker | `builder-feature-worker` | Plan-driven executor — reads plan.md, calls skills in layer order, validates each artifact |
 | Worker | `domain-worker` | Domain layer direct creation — for single known artifacts |
 | Worker | `data-worker` | Data layer direct creation — for single known artifacts |
 | Worker | `presentation-worker` | Presentation layer creation — StateHolder, state management |
-| Worker | `ui-worker` | UI layer creation — screens, components, navigation |
-| Worker | `test-worker` | Test generation across all layers |
+| Worker | `builder-ui-worker` | UI layer creation — screens, components, navigation |
+| Worker | `builder-test-worker` | Test generation across all layers |
 | Worker | `prompt-debug-worker` | Agent prompt diagnosis from perf reports |
-| Worker | `arch-review-worker` | CLEAN Architecture violation review (downstream projects) |
+| Worker | `auditor-arch-review-worker` | CLEAN Architecture violation review (downstream projects) |
 
 ### Platform agents
 
@@ -111,10 +112,10 @@ User
 
 | Layer | Planner | Worker | Skills |
 |---|---|---|---|
-| Domain | `domain-planner` | `domain-worker` | `domain-create-entity`, `domain-create-usecase`, `domain-create-repository`, `domain-create-service` |
-| Data | `data-planner` | `data-worker` | `data-create-datasource`, `data-create-mapper`, `data-create-response`, `data-create-repository-impl` |
-| Presentation | `pres-planner` | `presentation-worker`, `ui-worker` | `pres-create-stateholder`, `pres-create-screen`, `pres-create-component`, `pres-create-navigator` |
-| Test | — | `test-worker` | `test-create-domain`, `test-create-data`, `test-create-presentation` |
+| Domain | `builder-domain-planner` | `domain-worker` | `domain-create-entity`, `domain-create-usecase`, `domain-create-repository`, `domain-create-service` |
+| Data | `builder-data-planner` | `data-worker` | `data-create-datasource`, `data-create-mapper`, `data-create-response`, `data-create-repository-impl` |
+| Presentation | `builder-pres-planner` | `presentation-worker`, `builder-ui-worker` | `pres-create-stateholder`, `pres-create-screen`, `pres-create-component`, `pres-create-navigator` |
+| Test | — | `builder-test-worker` | `test-create-domain`, `test-create-data`, `test-create-presentation` |
 
 ---
 
@@ -124,18 +125,18 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 
 | Skill | Called by | Layer |
 |---|---|---|
-| `domain-create-entity` | `domain-worker`, `feature-worker` | Domain |
-| `domain-create-repository` | `domain-worker`, `feature-worker` | Domain |
-| `domain-create-usecase` | `domain-worker`, `feature-worker` | Domain |
-| `domain-create-service` | `domain-worker`, `feature-worker` | Domain |
-| `data-create-mapper` | `data-worker`, `feature-worker` | Data |
-| `data-create-datasource` | `data-worker`, `feature-worker` | Data |
-| `data-create-repository-impl` | `data-worker`, `feature-worker` | Data |
-| `pres-create-stateholder` | `presentation-worker`, `feature-worker` | Presentation |
-| `pres-create-screen` | `ui-worker`, `feature-worker` | Presentation/UI |
-| `test-create-domain` | `test-worker` | Test |
-| `test-create-data` | `test-worker` | Test |
-| `test-create-presentation` | `test-worker` | Test |
+| `domain-create-entity` | `domain-worker`, `builder-feature-worker` | Domain |
+| `domain-create-repository` | `domain-worker`, `builder-feature-worker` | Domain |
+| `domain-create-usecase` | `domain-worker`, `builder-feature-worker` | Domain |
+| `domain-create-service` | `domain-worker`, `builder-feature-worker` | Domain |
+| `data-create-mapper` | `data-worker`, `builder-feature-worker` | Data |
+| `data-create-datasource` | `data-worker`, `builder-feature-worker` | Data |
+| `data-create-repository-impl` | `data-worker`, `builder-feature-worker` | Data |
+| `pres-create-stateholder` | `presentation-worker`, `builder-feature-worker` | Presentation |
+| `pres-create-screen` | `builder-ui-worker`, `builder-feature-worker` | Presentation/UI |
+| `test-create-domain` | `builder-test-worker` | Test |
+| `test-create-data` | `builder-test-worker` | Test |
+| `test-create-presentation` | `builder-test-worker` | Test |
 
 ---
 
@@ -162,7 +163,7 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 → `domain-worker` spawned directly, assesses preconditions, sequences skills
 
 **Multi-layer task** — "Build the leave request feature"
-→ `feature-orchestrator` coordinates 4 workers; passes file paths only; writes state file after each phase
+→ `builder-feature-orchestrator` coordinates 4 workers; passes file paths only; writes state file after each phase
 
 **Intelligent selection** — "Create StateHolder, the UseCase already exists"
 → orchestrator spawns only `presentation-worker`
@@ -178,9 +179,9 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 **Flutter domain entity creation** — "Create a LeaveRequest entity for Flutter"
 
 ```
-feature-orchestrator   (core orchestrator)
-  └─ domain-worker     (core worker)         ← knows the rules
-        └─ domain-create-entity              ← flutter skill, knows the syntax
+builder-feature-orchestrator   (core orchestrator)
+  └─ domain-worker              (core worker)    ← knows the rules
+        └─ domain-create-entity                 ← flutter skill, knows the syntax
              source:     lib/platforms/flutter/skills/contract/domain-create-entity/SKILL.md
              downstream: .claude/skills/domain-create-entity/SKILL.md
 ```
@@ -200,7 +201,7 @@ pr-review-worker       (iOS platform worker)   ← iOS-specific workflow
 ### Other persona flows
 
 **Debug flow** *(detective)* — "Why is form submission silently failing?"
-→ `debug-orchestrator` gathers context, spawns `debug-worker`
+→ `detective-debug-orchestrator` gathers context, spawns `detective-debug-worker`
 
 **Agent prompt debugging** *(detective)* — "Why did domain-worker create an implementation instead of an interface?"
 
@@ -216,7 +217,7 @@ prompt-debug-worker   ← reads perf-report + domain-worker.md
 → spawns workers per scope; `arch-generate-report` formats findings
 
 **Project setup** *(installer)* — "Set up this project with the starter kit"
-→ `setup-worker` detects platform, runs `setup-nextjs-project` or `setup-ios-project` skill, provides orientation
+→ `installer-setup-worker` detects platform, runs `setup-nextjs-project` or `setup-ios-project` skill, provides orientation
 
 ---
 
@@ -257,6 +258,6 @@ prompt-debug-worker   ← reads perf-report + domain-worker.md
 
 ## Delegation Threshold
 
-Always delegate to `feature-orchestrator` when a task touches more than 3 architectural layers — inline execution at that scope produces inconsistent results.
+Always delegate to `builder-feature-orchestrator` when a task touches more than 3 architectural layers — inline execution at that scope produces inconsistent results.
 
 > Rule: if the task takes fewer tokens to DO than to DELEGATE, do it directly. Otherwise, delegate.

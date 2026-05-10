@@ -1,6 +1,6 @@
 ---
 name: pres-create-component
-description: Create a reusable UI sub-component (organism or molecule) within a feature — accepts entity props, no DI, no business logic. Called by ui-worker.
+description: Create a reusable UI sub-component (organism or molecule) within a feature — accepts entity props, no DI, no business logic. Called by builder-ui-worker.
 user-invocable: false
 tools: Read, Write, Glob
 ---

@@ -1,5 +1,5 @@
 ---
-name: pres-planner
+name: builder-pres-planner
 description: Explore the Presentation and UI layers for a given feature — discovers existing StateHolders, screens, and components. Returns structured findings for feature-planner to synthesize. No writes.
 model: sonnet
 tools: Glob, Grep, Read
@@ -88,4 +88,4 @@ Write `none detected` for any naming convention that cannot be inferred. Omit `m
 
 ## Extension Point
 
-Check for `.claude/agents.local/extensions/pres-planner.md` — if it exists, read and follow its additional instructions.
+Check for `.claude/agents.local/extensions/builder-pres-planner.md` — if it exists, read and follow its additional instructions.

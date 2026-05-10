@@ -62,7 +62,7 @@ Full artifact definitions, invariants, and creation order: `reference/builder/pr
 | Event / Input | User intentions flowing in (button tapped, form submitted) |
 | Action / Output | Side effects flowing out (navigate, show toast) |
 
-Creation order: `Use Cases → StateHolder → StateHolder contract → Screen (ui-worker)`
+Creation order: `Use Cases → StateHolder → StateHolder contract → Screen (builder-ui-worker)`
 
 ---
 

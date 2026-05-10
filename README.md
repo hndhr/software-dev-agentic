@@ -79,21 +79,21 @@ Pulls the latest, re-runs symlink setup (idempotent), and reminds you to commit 
 
 | Agent | Purpose |
 |---|---|
-| `feature-orchestrator` | Build a feature end-to-end across all CLEAN layers |
-| `backend-orchestrator` | Build domain + data layers when presentation exists or will be built separately |
+| `builder-feature-orchestrator` | Build a feature end-to-end across all CLEAN layers |
+| `builder-backend-orchestrator` | Build domain + data layers when presentation exists or will be built separately |
 | `pres-orchestrator` | Build StateHolder + UI when backend layers already exist |
 | `domain-worker` | Create or update Domain layer — entities, use cases, repository interfaces |
 | `data-worker` | Create or update Data layer — DTOs, mappers, data sources, repository impls |
 | `presentation-worker` | Create or update the StateHolder (ViewModel / BLoC / Presenter) |
-| `ui-worker` | Create or update screens and components bound to an existing StateHolder |
-| `test-worker` | Generate tests for any CLEAN layer |
+| `builder-ui-worker` | Create or update screens and components bound to an existing StateHolder |
+| `builder-test-worker` | Generate tests for any CLEAN layer |
 
 **detective** — debugging and performance analysis
 
 | Agent | Purpose |
 |---|---|
-| `debug-orchestrator` | Investigate a bug through static analysis, form hypotheses, instrument code |
-| `debug-worker` | Trace a runtime error or unexpected behavior to its root cause |
+| `detective-debug-orchestrator` | Investigate a bug through static analysis, form hypotheses, instrument code |
+| `detective-debug-worker` | Trace a runtime error or unexpected behavior to its root cause |
 | `perf-worker` | Score agentic session performance across D1–D7 dimensions, write report |
 | `prompt-debug-worker` | Diagnose why an agent underperformed by analyzing its system prompt |
 
@@ -101,19 +101,19 @@ Pulls the latest, re-runs symlink setup (idempotent), and reminds you to commit 
 
 | Agent | Purpose |
 |---|---|
-| `issue-worker` | Create or pick up a GitHub issue, open the feature branch |
+| `tracker-issue-worker` | Create or pick up a GitHub issue, open the feature branch |
 
 **auditor** — architecture compliance
 
 | Agent | Purpose |
 |---|---|
-| `arch-review-worker` | Audit code for CLEAN Architecture violations — layer boundaries, entity purity, DI |
+| `auditor-arch-review-worker` | Audit code for CLEAN Architecture violations — layer boundaries, entity purity, DI |
 
 **installer** — project setup
 
 | Agent | Purpose |
 |---|---|
-| `setup-worker` | Detect platform, scaffold the project, guide initial onboarding |
+| `installer-setup-worker` | Detect platform, scaffold the project, guide initial onboarding |
 
 ---
 

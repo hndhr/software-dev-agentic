@@ -1,5 +1,5 @@
 ---
-name: data-planner
+name: builder-data-planner
 description: Explore the Data layer for a given feature — discovers existing DTOs, mappers, data sources, and repository implementations. Returns structured findings for feature-planner to synthesize. No writes.
 model: sonnet
 tools: Glob, Grep, Read
@@ -89,4 +89,4 @@ Write `none detected` for any naming convention that cannot be inferred.
 
 ## Extension Point
 
-Check for `.claude/agents.local/extensions/data-planner.md` — if it exists, read and follow its additional instructions.
+Check for `.claude/agents.local/extensions/builder-data-planner.md` — if it exists, read and follow its additional instructions.

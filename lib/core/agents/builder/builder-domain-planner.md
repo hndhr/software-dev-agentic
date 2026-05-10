@@ -1,5 +1,5 @@
 ---
-name: domain-planner
+name: builder-domain-planner
 description: Explore the Domain layer for a given feature — discovers existing entities, repository interfaces, use cases, and domain services. Returns structured findings for feature-planner to synthesize. No writes.
 model: sonnet
 tools: Glob, Grep, Read
@@ -86,4 +86,4 @@ Write `none detected` for any naming convention that cannot be inferred.
 
 ## Extension Point
 
-Check for `.claude/agents.local/extensions/domain-planner.md` — if it exists, read and follow its additional instructions.
+Check for `.claude/agents.local/extensions/builder-domain-planner.md` — if it exists, read and follow its additional instructions.

@@ -15,6 +15,6 @@ allowed-tools: AskUserQuestion, Agent
    - `ios` — Swift/UIKit project
    - `flutter` — Dart/BLoC project
 
-2. Spawn `setup-worker` using the Agent tool with:
+2. Spawn `installer-setup-worker` using the Agent tool with:
 
    > Platform: <platform>

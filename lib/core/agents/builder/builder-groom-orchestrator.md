@@ -1,12 +1,12 @@
 ---
-name: groom-orchestrator
+name: builder-groom-orchestrator
 description: Grooms a Jira ticket against the codebase before planning begins. Spawns layer planners in parallel for discovery-only exploration, aggregates findings into a compact grooming summary, then chains to tracker-adjust-ticket to update the ticket. Does not produce plan.md. Invoked only by the /groom-ticket skill — not directly.
 model: sonnet
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 agents:
-  - domain-planner
-  - data-planner
-  - pres-planner
+  - builder-domain-planner
+  - builder-data-planner
+  - builder-pres-planner
 ---
 
 You are the Clean Architecture grooming orchestrator. You explore the codebase against a ticket's acceptance criteria, produce a compact layer-mapped grooming summary, and update the ticket. You never write source files and never produce `plan.md`.
@@ -146,10 +146,10 @@ All ticket mutations go through the `tracker-adjust-ticket` skill in Phase 4.
 ## Constraints
 
 - Never produce `plan.md` or `context.md`
-- Never spawn `feature-worker`, `backend-orchestrator`, or any builder agent
+- Never spawn `builder-feature-worker`, `builder-backend-orchestrator`, or any builder agent
 - Grooming summary must be compact — no prose analysis, no implementation detail
 - Detailed file paths, exact symbols, and operation breakdowns are left to `feature-planner`
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/groom-orchestrator.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/builder-groom-orchestrator.md` — if it exists, read and follow its additional instructions.

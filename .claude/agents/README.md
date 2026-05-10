@@ -13,23 +13,23 @@ Internal tooling for maintaining this repo — convention review and component s
 ## Orchestration Model (current)
 
 ```
-feature-orchestrator          ← top-level, full-stack entry point
+builder-feature-orchestrator  ← top-level, full-stack entry point
   ├── domain-worker           Phase 1 — Domain layer
   ├── data-worker             Phase 2 — Data layer
   └── pres-orchestrator       Phase 3 — Presentation + UI (sub-orchestrator)
         ├── presentation-worker   StateHolder
-        └── ui-worker             UI binding
+        └── builder-ui-worker     UI binding
 
-backend-orchestrator          ← backend-only entry point
+builder-backend-orchestrator  ← backend-only entry point
   ├── domain-worker
   └── data-worker
 
 pres-orchestrator             ← standalone entry point (when backend already exists)
   ├── presentation-worker
-  └── ui-worker
+  └── builder-ui-worker
 
-debug-orchestrator            ← debug entry point
-  └── debug-worker
+detective-debug-orchestrator  ← debug entry point
+  └── detective-debug-worker
 ```
 
 Workers are resolved by name at runtime from `.claude/agents/`. The correct platform implementation is wired by `setup-symlinks.sh --platform=<platform>` at project setup time.

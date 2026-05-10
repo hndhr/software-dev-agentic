@@ -1,6 +1,6 @@
 ---
 name: arch-check-ios
-description: Check iOS-specific Clean Architecture rules for a Swift/UIKit project — layer import direction, module structure, legacy folder usage, and naming conventions. Called by arch-review-worker.
+description: Check iOS-specific Clean Architecture rules for a Swift/UIKit project — layer import direction, module structure, legacy folder usage, and naming conventions. Called by auditor-arch-review-worker.
 user-invocable: false
 tools: Read, Glob, Grep
 ---

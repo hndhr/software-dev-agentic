@@ -1,5 +1,5 @@
 ---
-name: app-planner
+name: builder-app-planner
 description: Explore app-layer wiring for a given feature — discovers existing DI registration, route registration, and module registration patterns. Returns structured findings for feature-planner to synthesize. No writes.
 model: sonnet
 tools: Glob, Grep, Read
@@ -150,4 +150,4 @@ Write `none detected` for any convention that cannot be inferred. Write `N/A` fo
 
 ## Extension Point
 
-Check for `.claude/agents.local/extensions/app-planner.md` — if it exists, read and follow its additional instructions.
+Check for `.claude/agents.local/extensions/builder-app-planner.md` — if it exists, read and follow its additional instructions.

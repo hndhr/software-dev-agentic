@@ -1,6 +1,6 @@
 ---
 name: test-create-data
-description: Write unit tests for mappers and integration tests for repository implementations. Called by test-worker.
+description: Write unit tests for mappers and integration tests for repository implementations. Called by builder-test-worker.
 user-invocable: false
 tools: Read, Write, Glob
 ---

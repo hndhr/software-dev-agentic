@@ -1,5 +1,5 @@
 ---
-name: test-worker
+name: builder-test-worker
 description: Write, verify, or fix tests for any CLEAN Architecture layer — domain, data, or presentation. Auto-selects test type and strategy by layer.
 model: sonnet
 user-invocable: true
@@ -131,4 +131,4 @@ Only list paths that pass both checks.
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/test-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/builder-test-worker.md` — if it exists, read and follow its additional instructions.

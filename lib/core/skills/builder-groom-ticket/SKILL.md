@@ -31,7 +31,7 @@ Read the ticket file at the resolved path. This is the only file read this skill
 
 ## Step 3 — Spawn groom-orchestrator
 
-Spawn `groom-orchestrator` with the following prompt:
+Spawn `builder-groom-orchestrator` with the following prompt:
 
 > **ticket-path:** <resolved absolute path>
 >

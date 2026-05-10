@@ -26,7 +26,7 @@ See `docs/principles/core-design-principles.md` and `docs/principles/submodule-r
 
 ## Workflow
 
-Before any work, invoke the **issue-worker** agent with a title (new) or number (existing).
+Before any work, invoke the **tracker-issue-worker** agent with a title (new) or number (existing).
 
 ```
 tracker-issue "add X"   → create GH issue + branch + backlog row

@@ -1,5 +1,5 @@
 ---
-name: debug-log-worker
+name: detective-debug-log-worker
 description: Add or remove debug instrumentation logs in source files. Use when debug-worker or debug-orchestrator identifies exact file paths and method names that need runtime tracing. Pass mode=add with an instrumentation brief, or mode=remove to strip all debug logs before committing.
 model: sonnet
 user-invocable: false
@@ -93,4 +93,4 @@ CLEANED
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/debug-log-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/detective-debug-log-worker.md` — if it exists, read and follow its additional instructions.

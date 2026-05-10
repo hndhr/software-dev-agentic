@@ -37,18 +37,18 @@ lib/platforms/flutter/
 The core workers (`lib/core/agents/builder/`) are platform-agnostic. When invoked on a Flutter project, they call the skills in this platform folder:
 
 ```
-feature-orchestrator
-  └─ domain-worker  →  skills/domain-create-entity
-                   →  skills/domain-create-repository
-                   →  skills/domain-create-usecase
-  └─ data-worker    →  skills/data-create-mapper
-                   →  skills/data-create-datasource
-                   →  skills/data-create-repository-impl
-  └─ presentation-worker  →  skills/pres-create-stateholder
-  └─ ui-worker      →  skills/pres-create-screen
-  └─ test-worker    →  skills/test-create-domain
-                   →  skills/test-create-data
-                   →  skills/test-create-presentation
+builder-feature-orchestrator
+  └─ domain-worker           →  skills/domain-create-entity
+                             →  skills/domain-create-repository
+                             →  skills/domain-create-usecase
+  └─ data-worker             →  skills/data-create-mapper
+                             →  skills/data-create-datasource
+                             →  skills/data-create-repository-impl
+  └─ presentation-worker     →  skills/pres-create-stateholder
+  └─ builder-ui-worker       →  skills/pres-create-screen
+  └─ builder-test-worker     →  skills/test-create-domain
+                             →  skills/test-create-data
+                             →  skills/test-create-presentation
 ```
 
 ## Key Patterns

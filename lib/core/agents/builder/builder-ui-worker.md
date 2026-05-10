@@ -1,5 +1,5 @@
 ---
-name: ui-worker
+name: builder-ui-worker
 description: Create the UI layer — screens, components, and navigation — bound to an existing StateHolder contract. Handles UI tasks routed directly or spawned by feature-worker.
 model: sonnet
 user-invocable: true
@@ -140,4 +140,4 @@ Only list paths that pass both checks.
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/ui-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/builder-ui-worker.md` — if it exists, read and follow its additional instructions.

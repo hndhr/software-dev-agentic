@@ -1,6 +1,6 @@
 ---
 name: builder-build-feature
-description: Build or update a feature across Clean Architecture layers. Routes through feature-orchestrator agent — resumes an existing run or starts a new one.
+description: Build or update a feature across Clean Architecture layers. Routes through builder-feature-orchestrator agent — resumes an existing run or starts a new one.
 user-invocable: true
 allowed-tools: Bash, Read, AskUserQuestion, Agent
 ---
@@ -32,7 +32,7 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
 
    **If no runs exist** → go to step 4
 
-3. **Resume — spawn `feature-orchestrator` using the Agent tool with pre-loaded context** (substitute actual file contents):
+3. **Resume — spawn `builder-feature-orchestrator` using the Agent tool with pre-loaded context** (substitute actual file contents):
 
    > **Trigger: resume**
    > Feature: <feature name from state.json>
@@ -48,7 +48,7 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
    > **state.json**
    > <content>
    >
-   > Spawn `feature-worker` directly with this context. Skip Phase 0 and planning.
+   > Spawn `builder-feature-worker` directly with this context. Skip Phase 0 and planning.
 
 4. **New** — call `AskUserQuestion`:
    ```
@@ -56,15 +56,15 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
    header      : "Feature"
    multiSelect : false
    options     :
-     - label: "Plan first",     description: "Run feature-planner for a reviewable plan before building"
+     - label: "Plan first",     description: "Run builder-feature-planner for a reviewable plan before building"
      - label: "Build directly", description: "Skip planning — gather intent inline and go straight to building"
    ```
 
-   - **Plan first** → spawn `feature-orchestrator` agent:
+   - **Plan first** → spawn `builder-feature-orchestrator` agent:
      > **Trigger: plan-first**
      > Feature: <$ARGUMENTS, or empty if not provided>
      >
-     > Spawn `feature-planner`. Wait for it to complete and return — do not do anything else.
+     > Spawn `builder-feature-planner`. Wait for it to complete and return — do not do anything else.
 
      After the agent returns, call `AskUserQuestion`:
      ```
@@ -72,15 +72,15 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
      header      : "Plan"
      multiSelect : false
      options     :
-       - label: "Approve",      description: "Execute this plan with feature-worker"
+       - label: "Approve",      description: "Execute this plan with builder-feature-worker"
        - label: "Discuss more", description: "I have questions or changes before this plan is finalized"
        - label: "Discard",      description: "Cancel and delete this plan"
      ```
-     - **Approve** → spawn `feature-orchestrator` agent with `Trigger: execute-approved-plan`
-     - **Discuss more** → discuss inline, re-spawn `feature-planner` if needed, repeat approval question
+     - **Approve** → spawn `builder-feature-orchestrator` agent with `Trigger: execute-approved-plan`
+     - **Discuss more** → discuss inline, re-spawn `builder-feature-planner` if needed, repeat approval question
      - **Discard** → locate and delete the most recent run directory under `.claude/agentic-state/runs/` and stop
 
-   - **Build directly** → spawn `feature-orchestrator` agent:
+   - **Build directly** → spawn `builder-feature-orchestrator` agent:
      > **Trigger: build-directly**
      > Feature: <$ARGUMENTS, or empty if not provided>
      >

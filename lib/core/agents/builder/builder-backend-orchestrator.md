@@ -1,5 +1,5 @@
 ---
-name: backend-orchestrator
+name: builder-backend-orchestrator
 description: Build the Domain and Data layers for a feature — entities, repository interfaces, use cases, mappers, datasources, and repository implementations. Calls skills directly in layer order. No sub-agents.
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep, Bash
@@ -124,4 +124,4 @@ Suggest next step: run `/builder-plan-feature` to build the Presentation and UI 
 
 ## Extension Point
 
-Check for `.claude/agents.local/extensions/backend-orchestrator.md` — if it exists, read and follow its additional instructions.
+Check for `.claude/agents.local/extensions/builder-backend-orchestrator.md` — if it exists, read and follow its additional instructions.

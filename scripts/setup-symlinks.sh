@@ -229,12 +229,12 @@ fi
 
 echo ""
 SHARED_SETTINGS="$CLAUDE_DIR/settings.json"
-if grep -q 'require-feature-orchestrator' "$SHARED_SETTINGS" 2>/dev/null; then
+if grep -q 'require-builder-feature-orchestrator' "$SHARED_SETTINGS" 2>/dev/null; then
   RESULT=$(python3 - "$SHARED_SETTINGS" <<'EOF'
 import sys, re
 f = sys.argv[1]
 content = open(f).read()
-cleaned = re.sub(r',?\s*\{\s*"type"\s*:\s*"command"\s*,\s*"command"\s*:\s*"[^"]*require-feature-orchestrator[^"]*"\s*\}', '', content)
+cleaned = re.sub(r',?\s*\{\s*"type"\s*:\s*"command"\s*,\s*"command"\s*:\s*"[^"]*require-builder-feature-orchestrator[^"]*"\s*\}', '', content)
 if cleaned != content:
     open(f, 'w').write(cleaned)
     print("removed")
@@ -243,12 +243,12 @@ else:
 EOF
   )
   if [ "$RESULT" = "removed" ]; then
-    echo "patch settings.json (removed require-feature-orchestrator hook)"
+    echo "patch settings.json (removed require-builder-feature-orchestrator hook)"
   else
     echo "warn  settings.json — could not auto-remove hook, remove manually"
   fi
 else
-  echo "skip  settings.json (require-feature-orchestrator not present)"
+  echo "skip  settings.json (require-builder-feature-orchestrator not present)"
 fi
 
 LOCAL_SETTINGS="$CLAUDE_DIR/settings.local.json"

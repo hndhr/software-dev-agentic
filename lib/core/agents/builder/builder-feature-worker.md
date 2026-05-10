@@ -1,5 +1,5 @@
 ---
-name: feature-worker
+name: builder-feature-worker
 description: Execute an approved feature plan across Clean Architecture layers — reads plan.md, calls skills in layer order, validates each artifact inline. Replaces layer workers in the main feature build path. Invoked by /builder-plan-feature or /builder-build-feature skills after plan approval.
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep, Bash
@@ -234,8 +234,8 @@ Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skil
 - <path>
 ```
 
-Then suggest next step: run `/test-worker` to generate tests for the created artifacts.
+Then suggest next step: run `/builder-test-worker` to generate tests for the created artifacts.
 
 ## Extension Point
 
-Check for `.claude/agents.local/extensions/feature-worker.md` — if it exists, read and follow its additional instructions.
+Check for `.claude/agents.local/extensions/builder-feature-worker.md` — if it exists, read and follow its additional instructions.

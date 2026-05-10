@@ -1,11 +1,11 @@
 ---
-name: debug-worker
+name: detective-debug-worker
 description: Trace a runtime error or unexpected behavior through the Clean Architecture layers to its root cause. Use when you have an error, stack trace, or something not working as expected.
 model: sonnet
 user-invocable: true
 tools: Read, Glob, Grep
 agents:
-  - debug-log-worker
+  - detective-debug-log-worker
 ---
 
 You are the debug specialist. You trace issues through CLEAN Architecture layers and identify root causes. You never fix bugs — you find and surface them.
@@ -121,7 +121,7 @@ Then ask the user:
 
 ## Step 6 — Instrument (user-confirmed only)
 
-When the user confirms, spawn `debug-log-worker` with `MODE=add` and:
+When the user confirms, spawn `detective-debug-log-worker` with `MODE=add` and:
 - File paths and method names to instrument
 - What to log at each point (entry params, state, results, error details)
 - Which hypothesis each log tests
@@ -131,8 +131,8 @@ After the user reproduces and shares logs, interpret them and update the report 
 
 ## Cleanup
 
-After the issue is resolved, spawn `debug-log-worker` with `MODE=remove` to strip instrumentation before committing.
+After the issue is resolved, spawn `detective-debug-log-worker` with `MODE=remove` to strip instrumentation before committing.
 
 ## Extension Point
 
-After completing, check for `.claude/agents.local/extensions/debug-worker.md` — if it exists, read and follow its additional instructions.
+After completing, check for `.claude/agents.local/extensions/detective-debug-worker.md` — if it exists, read and follow its additional instructions.

@@ -4,7 +4,7 @@ description: Build the Domain and Data layers for a feature — entities, reposi
 user-invocable: true
 ---
 
-Spawn the `backend-orchestrator` agent with:
+Spawn the `builder-backend-orchestrator` agent with:
 
 ```
 feature: $FEATURE

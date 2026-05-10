@@ -1,6 +1,6 @@
 ---
 name: arch-check-web
-description: Check web-specific Clean Architecture rules for a Next.js 15 / TypeScript project — import direction, React directives, Server Actions, hook patterns, and Atomic Design. Called by arch-review-worker.
+description: Check web-specific Clean Architecture rules for a Next.js 15 / TypeScript project — import direction, React directives, Server Actions, hook patterns, and Atomic Design. Called by auditor-arch-review-worker.
 user-invocable: false
 tools: Read, Glob, Grep
 ---

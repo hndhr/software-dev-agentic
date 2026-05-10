@@ -1,6 +1,6 @@
 ---
 name: test-create-domain
-description: Write unit tests for domain layer files — use cases and domain services. Called by test-worker.
+description: Write unit tests for domain layer files — use cases and domain services. Called by builder-test-worker.
 user-invocable: false
 tools: Read, Write, Glob
 ---

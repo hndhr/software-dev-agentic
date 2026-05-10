@@ -21,8 +21,8 @@ Zeller's method applied to this persona:
 | Observe | Collect the failure — input, output, symptom | Entry point, expected vs actual, layer where symptom appears |
 | Hypothesize | Form a falsifiable claim about the defect | 2–3 ranked hypotheses from static analysis |
 | Predict | State what evidence would confirm or deny the claim | Exact log points that would confirm each hypothesis |
-| Experiment | Run the system and collect evidence | `debug-log-worker` instruments, user reproduces |
-| Conclude | Accept, refine, or reject the hypothesis | `debug-worker` interprets logs, reports root cause |
+| Experiment | Run the system and collect evidence | `detective-debug-log-worker` instruments, user reproduces |
+| Conclude | Accept, refine, or reject the hypothesis | `detective-debug-worker` interprets logs, reports root cause |
 
 Two constraints enforced from the theory:
 
@@ -39,27 +39,27 @@ The detective persona follows the scientific debugging sequence strictly. Each a
 User (natural language)
  │
  ▼
-debug-orchestrator            — static analysis; forms 2–3 ranked, falsifiable hypotheses
+detective-debug-orchestrator            — static analysis; forms 2–3 ranked, falsifiable hypotheses
  │
  ▼
-debug-log-worker (MODE=add)   — inserts hypothesis-tagged log statements at predicted failure points
+detective-debug-log-worker (MODE=add)   — inserts hypothesis-tagged log statements at predicted failure points
  │
  [user reproduces the bug in the running app]
  │
  ▼
-debug-worker                  — interprets log output; concludes root cause
+detective-debug-worker                  — interprets log output; concludes root cause
  │
  ▼
-debug-log-worker (MODE=remove) — strips all instrumentation before commit
+detective-debug-log-worker (MODE=remove) — strips all instrumentation before commit
 ```
 
 **Key structural constraint — tool isolation:**
 
-`Edit` lives exclusively in `debug-log-worker`. `debug-orchestrator` and `debug-worker` are physically read-only. No diagnostic agent can alter logic — only log statements, only via the designated instrumenter.
+`Edit` lives exclusively in `detective-debug-log-worker`. `detective-debug-orchestrator` and `detective-debug-worker` are physically read-only. No diagnostic agent can alter logic — only log statements, only via the designated instrumenter.
 
 **Short-circuit path:**
 
-When the root cause is statically visible (e.g. a silent catch block in plain view), `debug-orchestrator` routes directly to `debug-worker` — no instrumentation cycle needed. `debug-log-worker` is skipped entirely.
+When the root cause is statically visible (e.g. a silent catch block in plain view), `detective-debug-orchestrator` routes directly to `detective-debug-worker` — no instrumentation cycle needed. `detective-debug-log-worker` is skipped entirely.
 
 **Handoff boundary:**
 
@@ -71,10 +71,10 @@ Detective terminates with a `ROOT CAUSE` report. The user decides the next actio
 
 | Scientific Debugging Step | Agent |
 |---|---|
-| Observe + Hypothesize | `debug-orchestrator` — static analysis, ranked hypotheses |
-| Predict + Experiment | `debug-log-worker` — MODE=add, inserts hypothesis-tagged logs |
-| Conclude | `debug-worker` — interprets log output, reports root cause |
-| Cleanup | `debug-log-worker` — MODE=remove, strips all logs before commit |
+| Observe + Hypothesize | `detective-debug-orchestrator` — static analysis, ranked hypotheses |
+| Predict + Experiment | `detective-debug-log-worker` — MODE=add, inserts hypothesis-tagged logs |
+| Conclude | `detective-debug-worker` — interprets log output, reports root cause |
+| Cleanup | `detective-debug-log-worker` — MODE=remove, strips all logs before commit |
 
 ---
 
@@ -82,29 +82,29 @@ Detective terminates with a `ROOT CAUSE` report. The user decides the next actio
 
 | Role | Agent | Responsibility |
 |---|---|---|
-| Orchestrator | `debug-orchestrator` | Static analysis, hypothesis formation, instrumentation coordination |
-| Worker | `debug-worker` | Traces runtime errors through CLEAN layers to root cause |
-| Worker | `debug-log-worker` | Adds and removes debug instrumentation logs in source files |
+| Orchestrator | `detective-debug-orchestrator` | Static analysis, hypothesis formation, instrumentation coordination |
+| Worker | `detective-debug-worker` | Traces runtime errors through CLEAN layers to root cause |
+| Worker | `detective-debug-log-worker` | Adds and removes debug instrumentation logs in source files |
 
 ---
 
 ## Tool Boundary Rule
 
-`Edit` lives exclusively in `debug-log-worker`. All other detective agents are read-only by design.
+`Edit` lives exclusively in `detective-debug-log-worker`. All other detective agents are read-only by design.
 
 | Agent | Tools | Can write files? |
 |---|---|---|
-| `debug-orchestrator` | Read, Glob, Grep | No |
-| `debug-worker` | Read, Glob, Grep | No |
-| `debug-log-worker` | Read, Edit, Glob, Grep | Yes — log statements only |
+| `detective-debug-orchestrator` | Read, Glob, Grep | No |
+| `detective-debug-worker` | Read, Glob, Grep | No |
+| `detective-debug-log-worker` | Read, Edit, Glob, Grep | Yes — log statements only |
 
-This is a structural guarantee: the orchestrator and worker physically cannot modify code. Only `debug-log-worker` can, and only to insert or remove log statements — never to change logic.
+This is a structural guarantee: the orchestrator and worker physically cannot modify code. Only `detective-debug-log-worker` can, and only to insert or remove log statements — never to change logic.
 
 ---
 
 ## Handoff
 
-Detective always terminates with a `ROOT CAUSE` report from `debug-worker`:
+Detective always terminates with a `ROOT CAUSE` report from `detective-debug-worker`:
 
 ```
 ROOT CAUSE   [one sentence]
@@ -122,23 +122,23 @@ This report is the input to the next agent — typically a builder worker (`doma
 
 **Silent failure** — "Form submission does nothing after tapping the button"
 ```
-debug-orchestrator         ← traces call chain statically, forms 2–3 hypotheses
-  └─ debug-log-worker      ← MODE=add, instruments StateHolder + use case entry/exit
+detective-debug-orchestrator         ← traces call chain statically, forms 2–3 hypotheses
+  └─ detective-debug-log-worker      ← MODE=add, instruments StateHolder + use case entry/exit
      [user reproduces]
-  └─ debug-worker          ← interprets logs, reports: "Use case never called — event not wired in DI"
-  └─ debug-log-worker      ← MODE=remove, strips instrumentation before commit
+  └─ detective-debug-worker          ← interprets logs, reports: "Use case never called — event not wired in DI"
+  └─ detective-debug-log-worker      ← MODE=remove, strips instrumentation before commit
 ```
 
 **Root cause visible statically** — "Repository returns null but no error is thrown"
 ```
-debug-worker               ← reads repository + data source, finds silent catch block
-                           ← reports root cause directly, no instrumentation needed
+detective-debug-worker               ← reads repository + data source, finds silent catch block
+                                     ← reports root cause directly, no instrumentation needed
 ```
 
 **Unknown crash location** — stack trace spans multiple layers
 ```
-debug-orchestrator         ← maps stack trace to CLEAN layers, identifies likely layer
-  └─ debug-worker          ← traces from crash site outward, finds DI binding mismatch
+detective-debug-orchestrator         ← maps stack trace to CLEAN layers, identifies likely layer
+  └─ detective-debug-worker          ← traces from crash site outward, finds DI binding mismatch
 ```
 
 ---
@@ -152,7 +152,7 @@ debug-orchestrator         ← maps stack trace to CLEAN layers, identifies like
 - **OCP:** New platform workers extend detective without modifying existing agents
 - **ISP:** Tool access is scoped by role — read-only agents never receive `Edit`
 
-**DRY:** The `ROOT CAUSE` report format is defined once in `debug-worker` and never re-implemented elsewhere. All investigation paths converge to the same output contract.
+**DRY:** The `ROOT CAUSE` report format is defined once in `detective-debug-worker` and never re-implemented elsewhere. All investigation paths converge to the same output contract.
 
 ---
 
@@ -160,7 +160,7 @@ debug-orchestrator         ← maps stack trace to CLEAN layers, identifies like
 
 Two planned expansions — neither implemented yet:
 
-**Platform workers** — platform-specific debugging methodology for Flutter, iOS, and Android. Each knows its runtime's log format, package ecosystem, and common failure patterns. `debug-orchestrator` would route to the relevant platform worker based on context.
+**Platform workers** — platform-specific debugging methodology for Flutter, iOS, and Android. Each knows its runtime's log format, package ecosystem, and common failure patterns. `detective-debug-orchestrator` would route to the relevant platform worker based on context.
 
 **Feature reference docs** — domain knowledge for complex cross-platform features (e.g. Live Tracking, Clock In/Out). Stored in `lib/core/reference/features/` with greppable per-platform sections. Platform workers read only their section — one `Grep`, not a full file `Read`.
 
@@ -174,5 +174,5 @@ See `docs/detective-agent-design.md` for the full design rationale.
 |---|---|---|
 | 1 | Platform workers (Flutter, iOS, Android) | Not started — design decided, implementation pending |
 | 2 | Feature reference docs structure | Not started — structure decided, no docs written yet |
-| 3 | `debug-orchestrator` routing update | Needed once platform workers exist |
+| 3 | `detective-debug-orchestrator` routing update | Needed once platform workers exist |
 | 4 | Where platform workers live — `detective/` vs `lib/platforms/<platform>/agents/` | Open question |

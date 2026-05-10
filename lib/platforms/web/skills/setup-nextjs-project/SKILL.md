@@ -54,12 +54,12 @@ Tell the user:
 
 ### 6 — Create agents.local stub
 
-Create `.claude/agents.local/extensions/arch-review-worker.md`:
+Create `.claude/agents.local/extensions/auditor-arch-review-worker.md`:
 
 ```markdown
-# arch-review-worker — project-specific rules
+# auditor-arch-review-worker — project-specific rules
 
-> Additive rules for this project. Baseline: `.claude/software-dev-agentic/lib/core/agents/auditor/arch-review-worker.md`.
+> Additive rules for this project. Baseline: `.claude/software-dev-agentic/lib/core/agents/auditor/auditor-arch-review-worker.md`.
 
 <!-- Add project-specific audit rules below -->
 ```
@@ -74,4 +74,4 @@ Tell the user what was done:
 - `.claude/software-dev-agentic/` — submodule pointing to the starter kit repo
 - `.claude/{agents,skills,hooks}` — symlinks into the submodule
 - `CLAUDE.md` — copied from template (fill in all `[placeholder]` values before starting work)
-- `.claude/agents.local/extensions/arch-review-worker.md` — stub for project-specific arch rules
+- `.claude/agents.local/extensions/auditor-arch-review-worker.md` — stub for project-specific arch rules

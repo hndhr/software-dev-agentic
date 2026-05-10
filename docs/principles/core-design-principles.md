@@ -167,13 +167,20 @@ When any check fails: return a clear, actionable message — never partially exe
 
 | Type | Suffix | Example |
 |---|---|---|
-| Orchestrator | `-orchestrator` | `feature-orchestrator.md`, `pres-orchestrator.md` |
-| Planner | `-planner` | `feature-planner.md`, `domain-planner.md` |
-| Worker | `-worker` | `domain-worker.md`, `feature-worker.md` |
+| Orchestrator | `-orchestrator` | `builder-feature-orchestrator.md`, `builder-groom-orchestrator.md` |
+| Planner | `-planner` | `builder-feature-planner.md`, `builder-domain-planner.md` |
+| Worker | `-worker` | `builder-feature-worker.md`, `detective-debug-worker.md` |
 
-Format: `<domain>-<role>.md`
+Format: `<persona>-<domain>-<role>.md`
 
-> The filename suffix tells you the agent type instantly — no need to open the file.
+Every agent that belongs to a persona must be prefixed with the persona name. This makes the persona assignment explicit from the filename alone and prevents collisions as the agent roster grows.
+
+| Pattern | Example | When to use |
+|---|---|---|
+| `<persona>-<domain>-<role>` | `builder-feature-orchestrator`, `detective-debug-worker` | Agent inside a persona folder (`lib/core/agents/<persona>/`) |
+| `<domain>-<role>` | `perf-worker`, `prompt-debug-worker` | Flat agent with no persona yet (`lib/core/agents/`) — prefix added when a persona is assigned |
+
+> The filename now tells you the persona AND the agent type instantly — no need to open the file.
 
 ---
 
