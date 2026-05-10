@@ -230,8 +230,8 @@ Copilot hooks (preview) support the same lifecycle events as Claude Code hooks. 
 | Phase | Status | Notes |
 |---|---|---|
 | Phase 1 — Project Conventions | ✅ Done | Templates, scripts, and `sda.sh` integration shipped |
-| Phase 2 — Skills (Gemini CLI) | 🔲 Not started | Work items identified — auto-discovered skills + TOML commands |
-| Phase 2 — Skills (Copilot) | 🔲 Not started | Work items identified — agent-as-skill + instructions-as-skill workarounds |
+| Phase 2 — Skills (Gemini CLI) | ✅ Done | `setup-ai.sh` symlinks Type A contract skills → `.agents/skills/`; generates TOML for Type T/U → `.gemini/commands/` |
+| Phase 2 — Skills (Copilot) | ✅ Done | `setup-ai.sh` generates `.agent.md` for Type T/U → `.github/agents/`; `.instructions.md` for Type A → `.github/instructions/` with derived `applyTo:` glob |
 | Phase 3 — Hooks (Copilot) | ⏸ Blocked | Waiting on Copilot hooks API moving out of preview |
 
 ### Research completed — 2026-05-09
