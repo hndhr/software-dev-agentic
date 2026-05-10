@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [4.1.1] — 2026-05-10
+
+### Changed
+- `docs/principles/core-design-principles.md`: replaced blanket 30-line skill limit with a type-based size rule (Type A short, Type T medium, Type U as long as needed); removed stale 500-line SKILL.md cap
+
+---
+
 ## [4.1.0] — 2026-05-10
 
 ### Added
