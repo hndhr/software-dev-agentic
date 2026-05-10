@@ -168,7 +168,7 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 **Intelligent selection** — "Create StateHolder, the UseCase already exists"
 → orchestrator spawns only `presentation-worker`
 
-**Type B skill** — `/migrate-presentation CustomFormScreen`
+**Type B skill** — `/builder-migrate-presentation CustomFormScreen`
 → explicit user trigger; prevents accidental migration
 
 **Cross-platform feature** — same CLEAN pattern, each codebase's `domain-worker` applies platform-specific skill
@@ -181,9 +181,9 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 ```
 builder-feature-orchestrator   (core orchestrator)
   └─ domain-worker              (core worker)    ← knows the rules
-        └─ domain-create-entity                 ← flutter skill, knows the syntax
-             source:     lib/platforms/flutter/skills/contract/domain-create-entity/SKILL.md
-             downstream: .claude/skills/domain-create-entity/SKILL.md
+        └─ builder-domain-create-entity                 ← flutter skill, knows the syntax
+             source:     lib/platforms/flutter/skills/contract/builder-domain-create-entity/SKILL.md
+             downstream: .claude/skills/builder-domain-create-entity/SKILL.md
 ```
 
 The worker knows the rules (no framework imports, single responsibility). The skill knows the syntax (Dart, `@freezed`, file naming).
@@ -192,11 +192,11 @@ The worker knows the rules (no framework imports, single responsibility). The sk
 
 ```
 pr-review-worker       (iOS platform worker)   ← iOS-specific workflow
-  └─ review-pr         (iOS platform skill)    ← Swift/UIKit conventions
-       lib/platforms/ios/skills/review-pr/SKILL.md
+  └─ auditor-review-pr         (iOS platform skill)    ← Swift/UIKit conventions
+       lib/platforms/ios/skills/auditor-review-pr/SKILL.md
 ```
 
-`review-pr` is a platform-specific skill — only the iOS platform worker calls it, so it only needs to exist for iOS.
+`auditor-review-pr` is a platform-specific skill — only the iOS platform worker calls it, so it only needs to exist for iOS.
 
 ### Other persona flows
 

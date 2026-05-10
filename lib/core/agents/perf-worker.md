@@ -130,26 +130,26 @@ If the session is **mixed** (e.g. flag removal + file restoration), apply skill 
 
 | Artifact created | Expected skill |
 |---|---|
-| Entity | `domain-create-entity` |
-| Repository interface | `domain-create-repository` |
-| Use case | `domain-create-usecase` |
-| Domain service | `domain-create-service` |
+| Entity | `builder-domain-create-entity` |
+| Repository interface | `builder-domain-create-repository` |
+| Use case | `builder-domain-create-usecase` |
+| Domain service | `builder-domain-create-service` |
 
 *Data layer:*
 
 | Artifact created | Expected skill |
 |---|---|
-| DTO / mapper | `data-create-mapper` |
-| DataSource interface + impl | `data-create-datasource` |
-| Repository implementation | `data-create-repository-impl` |
+| DTO / mapper | `builder-data-create-mapper` |
+| DataSource interface + impl | `builder-data-create-datasource` |
+| Repository implementation | `builder-data-create-repository-impl` |
 
 *Presentation layer:*
 
 | Artifact created | Expected skill |
 |---|---|
-| New StateHolder | `pres-create-stateholder` |
+| New StateHolder | `builder-pres-create-stateholder` |
 
-- Deduct `-1` per skill call that doesn't match the expected skill for the artifact inferred from its context (e.g. `domain-create-usecase` called when a repository interface was needed)
+- Deduct `-1` per skill call that doesn't match the expected skill for the artifact inferred from its context (e.g. `builder-domain-create-usecase` called when a repository interface was needed)
 - Deduct `-2` if a write to `write_paths` produced a domain/data/presentation artifact with **no corresponding skill call** — this means the worker bypassed skills and wrote directly (anti-pattern)
 
 **Intra-layer skill sequencing** — check the order of skill calls within each layer:
@@ -158,9 +158,9 @@ If the session is **mixed** (e.g. flag removal + file restoration), apply skill 
 *Data order (remote API):* mapper → datasource → repository-impl
 *Data order (local DB):* db-record → db-datasource → db-mapper → db-repository-impl
 
-- Deduct `-1` if `domain-create-usecase` appears in `skill_calls` before `domain-create-repository` for the same feature (precondition: repository interface must exist first)
-- Deduct `-1` if `data-create-repository-impl` appears before `data-create-datasource` (datasource interface must exist first)
-- Deduct `-1` if `data-create-*` skills appear in `skill_calls` before any `domain-create-*` skills (cross-layer precondition violation)
+- Deduct `-1` if `builder-domain-create-usecase` appears in `skill_calls` before `builder-domain-create-repository` for the same feature (precondition: repository interface must exist first)
+- Deduct `-1` if `builder-data-create-repository-impl` appears before `builder-data-create-datasource` (datasource interface must exist first)
+- Deduct `-1` if `builder-data-create-*` skills appear in `skill_calls` before any `builder-domain-create-*` skills (cross-layer precondition violation)
 
 ### D4 — Token Efficiency
 

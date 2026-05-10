@@ -60,7 +60,7 @@ Then route based on context:
 
 | Situation | Route to builder-test-worker with |
 |-----------|--------------------------|
-| No test file exists | `test-create-presentation` skill — create from scratch |
+| No test file exists | `builder-test-create-presentation` skill — create from scratch |
 | Tests failing after StateHolder *(iOS: ViewModel)* code change | `builder-test-worker` — update tests to match new code |
 | Tests failing (broken mocks, compile errors) | `builder-test-worker` — fix without changing logic |
 | Tests have TODO markers or wrong mocks | `builder-test-worker` — complete and verify |

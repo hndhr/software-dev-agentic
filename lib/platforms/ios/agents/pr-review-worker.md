@@ -3,7 +3,7 @@ name: pr-review-worker
 model: sonnet
 tools: Read, Glob, Grep, Bash
 related_skills:
-  - review-pr
+  - auditor-review-pr
 memory: project
 description: |
   Use this agent when:

@@ -7,19 +7,19 @@ Flutter · Clean Architecture + BLoC · get_it/injectable
 ```
 lib/platforms/flutter/
   skills/
-    domain-create-entity/       # @freezed entity, no fromJson
-    domain-create-repository/   # abstract class, Either returns
-    domain-create-usecase/      # UseCase<T, P>, Params class
-    domain-create-service/      # pure sync business logic
-    data-create-mapper/         # Model (freezed+json) + BaseMapper impl
-    data-create-datasource/     # abstract + Dio impl, throws AppException
-    data-create-repository-impl/# catches AppException → Left(failure)
-    pres-create-stateholder/    # BLoC: Event + State + BLoC class
-    pres-create-screen/         # Screen (BlocProvider) + View (BlocBuilder)
-    pres-create-component/      # reusable presentational Widget
-    test-create-domain/         # UseCase + Service tests
-    test-create-data/           # Mapper + RepositoryImpl tests
-    test-create-presentation/   # BLoC tests with bloc_test
+    builder-domain-create-entity/       # @freezed entity, no fromJson
+    builder-domain-create-repository/   # abstract class, Either returns
+    builder-domain-create-usecase/      # UseCase<T, P>, Params class
+    builder-domain-create-service/      # pure sync business logic
+    builder-data-create-mapper/         # Model (freezed+json) + BaseMapper impl
+    builder-data-create-datasource/     # abstract + Dio impl, throws AppException
+    builder-data-create-repository-impl/# catches AppException → Left(failure)
+    builder-pres-create-stateholder/    # BLoC: Event + State + BLoC class
+    builder-pres-create-screen/         # Screen (BlocProvider) + View (BlocBuilder)
+    builder-pres-create-component/      # reusable presentational Widget
+    builder-test-create-domain/         # UseCase + Service tests
+    builder-test-create-data/           # Mapper + RepositoryImpl tests
+    builder-test-create-presentation/   # BLoC tests with bloc_test
   reference/
     domain.md              # Entities, repository interfaces, use cases, services, Failure
     data.md                # Models, payloads, mappers, datasources, repository impls
@@ -38,17 +38,17 @@ The core workers (`lib/core/agents/builder/`) are platform-agnostic. When invoke
 
 ```
 builder-feature-orchestrator
-  └─ domain-worker           →  skills/domain-create-entity
-                             →  skills/domain-create-repository
-                             →  skills/domain-create-usecase
-  └─ data-worker             →  skills/data-create-mapper
-                             →  skills/data-create-datasource
-                             →  skills/data-create-repository-impl
-  └─ presentation-worker     →  skills/pres-create-stateholder
-  └─ builder-ui-worker       →  skills/pres-create-screen
-  └─ builder-test-worker     →  skills/test-create-domain
-                             →  skills/test-create-data
-                             →  skills/test-create-presentation
+  └─ domain-worker           →  skills/builder-domain-create-entity
+                             →  skills/builder-domain-create-repository
+                             →  skills/builder-domain-create-usecase
+  └─ data-worker             →  skills/builder-data-create-mapper
+                             →  skills/builder-data-create-datasource
+                             →  skills/builder-data-create-repository-impl
+  └─ presentation-worker     →  skills/builder-pres-create-stateholder
+  └─ builder-ui-worker       →  skills/builder-pres-create-screen
+  └─ builder-test-worker     →  skills/builder-test-create-domain
+                             →  skills/builder-test-create-data
+                             →  skills/builder-test-create-presentation
 ```
 
 ## Key Patterns

@@ -82,7 +82,7 @@ Agents have a second axis — where they live and what they know.
 
 **DI at Skill Level:**
 
-Workers are platform-agnostic protocol-definers. Skills are the platform-specific implementations of that protocol. A `domain-worker` calls `domain-create-entity` by name — on iOS that creates a Swift struct, on web a TypeScript interface. The worker never knows which platform it's on and doesn't need to.
+Workers are platform-agnostic protocol-definers. Skills are the platform-specific implementations of that protocol. A `domain-worker` calls `builder-domain-create-entity` by name — on iOS that creates a Swift struct, on web a TypeScript interface. The worker never knows which platform it's on and doesn't need to.
 
 **Skills are create-only.** Platform-contract skills cover new artifact creation only (`create-*`). There are no update or fix skills — workers handle modifications to existing artifacts via direct `Read` + `Edit` with reference docs. Workers invoke a skill only when the target artifact does not yet exist.
 
@@ -211,7 +211,7 @@ Every Type T skill that is the entry point for a persona must be prefixed with t
 | Pattern | Example | When to use |
 |---|---|---|
 | `<persona>-<action>` | `builder-build-feature`, `detective-debug`, `auditor-arch-review` | Type T trigger skill that enters a persona workflow |
-| `<layer>-<action>-<target>` | `domain-create-entity`, `data-create-mapper` | Type A platform-contract skill called by a worker |
+| `<persona>-<layer>-<action>-<target>` | `builder-domain-create-entity`, `builder-data-create-mapper` | Type A platform-contract skill called by a worker |
 
 > Exception: standalone utility skills with no persona owner (e.g. `release`, `agentic-perf-review`) are named descriptively without a prefix until a persona is assigned.
 
@@ -419,7 +419,7 @@ Sub-planners follow the same constraints: read-only, structured findings output,
 | **Project skill** | `.claude/skills.local/` | No — project-owned, not in this repo. |
 | **Repo skill** | `.claude/skills/` | No — internal tooling only. Used by this repo's internal agents; never symlinked to downstream projects. |
 
-> "Core-dependency skill" used in earlier sections of this doc refers to platform-contract skills — skills all platforms must implement under the same name (`domain-create-entity`, `data-create-mapper`, etc.).
+> "Core-dependency skill" used in earlier sections of this doc refers to platform-contract skills — skills all platforms must implement under the same name (`builder-domain-create-entity`, `builder-data-create-mapper`, etc.).
 
 #### Valid Type × Scope Combinations
 
