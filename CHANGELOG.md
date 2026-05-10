@@ -7,6 +7,25 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.0.0] — 2026-05-10
+
+### Changed
+- **BREAKING** — All platform skills renamed with persona-name prefix (`<persona>-<layer>-<action>-<target>`):
+  - Contract skills (all 4 platforms): `domain-create-*` → `builder-domain-create-*`, `data-create-*` → `builder-data-create-*`, `pres-create-*` → `builder-pres-create-*`, `test-create-*` → `builder-test-create-*`
+  - iOS flat skills: `arch-check-ios` → `auditor-arch-check-ios`, `review-pr` → `auditor-review-pr`, `sonar-check` → `auditor-sonar-check`, `debug-*-logs` → `detective-debug-*-logs`, `setup-ios-project` → `installer-setup-ios-project`, `generate-changelog` → `tracker-generate-changelog`, `migrate-*` → `builder-migrate-*`, `audit-presentation-test` → `builder-audit-presentation-test`, etc.
+  - Web flat skills: `arch-check-web` → `auditor-arch-check-web`, `debug-*-logs` → `detective-debug-*-logs`, `setup-nextjs-project` → `installer-setup-nextjs-project`, `pres-*` → `builder-pres-*`, etc.
+- **BREAKING** — Removed 13 duplicate flat iOS skills that were silently shadowing their `contract/` counterparts in `setup-symlinks.sh` link ordering. `contract/` is now the authoritative source for iOS.
+
+### Migration
+
+Downstream projects must re-run setup-symlinks.sh to get new skill names in `.claude/skills/`:
+```bash
+.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=<platform>
+```
+Any `skills.local/` overrides must be renamed to match the new `builder-`/`auditor-`/`detective-`/`installer-`/`tracker-` prefixed names.
+
+---
+
 ## [4.1.1] — 2026-05-10
 
 ### Changed
