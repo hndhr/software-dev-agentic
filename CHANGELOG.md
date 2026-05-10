@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.1.0] — 2026-05-10
+
+### Added
+- `detective-debug-add-logs` and `detective-debug-remove-logs` promoted to detective persona contract skills across all 4 platforms — iOS and web implementations moved from flat to `contract/`, Flutter and Android stubs created
+
+### Changed
+- `detective-debug-log-worker`: adds `related_skills` pointing to both contract skills; drops inline platform conventions table and `LOG_PREFIX` input — log format knowledge now lives in each platform's skill
+
+---
+
 ## [5.0.1] — 2026-05-10
 
 ### Fixed
