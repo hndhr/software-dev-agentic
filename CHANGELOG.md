@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.2.0] — 2026-05-10
+
+### Added
+- `auditor-arch-check` contract skill — all 4 platforms (iOS + web moved from flat, Flutter + Android stubs)
+- `installer-setup-project` contract skill — all 4 platforms (iOS + web moved from flat, Flutter + Android stubs)
+- `builder-test-create-mock` contract skill — all 4 platforms (web moved from flat, iOS + Flutter + Android stubs)
+
+### Fixed
+- `auditor-arch-review-worker`, `installer-setup-worker`, `builder-test-worker`: replaced flat platform skill references with contract skill names — fixes P6 platform-agnosticism violations
+
+---
+
 ## [5.1.0] — 2026-05-10
 
 ### Added
