@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.3.0] — 2026-05-11
+
+### Added
+- `tracker-jira-ticket-worker`: generic worker that creates Jira tickets under an epic from a platform breakdown list — parses platform/scope/duration, fetches PRD from Confluence, optional Figma context for UI tickets, generates requirement-focused descriptions (Context · Scope of Work · Design · Acceptance Criteria), previews before creating, and creates via Atlassian MCP. Codebase exploration deferred to `/builder-groom-ticket`.
+- `tracker-jira-ticket` skill: entry point for `tracker-jira-ticket-worker`
+
+### Changed
+- `README.md`: fixed stale agents and skills tables (v3.15.0 → v5.2.0 header, added Android platform, corrected builder persona table, added tracker-jira-ticket-worker, removed non-existent prompt-debug-worker, expanded skills from 4 to 17 entries by persona)
+- `README.md`: added Recommended Workflows section — Workflow 1 (Tracker Persona: 1a create tickets, 1b update progress) and Workflow 2 (Builder Persona: groom → build → adjust) with prompt examples and first-time tutorial framing
+
+---
+
 ## [5.2.0] — 2026-05-10
 
 ### Added
