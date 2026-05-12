@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.4.1] — 2026-05-12
+
+### Fixed
+- `sda.sh` sync menu option: prompt for platform when `--platform` is not passed, instead of failing with "could not detect platform".
+
 ## [5.4.0] — 2026-05-12
 
 ### Added

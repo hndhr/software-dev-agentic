@@ -121,6 +121,10 @@ case "$COMMAND" in
     exec "$SCRIPTS/setup-symlinks.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
     ;;
   sync)
+    if [ -z "$PLATFORM" ]; then
+      ask_platform
+      PASSTHROUGH+=("--platform=$PLATFORM")
+    fi
     exec "$SCRIPTS/sync.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
     ;;
   add-ai)
