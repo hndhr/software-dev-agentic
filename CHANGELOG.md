@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.3.1] — 2026-05-12
+
+### Changed
+- `tracker-adjust-ticket` skill: upgraded `## Session Adjustment` heading to `#`, and subsection headings from `###` to `##`
+
+---
+
 ## [5.3.0] — 2026-05-11
 
 ### Added

@@ -33,14 +33,14 @@ Verify the file exists before continuing. If it does not exist, report the path 
 
 4. Compose the adjustment section using the answers. Use today's date (ISO 8601) as the last-updated date.
 
-   - Copy every Acceptance Criteria item into `### Acceptance Criteria` as a checklist. Mark items checked (`- [x]`) only for those the user confirmed as done; leave the rest unchecked (`- [ ]`).
-   - Populate `### Work Items` with a checklist of granular tasks worked on this session. Mark each item done (`- [x]`) if the user confirmed it completed; leave the rest `- [ ]`.
-   - Write `### Decisions` as prose bullets — one bullet per decision, including the rationale.
-   - Write `### Open Questions` as a checklist — one `- [ ]` item per unresolved question or blocker. Omit the section if empty.
+   - Copy every Acceptance Criteria item into `## Acceptance Criteria` as a checklist. Mark items checked (`- [x]`) only for those the user confirmed as done; leave the rest unchecked (`- [ ]`).
+   - Populate `## Work Items` with a checklist of granular tasks worked on this session. Mark each item done (`- [x]`) if the user confirmed it completed; leave the rest `- [ ]`.
+   - Write `## Decisions` as prose bullets — one bullet per decision, including the rationale.
+   - Write `## Open Questions` as a checklist — one `- [ ]` item per unresolved question or blocker. Omit the section if empty.
 
    Do NOT edit, reorder, or remove any other existing content in the file.
 
-5. Check if a `## Session Adjustment` section already exists in the file.
+5. Check if a `# Session Adjustment` section already exists in the file.
 
    - **If it exists:** replace the entire block (from the preceding `---` separator through the end of the section) with the updated content below.
    - **If it does not exist:** append the block at the end of the file.
@@ -48,29 +48,29 @@ Verify the file exists before continuing. If it does not exist, report the path 
    ```
    ---
 
-   ## Session Adjustment — <YYYY-MM-DD>
+   # Session Adjustment — <YYYY-MM-DD>
 
-   ### Acceptance Criteria
+   ## Acceptance Criteria
 
    <checklist duplicated from the ticket's Acceptance Criteria; checked items reflect confirmed done work>
 
-   ### Work Items
+   ## Work Items
 
    <checklist of granular tasks worked on or completed this session>
 
-   ### Progress
+   ## Progress
 
    <narrative summary of what was implemented this session>
 
-   ### Decisions
+   ## Decisions
 
    <prose bullets — one per decision with rationale; omit section if none>
 
-   ### Open Questions
+   ## Open Questions
 
    <checklist of unresolved questions or blockers — omit section if none>
 
-   ### Status
+   ## Status
 
    <current development status>
    ```
@@ -81,8 +81,8 @@ Verify the file exists before continuing. If it does not exist, report the path 
 
 - NEVER edit, reorder, or strip any content outside the `## Session Adjustment` section. The only writable area is between the `---` separator and the end of that section.
 - Always duplicate the Acceptance Criteria from the ticket body into the Session Adjustment section. When criteria change, update only the copy inside Session Adjustment — never the original.
-- Always include a `### Work Items` checklist to track progress. Mark items `- [x]` as confirmed done, `- [ ]` otherwise.
-- `### Decisions` and `### Open Questions` are always separate sections — never combined.
-- Omit `### Decisions` if no decisions were made; omit `### Open Questions` if none remain.
-- There is always exactly one `## Session Adjustment` section — update it in place, never append a second one.
+- Always include a `## Work Items` checklist to track progress. Mark items `- [x]` as confirmed done, `- [ ]` otherwise.
+- `## Decisions` and `## Open Questions` are always separate sections — never combined.
+- Omit `## Decisions` if no decisions were made; omit `## Open Questions` if none remain.
+- There is always exactly one `# Session Adjustment` section — update it in place, never append a second one.
 - Use `Edit` to replace the existing section, or to append if none exists yet.
