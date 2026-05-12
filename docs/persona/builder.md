@@ -10,63 +10,110 @@ Location: `lib/core/agents/builder/`
 
 ## Anatomy
 
-The builder persona has two entry skills that both converge on `builder-feature-orchestrator`:
+The builder persona has three entry skills. All use the same orchestrator brain and the same convergence planning loop — they differ only in how intent is gathered and how blocking decisions are handled.
 
 ```
 User
  │
- ├─ /builder-plan-feature skill (Type T)         — plan-first; sequences planner → approval → worker
- │
- └─ /builder-build-feature skill (Type T) — direct entry; routes resume vs new, or build-directly
+ ├─ /builder-plan-feature          — interactive; convergence loop + user approval + worker
+ ├─ /builder-build-feature         — direct entry; routes resume vs new, or build-directly
+ └─ /builder-build-from-ticket     — non-interactive; derives intent from Jira ticket, auto-approves
+          │
+          │  Step 1: gather-intent (or gather-intent-prefilled for ticket path)
+          ▼
+    builder-feature-orchestrator   — brain only; returns Decision blocks; never spawns or writes
+          │
+          │  Decision: spawn-planners (which layers, why)
+          ▼
+    Entry skill spawns planners in parallel (only those decided by orchestrator)
+          │
+          ├─ builder-domain-planner    — Domain: entities, use cases, repository interfaces
+          ├─ builder-data-planner      — Data: DTOs, mappers, datasources, repo implementations
+          ├─ builder-pres-planner      — Presentation: StateHolders, screens, key symbols
+          └─ builder-app-planner       — App: DI registration, routing, module registration
+          │
+          │  Planners return findings + Impact Recommendations
+          ▼
+    Entry skill sends accumulated findings to orchestrator
+          │
+          │  Decision: converged / spawn-planners (next round) / blocked
+          ▼
+    Loop continues until converged (max 3 rounds)
+          │
+          │  Decision: converged → orchestrator synthesizes plan.md + context.md
+          │
+          │  [interactive path: user reviews and approves plan.md]
+          │  [ticket path: auto-approved]
+          │
+          │  Decision: spawn-worker
+          ▼
+    builder-feature-worker         — reads approved plan; executes skills in layer order
           │
           ▼
-    builder-feature-orchestrator         — coordinates phases; never writes source files
-          │
-          ▼  (plan-first path)
-    builder-feature-planner              — scopes build; produces plan.md + context.md
-      │           │           │
-      ▼           ▼           ▼
- builder-      builder-    builder-
- domain-       data-       pres-
- planner       planner     planner       — explore each layer in parallel; no source writes
-          │
-          │  [user reviews and approves plan.md]
-          │
-          ▼
-    builder-feature-worker               — reads approved plan; executes skills in layer order
-          │
-          ▼
-    platform-contract skills             — concrete artifact creation per platform and layer
+    platform-contract skills       — concrete artifact creation per platform and layer
 ```
 
-**Two entry paths — same executor:**
+---
 
-| Entry skill | When to use | Difference |
+## Entry Skills
+
+| Skill | When to use | Difference |
 |---|---|---|
-| `/builder-plan-feature` | Complex or cross-layer features; uncertain existing state | Runs `builder-feature-planner` first; user reviews plan before execution begins |
-| `/builder-build-feature` | Known scope; resuming an existing run | Routes directly to `builder-feature-worker`, or lets orchestrator decide |
+| `/builder-plan-feature` | Complex or cross-layer features; uncertain existing state | Interactive convergence loop; user reviews plan before execution |
+| `/builder-build-feature` | Known scope; resuming an existing run; or build-directly opt-out | Routes resume vs new; build-directly skips the loop |
+| `/builder-build-from-ticket` | CI job, API caller, automated pipeline | Non-interactive; intent derived from Jira ticket; auto-approves |
 
-**Planner phase — parallel sub-planners:**
+---
 
-`builder-feature-planner` spawns all three layer planners simultaneously. Each explores its layer independently and returns a structured findings block. `builder-feature-planner` aggregates the findings into `plan.md` and `context.md`, then stops for human approval.
+## Planning Convergence Loop
 
-| Sub-planner | Explores |
-|---|---|
-| `builder-domain-planner` | Entities, use cases, repository interfaces, domain services |
-| `builder-data-planner` | DTOs, mappers, datasources, repository implementations |
-| `builder-pres-planner` | StateHolders, screens, components, navigators, key symbols |
+The entry skill (not the orchestrator) owns the loop. Each round:
 
-**Execution phase — `builder-feature-worker`:**
+1. Orchestrator decides which planners are needed based on intent and prior findings
+2. Entry skill spawns only those planners in parallel
+3. Planners return findings + `### Impact Recommendations` (which other layers are affected)
+4. Entry skill sends accumulated findings to orchestrator
+5. Orchestrator checks: are all required recommendations covered by the visited set?
+   - No → `Decision: spawn-planners` for the next round (unvisited layers only)
+   - Yes → `Decision: converged`
+
+**Guards:**
+- Visited set prevents re-spawning already-explored layers
+- Hard cap at 3 rounds → `Decision: blocked` surfaces to user (or `error.md` for ticket path)
+
+---
+
+## Orchestrator Modes
+
+`builder-feature-orchestrator` is called multiple times per feature build, each time in a different mode:
+
+| Mode | Called when | Returns |
+|---|---|---|
+| `gather-intent` | New interactive feature | `Decision: spawn-planners` (round 1) |
+| `gather-intent-prefilled` | Ticket path; intent pre-derived | `Decision: spawn-planners` (round 1) |
+| `process-findings` | After each planner round | `Decision: spawn-planners` / `Decision: converged` / `Decision: blocked` |
+| `synthesize` | After convergence; skill passes all findings | Writes `plan.md` + `context.md`; returns summary |
+| `execute-approved-plan` | After user approval | `Decision: spawn-worker` |
+| `resume` | Resuming an existing run | `Decision: spawn-worker` |
+
+---
+
+## Sub-Planners
+
+Each planner explores one layer, reports findings, and returns. Spawned by the entry skill in parallel per round.
+
+| Planner | Explores | Impact Recommendations |
+|---|---|---|
+| `builder-domain-planner` | Entities, use cases, repository interfaces, domain services | → data (new entity needs DTO), → app (new use case needs DI) |
+| `builder-data-planner` | DTOs, mappers, datasources, repository implementations | → domain (contract gap), → app (new impl needs DI binding) |
+| `builder-pres-planner` | StateHolders, screens, components, navigators, key symbols | → domain (missing use case), → app (new screen needs route) |
+| `builder-app-planner` | DI registration, routing, module registration, analytics, feature flags | → domain / presentation (flag or route impacts) |
+
+---
+
+## Execution Phase — `builder-feature-worker`
 
 `builder-feature-worker` is the only agent that writes source files. It reads the approved `plan.md` and calls skills in CLEAN layer order — domain → data → presentation → UI. Each artifact is validated via `Glob` + `Grep` before moving to the next. `state.json` is updated after each artifact so the run is resumable.
-
-**Standalone paths (no orchestrator or planner needed):**
-
-| Task | Path |
-|---|---|
-| Single known artifact | Worker directly (`domain-worker`, `data-worker`, `presentation-worker`, `builder-ui-worker`) |
-| Test generation | `builder-test-worker` directly |
-| Targeted edit to existing artifact | Worker with `context.md` Key Symbols if available |
 
 ---
 
@@ -76,13 +123,13 @@ User
 
 | Role | Agent | Responsibility |
 |---|---|---|
-| Orchestrator | `builder-feature-orchestrator` | Full feature build — coordinates planner + feature-worker phases |
-| Orchestrator | `pres-orchestrator` | Presentation + UI phase — standalone entry for pres-only tasks |
+| Orchestrator | `builder-feature-orchestrator` | Brain of the builder persona — decides which planners, synthesizes plan, instructs skill to spawn worker |
+| Orchestrator | `builder-groom-orchestrator` | Grooming brain — detects scope from AC, decides which planners, synthesizes grooming summary |
 | Orchestrator | `builder-backend-orchestrator` | Backend API + data layer coordination |
-| Planner | `builder-feature-planner` | Pre-build planning — spawns layer planners in parallel, produces plan.md |
 | Planner | `builder-domain-planner` | Domain layer exploration — entities, use cases, repository interfaces |
 | Planner | `builder-data-planner` | Data layer exploration — DTOs, mappers, datasources, repo implementations |
 | Planner | `builder-pres-planner` | Presentation layer exploration — StateHolders, screens, key symbols |
+| Planner | `builder-app-planner` | App layer exploration — DI, routing, module registration, analytics, feature flags |
 | Worker | `builder-feature-worker` | Plan-driven executor — reads plan.md, calls skills in layer order, validates each artifact |
 | Worker | `domain-worker` | Domain layer direct creation — for single known artifacts |
 | Worker | `data-worker` | Data layer direct creation — for single known artifacts |
@@ -91,6 +138,13 @@ User
 | Worker | `builder-test-worker` | Test generation across all layers |
 | Worker | `prompt-debug-worker` | Agent prompt diagnosis from perf reports |
 | Worker | `auditor-arch-review-worker` | CLEAN Architecture violation review (downstream projects) |
+
+**Deprecated (absorbed into orchestrator + entry skills):**
+
+| Agent | Replaced by |
+|---|---|
+| `builder-feature-planner` | `builder-feature-orchestrator` (synthesize mode) + entry skill (convergence loop) |
+| `builder-auto-feature-planner` | `builder-feature-orchestrator` (gather-intent-prefilled mode) + `builder-build-from-ticket` skill |
 
 ### Platform agents
 
@@ -115,6 +169,7 @@ User
 | Domain | `builder-domain-planner` | `domain-worker` | `domain-create-entity`, `domain-create-usecase`, `domain-create-repository`, `domain-create-service` |
 | Data | `builder-data-planner` | `data-worker` | `builder-data-create-datasource`, `builder-data-create-mapper`, `builder-data-create-repository-impl` |
 | Presentation | `builder-pres-planner` | `presentation-worker`, `builder-ui-worker` | `builder-pres-create-stateholder`, `builder-pres-create-screen`, `builder-pres-create-component` |
+| App | `builder-app-planner` | `builder-feature-worker` (inline) | — |
 | Test | — | `builder-test-worker` | `test-create-domain`, `test-create-data`, `test-create-presentation` |
 
 ---
@@ -140,11 +195,21 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 
 ---
 
+## Standalone Paths (no convergence loop needed)
+
+| Task | Path |
+|---|---|
+| Single known artifact | Worker directly (`domain-worker`, `data-worker`, `presentation-worker`, `builder-ui-worker`) |
+| Test generation | `builder-test-worker` directly |
+| Targeted edit to existing artifact | Worker with `context.md` Key Symbols if available |
+
+---
+
 ## Agent Count Snapshot
 
 | Category | `lib/core/agents/` | `lib/platforms/ios/agents/` | `lib/platforms/web/agents/` |
 |---|---|---|---|
-| Orchestrators | 5 in `builder/` + 1 in `detective/` | 1 (`test-orchestrator`) | — |
+| Orchestrators | 3 in `builder/` + 1 in `detective/` | 1 (`test-orchestrator`) | — |
 | Workers | 8 in `builder/` + 2 in `detective/` + 1 in `tracker/` + 1 in `auditor/` + 1 in `installer/` + 1 flat | 1 (`pr-review-worker`) | — |
 | Skills (Type A) | — | 29 | 29 |
 | Skills (Type B) | — | 2 | 0 |
@@ -163,30 +228,30 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 → `domain-worker` spawned directly, assesses preconditions, sequences skills
 
 **Multi-layer task** — "Build the leave request feature"
-→ `builder-feature-orchestrator` coordinates 4 workers; passes file paths only; writes state file after each phase
+→ `/builder-plan-feature` skill: orchestrator decides which planners, skill runs convergence loop, plan approved, `builder-feature-worker` executes
 
-**Intelligent selection** — "Create StateHolder, the UseCase already exists"
-→ orchestrator spawns only `presentation-worker`
+**Partial update** — "Add a new screen, domain/data already exist"
+→ orchestrator decides: spawn only `pres-planner` + `app-planner` (domain and data have no impact)
+
+**Cross-layer impact discovered** — pres-planner reports "new screen needs a use case that doesn't exist"
+→ orchestrator spawns domain-planner in round 2 to explore; skill adds `domain` to visited set
 
 **Type B skill** — `/migrate-presentation CustomFormScreen`
 → explicit user trigger; prevents accidental migration
 
-**Cross-platform feature** — same CLEAN pattern, each codebase's `domain-worker` applies platform-specific skill
-
-**Standalone worker** — "Review my branch before PR"
-→ `pr-review-worker` directly, no orchestrator
+**Ticket-driven build** — `/builder-build-from-ticket PROJ-123`
+→ skill derives intent from ticket, runs convergence loop automatically, auto-approves, executes worker
 
 **Flutter domain entity creation** — "Create a LeaveRequest entity for Flutter"
 
 ```
-builder-feature-orchestrator   (core orchestrator)
-  └─ domain-worker              (core worker)    ← knows the rules
-        └─ builder-domain-create-entity                 ← flutter skill, knows the syntax
-             source:     lib/platforms/flutter/skills/contract/builder-domain-create-entity/SKILL.md
-             downstream: .claude/skills/builder-domain-create-entity/SKILL.md
+/builder-plan-feature skill
+  └─ builder-feature-orchestrator   (decides: spawn domain-planner only)
+  └─ builder-domain-planner         (explores domain layer)
+  └─ builder-feature-orchestrator   (converged; synthesizes plan.md)
+  └─ builder-feature-worker         (reads plan; calls skill)
+        └─ builder-domain-create-entity   ← flutter skill, knows the syntax
 ```
-
-The worker knows the rules (no framework imports, single responsibility). The skill knows the syntax (Dart, `@freezed`, file naming).
 
 **iOS PR review** — "Review my PR before merging"
 
@@ -195,8 +260,6 @@ pr-review-worker       (iOS platform worker)   ← iOS-specific workflow
   └─ review-pr         (iOS platform skill)    ← Swift/UIKit conventions
        lib/platforms/ios/skills/review-pr/SKILL.md
 ```
-
-`review-pr` is a platform-specific skill — only the iOS platform worker calls it, so it only needs to exist for iOS.
 
 ### Other persona flows
 
@@ -243,6 +306,7 @@ prompt-debug-worker   ← reads perf-report + domain-worker.md
 | 3 | Naming alignment | Flutter/Android adopt `-orchestrator` / `-worker` suffix — required before migration |
 | 4 | Reference doc splitting | Structural split of `lib/platforms/web/reference/contract/builder/data.md` and `lib/platforms/web/reference/utilities.md` by operation type |
 | 5 | Flutter implementation | `lib/platforms/flutter/` is a stub — needs agents, skills, reference docs |
+
 ---
 
 ## CLEAN Architecture, SOLID, and DRY
@@ -250,14 +314,15 @@ prompt-debug-worker   ← reads perf-report + domain-worker.md
 > Layer-to-agent mapping: see [Layer-to-Agent Mapping](#layer-to-agent-mapping) above.
 
 **SOLID via Agent Design:**
-- **SRP:** Each worker handles exactly one layer; each skill does exactly one task
+- **SRP:** Each worker handles exactly one layer; each skill does exactly one task; orchestrator only reasons and decides
 - **OCP:** New features add new agents/skills without modifying existing ones
 - **DIP:** Workers define the protocol; platform skills are the implementations
 - **DRY via Architecture:** Reference docs are the single source of truth — skills Grep section pointers, never embed content.
+
 ---
 
 ## Delegation Threshold
 
-Always delegate to `builder-feature-orchestrator` when a task touches more than 3 architectural layers — inline execution at that scope produces inconsistent results.
+Always use the convergence planning loop when a task touches more than 3 architectural layers — inline execution at that scope produces inconsistent results.
 
 > Rule: if the task takes fewer tokens to DO than to DELEGATE, do it directly. Otherwise, delegate.

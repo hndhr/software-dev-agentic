@@ -79,16 +79,14 @@ Pulls the latest, re-runs symlink setup (idempotent), and reminds you to commit 
 
 | Agent | Purpose |
 |---|---|
-| `builder-feature-orchestrator` | Build a feature end-to-end across all CLEAN layers |
+| `builder-feature-orchestrator` | Brain of the builder persona — decides which planners to spawn each round, synthesizes plan.md + context.md, instructs entry skill to spawn worker. Never spawns agents or writes source files directly. |
 | `builder-feature-worker` | Execute an approved feature plan layer by layer |
-| `builder-feature-planner` | Plan a feature across CLEAN layers before any code is written — produces a reviewable plan.md |
-| `builder-auto-feature-planner` | Non-interactive variant of feature-planner for one-shot callers (CI, `/builder-build-from-ticket`) |
 | `builder-backend-orchestrator` | Build domain + data layers when presentation exists or will be built separately |
-| `builder-groom-orchestrator` | Groom a Jira ticket against the codebase — maps acceptance criteria to CLEAN layers, identifies work items |
-| `builder-app-planner` | Discover app-layer wiring (DI, route, module registration) for a feature. Read-only. |
-| `builder-domain-planner` | Discover Domain layer — entities, use cases, repository interfaces. Read-only. |
-| `builder-data-planner` | Discover Data layer — DTOs, mappers, datasources, repository impls. Read-only. |
-| `builder-pres-planner` | Discover Presentation layer — StateHolders, screens, components. Read-only. |
+| `builder-groom-orchestrator` | Groom a Jira ticket against the codebase — detects scope from AC, returns which planners to run, synthesizes grooming summary |
+| `builder-domain-planner` | Discover Domain layer — entities, use cases, repository interfaces. Returns findings + impact recommendations. Read-only. |
+| `builder-data-planner` | Discover Data layer — DTOs, mappers, datasources, repository impls. Returns findings + impact recommendations. Read-only. |
+| `builder-pres-planner` | Discover Presentation layer — StateHolders, screens, components. Returns findings + impact recommendations. Read-only. |
+| `builder-app-planner` | Discover App layer — DI, routing, module, analytics, feature flags. Returns findings + impact recommendations. Read-only. |
 | `builder-ui-worker` | Create or update screens and components bound to an existing StateHolder |
 | `builder-test-worker` | Generate tests for any CLEAN layer |
 
@@ -128,9 +126,9 @@ Pulls the latest, re-runs symlink setup (idempotent), and reminds you to commit 
 
 | Skill | Purpose |
 |---|---|
-| `/builder-build-feature` | Build or update a feature across CLEAN layers — resumes or starts a feature-orchestrator run |
-| `/builder-plan-feature` | Plan then build — runs feature-planner, shows approval prompt, then executes |
-| `/builder-build-from-ticket` | One-shot build from a Jira ticket key or URL — non-interactive, designed for CI |
+| `/builder-build-feature` | Build or update a feature — resumes an existing run or starts a new one (plan-first or build-directly) |
+| `/builder-plan-feature` | Plan then build — runs convergence planning loop (spawning only needed layer planners per round), shows approval prompt, then executes |
+| `/builder-build-from-ticket` | One-shot build from a Jira ticket key or URL — non-interactive, convergence loop runs automatically, designed for CI |
 | `/builder-backend` | Build Domain + Data layers only |
 | `/builder-groom-ticket` | Groom a locally fetched Jira ticket against the codebase |
 | `/builder-clear-runs` | Remove stale orchestrator run state from `.claude/agentic-state/runs/` |
@@ -339,7 +337,7 @@ Let's work on the work items in this ticket. Focus on the API migration items fi
 /builder-plan-feature path/to/TICKET-123.md
 ```
 
-Claude reads the groomed ticket (including the Session Adjustment), maps the work items to CLEAN layers, and presents a plan for your approval. Once you approve, `builder-feature-orchestrator` executes the implementation layer by layer — Domain → Data → Presentation → UI.
+Claude reads the groomed ticket (including the Session Adjustment), runs the convergence planning loop — spawning only the layer planners relevant to the work items, expanding scope if planners detect cross-layer impact — and presents a plan for your approval. Once you approve, `builder-feature-worker` executes the implementation layer by layer — Domain → Data → Presentation → UI.
 
 ---
 

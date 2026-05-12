@@ -783,9 +783,9 @@ Read(<span class="bd">"reference/contract/builder/domain.md"</span>)
   lib/
     core/
       agents/builder/
-        <span class="ac">feature-orchestrator.md</span>  <span class="dm">← coordinates all workers</span>
+        <span class="ac">feature-orchestrator.md</span>  <span class="dm">← brain: decides which planners, synthesizes plan</span>
         <span class="ac">feature-worker.md</span>        <span class="dm">← single executor across all CLEAN layers</span>
-        <span class="ac">feature-planner.md</span>       <span class="dm">← pre-build exploration + plan.md</span>
+        <span class="ac">domain/data/pres/app-planner.md</span>  <span class="dm">← spawned by entry skill per round</span>
       reference/builder/       <span class="dm">← what each concept IS (platform-agnostic)</span>
         <span class="rl">domain.md · data.md · presentation.md · di.md ···</span>
     platforms/
@@ -1042,34 +1042,34 @@ talenta-ios/.claude/
       </div>
       <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Orchestrator</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent</div>
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent — brain only</div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
         <div style="margin-bottom: 10px;">
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Coordinate workers in defined phase order</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Validate each worker's output before advancing</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Pass file paths only between phases</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Return structured Decision blocks to calling skill</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Decide which planners are needed per round</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Synthesize findings into plan.md + context.md</div>
         </div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
         <div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Spawn agents — entry skill does this</div>
           <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Write source files directly</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Advance past a failed worker phase</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Read reference docs in full</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Read codebase source files directly</div>
         </div>
       </div>
       <div class="card" style="padding: 20px 16px;">
         <div class="card-label">Planner</div>
-        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent</div>
+        <div style="font-size: 11px; font-family: var(--mono); color: var(--muted); margin-bottom: 10px; letter-spacing: 0.04em;">Agent — layer explorer</div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px;">Do</div>
         <div style="margin-bottom: 10px;">
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Explore codebase read-only before any source write</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Spawn sub-planners in parallel per layer</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Write plan.md + context.md; stop for approval</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Explore one CLEAN layer read-only</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Return findings + Impact Recommendations</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Report which other layers are affected and why</div>
         </div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
         <div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Write source files</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Proceed to execution without user approval</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Duplicate output across sub-planners</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Write any files</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Spawn other agents</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--bad);">✗</span>Explore outside its assigned layer</div>
         </div>
       </div>
       <div class="card" style="padding: 20px 16px;">
@@ -1095,7 +1095,7 @@ talenta-ios/.claude/
         <div style="margin-bottom: 10px;">
           <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Execute exactly one atomic task</div>
           <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative; margin-bottom: 3px;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Produce platform-specific output</div>
-          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Stay under 30 lines</div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.55; padding-left: 13px; position: relative;"><span style="position:absolute;left:0;color:var(--accent);">✓</span>Scale in length only with what the type demands</div>
         </div>
         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bad); margin-bottom: 4px;">Don't</div>
         <div>
@@ -1106,8 +1106,8 @@ talenta-ios/.claude/
       </div>
     </div>
     <div class="caption">
-      Trigger skills are the enforced entry gate. Planners de-risk execution — explore and plan first, so workers execute with zero rework.
-      <strong>Workers are the brains. Skills are the hands. The trigger skill is the front door.</strong>
+      Trigger skills own the convergence loop — spawning only the planners the orchestrator decides are needed, accumulating findings round by round, and gating execution on user approval.
+      <strong>Orchestrator is the brain. Worker is the hands. Trigger skill is the router and executor.</strong>
     </div>
   </section>
 
@@ -1122,15 +1122,21 @@ talenta-ios/.claude/
 <span class="dm">User</span>
 <span class="dm"> │</span>
 <span class="dm"> ▼</span>
-<span class="ac">Trigger Skill</span> <span class="rl">(Type T)</span>     <span class="dm">— routes, pre-loads context, builds spawn prompt</span>
+<span class="ac">Trigger Skill</span> <span class="rl">(Type T)</span>     <span class="dm">— routes, pre-loads context, builds spawn prompt, convergence loop</span>
+<span class="dm"> │</span>
+<span class="dm"> ▼  gather-intent</span>
+<span class="ac">Orchestrator</span>               <span class="dm">— brain only; returns Decision blocks; never spawns or writes</span>
+<span class="dm"> │  Decision: spawn-planners</span>
+<span class="dm"> ▼</span>
+<span class="ac">Trigger Skill</span>              <span class="dm">— spawns planners in parallel; accumulates findings</span>
+<span class="dm"> │  process-findings (each round)</span>
+<span class="dm"> ▼</span>
+<span class="ac">Orchestrator</span>               <span class="dm">— converged? → synthesize; or → spawn-planners (next round)</span>
+<span class="dm"> │  Decision: spawn-worker</span>
+<span class="dm"> ▼</span>
+<span class="ac">Trigger Skill</span>              <span class="dm">— spawns Worker with plan + context injected inline</span>
 <span class="dm"> │</span>
 <span class="dm"> ▼</span>
-<span class="ac">Orchestrator</span>               <span class="dm">— coordinates phases; never writes source files</span>
-<span class="dm"> │             │</span>
-<span class="dm"> ▼             ▼</span>
-<span class="ac">Planner</span>   <span class="ac">Planner</span>        <span class="dm">— parallel; produce plan.md + context.md; no source writes</span>
-<span class="dm">               │</span>
-<span class="dm">               ▼</span>
 <span class="dm">           </span><span class="ac">Worker</span>         <span class="dm">— reads plan, calls skills, writes + validates source files</span>
 <span class="dm">               │</span>
 <span class="dm">               ▼</span>
@@ -1148,28 +1154,28 @@ talenta-ios/.claude/
           <tbody>
             <tr>
               <td>Trigger Skill → Orch</td>
-              <td><strong>plan.md + context.md + state.json inline</strong></td>
-              <td>Raw file reads</td>
+              <td><strong>Intent / mode + accumulated findings</strong></td>
+              <td>Raw file reads from main session</td>
             </tr>
             <tr>
-              <td>Orch → Planner</td>
-              <td><strong>Feature name, platform, runs path</strong></td>
+              <td>Orch → Trigger Skill</td>
+              <td><strong>Decision block (spawn-planners / converged / spawn-worker / blocked)</strong></td>
+              <td>Agent spawns or file writes</td>
+            </tr>
+            <tr>
+              <td>Trigger Skill → Planner</td>
+              <td><strong>Feature name, platform, module-path, mode</strong></td>
+              <td>Orchestrator's reasoning</td>
+            </tr>
+            <tr>
+              <td>Planner → Trigger Skill</td>
+              <td><strong>Findings + Impact Recommendations</strong></td>
               <td>Source file contents</td>
             </tr>
             <tr>
-              <td>Planner → Orch</td>
-              <td><strong>plan.md + context.md (paths)</strong></td>
-              <td>Source paths or contents</td>
-            </tr>
-            <tr>
-              <td>Orch → Worker</td>
-              <td><strong>File path lists from prior phases</strong></td>
-              <td>File contents</td>
-            </tr>
-            <tr>
-              <td>Worker → Orch</td>
-              <td><strong>## Output — Glob+Grep verified paths</strong></td>
-              <td>Partial or unverified paths</td>
+              <td>Trigger Skill → Worker</td>
+              <td><strong>plan.md + context.md injected inline</strong></td>
+              <td>File paths only (always inline)</td>
             </tr>
           </tbody>
         </table>
@@ -1187,77 +1193,65 @@ talenta-ios/.claude/
   ════════════════════════════════════════════ -->
   <section class="slide" id="s11c">
     <div class="label">Anatomy — Builder Persona</div>
-    <h2 class="headline">Two entry paths. <em>Same executor. Same anatomy.</em></h2>
+    <h2 class="headline">Three entry skills. <em>Same orchestrator brain. Convergence loop.</em></h2>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
-      <div class="tree" style="font-size: 12px; line-height: 1.78;">
-<span class="rl">/plan-feature</span>  <span class="dm">(Skill — Type T)</span>
-<span class="dm"> 1. spawn feature-orchestrator  </span><span class="ac">[trigger=plan-first]</span>
-<span class="dm"> 2. AskUserQuestion →  </span><span class="ac">Approve</span>  <span class="dm">·  Discuss more  ·  </span><span class="bd">Discard</span>
-<span class="dm"> 3. on Approve → spawn feature-orchestrator  </span><span class="ac">[trigger=execute-approved-plan]</span>
-
-<span class="rl">/feature-orchestrator</span>  <span class="dm">(Skill — Type T)</span>
-<span class="dm"> if runs exist → AskUserQuestion:  </span><span class="ac">Resume &lt;run&gt;</span>  <span class="dm">·  Start new</span>
-<span class="dm">   Resume → pre-load context.md + state.json → spawn  </span><span class="ac">[trigger=resume]</span>
-<span class="dm"> if no runs  → AskUserQuestion:  </span><span class="ac">Plan first</span>  <span class="dm">·  </span><span class="ac">Build directly</span>
-<span class="dm">   → spawn feature-orchestrator with matching trigger</span>
-
-<span class="dm">──────────────────────────────────────────────────────────────</span>
-<span class="dm">Both skills route to the same agent — trigger parameter differs</span>
-<span class="dm">──────────────────────────────────────────────────────────────</span>
-
-<span class="rl">feature-orchestrator</span>          <span class="dm">← coordinates phases; never writes source files</span>
+      <div class="tree" style="font-size: 11.5px; line-height: 1.75;">
+<span class="rl">/builder-plan-feature</span>  <span class="dm">(interactive)</span>
+<span class="rl">/builder-build-feature</span>  <span class="dm">(resume or build-directly)</span>
+<span class="rl">/builder-build-from-ticket</span>  <span class="dm">(non-interactive, CI)</span>
 <span class="dm"> │</span>
-<span class="dm"> ├── [plan-first trigger]</span>
-<span class="dm"> │          ▼</span>
-<span class="dm"> │   </span><span class="rl">feature-planner</span>           <span class="dm">← writes plan.md + context.md only</span>
-<span class="dm"> │       ├──</span> <span class="ac">domain-planner</span>  <span class="dm">·</span>  <span class="ac">data-planner</span>  <span class="dm">·</span>  <span class="ac">pres-planner</span>  <span class="dm">← parallel</span>
-<span class="dm"> │       └── [user approves plan.md → proceed]</span>
+<span class="dm"> ▼  gather-intent (or gather-intent-prefilled for ticket path)</span>
+<span class="ac">feature-orchestrator</span>  <span class="dm">← brain; returns Decision: spawn-planners</span>
 <span class="dm"> │</span>
-<span class="dm"> └── [resume · execute-approved-plan · build-directly]</span>
-<span class="dm">            ▼</span>
-<span class="dm">    </span><span class="rl">feature-worker</span>            <span class="dm">← reads plan; executes skills layer by layer</span>
-<span class="dm">            │</span>
-<span class="dm">            ▼</span>
-<span class="ac">    platform-contract skills</span>   <span class="dm">← Flutter / iOS / Web / Android per layer</span>
+<span class="dm"> ▼  skill spawns only decided planners in parallel</span>
+<span class="ac">domain-planner</span>  <span class="ac">data-planner</span>  <span class="ac">pres-planner</span>  <span class="ac">app-planner</span>
+<span class="dm"> │  each returns: findings + Impact Recommendations</span>
+<span class="dm"> ▼  skill sends accumulated findings back</span>
+<span class="ac">feature-orchestrator</span>  <span class="dm">← reads recommendations; decides: more rounds or converged?</span>
+<span class="dm"> │  loop (max 3 rounds) — new layers added per round only</span>
+<span class="dm"> ▼  Decision: converged → orchestrator synthesizes plan.md + context.md</span>
+<span class="dm">   [interactive: AskUserQuestion →  </span><span class="ac">Approve</span>  <span class="dm">· Discuss ·  </span><span class="bd">Discard</span><span class="dm">]</span>
+<span class="dm">   [ticket path: auto-approved]</span>
+<span class="dm"> ▼  Decision: spawn-worker</span>
+<span class="ac">feature-worker</span>  <span class="dm">← reads plan; executes skills layer by layer</span>
+<span class="dm"> │</span>
+<span class="dm"> ▼</span>
+<span class="ac">platform-contract skills</span>  <span class="dm">← Flutter / iOS / Web / Android per layer</span>
       </div>
       <div>
-        <table style="margin-bottom: 18px;">
+        <table style="margin-bottom: 14px;">
           <thead>
             <tr><th>Entry skill</th><th>When to use</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td>/plan-feature</td>
-              <td>Complex or cross-layer feature; uncertain existing state. Planner explores first — user approves before any source write.</td>
+              <td>/builder-plan-feature</td>
+              <td>Complex or cross-layer feature. Interactive convergence loop — user approves plan before any source write.</td>
             </tr>
             <tr>
-              <td>/feature-orchestrator</td>
-              <td>Known scope or resuming an existing run. Routes directly to feature-worker.</td>
+              <td>/builder-build-feature</td>
+              <td>Known scope or resuming an existing run. Build-directly skips the loop.</td>
+            </tr>
+            <tr>
+              <td>/builder-build-from-ticket</td>
+              <td>CI job or API caller. Intent derived from Jira ticket. Fully automated — no user prompts.</td>
             </tr>
           </tbody>
         </table>
         <table>
           <thead>
-            <tr><th>Sub-planner</th><th>Explores</th></tr>
+            <tr><th>Planner</th><th>Explores</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td>domain-planner</td>
-              <td>Entities, use cases, repository interfaces, domain services</td>
-            </tr>
-            <tr>
-              <td>data-planner</td>
-              <td>DTOs, mappers, datasources, repository implementations</td>
-            </tr>
-            <tr>
-              <td>pres-planner</td>
-              <td>StateHolders, screens, components, navigators</td>
-            </tr>
+            <tr><td>domain-planner</td><td>Entities, use cases, repository interfaces</td></tr>
+            <tr><td>data-planner</td><td>DTOs, mappers, datasources, repo implementations</td></tr>
+            <tr><td>pres-planner</td><td>StateHolders, screens, components, key symbols</td></tr>
+            <tr><td>app-planner</td><td>DI registration, routing, module, analytics, flags</td></tr>
           </tbody>
         </table>
-        <div class="caption" style="margin-top: 14px;">
+        <div class="caption" style="margin-top: 12px;">
           <strong>feature-worker is the only agent that writes source files.</strong>
-          Standalone paths skip the orchestrator — spawn domain-worker, data-worker, or ui-worker directly for single known artifacts.
+          Each planner round spawns only the layers the orchestrator decides are needed — not all four every time.
         </div>
       </div>
     </div>
@@ -1272,25 +1266,23 @@ talenta-ios/.claude/
     <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 11px; margin-bottom: 18px;">
       <div class="card">
         <div class="card-label">Trigger Skill</div>
-        <div style="font-size: 11px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">/feature-orchestrator · /plan-feature · /backend-orchestrator</div>
+        <div style="font-size: 11px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">/builder-plan-feature · /builder-build-feature · /builder-build-from-ticket</div>
         <div class="card-desc">
-          Three entry paths, one executor. <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/plan-feature</code> runs the planner first. <code style="font-family:var(--mono);font-size:12px;color:var(--accent)">/feature-orchestrator</code> resumes or builds directly. Both pre-load run context inline.
+          Three entry paths, one executor. All own the convergence planning loop — spawning only the planners the orchestrator decides, accumulating findings per round, gating execution on approval. Pre-load run context inline on resume.
         </div>
       </div>
       <div class="card">
         <div class="card-label">Orchestrator</div>
         <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">feature-orchestrator</div>
         <div class="card-desc">
-          Coordinates the full feature build across layers: domain → data → presentation → UI.
-          Validates each worker's output. Passes file paths, not file contents.
+          Brain only — never spawns agents or writes source files. Returns structured Decision blocks: which planners to run, when planning is converged, and when to spawn the worker. Synthesizes plan.md + context.md from accumulated findings.
         </div>
       </div>
       <div class="card">
         <div class="card-label">Planner</div>
-        <div style="font-size: 11px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">feature-planner · domain-planner · data-planner · pres-planner</div>
+        <div style="font-size: 11px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-planner · data-planner · pres-planner · app-planner</div>
         <div class="card-desc">
-          feature-planner spawns three layer planners in parallel. Each explores its layer and returns structured findings aggregated into plan.md.
-          <strong style="color: var(--text);">Stops for user approval</strong> before any source file is written.
+          Each explores one CLEAN layer read-only and returns structured findings + Impact Recommendations — which other layers are affected and why. Spawned by the entry skill per round, only when the orchestrator decides they're needed.
         </div>
       </div>
       <div class="card">
@@ -1305,8 +1297,7 @@ talenta-ios/.claude/
         <div class="card-label">Skill</div>
         <div style="font-size: 13px; color: var(--accent); font-family: var(--mono); margin-bottom: 12px;">domain-create-entity · data-create-mapper</div>
         <div class="card-desc">
-          Generates a Dart class on Flutter, a Swift struct on iOS — same skill name, platform-specific output.
-          Under 30 lines. Single task.
+          Generates a Dart class on Flutter, a Swift struct on iOS — same skill name, platform-specific output. Type A skills are thin create-only procedures; Type T trigger skills scale with the routing complexity they own.
         </div>
       </div>
     </div>
@@ -1367,7 +1358,7 @@ talenta-ios/.claude/
             </tr>
             <tr>
               <td>Planner</td>
-              <td style="color: var(--accent);">✓ feature-planner + sub-planners</td>
+              <td style="color: var(--accent);">✓ domain/data/pres/app-planner (spawned by skill per round)</td>
               <td style="color: var(--bad);">✗  not present — orchestrator scopes with 2-call budget</td>
             </tr>
             <tr>
@@ -1409,14 +1400,14 @@ talenta-ios/.claude/
             <tr>
               <td>Orchestrator</td>
               <td><strong>-orchestrator</strong></td>
-              <td>No — delegates to workers</td>
-              <td>Yes</td>
+              <td>plan.md + context.md only (synthesize mode)</td>
+              <td>No — returns Decision blocks</td>
             </tr>
             <tr>
               <td>Planner</td>
               <td><strong>-planner</strong></td>
-              <td>plan.md + context.md only</td>
-              <td>Yes (sub-planners)</td>
+              <td>No — read-only tools only</td>
+              <td>No — spawned by entry skill</td>
             </tr>
             <tr>
               <td>Worker</td>
@@ -1509,7 +1500,7 @@ talenta-ios/.claude/
         <div class="tree" style="font-size: 12px; line-height: 1.75;">
 <span class="dm">Maturity ladder</span>
 
-<span class="ac">Skill</span>          <span class="dm">← one task, one file, ≤30 lines</span>
+<span class="ac">Skill</span>          <span class="dm">← one task, one file, scoped to what the type demands</span>
 <span class="dm">  │</span>
 <span class="dm">  ▼  (need grows)</span>
 <span class="ac">+ Worker</span>       <span class="dm">← multi-step, scoped to one concern</span>

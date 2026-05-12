@@ -43,7 +43,7 @@ The trigger skill owns three responsibilities before spawning the agent:
 
 The agent detects the `Pre-loaded context` block in its prompt and jumps directly to the first pending phase. Without it, the agent warns that direct invocation is unsupported.
 
-**Multiple workflow skills per persona are allowed** — as long as they all route through the same primary entry agent. Example: the builder persona has three Type T skills: `builder-build-feature` (direct build or resume), `builder-plan-feature` (planning-first workflow that sequences `feature-planner` → user approval → `feature-orchestrator`), and `build-from-ticket` (non-interactive CI/remote path — fetches a Jira ticket, runs `auto-feature-planner`, then `feature-worker` without any user prompts). All converge on the same executor; the rule guards against direct-invocation bypasses, not workflow variations.
+**Multiple workflow skills per persona are allowed** — as long as they all route through the same primary entry agent. Example: the builder persona has three Type T skills: `builder-build-feature` (direct build or resume), `builder-plan-feature` (planning-first workflow that runs a convergence planning loop → user approval → `feature-worker`), and `builder-build-from-ticket` (non-interactive CI/remote path — fetches a Jira ticket, runs the planning loop automatically, then `feature-worker` without any user prompts). All converge on the same executor; the rule guards against direct-invocation bypasses, not workflow variations.
 
 A sub-agent used only as a step inside a workflow skill (e.g. `feature-planner` inside `builder-plan-feature`) does not need its own standalone trigger skill.
 
@@ -62,14 +62,14 @@ Agents are intelligent specialists, not task executors. Each agent:
 
 Agents stay lean — they don't embed step-by-step instructions. That belongs in skills.
 
-**Orchestrators — Multi-Worker Coordinators:**
+**Orchestrators — Brain-Only Decision Makers:**
 
-Orchestrators coordinate multiple worker agents using the `agents` field in frontmatter. Key rules:
+Orchestrators are pure reasoning agents — they decide what to do and return structured decision blocks to the calling skill. The skill executes: it spawns agents, accumulates results, and loops. Key rules:
 
-- Spawn only relevant workers — never all of them
+- Return structured decision blocks (`Decision: spawn-planners`, `Decision: converged`, `Decision: spawn-worker`, `Decision: blocked`) — never spawn agents directly
+- Never write or edit files — all writes go through workers spawned by the skill
 - Pass file paths between phases, never file contents
-- Validate each worker's `## Output` before proceeding — STOP if missing or paths don't exist
-- Never read the codebase directly — workers own their own context reads
+- Never read codebase source files directly — planners and workers own their own context reads
 
 **Agent Scope — Core vs Platform-specific:**
 
@@ -100,7 +100,9 @@ Layer isolation is enforced at the **planner** level, not the worker level. `fea
 - Each layer planner (`domain-planner`, `data-planner`, `pres-planner`, `app-planner`) is restricted to read-only tools (`Glob`, `Grep`, `Read`) — it physically cannot write files
 - Each planner's glob patterns and instructions scope it to its own layer's directories and artifact types
 - Cross-layer knowledge (shared contracts, interfaces) lives in reference docs and skills, not in planner bodies
-- `feature-planner` coordinates all four planners in parallel — it never asks one planner to explore another layer's artifacts
+- Planners report `### Impact Recommendations` — which other layers their findings affect and why. The orchestrator uses these to decide whether additional planner rounds are needed
+
+The calling skill (not the orchestrator) spawns planners based on the orchestrator's decision. This convergence loop continues until all impact recommendations are resolved or the round cap is reached.
 
 `feature-worker` executes all layers in a fixed order (domain → data → presentation → UI) using skills as the platform-specific hands. Layer correctness in the worker comes from following `plan.md` and calling the right skill per artifact type — not from a boundary enforcement mechanism.
 
@@ -197,7 +199,7 @@ Skills are focused, reusable workflow procedures. Each skill:
 | Type | Natural size | Reason |
 |---|---|---|
 | A — Regular (platform-contract) | Short — ~10–30 lines | Thin create-only procedure; logic belongs in the worker |
-| T — Trigger | Medium — ~15–50 lines | Routing logic, spawn prompt construction, optional approval loop |
+| T — Trigger | Scales with routing complexity | Owns routing, context relay, spawn prompt construction, convergence loops, and approval flows — grows with the workflow it drives |
 | U — Utility (runbook) | As long as needed | All-Bash diagnostic/operational steps; nothing to extract to a worker |
 
 There is no universal line limit. The constraint is not length — it is scope. A skill that grows because it is doing what a worker should do is wrong. A skill that grows because its type genuinely requires more steps is correct.
@@ -366,20 +368,29 @@ Shared to all downstream projects via symlink. Current personas: `builder`, `det
 
 | Role | Subordinates | Can write files? | Has `agents` field? | Has `skills` field? |
 |---|---|---|---|---|
-| Orchestrator | Planners, other orchestrators, or workers | No — delegates all writes to workers | Yes | Typically no |
-| Planner | Layer planners (in parallel) or none | Plan artifacts only (`plan.md`, `context.md`) — never source files | Yes (if spawning sub-planners) | No |
+| Orchestrator | None — returns Decision blocks to the calling skill | Plan artifacts only (`plan.md`, `context.md`) in synthesize mode — never source files | No | No |
+| Planner | None — spawned by the entry skill, reports findings back to skill | No writes — read-only tools only (`Glob`, `Grep`, `Read`) | No | No |
 | Worker | Skills via `related_skills` | Yes — source files only | No | Yes — skills injected at startup |
 
-**Planner — role and scope:**
+**Orchestrator — brain-only decision maker:**
 
-A planner explores the codebase and produces a human-reviewable plan before any source file is written. It is always read-only with respect to source code.
+An orchestrator is a pure reasoning agent. It decides what to do and returns structured Decision blocks — it never spawns agents or writes source files directly.
 
-- Reads existing artifacts to assess what exists, what naming conventions are in use, and what key symbols need preserving
-- May spawn layer-specialized sub-planners in parallel (e.g. `domain-planner`, `data-planner`, `pres-planner`) to keep each exploration context small and focused
-- Writes only `plan.md` and `context.md` to the runs directory — never source files
-- Stops and waits for human approval before execution begins
+- Accepts modes from the calling skill: `gather-intent`, `gather-intent-prefilled`, `process-findings`, `synthesize`, `execute-approved-plan`, `resume`
+- Returns `Decision: spawn-planners` (which layers, why), `Decision: converged`, `Decision: spawn-worker`, or `Decision: blocked`
+- In `synthesize` mode: writes `plan.md` and `context.md` to the runs directory — the only files an orchestrator may write
+- The calling skill owns all agent spawning, the convergence loop, and user interaction
 
-Sub-planners follow the same constraints: read-only, structured findings output, no source writes.
+**Planner — layer explorer:**
+
+A planner explores one CLEAN layer and returns structured findings. It is always read-only with respect to source code.
+
+- Restricted to read-only tools (`Glob`, `Grep`, `Read`) — it physically cannot write files
+- Scoped to its own layer's directories and artifact types
+- Returns findings including `### Impact Recommendations` — which other layers are affected and why
+- Spawned by the entry skill (not the orchestrator) based on the orchestrator's Decision block
+
+Sub-planners are all leaf agents: they explore, report, and return. No further spawning.
 
 > Orchestrators may spawn other orchestrators when the inner orchestrator represents a fully bounded sub-workflow. The outer orchestrator owns the top-level state file and final report.
 
@@ -457,19 +468,28 @@ A persona is composed of layered components that connect user intent to executed
 User
  │
  ▼
-Trigger Skill (Type T)     — routes (resume vs new), pre-loads context, builds spawn prompt
+Trigger Skill (Type T)     — routes (resume vs new), pre-loads context, builds spawn prompt, owns convergence loop, spawns agents, approval
+ │
+ ▼  (gather-intent / decision round)
+Orchestrator               — brain only; returns Decision blocks; never spawns agents or writes files
+ │
+ │  Decision: spawn-planners
+ ▼
+Trigger Skill              — spawns planners in parallel per round; accumulates findings
+ │
+ ▼  (sends findings back each round)
+Orchestrator               — reads impact recommendations; decides: more rounds or converged?
+ │
+ │  Decision: converged → Trigger Skill synthesizes plan → user approval
+ │  Decision: spawn-worker
+ ▼
+Trigger Skill              — spawns Worker with plan + context injected inline
  │
  ▼
-Orchestrator               — coordinates phases in order; never writes source files
- │             │
- ▼             ▼
-Planner     Planner        — explore only; produce plan.md + context.md; no source writes
-               │
-               ▼
-            Worker         — reads plan, calls skills, writes source files, validates output
-               │
-               ▼
-            Skill(s)       — concrete platform implementation (one per artifact type)
+Worker                     — reads plan, calls skills, writes source files, validates output
+ │
+ ▼
+Skill(s)                   — concrete platform implementation (one per artifact type)
 ```
 
 Not every persona uses all layers. A simple persona may have only a trigger skill + worker. A complex one adds an orchestrator, planners, and multiple workers. The anatomy is the same regardless of how many layers are present.
@@ -478,12 +498,13 @@ Not every persona uses all layers. A simple persona may have only a trigger skil
 
 | From → To | What is passed | What is never passed |
 |---|---|---|
-| Trigger Skill → Orchestrator | Pre-loaded context block (`plan.md` + `context.md` + `state.json` inline) | Raw file reads from the main session |
-| Orchestrator → Planner | Feature name, platform, runs directory path | Source file contents |
-| Planner → Orchestrator | `plan.md` + `context.md` written to runs directory | Source file paths or contents |
-| Orchestrator → Worker | File path lists from prior phases | File contents |
+| Trigger Skill → Orchestrator | Intent / mode + accumulated findings (per round) | Raw file reads from the main session |
+| Orchestrator → Trigger Skill | Structured Decision block (`spawn-planners`, `converged`, `spawn-worker`, `blocked`) | Agent spawns or file writes |
+| Trigger Skill → Planner | Feature name, platform, module-path + mode instruction | Orchestrator's internal reasoning |
+| Planner → Trigger Skill | Structured findings block including `### Impact Recommendations` | Source file paths or contents |
+| Trigger Skill → Worker | `plan.md` + `context.md` injected inline | File paths only (contents always inlined) |
 | Worker → Skill | Artifact name, target path, reference doc path | Cross-layer context |
-| Worker → Orchestrator | `## Output` section with Glob+Grep-verified paths | Partial or unverified paths |
+| Worker → Trigger Skill | `## Output` section with Glob+Grep-verified paths | Partial or unverified paths |
 
 **State files — written and read across the lifecycle:**
 
