@@ -82,6 +82,14 @@ Return exactly this structure — no prose:
 - state_fields: <field>: <Type>, ...
 - event_cases: <Case1>, <Case2>, ...
 - mark_sections: <MARK: Section1>, <MARK: Section2>, ...
+
+### Impact Recommendations
+| Layer | Reason | Urgency |
+|---|---|---|
+| domain | <why domain layer is affected, e.g. new screen needs a use case that doesn't exist> | required / optional |
+| app | <why app layer is affected, e.g. new screen needs route registration> | required / optional |
+
+Omit rows for layers with no impact. Omit the section entirely if no other layer is affected.
 ```
 
 Write `none detected` for any naming convention that cannot be inferred. Omit `mark_sections` if the platform doesn't use MARK comments.

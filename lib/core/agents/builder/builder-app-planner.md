@@ -144,6 +144,14 @@ Return exactly this structure — no prose:
 - module_pattern: `<pattern>` (e.g. `{Feature}Module`)
 - analytics_pattern: `<pattern>` (e.g. `{Feature}FirebaseName.swift`)
 - feature_flag_pattern: `<pattern>` (e.g. `FeatureFlagKey + FeatureFlagCollection`)
+
+### Impact Recommendations
+| Layer | Reason | Urgency |
+|---|---|---|
+| domain | <why domain layer is affected, e.g. feature flag requires a domain-level toggle use case> | required / optional |
+| presentation | <why presentation layer is affected, e.g. route change requires navigator update> | required / optional |
+
+Omit rows for layers with no impact. Omit the section entirely if no other layer is affected.
 ```
 
 Write `none detected` for any convention that cannot be inferred. Write `N/A` for steps that do not apply to the platform.

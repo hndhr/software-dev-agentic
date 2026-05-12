@@ -83,6 +83,14 @@ Return exactly this structure — no prose:
 #### <FileName> (<artifact type>)
 - field_declarations: <field>: <Type>, ...
 - primary_method_signature: `func map(<params>) -> <return>`
+
+### Impact Recommendations
+| Layer | Reason | Urgency |
+|---|---|---|
+| domain | <why domain layer is affected, e.g. repository interface contract needs updating> | required / optional |
+| app | <why app layer is affected, e.g. new repository impl needs DI binding> | required / optional |
+
+Omit rows for layers with no impact. Omit the section entirely if no other layer is affected.
 ```
 
 Write `none detected` for any naming convention that cannot be inferred.

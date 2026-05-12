@@ -80,6 +80,14 @@ Return exactly this structure — no prose:
 #### <FileName> (<artifact type>)
 - constructor_params: <param>: <Type>, ...
 - execute_signature: `func execute(<params>) -> <return>`
+
+### Impact Recommendations
+| Layer | Reason | Urgency |
+|---|---|---|
+| data | <why data layer is affected, e.g. new entity requires DTO + mapper> | required / optional |
+| app | <why app layer is affected, e.g. new use case needs DI registration> | required / optional |
+
+Omit rows for layers with no impact. Omit the section entirely if no other layer is affected.
 ```
 
 Write `none detected` for any naming convention that cannot be inferred.
