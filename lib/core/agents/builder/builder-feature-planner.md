@@ -1,6 +1,6 @@
 ---
 name: builder-feature-planner
-description: Plan a feature across Clean Architecture layers before any code is written. Produces a reviewable plan.md artifact consumed by feature-orchestrator. Invoke when the engineer wants to review and approve the layer breakdown before execution begins.
+description: DEPRECATED — responsibilities absorbed into builder-feature-orchestrator (intent gathering + synthesis) and builder-plan-feature skill (planner spawning + convergence loop). Do not invoke.
 model: sonnet
 tools: Read, Glob, Grep, Bash, AskUserQuestion, Agent
 agents:

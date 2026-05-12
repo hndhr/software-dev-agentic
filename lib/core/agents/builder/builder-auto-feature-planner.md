@@ -1,6 +1,6 @@
 ---
 name: builder-auto-feature-planner
-description: Non-interactive variant of feature-planner. Accepts pre-filled intent from a structured prompt block — no AskUserQuestion calls. Designed for one-shot callers (builder-build-from-ticket, CI jobs). Produces plan.md and context.md then auto-approves.
+description: DEPRECATED — responsibilities absorbed into builder-feature-orchestrator (gather-intent-prefilled mode + synthesize mode) and builder-build-from-ticket skill (convergence loop). Do not invoke.
 model: sonnet
 tools: Read, Glob, Grep, Bash, Agent
 agents:
