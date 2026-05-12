@@ -1,23 +1,79 @@
 ---
 name: builder-plan-feature
-description: Plan then build a feature — runs builder-feature-planner, shows an interactive approval prompt, then executes with builder-feature-orchestrator on approval.
+description: Plan then build a feature — gathers intent via builder-feature-orchestrator, runs the convergence planning loop (spawning only the needed layer planners per round), shows an interactive approval prompt, then executes with builder-feature-worker on approval.
 user-invocable: true
-allowed-tools: Agent, AskUserQuestion, Bash
+allowed-tools: Agent, AskUserQuestion, Bash, Read
 ---
 
-## Step 1 — Plan
+## Step 1 — Gather Intent
 
-Spawn `builder-feature-orchestrator` using the Agent tool with the following prompt:
+Spawn `builder-feature-orchestrator` with mode `gather-intent`:
 
-> **Trigger: plan-first**
+> **Mode: gather-intent**
 >
-> Spawn `builder-feature-planner`. Wait for it to complete and return — do not do anything else.
+> Ask the user for feature intent. Return a `Decision: spawn-planners` block when done.
 
-Wait for the orchestrator to return before proceeding.
+Wait for the orchestrator to return. Extract the `Decision: spawn-planners` block.
 
-## Step 2 — Approve
+Initialize:
+- `visited` = [] (empty set of explored layers)
+- `all_findings` = [] (accumulated planner findings across all rounds)
+- `round` = 1
 
-Call `AskUserQuestion` immediately after the planner returns — do NOT describe choices in prose:
+## Step 2 — Planning Convergence Loop
+
+Repeat until the orchestrator returns `Decision: converged` or `Decision: blocked`.
+
+### 2a — Spawn planners for this round
+
+From the current `Decision: spawn-planners` block, read the `spawn:` list. Spawn each listed planner **in parallel** (single Agent tool call with all planners in that round):
+
+- `builder-domain-planner` — if `domain` is in the spawn list
+- `builder-data-planner` — if `data` is in the spawn list
+- `builder-pres-planner` — if `pres` is in the spawn list
+- `builder-app-planner` — if `app` is in the spawn list
+
+Pass to each planner: feature name, platform, module-path (from orchestrator's gather-intent output).
+
+Wait for all planners in this round to complete.
+
+Add each spawned layer to `visited`. Append each planner's full findings block to `all_findings`.
+
+### 2b — Send findings to orchestrator
+
+Spawn `builder-feature-orchestrator` with mode `process-findings`:
+
+> **Mode: process-findings**
+>
+> Round: <N>
+> Visited layers: <comma-separated list from visited set>
+>
+> **Accumulated Findings:**
+> <paste full all_findings content>
+
+Wait for the orchestrator's decision block.
+
+- **`Decision: spawn-planners`** → increment `round`, go back to 2a
+- **`Decision: converged`** → proceed to Step 3
+- **`Decision: blocked`** → present the orchestrator's question to the user via `AskUserQuestion`, send the answer back to orchestrator as a follow-up `process-findings` call, then re-evaluate
+
+**Max rounds guard:** If `round` reaches 4 without convergence, stop the loop and surface to the user:
+> "Planning could not converge after 3 rounds. Open questions: <list from last blocked decision>. Please clarify before retrying."
+
+## Step 3 — Synthesize Plan
+
+Spawn `builder-feature-orchestrator` with mode `synthesize`:
+
+> **Mode: synthesize**
+>
+> **All Accumulated Findings:**
+> <paste full all_findings content>
+
+Wait for the orchestrator to return the plan summary and write plan.md + context.md.
+
+## Step 4 — Approve
+
+Call `AskUserQuestion` immediately after synthesis — do NOT describe choices in prose:
 
 ```
 question    : "What would you like to do with this plan?"
@@ -29,16 +85,36 @@ options     :
   - label: "Discard",      description: "Cancel and delete this plan"
 ```
 
-**Approve** → proceed to Step 3.
+**Approve** → proceed to Step 5.
 
-**Discuss more** → address the engineer's questions or requested changes inline, then call `AskUserQuestion` again with the same three options. If the plan itself needs rewriting, re-spawn `builder-feature-planner`.
+**Discuss more** → address the engineer's questions inline. If the plan itself needs revision, re-run Step 3 (re-synthesize) with the updated requirements added to the findings context. Then call `AskUserQuestion` again with the same three options.
 
-**Discard** → locate and delete the most recent run directory under `.claude/agentic-state/runs/` and stop.
+**Discard** → delete the most recent run directory:
 
-## Step 3 — Execute
+```bash
+rm -rf "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/<feature>"
+```
 
-Spawn `builder-feature-orchestrator` using the Agent tool with the following prompt:
+Stop.
 
-> **Trigger: execute-approved-plan**
+## Step 5 — Execute
+
+Spawn `builder-feature-orchestrator` with mode `execute-approved-plan`:
+
+> **Mode: execute-approved-plan**
 >
-> The plan has been approved by the user. Locate the most recent `plan.md` in `.claude/agentic-state/runs/`, read it and its sibling `context.md`, update `status` to `approved` in `plan.md` frontmatter, then spawn `builder-feature-worker` with both injected inline.
+> Run directory: <path to the run directory written in Step 3>
+
+Wait for the orchestrator to return `Decision: spawn-worker`.
+
+Read `plan.md` and `context.md` from the paths in the decision block. Then spawn `builder-feature-worker`:
+
+> Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
+>
+> **plan.md**
+> <content>
+>
+> **context.md**
+> <content>
+>
+> Proceed directly to the first pending artifact.

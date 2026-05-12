@@ -1,6 +1,6 @@
 ---
 name: builder-groom-ticket
-description: Groom a locally fetched Jira ticket against the codebase — maps acceptance criteria to CLEAN layers, identifies work items and open questions, then updates the ticket via tracker-adjust-ticket. Run before /builder-plan-feature.
+description: Groom a locally fetched Jira ticket against the codebase — maps acceptance criteria to Clean Architecture layers, identifies work items and open questions, then updates the ticket via tracker-adjust-ticket. Run before /builder-plan-feature.
 user-invocable: true
 allowed-tools: Agent, AskUserQuestion, Read
 ---
@@ -27,15 +27,53 @@ Verify the file exists before continuing. If it does not exist, report the path 
 
 ## Step 2 — Load Ticket Content
 
-Read the ticket file at the resolved path. This is the only file read this skill performs directly.
+Read the ticket file at the resolved path. This is the only direct file read this skill performs.
 
-## Step 3 — Spawn groom-orchestrator
+## Step 3 — Detect Scope
 
-Spawn `builder-groom-orchestrator` with the following prompt:
+Spawn `builder-groom-orchestrator` with mode `detect-scope`:
 
+> **Mode: detect-scope**
+>
 > **ticket-path:** <resolved absolute path>
 >
 > **ticket-content:**
 > <full content of the ticket file>
+
+Wait for the orchestrator to return a `Decision: spawn-planners` or `Decision: blocked`.
+
+- **`Decision: blocked`** → surface the orchestrator's question to the user via `AskUserQuestion`, then stop or retry based on the answer.
+- **`Decision: spawn-planners`** → proceed to Step 4.
+
+## Step 4 — Spawn Planners
+
+Spawn each planner listed in the `Decision: spawn-planners` block **in parallel**, passing each the grooming-mode instruction:
+
+> **Mode: grooming-only**
 >
-> Groom this ticket against the codebase. Follow your phases in order.
+> Do NOT recommend artifacts to create. Do NOT produce plan-ready output. Omit `### Impact Recommendations`.
+>
+> Your task is discovery only:
+> - What artifacts already exist for this feature area?
+> - Which layer does this ticket touch?
+> - What naming conventions are in use?
+> - Are there any ambiguities or gaps — missing interfaces, inconsistent naming, unclear ownership?
+>
+> Return a short findings block. One finding per bullet — no prose paragraphs.
+
+Also pass to each: feature name (from ticket title), platform (if detectable from ticket), module-path (if detectable).
+
+Wait for all planners to complete.
+
+## Step 5 — Synthesize and Update Ticket
+
+Spawn `builder-groom-orchestrator` with mode `synthesize`:
+
+> **Mode: synthesize**
+>
+> **ticket-path:** <resolved absolute path>
+>
+> **Planner Findings:**
+> <paste all planner findings blocks>
+
+The orchestrator produces the grooming summary and chains to `tracker-adjust-ticket` to update the ticket.

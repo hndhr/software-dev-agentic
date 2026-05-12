@@ -1,6 +1,6 @@
 ---
 name: builder-build-feature
-description: Build or update a feature across Clean Architecture layers. Routes through builder-feature-orchestrator agent — resumes an existing run or starts a new one.
+description: Build or update a feature across Clean Architecture layers. Resumes an existing run or starts a new one via the builder-plan-feature flow.
 user-invocable: true
 allowed-tools: Bash, Read, AskUserQuestion, Agent
 ---
@@ -11,77 +11,95 @@ allowed-tools: Bash, Read, AskUserQuestion, Agent
 
 ## Steps
 
-1. Find existing runs:
-   ```bash
-   find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs" -name "state.json" 2>/dev/null
-   ```
+### 1 — Check for existing runs
 
-2. **If runs exist:** call `AskUserQuestion`:
-   ```
-   question    : "Which feature would you like to work on?"
-   header      : "Feature"
-   multiSelect : false
-   options     :
-     (one entry per found run, values from state.json)
-     - label: "Resume: <feature>", description: "Next artifact: <next_artifact>"
-     (always include)
-     - label: "Start new feature", description: "Begin a fresh feature from scratch"
-   ```
-   - If user picks **Resume** → read `plan.md`, `context.md`, and `state.json` for that run → go to step 3
-   - If user picks **Start new feature** → go to step 4
+```bash
+find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs" -name "state.json" 2>/dev/null
+```
 
-   **If no runs exist** → go to step 4
+### 2 — If runs exist: ask which to resume
 
-3. **Resume — spawn `builder-feature-orchestrator` using the Agent tool with pre-loaded context** (substitute actual file contents):
+Call `AskUserQuestion`:
 
-   > **Trigger: resume**
-   > Feature: <feature name from state.json>
-   >
-   > Pre-loaded context — do not re-read plan.md, context.md, or state.json:
-   >
-   > **plan.md**
-   > <content>
-   >
-   > **context.md**
-   > <content>
-   >
-   > **state.json**
-   > <content>
-   >
-   > Spawn `builder-feature-worker` directly with this context. Skip Phase 0 and planning.
+```
+question    : "Which feature would you like to work on?"
+header      : "Feature"
+multiSelect : false
+options     :
+  (one entry per found run, values from state.json)
+  - label: "Resume: <feature>", description: "Next artifact: <next_artifact>"
+  (always include)
+  - label: "Start new feature", description: "Begin a fresh feature from scratch"
+```
 
-4. **New** — call `AskUserQuestion`:
-   ```
-   question    : "How would you like to proceed?"
-   header      : "Feature"
-   multiSelect : false
-   options     :
-     - label: "Plan first",     description: "Run builder-feature-planner for a reviewable plan before building"
-     - label: "Build directly", description: "Skip planning — gather intent inline and go straight to building"
-   ```
+- **Resume** → read `plan.md`, `context.md`, and `state.json` for that run → go to Step 3
+- **Start new feature** → go to Step 4
 
-   - **Plan first** → spawn `builder-feature-orchestrator` agent:
-     > **Trigger: plan-first**
-     > Feature: <$ARGUMENTS, or empty if not provided>
-     >
-     > Spawn `builder-feature-planner`. Wait for it to complete and return — do not do anything else.
+**If no runs exist** → go to Step 4.
 
-     After the agent returns, call `AskUserQuestion`:
-     ```
-     question    : "What would you like to do with this plan?"
-     header      : "Plan"
-     multiSelect : false
-     options     :
-       - label: "Approve",      description: "Execute this plan with builder-feature-worker"
-       - label: "Discuss more", description: "I have questions or changes before this plan is finalized"
-       - label: "Discard",      description: "Cancel and delete this plan"
-     ```
-     - **Approve** → spawn `builder-feature-orchestrator` agent with `Trigger: execute-approved-plan`
-     - **Discuss more** → discuss inline, re-spawn `builder-feature-planner` if needed, repeat approval question
-     - **Discard** → locate and delete the most recent run directory under `.claude/agentic-state/runs/` and stop
+### 3 — Resume
 
-   - **Build directly** → spawn `builder-feature-orchestrator` agent:
-     > **Trigger: build-directly**
-     > Feature: <$ARGUMENTS, or empty if not provided>
-     >
-     > No existing run. If no feature description was given, ask the user for it. Then proceed directly to Phase 0.
+Spawn `builder-feature-orchestrator` with mode `resume` and pre-loaded context:
+
+> **Mode: resume**
+>
+> Pre-loaded context — do not re-read plan.md, context.md, or state.json:
+>
+> **plan.md**
+> <content>
+>
+> **context.md**
+> <content>
+>
+> **state.json**
+> <content>
+
+Wait for the orchestrator to return `Decision: spawn-worker`. Then spawn `builder-feature-worker`:
+
+> Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
+>
+> **plan.md**
+> <content>
+>
+> **context.md**
+> <content>
+>
+> **state.json**
+> <content>
+>
+> Proceed directly to the next pending artifact. Skip completed artifacts listed in state.json.
+
+### 4 — New feature
+
+Call `AskUserQuestion`:
+
+```
+question    : "How would you like to proceed?"
+header      : "Feature"
+multiSelect : false
+options     :
+  - label: "Plan first",     description: "Review and approve a plan before building"
+  - label: "Build directly", description: "Skip planning — gather intent inline and go straight to building"
+```
+
+**Plan first** → invoke the `/builder-plan-feature` skill with `$ARGUMENTS`. This skill owns the full planning loop and approval flow.
+
+**Build directly** → spawn `builder-feature-orchestrator` with mode `gather-intent`:
+
+> **Mode: gather-intent**
+>
+> Feature description: <$ARGUMENTS, or empty>
+>
+> After gathering intent, proceed directly to synthesize without running the planning convergence loop. Use safe defaults: spawn all four layer planners, accept their findings as-is, write plan.md with status approved, return `Decision: spawn-worker`.
+
+Wait for `Decision: spawn-worker`. Read plan.md and context.md from the returned paths, then spawn `builder-feature-worker`:
+
+> Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
+>
+> **plan.md**
+> <content>
+>
+> **context.md**
+> <content>
+>
+> Proceed directly to the first pending artifact.

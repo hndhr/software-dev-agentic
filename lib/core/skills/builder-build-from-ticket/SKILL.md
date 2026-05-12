@@ -1,6 +1,6 @@
 ---
 name: builder-build-from-ticket
-description: One-shot feature build from a Jira ticket. Non-interactive — designed for remote AI tools (CI job, API caller). Pass a Jira ticket key or URL as the only argument. Fetches the ticket, derives planning inputs, plans, builds, then cleans up run state.
+description: One-shot feature build from a Jira ticket. Non-interactive — designed for remote AI tools (CI job, API caller). Pass a Jira ticket key or URL as the only argument. Fetches the ticket, derives planning inputs, runs the convergence planning loop automatically, builds, then cleans up run state.
 allowed-tools: Bash, Read, Agent
 user-invocable: true
 ---
@@ -13,9 +13,7 @@ Requires a Jira MCP server configured in the session. Supported: `getJiraIssue` 
 
 `$ARGUMENTS` — Jira ticket key or URL (required). Example: `PROJ-123` or `https://company.atlassian.net/browse/PROJ-123`.
 
-## Steps
-
-### 1. Validate and Clear Previous Errors
+## Step 1 — Validate and Clear Previous Errors
 
 If `$ARGUMENTS` is empty, write the error file and stop:
 
@@ -31,15 +29,15 @@ builder-build-from-ticket requires a Jira ticket key or URL.
 Usage: /builder-build-from-ticket PROJ-123
 ```
 
-Otherwise, clear any stale error from a previous run before proceeding:
+Otherwise clear any stale error from a previous run:
 
 ```bash
 rm -f "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/error.md"
 ```
 
-### 2. Fetch Ticket
+## Step 2 — Fetch Ticket
 
-Use the available Jira MCP tool to fetch the ticket key extracted from `$ARGUMENTS`. Prefer in order: `getJiraIssue` (official Atlassian MCP), `mmpa_get_jira` (mmpa) — use whichever is present in the session.
+Use the available Jira MCP tool to fetch the ticket key extracted from `$ARGUMENTS`. Prefer in order: `getJiraIssue`, `mmpa_get_jira`.
 
 Extract:
 - `summary` — ticket title
@@ -48,14 +46,9 @@ Extract:
 - `labels` and `components` — used to detect platform and module
 - Acceptance criteria — look for `## AC`, `## Acceptance Criteria`, or `h2. AC` sections in description
 
-### 3. Fail Fast on Thin Tickets
+## Step 3 — Fail Fast on Thin Tickets
 
-If description is empty **and** no acceptance criteria can be found:
-
-```bash
-git rev-parse --show-toplevel
-# write to <root>/.claude/agentic-state/runs/error.md
-```
+If description is empty **and** no acceptance criteria can be found, write `error.md` and stop:
 
 ```
 # Error: Insufficient Ticket Content
@@ -69,9 +62,7 @@ Could not derive operations or scope. The ticket description must include one of
 Add the missing content to the Jira ticket and retry.
 ```
 
-Then stop.
-
-### 4. Derive Planning Inputs
+## Step 4 — Derive Planning Inputs
 
 Inline — do not spawn an agent for this:
 
@@ -85,11 +76,11 @@ Inline — do not spawn an agent for this:
 
 Hold the derived `feature` value — it is used verbatim in the cleanup step.
 
-### 5. Spawn `builder-auto-feature-planner`
+## Step 5 — Gather Intent (Non-Interactive)
 
-Use the Agent tool. Inject the structured intent block and ticket context:
+Spawn `builder-feature-orchestrator` with mode `gather-intent-prefilled`:
 
-> **Jira ticket:** `<key>` — `<summary>`
+> **Mode: gather-intent-prefilled**
 >
 > **Pre-filled intent (do not ask for any of these):**
 > - feature: `<derived feature name>`
@@ -98,36 +89,81 @@ Use the Agent tool. Inject the structured intent block and ticket context:
 > - separate-ui-layer: `<true|false>`
 > - platform: `<platform>`
 >
-> **Ticket context for planning:**
+> **Ticket context (use for artifact naming and Risks/Notes):**
 > <description>
 >
 > **Acceptance criteria:**
 > <extracted AC block, or "None found — derive from description.">
+
+Wait for `Decision: spawn-planners`. Initialize:
+- `visited` = []
+- `all_findings` = []
+- `round` = 1
+
+## Step 6 — Planning Convergence Loop (Automated)
+
+Repeat until `Decision: converged` or `Decision: blocked`.
+
+### 6a — Spawn planners for this round
+
+Spawn each planner listed in the `Decision: spawn-planners` block **in parallel**. Pass feature name, platform, module-path to each.
+
+Add spawned layers to `visited`. Append findings to `all_findings`.
+
+### 6b — Send findings to orchestrator
+
+Spawn `builder-feature-orchestrator` with mode `process-findings`:
+
+> **Mode: process-findings**
 >
-> Treat all inputs as final. Auto-approve after writing plan.md and context.md.
+> Round: <N>
+> Visited layers: <comma-separated>
+>
+> **Accumulated Findings:**
+> <all_findings content>
 
-### 6. Locate Run Directory
+- `Decision: spawn-planners` → increment `round`, go to 6a
+- `Decision: converged` → proceed to Step 7
+- `Decision: blocked` → write `error.md` with the blocked question and stop:
 
-```bash
-ls -t "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs"/*/context.md 2>/dev/null | head -1
+```
+# Error: Planning Blocked
+
+<question from Decision: blocked>
+
+Resolve the ambiguity in the Jira ticket and retry.
 ```
 
-If not found, write `error.md` and stop:
+**Max rounds guard:** If `round` reaches 4, write `error.md` and stop:
 
 ```
-# Error: Planner Produced No Plan
+# Error: Planning Did Not Converge
 
-builder-auto-feature-planner did not write context.md. Check the ticket content and retry.
-Jira ticket: <key> — <summary>
+Planning could not converge after 3 rounds. Add more detail to the Jira ticket and retry.
 ```
 
-### 7. Read Plan and Context
+## Step 7 — Synthesize Plan
 
-Read `plan.md` then `context.md` from the resolved run directory. Two reads, each once only.
+Spawn `builder-feature-orchestrator` with mode `synthesize`:
 
-### 8. Spawn `builder-feature-worker`
+> **Mode: synthesize**
+>
+> Non-interactive — auto-approve after writing plan.md and context.md.
+>
+> **All Accumulated Findings:**
+> <all_findings content>
 
-Use the Agent tool with plan and context injected inline:
+Wait for the orchestrator to write plan.md + context.md and return the plan summary.
+
+## Step 8 — Execute
+
+Spawn `builder-feature-orchestrator` with mode `execute-approved-plan`:
+
+> **Mode: execute-approved-plan**
+>
+> Run directory: <path to the run directory written in Step 7>
+
+Wait for `Decision: spawn-worker`. Read `plan.md` and `context.md` from the returned paths, then spawn `builder-feature-worker`:
 
 > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
 >
@@ -139,9 +175,9 @@ Use the Agent tool with plan and context injected inline:
 >
 > Proceed directly to the first pending artifact.
 
-### 9. Cleanup
+## Step 9 — Cleanup
 
-After builder-feature-worker completes (success or unrecoverable errors), delete the run directory using the `feature` name derived in step 4:
+After `builder-feature-worker` completes (success or unrecoverable error):
 
 ```bash
 rm -rf "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/<feature>"
