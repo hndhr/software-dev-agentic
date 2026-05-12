@@ -7,6 +7,28 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.4.0] — 2026-05-12
+
+### Added
+- `builder-feature-orchestrator`: new brain-only architecture — returns structured Decision blocks (`spawn-planners`, `converged`, `spawn-worker`, `blocked`) to the calling entry skill. Modes: `gather-intent`, `gather-intent-prefilled`, `process-findings`, `synthesize`, `execute-approved-plan`, `resume`. Never spawns agents or writes source files directly.
+- All four layer planners (`builder-domain-planner`, `builder-data-planner`, `builder-pres-planner`, `builder-app-planner`): new `### Impact Recommendations` section in output contract — reports which other layers are affected and at what urgency (`required` / `optional`).
+
+### Changed
+- `builder-plan-feature`: rewritten as convergence loop executor — calls orchestrator for intent and per-round decisions, spawns only the needed layer planners in parallel, tracks visited set, accumulates findings across rounds (max 3), synthesizes plan then gates on user approval, spawns `builder-feature-worker` with plan + context injected inline.
+- `builder-build-from-ticket`: rewritten to use the same convergence loop non-interactively — uses `gather-intent-prefilled` mode, auto-approves, writes `error.md` on block or round-cap instead of asking the user.
+- `builder-build-feature`: updated — resume path uses orchestrator `resume` mode; build-directly uses orchestrator fast path.
+- `builder-groom-ticket` + `builder-groom-orchestrator`: aligned to new pattern — orchestrator returns `Decision: spawn-planners` for scope detection; skill spawns planners in grooming-only mode (single round, no loop); orchestrator synthesizes and chains to `tracker-adjust-ticket`.
+- `docs/principles/core-design-principles.md`: updated orchestrator definition (brain-only, Decision blocks), planner definition (layer explorer with impact recommendations), skill size rule (Type T scales with routing complexity — no line limit), anatomy diagram, handoff contracts, layer isolation section.
+- `docs/persona/builder.md`: full anatomy rewrite — convergence loop diagram, orchestrator modes table, planners table with impact recommendations column, deprecated agents section.
+- `docs/deck/agentic-deck.html`: all affected slides updated — role cards, anatomy diagrams, taxonomy table, builder example cards, maturity ladder.
+- `README.md`: agent table updated (descriptions); skill descriptions updated; workflow step updated.
+
+### Deprecated
+- `builder-feature-planner`: responsibilities absorbed into `builder-feature-orchestrator` (synthesize mode) and `builder-plan-feature` skill (convergence loop).
+- `builder-auto-feature-planner`: responsibilities absorbed into `builder-feature-orchestrator` (`gather-intent-prefilled` mode) and `builder-build-from-ticket` skill.
+
+---
+
 ## [5.3.1] — 2026-05-12
 
 ### Changed
