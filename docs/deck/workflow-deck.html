@@ -412,7 +412,7 @@
 <body>
 
 <div id="progress"></div>
-<div id="counter">1 / 9</div>
+<div id="counter">1 / 10</div>
 <div id="deck">
 
   <!-- ═══════════════════════════════════════════
@@ -625,9 +625,65 @@ orchestrator: <span class="ac">converged</span> <span class="dm">→ writes</spa
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 7 — CLOSE THE LOOP
+       SLIDE 7 — REAL SESSION
   ════════════════════════════════════════════ -->
   <section class="slide" id="s7">
+    <div class="label">Real Session — TLMN-5183 · talenta-iOS</div>
+    <h2 class="headline">One ticket. One command. <em>Five minutes.</em></h2>
+    <div class="compare">
+      <div class="tree" style="font-size: 12px;"><span class="ac">/builder-plan-feature</span> <span class="dm">TLMN-5183.md</span>
+<span class="dm">──────────────────────────────────────────────────────</span>
+<span class="rl">builder-feature-orchestrator</span>  <span class="dm">gather-intent</span>
+<span class="dm">                               8.9k tokens · 7s</span>
+
+<span class="rl">builder-pres-planner</span>          <span class="dm">explore generateMenuSection</span>
+<span class="dm">                               26.7k tokens · 1m 13s</span>
+
+<span class="rl">builder-feature-orchestrator</span>  <span class="dm">process-findings · converge</span>
+<span class="dm">                               14.1k tokens · 1m 24s</span>
+
+<span class="ac">▶  Plan shown. User approves.</span>
+
+<span class="rl">builder-feature-orchestrator</span>  <span class="dm">execute-approved-plan</span>
+<span class="dm">                               12.2k tokens · 14s</span>
+
+<span class="rl">builder-feature-worker</span>        <span class="dm">execute remaining work items</span>
+<span class="dm">                               31.6k tokens · 1m 57s</span>
+<span class="dm">──────────────────────────────────────────────────────</span>
+<span class="ac">~93k tokens · ~5 minutes</span></div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="code-panel">
+          <div class="code-panel-header good">Output — verified changes</div>
+          <pre><span class="ac">generateMenuSection</span>
+<span class="cm">  rewritten with DispatchGroup: getFlex B2CStatus</span>
+<span class="cm">  + getReviewsData in parallel, group.notify fires</span>
+<span class="cm">  fetchMenus (lines 546–572)</span>
+
+<span class="ac">getFlex B2CStatus</span>
+<span class="cm">  policy: FetchPolicy + completion — internal</span>
+<span class="cm">  chain calling getReviewsData removed</span>
+
+<span class="ac">getReviewsData</span>
+<span class="cm">  policy: FetchPolicy + completion — isUpdateMenu</span>
+<span class="cm">  → generateMenu() path removed</span>
+
+<span class="bl">GetDashboardAnnouncementUseCaseTest</span>  <span class="cm">5 sites</span>
+<span class="bl">GetFlexB2CStatusUseCaseTest</span>          <span class="cm">6 sites</span>
+<span class="bl">GetSubordinatesDashboardUseCaseTest</span>   <span class="cm">3 sites</span></pre>
+        </div>
+        <div class="caption">
+          Orchestrator ran <strong>3 times</strong> — each a different mode.
+          Skill drove the loop. Planner explored one layer.
+          Worker executed all work items and verified output.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 8 — CLOSE THE LOOP
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s8b">
     <div class="label">Step 4 — Close the Loop</div>
     <h2 class="headline">Same command as always. <em>The ticket stays current. Every session.</em></h2>
     <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -684,9 +740,9 @@ Still open:
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 8 — RESULTS
+       SLIDE 9 — RESULTS
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s8">
+  <section class="slide" id="s9">
     <div class="label">Results — April 2026 · talenta-iOS · mobile-talenta · talenta-mobile-android</div>
     <h2 class="headline">Measured across three products. <em>Four days of tuning.</em></h2>
     <div class="cards">
@@ -722,9 +778,9 @@ Still open:
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 9 — CLOSING
+       SLIDE 10 — CLOSING
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s9">
+  <section class="slide" id="s10">
     <div class="label">software-dev-agentic</div>
     <p class="quote">
       An engineer describes what they want to build.
@@ -749,7 +805,7 @@ Still open:
 
 <div id="mobile-nav" style="display:none">
   <button id="btn-prev" onclick="goTo(current - 1)">← Prev</button>
-  <span id="mobile-counter">1 / 9</span>
+  <span id="mobile-counter">1 / 10</span>
   <button id="btn-next" class="primary" onclick="goTo(current + 1)">Next →</button>
 </div>
 
