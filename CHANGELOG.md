@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.5.0] — 2026-05-13
+
+### Changed
+- `builder-feature-orchestrator`: removed `execute-approved-plan` and `resume` modes — both were pass-through calls (read files, return `Decision: spawn-worker`) with no reasoning value, causing unnecessary cold boots.
+- `builder-plan-feature`: Step 5 now updates `plan.md` status to `approved` and spawns `builder-feature-worker` directly, without going through the orchestrator.
+- `builder-build-feature`: resume path now spawns `builder-feature-worker` directly with pre-loaded context; build-directly path no longer expects `Decision: spawn-worker` from orchestrator.
+- `builder-build-from-ticket`: Step 8 now updates `plan.md` status to `approved` and spawns `builder-feature-worker` directly.
+
+### Removed
+- `Decision: spawn-worker` structured output block from `builder-feature-orchestrator` — no longer returned by any remaining mode.
+
+---
+
 ## [5.4.2] — 2026-05-12
 
 ### Removed
