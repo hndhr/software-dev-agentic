@@ -157,13 +157,9 @@ Wait for the orchestrator to write plan.md + context.md and return the plan summ
 
 ## Step 8 — Execute
 
-Spawn `builder-feature-orchestrator` with mode `execute-approved-plan`:
+Update `status` in `plan.md` frontmatter from `pending` to `approved`.
 
-> **Mode: execute-approved-plan**
->
-> Run directory: <path to the run directory written in Step 7>
-
-Wait for `Decision: spawn-worker`. Read `plan.md` and `context.md` from the returned paths, then spawn `builder-feature-worker`:
+Read `plan.md` and `context.md` from the run directory written in Step 7. Then spawn `builder-feature-worker`:
 
 > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
 >

@@ -93,8 +93,6 @@ The entry skill (not the orchestrator) owns the loop. Each round:
 | `gather-intent-prefilled` | Ticket path; intent pre-derived | `Decision: spawn-planners` (round 1) |
 | `process-findings` | After each planner round | `Decision: spawn-planners` / `Decision: converged` / `Decision: blocked` |
 | `synthesize` | After convergence; skill passes all findings | Writes `plan.md` + `context.md`; returns summary |
-| `execute-approved-plan` | After user approval | `Decision: spawn-worker` |
-| `resume` | Resuming an existing run | `Decision: spawn-worker` |
 
 ---
 

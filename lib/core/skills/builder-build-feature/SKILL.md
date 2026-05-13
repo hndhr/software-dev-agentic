@@ -39,22 +39,7 @@ options     :
 
 ### 3 — Resume
 
-Spawn `builder-feature-orchestrator` with mode `resume` and pre-loaded context:
-
-> **Mode: resume**
->
-> Pre-loaded context — do not re-read plan.md, context.md, or state.json:
->
-> **plan.md**
-> <content>
->
-> **context.md**
-> <content>
->
-> **state.json**
-> <content>
-
-Wait for the orchestrator to return `Decision: spawn-worker`. Then spawn `builder-feature-worker`:
+Spawn `builder-feature-worker` directly with the pre-loaded context:
 
 > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
 >
@@ -90,9 +75,9 @@ options     :
 >
 > Feature description: <$ARGUMENTS, or empty>
 >
-> After gathering intent, proceed directly to synthesize without running the planning convergence loop. Use safe defaults: spawn all four layer planners, accept their findings as-is, write plan.md with status approved, return `Decision: spawn-worker`.
+> After gathering intent, proceed directly to synthesize without running the planning convergence loop. Use safe defaults: spawn all four layer planners, accept their findings as-is, write plan.md with status approved.
 
-Wait for `Decision: spawn-worker`. Read plan.md and context.md from the returned paths, then spawn `builder-feature-worker`:
+Wait for the orchestrator to finish synthesizing. Read `plan.md` and `context.md` from the run directory, then spawn `builder-feature-worker`:
 
 > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
 >

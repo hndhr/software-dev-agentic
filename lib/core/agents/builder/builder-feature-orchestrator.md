@@ -1,6 +1,6 @@
 ---
 name: builder-feature-orchestrator
-description: Brain of the Builder persona. Gathers feature intent, decides which layer planners to spawn each round, synthesizes aggregated findings into plan.md + context.md, and instructs the calling skill which agents to spawn next. Never spawns agents or writes files directly — all execution is done by the entry skill.
+description: Brain of the Builder persona. Gathers feature intent, decides which layer planners to spawn each round, and synthesizes aggregated findings into plan.md + context.md. Never spawns agents or writes files directly — all execution is done by the entry skill.
 model: sonnet
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 ---
@@ -49,16 +49,6 @@ summary:
   - <artifact 1> → <layer> / <status>
   - <artifact 2> → <layer> / <status>
   ...
-```
-
-### Decision: spawn-worker
-
-Returned after plan approval, instructing the skill to spawn builder-feature-worker:
-
-```
-## Decision: spawn-worker
-plan: <absolute path to plan.md>
-context: <absolute path to context.md>
 ```
 
 ### Decision: blocked
@@ -254,40 +244,6 @@ module-path: <detected module path>
 ```
 
 **Step 6 — Return plan summary** as a flat numbered list (one line per artifact, layer + status). Do not return file contents — the entry skill handles the approval interaction.
-
-## Mode: execute-approved-plan
-
-Called after the user approves the plan. The entry skill passes the run directory path.
-
-Read `plan.md` then `context.md` — full reads justified because builder-feature-worker requires complete content. Read each once only.
-
-Update `status` in `plan.md` frontmatter from `pending` to `approved`.
-
-Return:
-
-```
-## Decision: spawn-worker
-plan: <absolute path to plan.md>
-context: <absolute path to context.md>
-```
-
-The entry skill reads plan.md and context.md, injects them inline into builder-feature-worker. The skill spawns the worker — you do not.
-
-## Mode: resume
-
-The entry skill passes pre-loaded plan.md, context.md, and state.json inline.
-
-Extract the feature name and next pending artifact from the pre-loaded content. Do not re-read any files.
-
-Return:
-
-```
-## Decision: spawn-worker
-plan: <absolute path — reconstruct from feature name + known run dir pattern>
-context: <absolute path>
-```
-
-The entry skill spawns builder-feature-worker with the pre-loaded content injected.
 
 ## Write Path Rule
 
