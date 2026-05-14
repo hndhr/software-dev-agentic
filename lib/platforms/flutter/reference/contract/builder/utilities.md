@@ -215,44 +215,7 @@ class DateServiceImpl implements DateService {
 
 ---
 
-## Null Safety Extensions <!-- 39 -->
 
-Dart has built-in null safety — prefer `??` operators and extension methods for clean fallbacks.
-
-```dart
-// core/utils/null_safety.dart
-
-extension NullableStringX on String? {
-  String orEmpty() => this ?? '';
-  String orDefault(String fallback) =>
-      (this == null || this!.trim().isEmpty) ? fallback : this!;
-  bool get isNullOrEmpty => this == null || this!.isEmpty;
-}
-
-extension NullableNumX<T extends num> on T? {
-  T orZero() => this ?? (0 as T);
-  T orDefault(T fallback) => this ?? fallback;
-}
-
-extension NullableListX<T> on List<T>? {
-  List<T> orEmpty() => this ?? [];
-  bool get isNullOrEmpty => this == null || this!.isEmpty;
-}
-
-extension NullableBoolX on bool? {
-  bool orFalse() => this ?? false;
-  bool orTrue() => this ?? true;
-}
-```
-
-**Usage:**
-```dart
-final name = employee.nickname.orEmpty();
-final count = list?.length.orZero();
-final limit = params.limit ?? 20;
-```
-
----
 
 ## Logger <!-- 64 -->
 
