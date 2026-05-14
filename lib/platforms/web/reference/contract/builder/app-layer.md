@@ -1,0 +1,45 @@
+# Web — App Layer
+
+> Concepts and invariants: `reference/builder/app-layer.md`. This file covers Next.js patterns for Web.
+
+---
+
+## Dependency Registration
+
+> No convention established yet. Document the Web dependency injection pattern (React Context, providers, or DI library) here when adopted.
+
+---
+
+## Route Registration
+
+> No convention established yet. Document the Web route registration pattern (Next.js App Router pages/layouts) here when adopted.
+
+---
+
+## Module Registration
+
+> No convention established yet. Document the Web module registration pattern here when adopted. Next.js uses file-based routing — this step may not apply.
+
+---
+
+## Analytics Constants
+
+> No convention established yet. Document the Web analytics constants pattern (event names, screen identifiers) here when adopted.
+
+---
+
+## Feature Flag Registration
+
+> No convention established yet. Document the Web feature flag pattern (MekariFlag SDK or equivalent) here when adopted.
+
+---
+
+## Push Notification Registration
+
+> No convention established yet. Document the Web push notification pattern (FCM + Service Worker registration) here when adopted.
+
+---
+
+## Deeplink Registration
+
+> No convention established yet. Document the Web deeplink/universal link handling pattern here when adopted.

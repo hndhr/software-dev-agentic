@@ -193,3 +193,15 @@ Grep "featureFlag\|FeatureFlag\|feature_flag" in lib/src/
 ```
 
 **When to add:** Any feature that requires remote gating or gradual rollout. Optional — skip for features that launch to 100% of users immediately.
+
+---
+
+## Push Notification Registration
+
+> No convention established yet. Document the Flutter FCM token lifecycle and notification handler wiring pattern here when adopted.
+
+---
+
+## Deeplink Registration
+
+> No convention established yet. Document the Flutter deeplink handling pattern (go_router, app_links, or equivalent) here when adopted.

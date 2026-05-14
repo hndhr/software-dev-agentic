@@ -167,32 +167,122 @@ struct {Feature}FirebaseName {
 
 ---
 
-## Feature Flag Registration <!-- 29 -->
+## Feature Flag Registration <!-- 32 -->
 
-Add a new flag key to `FeatureFlagKey` and a matching property to `FeatureFlagCollection` in the shared feature flag file.
+iOS uses **MekariFlagCustomProvider** (`Utils/MekariFlag/MekariFlagCustomProvider.swift`) backed by the MekariFlag SDK (Flagsmith). Add a new case to `FeatureIdentity` — the case name is the flag key.
 
-**Step 1 — Add to `FeatureFlagKey` enum:**
+> ⚠️ `FeatureFlagKey` / `FeatureFlagCollection` in `Shared/Infrastructure/FeatureFlag/FeatureFlag.swift` is the V2 system — **not in use yet**. Do not add to it.
+
+**Add to `FeatureIdentity` enum:**
 
 ```swift
-// Shared/Infrastructure/FeatureFlag/FeatureFlag.swift
-enum FeatureFlagKey: String {
+// Utils/MekariFlag/MekariFlagCustomProvider.swift
+enum FeatureIdentity: String {
     // ... existing cases
-    case flag{Feature} = "flag_{feature}"  // ← add here
+    case isEnable{Feature}  // ← add here — case name = Flagsmith flag key
 }
 ```
 
-**Step 2 — Add to `FeatureFlagCollection` struct:**
+**Read the flag value:**
 
 ```swift
-struct FeatureFlagCollection {
-    // ... existing properties
-    var flag{Feature}: FeatureFlag  // ← add here
-}
+// In ViewModel or DataSource — inject MekariFlagCustomProtocol
+let isEnabled = flagProvider.getBoolValue(forFeature: FeatureIdentity.isEnable{Feature}.rawValue)
 ```
 
 **Rules:**
-- ✅ Case name must exactly match the property name in `FeatureFlagCollection`
-- ✅ `rawValue` is the remote config key string — confirm with backend
-- ❌ Never use `FeatureFlagKey` string literals directly in ViewModel or UseCase
+- ✅ Case name must exactly match the flag key string configured in Flagsmith — confirm with backend
+- ✅ Inject `MekariFlagCustomProtocol` — never access `MekariFlagCustomProvider` directly in business logic
+- ❌ Never use raw string literals for flag keys — always reference `FeatureIdentity`
 
 **When to add:** Any feature that requires remote gating or gradual rollout. Optional — skip for features that launch immediately to 100% of users.
+
+---
+
+## Push Notification Registration <!-- 20 -->
+
+Push notifications and deeplinks share the same delivery path — both ultimately write to `DeeplinkStreamImpl.shared`. No per-feature notification registration is needed; the infrastructure is wired once in `AppDelegate`.
+
+**Token lifecycle:**
+- `AppDelegate.messaging(_:didReceiveRegistrationToken:)` receives new FCM tokens → calls `FCMManager.setToken(value:)` (stores locally) and `FCMManager.postToken()` (posts to server via `PostSendFCMTokenUseCase`)
+- On logout: call `FCMManager.deletePostToken()` — deletes from server (`DeleteFCMTokenUseCase`), clears local storage, and removes from the Messaging SDK
+- Token lifecycle is **not** automatic on login/logout — the auth flow must explicitly call `postToken()` on login and `deletePostToken()` on logout
+
+**Notification tap → deeplink routing:**
+
+`AppDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)` receives the tap → delegates to `FCMManager.handlePushNotification(userInfo:)` which parses the payload by `navigation_type`:
+
+| `navigation_type` | Payload field | Action |
+|---|---|---|
+| `deeplinking` | `deeplink_ios` (URL string) | `DeeplinkData(url:)` → `DeeplinkStreamImpl.shared.set(deeplink:)` |
+| `screenName` | `screen_name_ios` (path string) | `DeeplinkData(url:nil, payload:)` → `DeeplinkStreamImpl.shared.set(deeplink:)` |
+| `uri` | `uri` | `UIApplication.openScreenBasedOnURL()` — bypasses DeeplinkStream |
+| *(legacy)* | `type` (DeeplinkPath rawValue) | `DeeplinkStreamImpl.shared.set(deeplink:)` |
+
+**When a new notification type must route to a new screen:** add a `DeeplinkPath` case and ensure the push payload includes `screen_name_ios` with that case's rawValue. `DeeplinkData` parses it automatically. No new files needed.
+
+---
+
+## Deeplink Registration <!-- 54 -->
+
+All deeplink sources — push notification taps, URL schemes, universal links, and home screen quick actions — converge on a single `DeeplinkStreamImpl.shared` (`Talenta/DIComponents/DataStream/DeeplinkStream.swift`). Coordinators subscribe to the stream; they never parse URLs or payloads directly.
+
+**Entry points:**
+
+| Source | Handler | Writes to stream via |
+|---|---|---|
+| Push notification tap | `FCMManager.handlePushNotification(userInfo:)` | `DeeplinkStreamImpl.shared.set(deeplink:)` |
+| URL scheme (`talenta://`) | `DeeplinkManager.handle(url:)` | `dispatch(url:)` → stream |
+| Universal link (`https://`) | `DeeplinkManager.handle(userActivity:)` | `dispatch(url:)` → stream |
+| Home screen quick action | `DeeplinkManager.handle(shortcutItem:)` | `stream.set(deeplink:)` directly |
+
+All entry points are wired in `AppDelegate` — no coordinator touches them directly.
+
+**Step 1 — Register the path in `DeeplinkPath`:**
+
+```swift
+// Talenta/DIComponents/DataStream/DeeplinkStream.swift
+enum DeeplinkPath: String {
+    // ... existing cases
+    case {feature} = "{feature-url-path}"  // ← raw value = URL path, confirm with backend
+}
+```
+
+**Step 2 — Add a routing method to `DeeplinkComponent`:**
+
+```swift
+// Talenta/DIComponents/Deeplink/DeeplinkComponent.swift
+extension DeeplinkComponent {
+    func coordinate{Feature}() -> Observable<Void> {
+        let component = {Feature}Component(parent: self)
+        let coordinator = {Feature}Coordinator(
+            navigationController: rootNavigationController,
+            component: component
+        )
+        return coordinate(to: coordinator).map { _ in }
+    }
+}
+```
+
+**Step 3 — Subscribe in the consuming coordinator or ViewController:**
+
+```swift
+deeplinkStream?.deeplinkData
+    .subscribe(onNext: { [weak self] data in
+        guard let data = data else { return }
+        switch data.link {
+        case .{feature}:
+            self?.coordinate{Feature}()
+        default: break
+        }
+    })
+    .disposed(by: disposeBag)
+```
+
+**Rules:**
+- ✅ `DeeplinkPath` raw value is the URL path string — confirm with backend/web team
+- ✅ After handling, call `deeplinkStream?.set(deeplink: nil)` to clear the stream
+- ❌ Never parse URLs or push payloads directly in coordinators or ViewModels — `DeeplinkData` handles all parsing
+- ❌ Never add a second deeplink dispatch path — all sources must write to `DeeplinkStreamImpl.shared`
+
+**When to add:** Any feature reachable from a push notification tap, universal link, URL scheme, or home screen quick action.

@@ -61,7 +61,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Feature Flag Registration <!-- 10 -->
+## Feature Flag Registration <!-- 78 -->
 
 **Feature Flag Registration** is the act of declaring a new feature-gating key in the app's centralized flag registry, enabling remote enable/disable without a new app release.
 
@@ -71,3 +71,33 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 - Default values are explicit — the flag's behavior when unset must be defined in the registry
 
 **When to add:** Any feature that requires remote gating, gradual rollout, or a kill switch. Optional — skip for features that launch immediately to 100% of users.
+
+---
+
+## Push Notification Registration <!-- 92 -->
+
+**Push Notification Registration** is the act of wiring the app to receive push notifications — fetching the device token, delivering it to the server, and removing it on logout.
+
+**Invariants:**
+- Registration is owned by the infrastructure layer — never by an individual feature
+- The notification manager is wired once at the app shell, not inside feature modules
+- Payload routing (which screen or flow a notification opens) is declared separately from payload receipt (receiving and decoding the notification)
+- Notification display concerns — channels, builders, and visual configuration — are isolated from the message handler
+- Silent push notifications must route through domain use cases — they must not trigger UI state directly
+
+**When to add:** Once per app. The token lifecycle is tied to the auth flow — token registration occurs on login and token deletion occurs on logout.
+
+---
+
+## Deeplink Registration
+
+**Deeplink Registration** is the act of mapping incoming URLs and notification taps to screens or flows within the app.
+
+**Invariants:**
+- Mappings live at the app shell — never inside individual feature modules
+- Deeplink route identifiers are the same identifiers used for in-app navigation — no parallel routing system
+- URL parsing is separated from routing — the parser produces a route identifier, the router acts on it
+- Each feature declares its own deeplink paths; the app shell assembles the complete registry
+- Deeplinks arriving while the app is backgrounded or unauthenticated must be queued and replayed after auth completes
+
+**When to add:** Any feature reachable from a push notification tap, an external URL, or a cross-app link.
