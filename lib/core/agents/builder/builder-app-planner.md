@@ -36,7 +36,7 @@ Resolve the platform contract reference path for the given `platform`:
 reference/contract/builder/app-layer.md   (resolved downstream as .claude/reference/contract/builder/app-layer.md)
 ```
 
-If `platform` is `web`: no app-layer contract doc exists yet — skip this step and proceed directly to codebase discovery using general patterns (DI container, router config, module index). Note the absence in findings.
+Read each section with `offset` + `limit` to understand the platform's wiring patterns before searching the codebase. Sections marked with a stub (`> No convention established yet`) have no wiring pattern to enforce — skip codebase discovery for those sections.
 
 For all other platforms, Grep for `^## ` to list all canonical headings. Read each section with `offset` + `limit` to understand the platform's wiring patterns before searching the codebase.
 
@@ -90,7 +90,7 @@ Grep for existing analytics constant structs/classes in the feature directory to
 | `flutter` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `lib/src/shared/` or `lib/src/configs/` |
 | `android` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `app/src/` and `base/` |
 
-For iOS: Grep for `FeatureFlagKey` and `FeatureFlagCollection` to confirm the file path. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
+For iOS: Grep for `FeatureIdentity` in `Utils/MekariFlag/MekariFlagCustomProvider.swift` to confirm the active enum. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
 For Flutter/Android: Grep to discover the pattern in use before proposing a registration location.
 
 **Step 7 — Detect patterns from existing entries**

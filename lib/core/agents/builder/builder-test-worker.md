@@ -87,7 +87,7 @@ To execute a skill:
 2. `Read` that file
 3. Follow its instructions as the authoritative procedure for this platform
 
-If the skill file does not exist for the given platform, check `lib/platforms/<platform>/reference/index.md` for the closest alternative, then surface the gap to the user before proceeding.
+If the skill file does not exist for the given platform, check `reference/index.md` for the closest alternative, then surface the gap to the user before proceeding.
 
 ## Preconditions — Fail Fast
 

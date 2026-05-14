@@ -45,11 +45,12 @@ Extract from the inlined content:
 - Artifact tables per layer (Domain / Data / Presentation / UI)
 - Key Symbols per existing artifact from context.md
 
-Load the platform utilities reference before writing any code:
+Load both reference files before writing any code:
 ```
-lib/platforms/<platform>/reference/contract/builder/utilities.md
+reference/contract/builder/syntax-conventions.md
+reference/contract/builder/utilities.md
 ```
-Read the **Null Safety** section. Apply the conventions from it throughout all artifacts — this is not optional.
+Read all sections and apply every convention throughout all artifacts — this is not optional.
 
 Check for a state file to resume from a previous run:
 ```bash
@@ -88,30 +89,23 @@ Derive the skill from each artifact's type in plan.md:
 | Screen | `pres-create-screen` |
 | Component | `pres-create-component` |
 
-## Syntax Conventions
 
-Apply these rules in every artifact you write or edit, regardless of layer.
+## Component Reuse Check — UI Layer
 
-### Null Safety — Extension Methods Over Raw Operators
+Before executing any Screen or Component artifact, check whether an existing one already covers the need.
 
-Never use raw `??`, `!` (force-unwrap), or `?.` chains directly in business logic. Always route through the extension methods from the platform utilities reference:
+**Step 1 — Find the platform's shared component paths:**
+Grep `reference/contract/builder/presentation.md` for the section heading `Shared Component Paths`. This section lists the exact directories and file patterns to search for this platform.
 
-| Need | iOS | Flutter | Web |
-|---|---|---|---|
-| Optional numeric → 0 | `.orZero()` | `.orZero()` | `orZero(value)` |
-| Optional string → `""` | `.orEmpty()` | `.orEmpty()` | `orEmpty(value)` |
-| Optional collection → `[]` | `.orEmpty()` | `.orEmpty()` | `orEmptyArray(value)` |
-| Optional bool → false | `.orFalse()` | `.orFalse()` | — |
-| Optional bool → true | `.orTrue()` | `.orTrue()` | — |
-| Optional → custom default | `.orDefault(x)` | `.orDefault(x)` | `orDefault(value, x)` |
+**Step 2 — Search those paths:**
+For each path listed, run a Grep for keywords matching the component need (e.g. the component type, a key prop name, or a UI concept like "card", "list", "avatar"). Use the file pattern from the section (e.g. `*View.swift`, `*.tsx`, `*.dart`).
 
-**iOS — wrap the optional chain in parentheses before calling:**
-```swift
-($0.dataState.data?.title).orEmpty()   // ✅
-$0.dataState.data?.title.orEmpty()     // ❌ compile error
-```
+**Step 3 — Decide:**
+- If a match exists and covers ≥80% of the needed behavior → **reuse it**. Document which component was selected and why.
+- If a partial match exists → **extend it** directly via `Read` + `Edit` rather than creating a parallel component.
+- If no match exists → proceed to create a new one.
 
-Raw `??` is allowed only in infrastructure/extension implementations themselves, not in domain, data, or presentation code.
+Never skip this check. Creating a duplicate of an existing component is a worse outcome than a slightly imperfect reuse.
 
 ## Per-Artifact Workflow
 

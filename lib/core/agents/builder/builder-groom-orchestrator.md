@@ -104,7 +104,7 @@ Rules:
 
 ### Phase 4 — Chain to tracker-adjust-ticket
 
-Read the skill at `lib/core/skills/tracker-adjust-ticket/SKILL.md`.
+Read the skill at `.claude/skills/tracker-adjust-ticket/SKILL.md`.
 
 Execute its steps using the grooming summary as pre-filled answers:
 - **Progress** — "Grooming session: layer mapping and work item breakdown completed."

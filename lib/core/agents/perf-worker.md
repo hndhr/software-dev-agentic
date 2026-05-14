@@ -289,12 +289,12 @@ Include the exact agent file path inferred from the `agent_spawns` subagent type
 
 | Subagent type | Agent file |
 |---|---|
-| builder-feature-orchestrator | lib/core/agents/builder/builder-feature-orchestrator.md |
-| builder-feature-worker | lib/core/agents/builder/builder-feature-worker.md |
-| builder-backend-orchestrator | lib/core/agents/builder/builder-backend-orchestrator.md |
-| builder-ui-worker | lib/core/agents/builder/builder-ui-worker.md |
-| builder-test-worker | lib/core/agents/builder/builder-test-worker.md |
-| detective-debug-worker | lib/core/agents/detective/detective-debug-worker.md |
+| builder-feature-orchestrator | builder-feature-orchestrator |
+| builder-feature-worker | builder-feature-worker |
+| builder-backend-orchestrator | builder-backend-orchestrator |
+| builder-ui-worker | builder-ui-worker |
+| builder-test-worker | builder-test-worker |
+| detective-debug-worker | detective-debug-worker |
 
 ## Step 6 — Write the report
 
