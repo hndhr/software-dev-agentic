@@ -7,6 +7,35 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [5.6.0] — 2026-05-14
+
+### Added
+- `lib/core/reference/builder/syntax-conventions.md` — platform-agnostic Null Safety invariants (rules only; implementation code lives in platform contracts)
+- `lib/core/reference/builder/utilities.md` — platform-agnostic definitions for StorageService, DateService, Logger, and Helper Extensions
+- `lib/platforms/{ios,android,flutter,web}/reference/contract/builder/syntax-conventions.md` — per-platform Null Safety extension implementation code (Swift, Kotlin, Dart, TypeScript)
+- `lib/platforms/web/reference/contract/builder/app-layer.md` — new file; all 7 app-layer sections present (most as stubs pending convention adoption)
+- iOS app-layer contract: Push Notification Registration — documents unified FCM + DeeplinkStream architecture; all notification sources converge on `DeeplinkStreamImpl.shared`
+- iOS app-layer contract: Deeplink Registration — full entry-point table (PN tap → FCMManager, URL scheme/universal link/quick action → DeeplinkManager), 3-step registration convention
+- Android app-layer contract: Push Notification Registration — documents `TalentaNotificationManagerImpl`, token lifecycle via `PostFcmTokenUseCase`/`DeleteFcmTokenUseCase`, `NotificationNavigationType` routing
+- Android app-layer contract: Deeplink Registration — documents `RedirectionActivity` as single entry point, `UrlHelper` pattern matching, 4-step registration convention
+- Flutter/Web app-layer contracts: stub sections for Push Notification and Deeplink (no convention established yet)
+- Core app-layer reference: Push Notification Registration and Deeplink Registration sections with platform-agnostic invariants
+
+### Changed
+- `builder-feature-worker`: pre-flight now loads both `syntax-conventions.md` and `utilities.md` before writing any code
+- `builder-feature-worker`: merged Component Reuse Check from deleted `builder-ui-worker`
+- `builder-app-planner`: replaced stale web skip note with stub-aware instruction; fixed iOS feature flag grep target from deprecated `FeatureFlagKey`/`FeatureFlagCollection` to active `FeatureIdentity` in `MekariFlagCustomProvider`
+- iOS app-layer contract: Feature Flag Registration updated — active system is `FeatureIdentity` enum in `MekariFlagCustomProvider.swift`; `FeatureFlagKey`/`FeatureFlagCollection` marked as V2/not in use
+- Android app-layer contract: Feature Flag Registration updated — documents three-enum system (`LocalFeatureFlag`, `RemoteConfigFeatureFlag`, `FlagsmithFeatureFlag`) with code examples
+- All platform utilities.md files: Null Safety Extensions section removed (content moved to `syntax-conventions.md` per platform)
+- All platforms now have all 7 app-layer sections present (stub or documented)
+- Fixed downstream-resolved path references in `builder-test-worker`, `builder-groom-orchestrator`, `installer-setup-worker`, and `perf-worker`
+
+### Removed
+- `builder-ui-worker` — deleted; no valid spawn path (violated Skill-First Entry principle); Component Reuse Check merged into `builder-feature-worker`
+
+---
+
 ## [5.5.0] — 2026-05-13
 
 ### Changed
