@@ -7,6 +7,26 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.3.0] — 2026-05-15
+
+### Added
+- `builder-domain-planner`, `builder-data-planner`, `builder-pres-planner`: Step 0 (Load reference) — was entirely missing; now greps `^## ` in both core + contract reference files and reads scope-matching sections using `<!-- N -->` as exact line limit
+- Survey+load pattern across all builder agents: Step 0 greps headings first, reads only matching sections immediately — no full-file reads, no guessed limits
+
+### Changed
+- All builder agent reference paths now use `.claude/reference/...` format (no downstream mentions)
+- `builder-domain-planner` Step 0 scope table: prerequisite chains for `usecase` (needs `Repository Interfaces`, `Entit`) and `repository` (needs `Entit`) made explicit
+- `builder-data-planner` Step 0 scope table: prerequisite chains for `mapper` (needs `DTO`, `Entit`) and `repository_impl` (needs `Data Source`, `Mapper`) made explicit
+- `builder-feature-worker` pre-flight: switched from "read all sections" to survey+load pattern across 6 reference files (core + contract: syntax-conventions, utilities, error-handling)
+- `builder-test-worker`: added explicit survey step after layer identification
+- `builder-feature-orchestrator`: fixed bare path `reference/builder/layer-contracts.md` → `.claude/reference/builder/layer-contracts.md`
+- `lib/core/reference/builder/domain.md`: `## Repository` → `## Repository Interfaces` (canonical heading alignment)
+- Platform contract `domain.md` files (web, ios, android): `## Services` → `## Domain Services`
+- `lib/platforms/web/reference/contract/builder/data.md`: `## DTOs (Data Transfer Objects)` → `## DTOs`
+- `lib/platforms/android/reference/contract/builder/data.md` and `flutter`: `## Repository Implementations` → `## Repository Implementation`
+- `lib/platforms/flutter/reference/contract/builder/error-handling.md`: `## Widget Error UI` → `## Error UI`
+- `lib/platforms/ios/reference/contract/builder/utilities.md`: `## Helper Extensions Index` → `## Helper Extensions`
+
 ## [6.2.1] — 2026-05-15
 
 ### Changed
