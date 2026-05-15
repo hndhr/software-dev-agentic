@@ -2,13 +2,13 @@
 # clean-ai.sh — Remove AI config and compiled skill artifacts from the project.
 #
 # Usage:
-#   scripts/clean-ai.sh --ai=copilot --platform=ios
-#   scripts/clean-ai.sh --ai=gemini  --platform=web
+#   software-dev-agentic/scripts/clean-ai.sh --ai=copilot --platform=ios
+#   software-dev-agentic/scripts/clean-ai.sh --ai=gemini  --platform=web
 
 set -euo pipefail
 
 SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
-PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SUBMODULE/.." && pwd)"
 
 # ── Parse args ────────────────────────────────────────────────────────────────
 

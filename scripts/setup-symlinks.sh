@@ -5,17 +5,17 @@
 # Also used by sync.sh to re-link after a submodule update.
 #
 # Usage:
-#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
-#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
-#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=android
-#   .claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=flutter
+#   software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+#   software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
+#   software-dev-agentic/scripts/setup-symlinks.sh --platform=android
+#   software-dev-agentic/scripts/setup-symlinks.sh --platform=flutter
 #
 # Priority order: agents.local > platform > core  (first link wins)
 
 set -euo pipefail
 
 SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
-PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SUBMODULE/.." && pwd)"
 CLAUDE_DIR="$PROJECT_ROOT/.claude"
 
 # ── Parse --platform ─────────────────────────────────────────────────────────
@@ -134,8 +134,8 @@ link_reference() {
 }
 
 # Relative paths from .claude/agents/ or .claude/skills/ to submodule
-REL_CORE="../software-dev-agentic/lib/core"
-REL_PLATFORM="../software-dev-agentic/lib/platforms/$PLATFORM"
+REL_CORE="../../software-dev-agentic/lib/core"
+REL_PLATFORM="../../software-dev-agentic/lib/platforms/$PLATFORM"
 
 # ── 1. Local overrides (highest priority) ────────────────────────────────────
 

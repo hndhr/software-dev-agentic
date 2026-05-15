@@ -4,13 +4,13 @@
 # Run from the project root whenever you want to adopt new agents/skills.
 #
 # Usage:
-#   .claude/software-dev-agentic/scripts/sync.sh --platform=web
-#   .claude/software-dev-agentic/scripts/sync.sh --platform=ios
+#   software-dev-agentic/scripts/sync.sh --platform=web
+#   software-dev-agentic/scripts/sync.sh --platform=ios
 
 set -euo pipefail
 
 SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
-PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SUBMODULE/.." && pwd)"
 
 # ── Parse --platform ─────────────────────────────────────────────────────────
 
@@ -46,7 +46,7 @@ echo "Platform: $PLATFORM"
 
 echo "Pulling latest software-dev-agentic..."
 if grep -qsF 'software-dev-agentic' "$PROJECT_ROOT/.gitmodules" 2>/dev/null; then
-  git -C "$PROJECT_ROOT" submodule update --remote .claude/software-dev-agentic
+  git -C "$PROJECT_ROOT" submodule update --remote software-dev-agentic
 else
   echo "  (plain clone detected — using git pull)"
   git -C "$SUBMODULE" pull origin main
@@ -62,7 +62,7 @@ echo ""
 echo ""
 if grep -qsF 'software-dev-agentic' "$PROJECT_ROOT/.gitmodules" 2>/dev/null; then
   echo "Submodule updated. To lock in this version:"
-  echo "  git add .claude/software-dev-agentic"
+  echo "  git add software-dev-agentic"
   echo "  git commit -m 'chore: bump software-dev-agentic to $(git -C "$SUBMODULE" rev-parse --short HEAD)'"
 else
   echo "Updated to $(git -C "$SUBMODULE" rev-parse --short HEAD)."

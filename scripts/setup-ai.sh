@@ -3,13 +3,13 @@
 # Safe to re-run — skips existing generated files.
 #
 # Usage:
-#   scripts/setup-ai.sh --ai=copilot --platform=ios [--app-name=MyApp]
-#   scripts/setup-ai.sh --ai=gemini  --platform=web [--app-name=MyApp]
+#   software-dev-agentic/scripts/setup-ai.sh --ai=copilot --platform=ios [--app-name=MyApp]
+#   software-dev-agentic/scripts/setup-ai.sh --ai=gemini  --platform=web [--app-name=MyApp]
 
 set -euo pipefail
 
 SUBMODULE="$(cd "$(dirname "$0")/.." && pwd)"
-PROJECT_ROOT="$(cd "$SUBMODULE/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SUBMODULE/.." && pwd)"
 
 # ── Parse args ────────────────────────────────────────────────────────────────
 
