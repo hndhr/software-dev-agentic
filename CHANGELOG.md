@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.4.1] — 2026-05-16
+
+### Changed
+- `lib/platforms/flutter/reference/contract/builder/app-layer.md`, `ios`, `android`: folded `## Hybrid Embedding` content into each platform's `contract/builder/app-layer.md` as a section; removed standalone `contract/builder/hybrid-embedding.md` files — hybrid embedding is an app-layer concern, not a separate contract layer
+- `## Planner Search Patterns` `hybrid_embedding` row: updated Grep hint from stale file-load instruction to `## Hybrid Embedding section below`
+
+### Removed
+- `lib/platforms/flutter/reference/contract/builder/hybrid-embedding.md`
+- `lib/platforms/ios/reference/contract/builder/hybrid-embedding.md`
+- `lib/platforms/android/reference/contract/builder/hybrid-embedding.md`
+
 ## [6.4.0] — 2026-05-16
 
 ### Added
