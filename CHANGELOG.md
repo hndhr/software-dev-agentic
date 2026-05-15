@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.4.0] — 2026-05-16
+
+### Added
+- `lib/core/reference/builder/app-layer.md`: `## Hybrid Embedding` section — canonical terms, communication directions (Host→Guest navigation, headless execution, Guest→Host response/action), and module registration pattern; grep-first selectable via `<!-- 64 -->` annotation
+- `lib/platforms/ios/reference/contract/builder/hybrid-embedding.md`: iOS-specific hybrid embedding patterns (BrickWrap, ModuleFactory, engine lifecycle)
+- `lib/platforms/android/reference/contract/builder/hybrid-embedding.md`: Android-specific hybrid embedding patterns (bricks-talenta, BrickHelper, ActionListener)
+- `lib/platforms/flutter/reference/contract/builder/hybrid-embedding.md`: Flutter guest-side patterns (brick_way, HostParams decoding, ExternalDataSourceHelper)
+
+### Changed
+- `lib/platforms/flutter/reference/contract/builder/app-layer.md`, `ios`, `android`: added `hybrid_embedding` scope row to `## Planner Search Patterns`
+- `docs/persona/builder.md`: moved `domain-worker`, `data-worker`, `presentation-worker`, `builder-ui-worker` from active to Removed table with version and reason
+- `docs/deck/workflow-deck.html`: fixed domain-planner step numbering (Step 4 → Step 3, Step 4a → Step 3a); added Step 0 reference load annotation
+
 ## [6.3.0] — 2026-05-15
 
 ### Added
