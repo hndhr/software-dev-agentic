@@ -289,7 +289,7 @@ deeplinkStream?.deeplinkData
 
 ---
 
-## Planner Search Patterns <!-- 12 -->
+## Planner Search Patterns <!-- 15 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = camelCase per iOS convention.
 
@@ -304,7 +304,7 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = camel
 
 ---
 
-## Hybrid Embedding <!-- 104 -->
+## Hybrid Embedding <!-- 99 -->
 
 > Canonical terms and invariants: `reference/builder/app-layer.md` — `## Hybrid Embedding` section.
 > This section covers iOS-specific patterns using BrickWrap + FlutterModuleManager.

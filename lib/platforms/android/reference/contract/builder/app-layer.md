@@ -286,7 +286,7 @@ private fun redirect{Feature}(uri: Uri) {
 
 ---
 
-## Planner Search Patterns <!-- 12 -->
+## Planner Search Patterns <!-- 15 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Android convention.
 
@@ -301,7 +301,7 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake
 
 ---
 
-## Hybrid Embedding <!-- 149 -->
+## Hybrid Embedding <!-- 138 -->
 
 > Canonical terms and invariants: `reference/builder/app-layer.md` — `## Hybrid Embedding` section.
 > This section covers Android-specific patterns using bricks-talenta + BrickHelper.

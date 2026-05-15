@@ -217,13 +217,13 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake
 
 ---
 
-## Deeplink Registration <!-- 3 -->
+## Deeplink Registration <!-- 6 -->
 
 > No convention established yet. Document the Flutter deeplink handling pattern (go_router, app_links, or equivalent) here when adopted.
 
 ---
 
-## Hybrid Embedding <!-- 97 -->
+## Hybrid Embedding <!-- 93 -->
 
 > Canonical terms and invariants: `reference/builder/app-layer.md` — `## Hybrid Embedding` section.
 > This section covers the Flutter guest side — how the Dart module receives host context and calls back to native.
