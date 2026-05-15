@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.2.0] — 2026-05-15
+
+### Changed
+- `builder-app-planner` Steps 2–6 no longer hardcode platform-specific glob patterns — each step now reads the `## Planner Search Patterns` table from the platform contract loaded in Step 1
+- `ios`, `flutter`, `android` `app-layer.md` contracts: added `## Planner Search Patterns` section with scope-keyed glob patterns and grep hints per concern (`di`, `route`, `module`, `analytics`, `feature_flag`)
+- `web/app-layer.md`: stubbed `## Planner Search Patterns` section (no convention established yet)
+- `workflow-deck.html`: added 5 architecture slides (Skills as Runtime, Orchestrator, Planners + Convergence Loop, Knowledge Structure, Search Protocol); removed results slide
+
 ## [6.1.0] — 2026-05-15
 
 ### Changed
