@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.2.1] — 2026-05-15
+
+### Changed
+- `workflow-deck.html`: added slide 14 "What's Next" — multi-platform AI (ongoing), one-shot ticket-to-build, testing gap (planner + UI test agent + QA persona), and persona orchestration vision
+
 ## [6.2.0] — 2026-05-15
 
 ### Changed
