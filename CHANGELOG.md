@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.4.4] — 2026-05-16
+
+### Changed
+- `ios/contract/builder/utilities.md`: added `## Null Safety Extensions` section (folded from `reference/error-utilities.md`)
+- `android/contract/builder/error-handling.md`: added `## Error Response Models`, `## Error Interceptor`, `## ErrorHandler` sections (folded from `reference/error-handling.md`); updated `builder-pres-create-screen` skill pointer to `contract/builder/error-handling.md`
+
+### Removed
+- `lib/platforms/android/reference/error-handling.md` — misplaced pre-contract era file; content folded into `contract/builder/error-handling.md`
+- `lib/platforms/ios/reference/core-services.md` — zero external consumers; content already covered by `contract/builder/utilities.md`
+- `lib/platforms/ios/reference/error-utilities.md` — zero external consumers; error handling covered by `contract/builder/error-handling.md`, utilities (incl. Null Safety Extensions) folded into `contract/builder/utilities.md`
+
+---
+
 ## [6.4.3] — 2026-05-16
 
 ### Fixed
