@@ -81,15 +81,29 @@ Called first for any new interactive feature. Ask only what is needed:
 4. **Operations needed** — GET list / GET single / POST / PUT / DELETE
 5. **Separate UI layer?** — distinct UI layer from StateHolder? (yes for mobile, no for web)
 
-After gathering intent, load the layer contracts reference:
+Then return a `Decision: spawn-planners` block for round 1. Select planners based on stated intent and the layer contracts below:
 
-```
-.claude/reference/builder/layer-contracts.md
-```
+### Layer Contracts
 
-Use Grep to extract relevant sections — do not read the full file.
+**Dependency direction:** `Domain ← Data ← Presentation ← UI` — each layer imports only from the layer to its left.
 
-Then return a `Decision: spawn-planners` block for round 1. Select planners based on stated intent:
+| Layer | Artifacts | Creation order |
+|---|---|---|
+| Domain | Entity, Repository Interface, Use Case, Domain Service | Entity → Repository Interface → Use Case(s) → Domain Service (if needed) |
+| Data | DTO, Mapper, DataSource interface + impl, Repository impl | DTO → Mapper → DataSource interface → DataSource impl → Repository impl |
+| Presentation | StateHolder, State, Event/Input, Action/Output | Use Cases → StateHolder → StateHolder contract |
+| UI | Screen, Component, Navigator/Coordinator, DI wiring | Screen → Navigator/Coordinator (if needed) → DI wiring (if needed) |
+
+**Inter-layer imports:**
+
+| Consumer | May import from |
+|---|---|
+| Domain | nothing |
+| Data | Domain only |
+| Presentation | Domain only (use cases, entities) |
+| UI | Presentation only (StateHolder contract) |
+
+Select planners based on stated intent:
 
 - New feature → spawn all four (domain, data, pres, app)
 - Update presentation only → spawn pres + app
