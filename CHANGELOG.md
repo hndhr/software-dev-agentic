@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.1.0] — 2026-05-15
+
+### Changed
+- Builder planners (`domain`, `data`, `pres`, `app`) now accept an optional `scope` parameter — only globs for artifact types listed in scope, skipping the rest
+- Each planner adds demand-driven reference expansion (Step 4a / Step 6a): after reading primary artifact symbols, fetches referenced types only if their shape is structurally required or they will be modified as a consequence of the change
+- `builder-feature-orchestrator` `spawn-planners` decision block now carries a `scope` map per planner so the orchestrator narrows each planner's entry point based on stated intent
+
 ## [6.0.0] — 2026-05-15
 
 ### Changed
