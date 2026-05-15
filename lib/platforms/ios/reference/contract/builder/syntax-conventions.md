@@ -4,7 +4,7 @@ Cross-cutting coding rules applied to every artifact the builder worker creates,
 
 ---
 
-## Null Safety Extensions <!-- 38 -->
+## Null Safety Extensions <!-- 44 -->
 
 ```swift
 // Core/Extensions/Optional+NullSafety.swift

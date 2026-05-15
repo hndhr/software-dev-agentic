@@ -5,7 +5,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Dependency Registration <!-- 22 -->
+## Dependency Registration <!-- 14 -->
 
 **Dependency Registration** is the act of binding concrete implementations to their interfaces in the app's DI container so that the runtime can inject them into use cases, repositories, and state holders.
 
@@ -19,7 +19,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Route Registration <!-- 20 -->
+## Route Registration <!-- 14 -->
 
 **Route Registration** is the act of declaring how the app navigates to a feature's screen — mapping a route identifier (string key, enum case, or coordinator type) to a screen factory.
 
@@ -61,7 +61,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Feature Flag Registration <!-- 78 -->
+## Feature Flag Registration <!-- 13 -->
 
 **Feature Flag Registration** is the act of declaring a new feature-gating key in the app's centralized flag registry, enabling remote enable/disable without a new app release.
 
@@ -74,7 +74,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Push Notification Registration <!-- 92 -->
+## Push Notification Registration <!-- 15 -->
 
 **Push Notification Registration** is the act of wiring the app to receive push notifications — fetching the device token, delivering it to the server, and removing it on logout.
 
@@ -89,7 +89,7 @@ Platform syntax and patterns: `reference/contract/builder/app-layer.md` in each 
 
 ---
 
-## Deeplink Registration
+## Deeplink Registration <!-- 12 -->
 
 **Deeplink Registration** is the act of mapping incoming URLs and notification taps to screens or flows within the app.
 

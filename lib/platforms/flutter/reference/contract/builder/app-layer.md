@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/app-layer.md`. This file covers Dart/get_it patterns for Flutter.
 
-## Dependency Registration <!-- 44 -->
+## Dependency Registration <!-- 56 -->
 
 Flutter uses **get_it** as the service locator with **injectable** code generation per feature.
 
@@ -58,7 +58,7 @@ import 'package:talenta/src/features/{feature}/configs/di/{feature}_dependencies
 
 ---
 
-## Route Registration <!-- 44 -->
+## Route Registration <!-- 55 -->
 
 Flutter features declare routes via a **route constants file** and a **route factory class**.
 
@@ -164,7 +164,7 @@ class TalentaModuleManager {
 
 ---
 
-## Analytics Constants <!-- 13 -->
+## Analytics Constants <!-- 16 -->
 
 Analytics event names and screen identifiers are declared as constants in the feature's `utils/` or a dedicated `constants/` file — never as inline strings in BLoC/ViewModel code.
 
@@ -180,7 +180,7 @@ Analytics event names and screen identifiers are declared as constants in the fe
 
 ---
 
-## Feature Flag Registration <!-- 12 -->
+## Feature Flag Registration <!-- 16 -->
 
 Discover the feature flag pattern in use for this project — Flutter projects vary. Common patterns:
 
@@ -196,7 +196,7 @@ Grep "featureFlag\|FeatureFlag\|feature_flag" in lib/src/
 
 ---
 
-## Planner Search Patterns
+## Planner Search Patterns <!-- 14 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Dart convention.
 
@@ -210,12 +210,12 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake
 
 ---
 
-## Push Notification Registration
+## Push Notification Registration <!-- 6 -->
 
 > No convention established yet. Document the Flutter FCM token lifecycle and notification handler wiring pattern here when adopted.
 
 ---
 
-## Deeplink Registration
+## Deeplink Registration <!-- 3 -->
 
 > No convention established yet. Document the Flutter deeplink handling pattern (go_router, app_links, or equivalent) here when adopted.

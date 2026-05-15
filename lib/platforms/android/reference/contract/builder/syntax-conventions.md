@@ -4,7 +4,7 @@ Cross-cutting coding rules applied to every artifact the builder worker creates,
 
 ---
 
-## Null Safety Extensions <!-- 20 -->
+## Null Safety Extensions <!-- 24 -->
 
 All extensions live in `com.mekari.commons.extension`. Import only what you use.
 

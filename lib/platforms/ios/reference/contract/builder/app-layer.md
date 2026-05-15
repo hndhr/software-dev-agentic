@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/app-layer.md`. This file covers Swift/Needle patterns for iOS.
 
-## Dependency Registration <!-- 55 -->
+## Dependency Registration <!-- 62 -->
 
 iOS uses **Needle** — a compile-time, hierarchical component tree. Each feature has its own `Component<DependencyType>`.
 
@@ -64,7 +64,7 @@ needle generate Talenta/DIComponents/NeedleGenerated.swift Talenta/
 
 ---
 
-## Route Registration <!-- 48 -->
+## Route Registration <!-- 62 -->
 
 iOS uses the **Coordinator pattern** with `BaseCoordinator<ResultType>`.
 
@@ -126,7 +126,7 @@ extension DeeplinkComponent {
 
 ---
 
-## Module Registration <!-- 16 -->
+## Module Registration <!-- 15 -->
 
 iOS does **not** use an explicit `ModuleManager`. Features are linked implicitly via the Needle component hierarchy. No module registration step is needed.
 
@@ -199,7 +199,7 @@ let isEnabled = flagProvider.getBoolValue(forFeature: FeatureIdentity.isEnable{F
 
 ---
 
-## Push Notification Registration <!-- 20 -->
+## Push Notification Registration <!-- 24 -->
 
 Push notifications and deeplinks share the same delivery path — both ultimately write to `DeeplinkStreamImpl.shared`. No per-feature notification registration is needed; the infrastructure is wired once in `AppDelegate`.
 
@@ -223,7 +223,7 @@ Push notifications and deeplinks share the same delivery path — both ultimatel
 
 ---
 
-## Deeplink Registration <!-- 54 -->
+## Deeplink Registration <!-- 66 -->
 
 All deeplink sources — push notification taps, URL schemes, universal links, and home screen quick actions — converge on a single `DeeplinkStreamImpl.shared` (`Talenta/DIComponents/DataStream/DeeplinkStream.swift`). Coordinators subscribe to the stream; they never parse URLs or payloads directly.
 
@@ -289,7 +289,7 @@ deeplinkStream?.deeplinkData
 
 ---
 
-## Planner Search Patterns
+## Planner Search Patterns <!-- 11 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = camelCase per iOS convention.
 

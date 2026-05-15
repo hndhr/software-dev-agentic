@@ -4,7 +4,7 @@ Cross-cutting coding rules applied to every artifact the builder worker creates,
 
 ---
 
-## Null Safety Extensions <!-- 28 -->
+## Null Safety Extensions <!-- 35 -->
 
 ```dart
 // core/utils/null_safety.dart

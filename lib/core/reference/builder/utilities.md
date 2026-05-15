@@ -5,7 +5,7 @@ Platform syntax and implementations: `reference/contract/builder/utilities.md` i
 
 ---
 
-## StorageService <!-- 22 -->
+## StorageService <!-- 14 -->
 
 **StorageService** is an interface-based key-value store for persisting tokens, user preferences, and cached data across app sessions.
 
@@ -19,7 +19,7 @@ Platform syntax and implementations: `reference/contract/builder/utilities.md` i
 
 ---
 
-## DateService <!-- 20 -->
+## DateService <!-- 13 -->
 
 **DateService** is a centralized abstraction for all date and time operations — formatting, parsing, comparison, and timezone handling.
 
@@ -32,7 +32,7 @@ Platform syntax and implementations: `reference/contract/builder/utilities.md` i
 
 ---
 
-## Logger <!-- 18 -->
+## Logger <!-- 14 -->
 
 **Logger** is the centralized logging abstraction with severity levels. All log output goes through this interface.
 
@@ -46,7 +46,7 @@ Platform syntax and implementations: `reference/contract/builder/utilities.md` i
 
 ---
 
-## Helper Extensions <!-- 14 -->
+## Helper Extensions <!-- 11 -->
 
 **Helper Extensions** are stateless utility functions scoped to a specific type — they extend built-in types with domain-safe convenience without introducing service dependencies.
 

@@ -2,7 +2,7 @@
 
 > Concepts and invariants: `reference/builder/app-layer.md`. This file covers Kotlin/Dagger 2 patterns for Android.
 
-## Dependency Registration <!-- 57 -->
+## Dependency Registration <!-- 62 -->
 
 Android uses **Dagger 2** with `@Module` + `@Binds` + `@ContributesAndroidInjector` per feature.
 
@@ -64,7 +64,7 @@ interface MainComponent : AndroidInjector<App>
 
 ---
 
-## Route Registration <!-- 42 -->
+## Route Registration <!-- 54 -->
 
 Android uses **interface-based navigation** — the navigation interface lives in `base/`, the implementation lives in `app/navigator/`, and it is bound in a `NavigationModule`.
 
@@ -118,7 +118,7 @@ abstract class NavigationModule {
 
 ---
 
-## Module Registration <!-- 25 -->
+## Module Registration <!-- 30 -->
 
 Android module registration has two parts: wiring Dagger (via `MainComponent`) and wiring Gradle (via `settings.gradle`).
 
@@ -148,7 +148,7 @@ dependencies {
 
 ---
 
-## Analytics Constants <!-- 13 -->
+## Analytics Constants <!-- 15 -->
 
 Analytics event names and screen identifiers are declared as constants in the feature module — never as inline strings in ViewModel or Fragment code.
 
@@ -163,7 +163,7 @@ Analytics event names and screen identifiers are declared as constants in the fe
 
 ---
 
-## Feature Flag Registration <!-- 46 -->
+## Feature Flag Registration <!-- 45 -->
 
 Android has three flag types — pick the right enum based on the flag's backend:
 
@@ -208,7 +208,7 @@ ENABLE_{FEATURE}(
 
 ---
 
-## Push Notification Registration <!-- 30 -->
+## Push Notification Registration <!-- 25 -->
 
 Android centralizes FCM handling in `TalentaNotificationManagerImpl` (`app/src/main/java/co/talenta/service/fcm/TalentaNotificationManagerImpl.kt`). The FCM service in `AndroidManifest.xml` delegates to this class — no per-feature setup is needed.
 
@@ -233,7 +233,7 @@ Android centralizes FCM handling in `TalentaNotificationManagerImpl` (`app/src/m
 
 ---
 
-## Deeplink Registration <!-- 22 -->
+## Deeplink Registration <!-- 53 -->
 
 Android deeplinks enter through `RedirectionActivity` (`app/src/main/java/co/talenta/modul/redirection/RedirectionActivity.kt`) — a `singleTask` exported activity declared in `AndroidManifest.xml`.
 
@@ -286,7 +286,7 @@ private fun redirect{Feature}(uri: Uri) {
 
 ---
 
-## Planner Search Patterns
+## Planner Search Patterns <!-- 11 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Android convention.
 

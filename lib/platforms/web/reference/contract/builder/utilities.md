@@ -125,7 +125,7 @@ export class SecureStorageService implements StorageService {
 
 ---
 
-## DateService <!-- 109 -->
+## DateService <!-- 111 -->
 
 Centralized date handling with timezone and formatting support. Wraps `date-fns` or the native `Intl` API.
 

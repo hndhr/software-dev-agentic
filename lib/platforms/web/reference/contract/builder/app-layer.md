@@ -4,49 +4,49 @@
 
 ---
 
-## Dependency Registration
+## Dependency Registration <!-- 6 -->
 
 > No convention established yet. Document the Web dependency injection pattern (React Context, providers, or DI library) here when adopted.
 
 ---
 
-## Route Registration
+## Route Registration <!-- 6 -->
 
 > No convention established yet. Document the Web route registration pattern (Next.js App Router pages/layouts) here when adopted.
 
 ---
 
-## Module Registration
+## Module Registration <!-- 6 -->
 
 > No convention established yet. Document the Web module registration pattern here when adopted. Next.js uses file-based routing — this step may not apply.
 
 ---
 
-## Analytics Constants
+## Analytics Constants <!-- 6 -->
 
 > No convention established yet. Document the Web analytics constants pattern (event names, screen identifiers) here when adopted.
 
 ---
 
-## Feature Flag Registration
+## Feature Flag Registration <!-- 6 -->
 
 > No convention established yet. Document the Web feature flag pattern (MekariFlag SDK or equivalent) here when adopted.
 
 ---
 
-## Push Notification Registration
+## Push Notification Registration <!-- 6 -->
 
 > No convention established yet. Document the Web push notification pattern (FCM + Service Worker registration) here when adopted.
 
 ---
 
-## Deeplink Registration
+## Deeplink Registration <!-- 6 -->
 
 > No convention established yet. Document the Web deeplink/universal link handling pattern here when adopted.
 
 ---
 
-## Planner Search Patterns
+## Planner Search Patterns <!-- 11 -->
 
 > No convention established yet. Add glob patterns per scope key once DI, route, module, analytics, and feature flag conventions are adopted.
 
