@@ -289,7 +289,7 @@ deeplinkStream?.deeplinkData
 
 ---
 
-## Planner Search Patterns <!-- 11 -->
+## Planner Search Patterns <!-- 12 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = camelCase per iOS convention.
 
@@ -300,3 +300,4 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = camel
 | `module` | N/A — Needle wires implicitly via component hierarchy | — |
 | `analytics` | `Module/{Feature}/Constants/{Feature}FirebaseName.swift` | — |
 | `feature_flag` | `Utils/MekariFlag/MekariFlagCustomProvider.swift` (fixed path) | `enum FeatureIdentity` |
+| `hybrid_embedding` | Load only if finding involves a Flutter module entry point — `Talenta/BrickWrap/Modules/*`, `Utils/FlutterModuleManager/*` | Load `reference/hybrid-embedding.md` + `reference/builder/hybrid-embedding.md` |

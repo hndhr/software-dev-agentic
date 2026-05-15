@@ -196,7 +196,7 @@ Grep "featureFlag\|FeatureFlag\|feature_flag" in lib/src/
 
 ---
 
-## Planner Search Patterns <!-- 14 -->
+## Planner Search Patterns <!-- 15 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Dart convention.
 
@@ -207,6 +207,7 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake
 | `module` | `*module_manager.dart`, `{feature}.dart` in feature root | `TalentaModuleManager` or `BaseModule` |
 | `analytics` | `*{feature}_analytics*.dart`, `*{feature}*analytics_constants.dart` under `utils/` or `constants/` | — |
 | `feature_flag` | grep only — no fixed path | `featureFlag\|FeatureFlag\|feature_flag` in `lib/src/` |
+| `hybrid_embedding` | Load only if finding involves a new guest module or route — `talenta/lib/src/brick/*`, `brick_constants.dart` | Load `reference/hybrid-embedding.md` + `reference/builder/hybrid-embedding.md` |
 
 ---
 

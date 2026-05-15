@@ -286,7 +286,7 @@ private fun redirect{Feature}(uri: Uri) {
 
 ---
 
-## Planner Search Patterns <!-- 11 -->
+## Planner Search Patterns <!-- 12 -->
 
 Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Android convention.
 
@@ -297,3 +297,4 @@ Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake
 | `module` | `settings.gradle`, `app/build.gradle`, `*MainComponent.kt` under `app/di/` | `feature_{feature}` in `settings.gradle` |
 | `analytics` | `*{Feature}AnalyticsConstants.kt` under `feature_{feature}/src/main/java/` | — |
 | `feature_flag` | `domain/featureflag/Feature.kt`, `*FlagsmithFeatureFlag.kt` | `ENABLE_{FEATURE}` enum entry |
+| `hybrid_embedding` | Load only if finding involves a Flutter module entry point — `bricks-talenta/*/module/*`, `app/*/brickhelper/*` | Load `reference/hybrid-embedding.md` + `reference/builder/hybrid-embedding.md` |
