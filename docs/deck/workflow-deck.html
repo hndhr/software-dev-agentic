@@ -412,7 +412,7 @@
 <body>
 
 <div id="progress"></div>
-<div id="counter">1 / 10</div>
+<div id="counter">1 / 14</div>
 <div id="deck">
 
   <!-- ═══════════════════════════════════════════
@@ -455,9 +455,234 @@
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 3 — TRACKER-ADJUST-TICKET (ANCHOR)
+       SLIDE 3 — SKILLS AS RUNTIME
   ════════════════════════════════════════════ -->
   <section class="slide" id="s3">
+    <div class="label">Agent Architecture · Skills</div>
+    <h2 class="headline">The skill is the runtime. <em>Agents are its specialists.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+      <div class="tree" style="font-size: 12.5px;"><span class="ac">User  →  /builder-plan-feature</span>
+              │
+<span class="rl">Skill</span>   <span class="dm">← the pipeline controller</span>
+  <span class="dm">loop control · user interaction · file writes</span>
+              │
+    ┌─────────┼────────────────┐
+    ▼         ▼                ▼
+<span class="rl">orchestrator</span>  <span class="rl">planners</span>      <span class="rl">worker</span>
+<span class="dm">returns:      returns:       returns:</span>
+<span class="dm">Decision      findings +     verified</span>
+<span class="dm">block         impact recs    artifacts</span>
+    │         │                │
+    └─────────┴────────────────┘
+              │
+    <span class="ac">Skill reads result, decides what to spawn next</span></div>
+      <ul class="bullets">
+        <li><strong>Skills are the entry point</strong> — user types a command, skill owns the session</li>
+        <li><strong>Agents never call each other</strong> — every result flows back to the skill</li>
+        <li><strong>Skill drives the loop</strong> — reads the Decision block, spawns the next round</li>
+        <li><strong>Skill writes files</strong> — plan.md, context.md, state.json — agents only return text</li>
+        <li><strong>Skill handles the approval gate</strong> — pauses for user confirmation before execution</li>
+      </ul>
+    </div>
+    <div class="caption">
+      <strong>The skill is the conductor.</strong> Orchestrator reasons, planners explore, worker executes — none of them call each other directly. The skill coordinates every handoff.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 4 — ORCHESTRATOR
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s4">
+    <div class="label">Agent Architecture · Orchestrator</div>
+    <h2 class="headline">One brain. <em>Three decision blocks. Never spawns. Never writes.</em></h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
+      <div class="code-panel">
+        <div class="code-panel-header neutral">spawn-planners</div>
+        <pre><span class="ac">## Decision: spawn-planners</span>
+round: 1
+spawn:
+  - domain
+  - data
+scope:
+  domain: [usecase]
+  data:   [dto, mapper]
+reason:
+  - domain: updating use case
+  - data: new DTO needed
+open_questions:
+  - ...</pre>
+      </div>
+      <div class="code-panel">
+        <div class="code-panel-header good">converged</div>
+        <pre><span class="ac">## Decision: converged</span>
+
+summary:
+  - GetUserUseCase
+    → domain / create
+  - UserDto
+    → data / create
+  - UserMapper
+    → data / create
+  - UserRepository
+    → app / update DI</pre>
+      </div>
+      <div class="code-panel">
+        <div class="code-panel-header bad">blocked</div>
+        <pre><span class="bd">## Decision: blocked</span>
+
+question:
+  Should the new screen
+  reuse the existing
+  navigator or get
+  its own?
+
+options:
+  - Extend existing
+  - New navigator</pre>
+      </div>
+    </div>
+    <div class="caption" style="margin-top: 16px;">
+      <strong>Zero inline work.</strong> No Agent calls, no Write calls, no Bash that modifies files. The orchestrator is called multiple times per feature — each time in a different mode: <code style="font-family: var(--mono); font-size: 12px; color: var(--accent);">gather-intent</code> → <code style="font-family: var(--mono); font-size: 12px; color: var(--accent);">process-findings</code> → <code style="font-family: var(--mono); font-size: 12px; color: var(--accent);">synthesize</code>.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 5 — PLANNERS + CONVERGENCE LOOP
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s5">
+    <div class="label">Agent Architecture · Planners</div>
+    <h2 class="headline">Scope-first entry. <em>Expand only when the shape is needed.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+      <div class="tree" style="font-size: 12px;"><span class="dm">orchestrator passes scope per planner</span>
+<span class="dm">────────────────────────────────────────</span>
+scope: domain <span class="ac">[usecase]</span>
+
+<span class="rl">domain-planner</span>
+  Step 1   glob UseCase only  <span class="dm">← skip entity, repo, service</span>
+  Step 4   read primary symbols
+
+  Step 4a  demand-driven expansion
+  <span class="dm">UseCase returns</span>  <span class="ac">UserEntity</span>
+    shape needed?   <span class="ac">yes</span>  <span class="dm">→ fetch window</span>
+    will it change? <span class="ac">no</span>   <span class="dm">→ skip full read</span>
+
+  <span class="dm">UseCase injects</span>  <span class="ac">UserRepository</span>
+    shape needed?   <span class="ac">no</span>   <span class="dm">→ skip</span>
+    will it change? <span class="ac">no</span>   <span class="dm">→ skip</span>
+
+  <span class="ac">## Domain Findings</span>
+  <span class="dm">Impact: data [required], app [required]</span></div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="tree" style="font-size: 12px;"><span class="dm">convergence loop (driven by skill)</span>
+<span class="dm">────────────────────────────────────────</span>
+round 1  spawn: <span class="rl">domain</span>  <span class="dm">scope:[usecase]</span>
+         findings → impact: data, app
+
+round 2  spawn: <span class="rl">data</span>    <span class="dm">scope:[dto, mapper]</span>
+         spawn: <span class="rl">app</span>     <span class="dm">scope:[di]</span>
+         findings → no new impact
+
+orchestrator: <span class="ac">converged</span>
+<span class="dm">────────────────────────────────────────</span>
+visited: domain · data · app  <span class="dm">(no re-spawn)</span>
+hard cap: <span class="ac">3 rounds</span>  <span class="dm">→ blocked if exceeded</span></div>
+        <div class="caption">
+          <strong>Impact Recommendations</strong> drive the next round. Already-visited layers are never re-spawned. The skill tracks the visited set — the orchestrator only sees the findings.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 6 — KNOWLEDGE STRUCTURE
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s6">
+    <div class="label">Knowledge Structure · Reference Docs</div>
+    <h2 class="headline">Abstract definitions. <em>Platform implementations.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+      <div class="code-panel">
+        <div class="code-panel-header neutral">lib/core/reference/builder/  — canonical terms</div>
+        <pre><span class="ac">domain.md</span>           <span class="dm">← what a UseCase IS</span>
+<span class="ac">data.md</span>             <span class="dm">← what a Mapper IS</span>
+<span class="ac">presentation.md</span>     <span class="dm">← what a StateHolder IS</span>
+<span class="ac">layer-contracts.md</span>  <span class="dm">← cross-layer rules</span>
+<span class="ac">di.md</span>               <span class="dm">← DI principles</span>
+<span class="ac">app-layer.md</span>        <span class="dm">← wiring conventions</span>
+
+<span class="cm">Platform-neutral. Canonical definitions.</span>
+<span class="cm">Think: abstract class or interface.</span>
+<span class="cm">Agents load these to understand WHAT</span>
+<span class="cm">something is before building it.</span></pre>
+      </div>
+      <div class="code-panel">
+        <div class="code-panel-header good">lib/platforms/&lt;platform&gt;/reference/contract/builder/</div>
+        <pre><span class="dm">ios/</span>
+  <span class="rl">domain.md</span>        <span class="dm">← UseCase in Swift + protocol</span>
+  <span class="rl">data.md</span>          <span class="dm">← Codable DTO, URLSession</span>
+  <span class="rl">presentation.md</span>  <span class="dm">← ViewModel, UIKit binding</span>
+  <span class="rl">app-layer.md</span>     <span class="dm">← Needle DI, Coordinator</span>
+
+<span class="dm">android/</span>
+  <span class="rl">domain.md</span>        <span class="dm">← UseCase in Kotlin</span>
+  <span class="rl">data.md</span>          <span class="dm">← Retrofit, Room</span>
+  <span class="rl">app-layer.md</span>     <span class="dm">← Dagger 2, RxJava 3</span>
+
+<span class="cm">Concrete implementations. One per platform.</span>
+<span class="cm">Skills Grep these — never embed content.</span></pre>
+      </div>
+    </div>
+    <div class="caption" style="margin-top: 16px;">
+      Core reference defines <strong>what</strong> and <strong>why</strong>. Platform contract defines <strong>how</strong> in that language and stack. Every skill that creates or modifies an artifact loads the platform contract — the single source of truth.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 7 — SEARCH PROTOCOL
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s7">
+    <div class="label">Knowledge Structure · Search Protocol</div>
+    <h2 class="headline">Grep first. <em>Read windows, never full files.</em></h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px;">
+      <div>
+        <ul class="bullets" style="margin-bottom: 20px;">
+          <li><strong>Glob</strong> — find files by name pattern before reading anything</li>
+          <li><strong>Grep</strong> — find the exact line number of the class, method, or section heading</li>
+          <li><strong>Read offset + limit</strong> — load a window around that line only</li>
+          <li><strong>Expand only if needed</strong> — start at 60 lines, grow if the body is larger</li>
+          <li><strong>Read-once rule</strong> — never re-read a file already seen in the same session</li>
+        </ul>
+        <div class="caption">
+          Every agent has an explicit search protocol table. <strong>No agent reads a file in full.</strong> This is the primary mechanism that keeps per-agent token cost bounded regardless of codebase size.
+        </div>
+      </div>
+      <div class="code-panel">
+        <div class="code-panel-header neutral">Example — locate UseCase constructor</div>
+        <pre><span class="cm"># 1. Find the file</span>
+Glob: <span class="ac">*GetUserUseCase*</span>
+→ <span class="bl">Domain/UseCases/GetUserUseCase.swift</span>
+
+<span class="cm"># 2. Find the line</span>
+Grep: <span class="ac">class GetUserUseCase</span>
+→ line <span class="ac">12</span>
+
+<span class="cm"># 3. Read the window</span>
+Read offset=<span class="ac">7</span> limit=<span class="ac">60</span>
+→ captures constructor params
+  + execute() signature
+  <span class="cm">without loading 400-line file</span>
+
+<span class="cm"># Same for reference docs</span>
+Grep: <span class="ac">^## UseCase</span> in domain.md → line 34
+Read offset=<span class="ac">34</span> limit=<span class="ac">40</span>
+→ section only, not whole file</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 8 — TRACKER-ADJUST-TICKET (ANCHOR)
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s8">
     <div class="label">The Anchor — /tracker-adjust-ticket</div>
     <h2 class="headline">After every session, one command. <em>Notes become a structured record.</em></h2>
     <div class="compare">
@@ -507,9 +732,9 @@ Still open:
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 4 — GROOM
+       SLIDE 9 — GROOM
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s4">
+  <section class="slide" id="s9">
     <div class="label">Step 1 — /builder-groom-ticket</div>
     <h2 class="headline">Paste what you know. <em>Claude surfaces what the ticket doesn't say.</em></h2>
     <div class="compare">
@@ -559,9 +784,9 @@ Still open:
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 5 — PLAN + APPROVAL GATE
+       SLIDE 10 — PLAN + APPROVAL GATE
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s5">
+  <section class="slide" id="s10">
     <div class="label">Step 2 — /builder-plan-feature</div>
     <h2 class="headline">Convergence loop. Planners explore. <em>You approve before a line is written.</em></h2>
     <div class="compare">
@@ -597,9 +822,9 @@ orchestrator: <span class="ac">converged</span> <span class="dm">→ writes</spa
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 6 — BUILD
+       SLIDE 11 — BUILD
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s6">
+  <section class="slide" id="s11">
     <div class="label">Step 3 — feature-worker</div>
     <h2 class="headline">Layer by layer. <em>Architecture enforced. No surprises.</em></h2>
     <div class="tree"><span class="ac">plan.md approved ✓  →  feature-worker executing</span>
@@ -625,9 +850,9 @@ orchestrator: <span class="ac">converged</span> <span class="dm">→ writes</spa
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 7 — REAL SESSION
+       SLIDE 12 — REAL SESSION
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s7">
+  <section class="slide" id="s12">
     <div class="label">Real Session — TLMN-5183 · talenta-iOS</div>
     <h2 class="headline">One ticket. One command. <em>Five minutes.</em></h2>
     <div class="compare">
@@ -636,7 +861,7 @@ orchestrator: <span class="ac">converged</span> <span class="dm">→ writes</spa
 <span class="rl">builder-feature-orchestrator</span>  <span class="dm">gather-intent</span>
 <span class="dm">                               8.9k tokens · 7s</span>
 
-<span class="rl">builder-pres-planner</span>          <span class="dm">explore generateMenuSection</span>
+<span class="rl">builder-pres-planner</span>          <span class="dm">scope:[stateholder]</span>
 <span class="dm">                               26.7k tokens · 1m 13s</span>
 
 <span class="rl">builder-feature-orchestrator</span>  <span class="dm">process-findings · converge</span>
@@ -644,7 +869,7 @@ orchestrator: <span class="ac">converged</span> <span class="dm">→ writes</spa
 
 <span class="ac">▶  Plan shown. User approves.</span>
 
-<span class="rl">builder-feature-orchestrator</span>  <span class="dm">execute-approved-plan</span>
+<span class="rl">builder-feature-orchestrator</span>  <span class="dm">synthesize</span>
 <span class="dm">                               12.2k tokens · 14s</span>
 
 <span class="rl">builder-feature-worker</span>        <span class="dm">execute remaining work items</span>
@@ -681,9 +906,9 @@ orchestrator: <span class="ac">converged</span> <span class="dm">→ writes</spa
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 8 — CLOSE THE LOOP
+       SLIDE 13 — CLOSE THE LOOP
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s8b">
+  <section class="slide" id="s13">
     <div class="label">Step 4 — Close the Loop</div>
     <h2 class="headline">Same command as always. <em>The ticket stays current. Every session.</em></h2>
     <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -740,47 +965,9 @@ Still open:
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 9 — RESULTS
+       SLIDE 14 — CLOSING
   ════════════════════════════════════════════ -->
-  <section class="slide" id="s9">
-    <div class="label">Results — April 2026 · talenta-iOS · mobile-talenta · talenta-mobile-android</div>
-    <h2 class="headline">Measured across three products. <em>Four days of tuning.</em></h2>
-    <div class="cards">
-      <div class="card">
-        <div class="card-label">Speed</div>
-        <div class="card-metric">1 session</div>
-        <div class="card-desc">
-          34-file, 5-layer feature — domain, database, API, state, UI — all wired together.
-          Previously: 2–3 days for a senior engineer.
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-label">Cost</div>
-        <div class="card-metric">85% ↓</div>
-        <div class="card-desc">
-          737,000 → 103,000 tokens per feature session.
-          Not from a cheaper model. From building the system correctly.
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-label">Quality</div>
-        <div class="card-metric">6.3 → 8.0</div>
-        <div class="card-desc">
-          Session score across 7 dimensions: orchestration, worker invocation, skill execution,
-          token efficiency, routing accuracy, workflow compliance, one-shot rate.
-        </div>
-      </div>
-    </div>
-    <div class="caption" style="margin-top: 20px;">
-      The system improves itself. Every session produces a performance report.
-      Every report drives a toolkit update. Every update ships to all three products simultaneously.
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════
-       SLIDE 10 — CLOSING
-  ════════════════════════════════════════════ -->
-  <section class="slide" id="s10">
+  <section class="slide" id="s14">
     <div class="label">software-dev-agentic</div>
     <p class="quote">
       An engineer describes what they want to build.
@@ -805,7 +992,7 @@ Still open:
 
 <div id="mobile-nav" style="display:none">
   <button id="btn-prev" onclick="goTo(current - 1)">← Prev</button>
-  <span id="mobile-counter">1 / 10</span>
+  <span id="mobile-counter">1 / 14</span>
   <button id="btn-next" class="primary" onclick="goTo(current + 1)">Next →</button>
 </div>
 
