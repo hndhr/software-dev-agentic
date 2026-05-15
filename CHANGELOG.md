@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.4.3] — 2026-05-16
+
+### Fixed
+- Correct `<!-- N -->` line count annotations in platform `app-layer.md` files (Android, Flutter, iOS) — `Hybrid Embedding` and `Planner Search Patterns` section counts were off after content edits
+- Add canonical pointer (`reference/builder/ui.md — ## Navigator / Coordinator`) to all four platform `navigation.md` files — the back-reference was missing
+
+---
+
 ## [6.4.2] — 2026-05-16
 
 ### Changed
