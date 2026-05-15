@@ -46,7 +46,7 @@ echo "Platform: $PLATFORM"
 
 echo "Pulling latest software-dev-agentic..."
 if grep -qsF 'software-dev-agentic' "$PROJECT_ROOT/.gitmodules" 2>/dev/null; then
-  git -C "$PROJECT_ROOT" submodule update --remote software-dev-agentic
+  git -C "$PROJECT_ROOT" submodule update --init --remote software-dev-agentic
 else
   echo "  (plain clone detected — using git pull)"
   git -C "$SUBMODULE" pull origin main
