@@ -12,7 +12,7 @@ You are a setup auditor. Run each check below in order, collect results, then pr
 ### 1. Submodule present
 
 ```bash
-git submodule status .claude/software-dev-agentic
+git submodule status software-dev-agentic
 ```
 
 - Pass: submodule is present and initialized (line starts with a commit hash)
@@ -21,8 +21,8 @@ git submodule status .claude/software-dev-agentic
 If present, capture the current local commit hash. Then check if it's behind remote:
 
 ```bash
-git -C .claude/software-dev-agentic fetch --quiet origin main 2>/dev/null
-git -C .claude/software-dev-agentic rev-list --count HEAD..origin/main
+git -C software-dev-agentic fetch --quiet origin main 2>/dev/null
+git -C software-dev-agentic rev-list --count HEAD..origin/main
 ```
 
 - Pass: count is 0 (up to date)
@@ -108,9 +108,9 @@ Print a report using this format:
 software-dev-agentic doctor
 ──────────────────────────────────────────
 ✓  submodule    present (abc1234) · up to date
-⚠  submodule    3 commits behind origin/main — run: .claude/software-dev-agentic/scripts/sync.sh
+⚠  submodule    3 commits behind origin/main — run: software-dev-agentic/scripts/sync.sh
 ✓  agents       9 linked
-✗  skills       .claude/skills/ missing — run: .claude/software-dev-agentic/scripts/setup-symlinks.sh
+✗  skills       .claude/skills/ missing — run: software-dev-agentic/scripts/setup-symlinks.sh
 ✓  CLAUDE.md    managed markers found
 ⚠  settings     PROJECT_ROOT placeholder not replaced — edit .claude/settings.local.json
 ✓  gh auth      logged in

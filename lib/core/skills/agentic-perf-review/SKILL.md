@@ -31,10 +31,10 @@ Run the extraction script:
 
 ```bash
 # With explicit session ID:
-.claude/software-dev-agentic/scripts/extract-session.sh "$PROJECT_PATH" "$SESSION_ID"
+software-dev-agentic/scripts/extract-session.sh "$PROJECT_PATH" "$SESSION_ID"
 
 # Without session ID (auto = current session):
-.claude/software-dev-agentic/scripts/extract-session.sh "$PROJECT_PATH"
+software-dev-agentic/scripts/extract-session.sh "$PROJECT_PATH"
 ```
 
 The script prints the path to the extracted JSON file (e.g. `/tmp/perf-<session_id>.json`).

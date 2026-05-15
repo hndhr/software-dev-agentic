@@ -19,13 +19,13 @@ If the user says "default" or provides no URL, use `https://github.com/handharr-
 ### 2 — Add submodule
 
 ```bash
-git submodule add <STARTER_KIT_URL> .claude/software-dev-agentic
+git submodule add <STARTER_KIT_URL> software-dev-agentic
 ```
 
 ### 3 — Run the setup script
 
 ```bash
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+software-dev-agentic/scripts/setup-symlinks.sh --platform=web
 ```
 
 This symlinks all agents, skills, hooks, and reference for the web platform into `.claude/`, copies `CLAUDE.md` from the template, and creates `settings.local.json`. Re-running is safe.
@@ -33,7 +33,7 @@ This symlinks all agents, skills, hooks, and reference for the web platform into
 ### 4 — Copy CLAUDE-template.md
 
 ```bash
-cp .claude/software-dev-agentic/lib/platforms/web/CLAUDE-template.md CLAUDE.md
+cp software-dev-agentic/lib/platforms/web/CLAUDE-template.md CLAUDE.md
 ```
 
 ### 5 — Prompt for placeholder values
@@ -59,7 +59,7 @@ Create `.claude/agents.local/extensions/auditor-arch-review-worker.md`:
 ```markdown
 # auditor-arch-review-worker — project-specific rules
 
-> Additive rules for this project. Baseline: `.claude/software-dev-agentic/lib/core/agents/auditor/auditor-arch-review-worker.md`.
+> Additive rules for this project. Baseline: `software-dev-agentic/lib/core/agents/auditor/auditor-arch-review-worker.md`.
 
 <!-- Add project-specific audit rules below -->
 ```
@@ -71,7 +71,7 @@ git add .gitmodules .claude/ CLAUDE.md
 ```
 
 Tell the user what was done:
-- `.claude/software-dev-agentic/` — submodule pointing to the starter kit repo
+- `software-dev-agentic/` — submodule pointing to the starter kit repo
 - `.claude/{agents,skills,hooks}` — symlinks into the submodule
 - `CLAUDE.md` — copied from template (fill in all `[placeholder]` values before starting work)
 - `.claude/agents.local/extensions/auditor-arch-review-worker.md` — stub for project-specific arch rules

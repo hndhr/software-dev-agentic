@@ -22,7 +22,7 @@ Classify the output:
 ## Step 2 — Run sync
 
 ```bash
-.claude/software-dev-agentic/scripts/sync.sh --platform=<platform>
+software-dev-agentic/scripts/sync.sh --platform=<platform>
 ```
 
 Capture exit code. If non-zero, record as sync failure and skip to Step 3 without stopping.
@@ -30,14 +30,14 @@ Capture exit code. If non-zero, record as sync failure and skip to Step 3 withou
 After sync succeeds, read the new version:
 
 ```bash
-cat .claude/software-dev-agentic/VERSION
+cat software-dev-agentic/VERSION
 ```
 
 ## Step 3 — Verify submodule
 
 ```bash
-git submodule status .claude/software-dev-agentic
-git -C .claude/software-dev-agentic rev-list --count HEAD..origin/main
+git submodule status software-dev-agentic
+git -C software-dev-agentic rev-list --count HEAD..origin/main
 ```
 
 - Pass: submodule present and count is 0
@@ -110,7 +110,7 @@ software-dev-agentic update
 ✓  submodule    present (abc1234) · up to date
 ⚠  submodule    3 commits behind origin/main
 ✓  agents       18 linked
-⚠  skills       2 broken symlinks — run: .claude/software-dev-agentic/scripts/setup-symlinks.sh
+⚠  skills       2 broken symlinks — run: software-dev-agentic/scripts/setup-symlinks.sh
 ✓  CLAUDE.md    managed markers found
 ⚠  settings     PROJECT_ROOT placeholder not replaced — edit .claude/settings.local.json
 ✓  gh auth      logged in

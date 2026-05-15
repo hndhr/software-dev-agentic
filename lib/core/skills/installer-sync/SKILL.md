@@ -22,7 +22,7 @@ allowed-tools: Bash
 
 3. **Run sync:**
    ```bash
-   .claude/software-dev-agentic/scripts/sync.sh --platform=<platform>
+   software-dev-agentic/scripts/sync.sh --platform=<platform>
    ```
 
-4. **Report:** version pulled from `.claude/software-dev-agentic/VERSION` and confirm new symlinks are live.
+4. **Report:** version pulled from `software-dev-agentic/VERSION` and confirm new symlinks are live.

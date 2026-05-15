@@ -25,7 +25,7 @@ Accept from the user:
 ### 1 — Detect state
 
 Check if setup is complete:
-- `Glob` `.claude/software-dev-agentic/` — if missing, submodule not wired; tell the user to run `setup-symlinks.sh` first, then stop
+- `Glob` `software-dev-agentic/` — if missing, submodule not wired; tell the user to run `setup-symlinks.sh` first, then stop
 - `Glob` `CLAUDE.md` — if it exists, Read it to detect platform and current config
 
 Detect platform from CLAUDE.md:
@@ -39,7 +39,7 @@ If platform cannot be determined, ask: `"Which platform is this project? web / i
 Read and execute the appropriate skill file:
 - **web** → `.claude/skills/installer-setup-project/SKILL.md`
 - **ios** → `.claude/skills/installer-setup-project/SKILL.md`
-- **flutter** → tell the user Flutter setup is not yet implemented; point to `.claude/software-dev-agentic/lib/platforms/flutter/README.md`
+- **flutter** → tell the user Flutter setup is not yet implemented; point to `software-dev-agentic/lib/platforms/flutter/README.md`
 
 Follow the skill's Steps exactly.
 
@@ -62,8 +62,8 @@ Extend without modifying:
   .claude/agents.local/extensions/<agent-name>.md  → additive rules only
 
 Update the kit:
-  cd .claude/software-dev-agentic && git pull && cd ../..
-  .claude/software-dev-agentic/scripts/sync.sh
+  cd software-dev-agentic && git pull && cd ../..
+  software-dev-agentic/scripts/sync.sh
 ```
 
 ## Extension Point
