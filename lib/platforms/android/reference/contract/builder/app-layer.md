@@ -283,3 +283,17 @@ private fun redirect{Feature}(uri: Uri) {
 - ✅ URL patterns live in `UrlHelper` — never hardcode URL strings inside `RedirectionActivity`
 - ✅ Routing delegates to the feature's Navigation interface — `RedirectionActivity` never starts Activities directly
 - ❌ Never parse deeplink URLs in ViewModels or Fragments
+
+---
+
+## Planner Search Patterns
+
+Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Android convention.
+
+| Scope key | Glob / Path | Grep hint |
+|---|---|---|
+| `di` | `*Feature{Feature}Module.kt`, `*{Feature}ActivityBindingModule.kt`, `*MainComponent.kt` under `app/di/` | `{Feature}ActivityBindingModule` in `app/di/MainComponent.kt` |
+| `route` | `*{Feature}Navigation.kt` under `base/navigation/`, `*{Feature}NavigationImpl.kt` under `app/navigator/`, `*NavigationModule.kt` under `app/di/` | `{Feature}Navigation` in `app/di/NavigationModule.kt` |
+| `module` | `settings.gradle`, `app/build.gradle`, `*MainComponent.kt` under `app/di/` | `feature_{feature}` in `settings.gradle` |
+| `analytics` | `*{Feature}AnalyticsConstants.kt` under `feature_{feature}/src/main/java/` | — |
+| `feature_flag` | `domain/featureflag/Feature.kt`, `*FlagsmithFeatureFlag.kt` | `ENABLE_{FEATURE}` enum entry |

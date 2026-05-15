@@ -57,56 +57,23 @@ For all other platforms, Grep for `^## ` to list all canonical headings. Read ea
 
 **Step 2 — Locate DI registration files**
 
-Glob for DI container or component files related to `<feature>` under `<module-path>` and likely DI directories:
-
-| Platform | Glob patterns |
-|---|---|
-| `ios` | `*DIComponents*/<Feature>*`, `*<Feature>*Component*`, `*NeedleGenerated*` |
-| `flutter` | `*<feature>*_dependencies*`, `*talenta_dependencies*`, `*configs/di*` |
-| `android` | `*Feature<Feature>Module*`, `*<Feature>ActivityBindingModule*`, `*MainComponent*` under `app/di/` |
-
-Grep for the feature name in existing DI container files to find where similar features are registered.
+From the `## Planner Search Patterns` table in the contract loaded in Step 1, read the row for scope key `di`. If the cell says `No convention established yet`, skip this step. Otherwise apply each listed glob under `<module-path>` and the directories indicated. Use the Grep hint to find where similar features are already registered.
 
 **Step 3 — Locate routing / navigation files**
 
-| Platform | Glob patterns |
-|---|---|
-| `ios` | `*<Feature>*Coordinator*`, `*DeeplinkComponent*` |
-| `flutter` | `*<feature>*_route*`, `*<feature>*_route_factory*` |
-| `android` | `*<Feature>Navigation*` under `base/navigation/`, `*<Feature>NavigationImpl*` under `app/navigator/`, `*NavigationModule*` under `app/di/` |
+From the `## Planner Search Patterns` table, read the row for scope key `route`. If no convention is established, skip. Otherwise apply each glob and grep for existing route/coordinator registrations to detect the naming pattern in use.
 
-Grep for existing route registrations in navigation/routing files to detect the naming pattern in use.
+**Step 4 — Locate module registration files**
 
-**Step 4 — Locate module registration files (if applicable)**
-
-| Platform | Glob patterns |
-|---|---|
-| `ios` | Not applicable — skip this step for iOS |
-| `flutter` | `*module_manager*`, `*<feature>*.dart` in feature root |
-| `android` | `settings.gradle` (Gradle include), `app/build.gradle` (dependency), `app/di/MainComponent*` (Dagger) |
-
-Grep for `BaseModule` or `TalentaModuleManager` references (Flutter) or `MainComponent` (Android) to find where modules are listed.
+From the `## Planner Search Patterns` table, read the row for scope key `module`. If the cell is `N/A` or no convention is established, skip. Otherwise apply each glob and use the Grep hint to find where modules are listed.
 
 **Step 5 — Locate analytics constants files**
 
-| Platform | Glob patterns |
-|---|---|
-| `ios` | `*<Feature>FirebaseName*`, `*<Feature>*Analytics*` under `Module/<Feature>/Constants/` |
-| `flutter` | `*<feature>*analytics*`, `*<feature>*Analytics*` under the feature's `utils/` or `constants/` directory |
-| `android` | `*<Feature>AnalyticsConstants*` under `feature_{feature}/src/main/java/` |
-
-Grep for existing analytics constant structs/classes in the feature directory to detect the naming pattern. If none exist for this feature, record as `create`.
+From the `## Planner Search Patterns` table, read the row for scope key `analytics`. Apply each glob under the feature directory. If no file exists for this feature, record as `create`.
 
 **Step 6 — Locate feature flag registration**
 
-| Platform | Glob patterns |
-|---|---|
-| `ios` | `*FeatureFlag*` under `Shared/Infrastructure/FeatureFlag/` |
-| `flutter` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `lib/src/shared/` or `lib/src/configs/` |
-| `android` | Grep for `featureFlag\|FeatureFlag\|feature_flag` in `app/src/` and `base/` |
-
-For iOS: Grep for `FeatureIdentity` in `Utils/MekariFlag/MekariFlagCustomProvider.swift` to confirm the active enum. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
-For Flutter/Android: Grep to discover the pattern in use before proposing a registration location.
+From the `## Planner Search Patterns` table, read the row for scope key `feature_flag`. The path may be a fixed file (read directly) or a grep-only entry (no glob). Use the Grep hint to locate the active enum or registry. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
 
 **Step 6a — Demand-driven reference expansion**
 
@@ -120,10 +87,10 @@ After completing scoped steps, check if any finding implies a wiring concern out
 **Step 7 — Detect patterns from existing entries**
 
 From found files, infer:
-- DI container file path and naming pattern (e.g. `{Feature}Component.swift`, `{feature}_dependencies.dart`)
+- DI container file path and naming pattern
 - Route declaration file path and naming pattern
-- Module registration file path (flutter only)
-- Analytics constants file path and naming pattern (e.g. `{Feature}FirebaseName.swift`)
+- Module registration file path (if applicable for platform)
+- Analytics constants file path and naming pattern
 - Feature flag registration file path (if applicable)
 - Any existing `<feature>`-related registrations that may already exist (mark as `exists`)
 
@@ -154,7 +121,7 @@ Return exactly this structure — no prose:
 ### Analytics Constants
 | Concern | File | Action | Notes |
 |---|---|---|---|
-| Analytics event names | <path or "create"> | create / N/A | <pattern observed, e.g. {Feature}FirebaseName.swift> |
+| Analytics event names | <path or "create"> | create / N/A | <pattern observed> |
 
 ### Feature Flag Registration
 | Concern | File | Action | Notes |
@@ -162,12 +129,11 @@ Return exactly this structure — no prose:
 | Flag key + collection | <path or "N/A"> | update / N/A | <flag key pattern, or "no flag needed"> |
 
 ### Naming Conventions
-- di_file_pattern: `<pattern>` (e.g. `{Feature}Component.swift`)
-- coordinator_pattern: `<pattern>` (e.g. `{Feature}Coordinator.swift`)
-- route_pattern: `<pattern>` (e.g. `{feature}_route.dart`)
-- module_pattern: `<pattern>` (e.g. `{Feature}Module`)
-- analytics_pattern: `<pattern>` (e.g. `{Feature}FirebaseName.swift`)
-- feature_flag_pattern: `<pattern>` (e.g. `FeatureFlagKey + FeatureFlagCollection`)
+- di_file_pattern: `<pattern>`
+- route_pattern: `<pattern>`
+- module_pattern: `<pattern>`
+- analytics_pattern: `<pattern>`
+- feature_flag_pattern: `<pattern>`
 
 ### Impact Recommendations
 | Layer | Reason | Urgency |

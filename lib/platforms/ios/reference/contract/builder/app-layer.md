@@ -286,3 +286,17 @@ deeplinkStream?.deeplinkData
 - ❌ Never add a second deeplink dispatch path — all sources must write to `DeeplinkStreamImpl.shared`
 
 **When to add:** Any feature reachable from a push notification tap, universal link, URL scheme, or home screen quick action.
+
+---
+
+## Planner Search Patterns
+
+Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = camelCase per iOS convention.
+
+| Scope key | Glob / Path | Grep hint |
+|---|---|---|
+| `di` | `*DIComponents*/{Feature}*`, `*{Feature}*Component.swift` | feature name in `Talenta/DIComponents/MainTab/MainTabComponent.swift` |
+| `route` | `*{Feature}*Coordinator.swift`, `*DeeplinkComponent.swift` | feature name in `Talenta/DIComponents/Deeplink/DeeplinkComponent.swift` |
+| `module` | N/A — Needle wires implicitly via component hierarchy | — |
+| `analytics` | `Module/{Feature}/Constants/{Feature}FirebaseName.swift` | — |
+| `feature_flag` | `Utils/MekariFlag/MekariFlagCustomProvider.swift` (fixed path) | `enum FeatureIdentity` |

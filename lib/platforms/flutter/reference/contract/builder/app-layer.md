@@ -196,6 +196,20 @@ Grep "featureFlag\|FeatureFlag\|feature_flag" in lib/src/
 
 ---
 
+## Planner Search Patterns
+
+Consumed by `builder-app-planner`. `{Feature}` = PascalCase, `{feature}` = snake_case per Dart convention.
+
+| Scope key | Glob / Path | Grep hint |
+|---|---|---|
+| `di` | `*{feature}_dependencies.dart`, `*talenta_dependencies.dart`, `*configs/di*` | feature name in `lib/src/configs/di/talenta_dependencies.dart` |
+| `route` | `*{feature}_route.dart`, `*{feature}_route_factory.dart` | — |
+| `module` | `*module_manager.dart`, `{feature}.dart` in feature root | `TalentaModuleManager` or `BaseModule` |
+| `analytics` | `*{feature}_analytics*.dart`, `*{feature}*analytics_constants.dart` under `utils/` or `constants/` | — |
+| `feature_flag` | grep only — no fixed path | `featureFlag\|FeatureFlag\|feature_flag` in `lib/src/` |
+
+---
+
 ## Push Notification Registration
 
 > No convention established yet. Document the Flutter FCM token lifecycle and notification handler wiring pattern here when adopted.

@@ -43,3 +43,17 @@
 ## Deeplink Registration
 
 > No convention established yet. Document the Web deeplink/universal link handling pattern here when adopted.
+
+---
+
+## Planner Search Patterns
+
+> No convention established yet. Add glob patterns per scope key once DI, route, module, analytics, and feature flag conventions are adopted.
+
+| Scope key | Glob / Path | Grep hint |
+|---|---|---|
+| `di` | > No convention established yet | — |
+| `route` | > No convention established yet | — |
+| `module` | > No convention established yet | — |
+| `analytics` | > No convention established yet | — |
+| `feature_flag` | > No convention established yet | — |
