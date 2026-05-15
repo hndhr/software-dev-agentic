@@ -33,11 +33,16 @@ spawn:
   - pres
   - app
 reason: <one line per planner explaining why it is needed>
+scope:
+  domain: [entity, usecase, repository, service]   # omit types not relevant to this intent
+  data:   [dto, mapper, datasource, repository_impl]
+  pres:   [stateholder, screen, component, navigator]
+  app:    [di, route, module, analytics, feature_flag]
 open_questions:
   - <any unresolved requirement or ambiguity that a planner must answer>
 ```
 
-Only list planners that are needed. Omit planners already explored in previous rounds unless new open questions require re-exploration.
+Only list planners that are needed. Omit planners already explored in previous rounds unless new open questions require re-exploration. For each spawned planner, include only the scope types relevant to the stated intent — planners use this to decide their entry point and suppress unneeded glob steps.
 
 ### Decision: converged
 

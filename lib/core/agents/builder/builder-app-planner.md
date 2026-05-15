@@ -16,6 +16,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `feature` | Feature name to search for |
 | `platform` | `web`, `ios`, `flutter`, or `android` |
 | `module-path` | Root path of the feature's module in the project |
+| `scope` | *(optional)* Comma-separated concerns to search: `di`, `route`, `module`, `analytics`, `feature_flag`. Omit to search all. |
 
 ## Search Protocol
 
@@ -28,6 +29,20 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 Never Read a file in full. Grep gives you the line number — read a window around it.
 
 ## Workflow
+
+**Step 0 — Filter by scope**
+
+If `scope` is provided, only execute the steps below for the concerns listed in `scope`:
+
+| Concern | Scope key | Steps |
+|---|---|---|
+| DI registration | `di` | Step 2 |
+| Route / navigation | `route` | Step 3 |
+| Module registration | `module` | Step 4 |
+| Analytics constants | `analytics` | Step 5 |
+| Feature flag | `feature_flag` | Step 6 |
+
+Skip all other steps entirely. Always run Step 1 (platform reference) regardless of scope.
 
 **Step 1 — Load platform app-layer reference**
 
@@ -92,6 +107,15 @@ Grep for existing analytics constant structs/classes in the feature directory to
 
 For iOS: Grep for `FeatureIdentity` in `Utils/MekariFlag/MekariFlagCustomProvider.swift` to confirm the active enum. Record as `update` if the feature needs a flag; `N/A` if no flag is needed.
 For Flutter/Android: Grep to discover the pattern in use before proposing a registration location.
+
+**Step 6a — Demand-driven reference expansion**
+
+After completing scoped steps, check if any finding implies a wiring concern outside the original scope:
+
+- Fetch an out-of-scope concern **only if**:
+  - (a) the in-scope change structurally requires it (e.g. a new route also requires a DI binding for the destination screen), **or**
+  - (b) an existing registration file references a pattern that must be understood to write correct findings
+- Skip concerns that are independent of the in-scope changes
 
 **Step 7 — Detect patterns from existing entries**
 

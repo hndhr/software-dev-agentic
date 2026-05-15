@@ -16,6 +16,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `feature` | Feature name to search for |
 | `platform` | `web`, `ios`, or `flutter` |
 | `module-path` | Root path of the feature's module in the project |
+| `scope` | *(optional)* Comma-separated artifact types to search: `dto`, `mapper`, `datasource`, `repository_impl`. Omit to search all. |
 
 ## Search Protocol
 
@@ -31,15 +32,17 @@ Never Read a file in full. Grep gives you the line number — read a window arou
 
 **Step 1 — Locate artifacts**
 
+If `scope` is provided, only glob for the artifact types listed in `scope`. Skip glob steps for types not in scope.
+
 Glob for data layer artifacts related to `<feature>` under `<module-path>` and likely data subdirectories (`Data/`, `data/`, `DataSource/`, `data_source/`, `Mapper/`, `mapper/`):
 
-| Artifact type | Glob pattern examples |
-|---|---|
-| DTO / response model | `*<Feature>*Dto*`, `*<Feature>*Response*`, `*<Feature>*Model*` in data directories |
-| Mapper | `*<Feature>*Mapper*` |
-| DataSource interface | `*<Feature>*DataSource*` — exclude `*Impl*` |
-| DataSource impl | `*<Feature>*DataSource*Impl*`, `*<Feature>*Remote*DataSource*` |
-| Repository impl | `*<Feature>*Repository*Impl*`, `*<Feature>*Repository*Implementation*` |
+| Artifact type | Scope key | Glob pattern examples |
+|---|---|---|
+| DTO / response model | `dto` | `*<Feature>*Dto*`, `*<Feature>*Response*`, `*<Feature>*Model*` in data directories |
+| Mapper | `mapper` | `*<Feature>*Mapper*` |
+| DataSource interface | `datasource` | `*<Feature>*DataSource*` — exclude `*Impl*` |
+| DataSource impl | `datasource` | `*<Feature>*DataSource*Impl*`, `*<Feature>*Remote*DataSource*` |
+| Repository impl | `repository_impl` | `*<Feature>*Repository*Impl*`, `*<Feature>*Repository*Implementation*` |
 
 **Step 2 — Confirm and classify**
 
@@ -57,6 +60,15 @@ From found files, infer:
 **Step 4 — Key symbols**
 
 For any existing artifact likely to be modified: Grep for the class name → get line number → Read `offset=<line-5> limit=60` to capture field declarations and primary method signatures. Expand window only if the class body is larger.
+
+**Step 4a — Demand-driven reference expansion**
+
+After reading primary artifact symbols, extract all referenced type names from field declarations and method signatures. For each referenced type not already in scope:
+
+- Fetch its symbol window **only if**:
+  - (a) its shape is needed to describe the new/modified artifact (e.g. Mapper references a domain Entity and its fields must be known to write the mapping), **or**
+  - (b) it is likely to be modified as a consequence of this change (e.g. a new DTO field requires a corresponding mapper update)
+- Skip if the type is only used as a pass-through and its shape is not needed to complete findings
 
 ## Output
 

@@ -16,6 +16,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `feature` | Feature name to search for |
 | `platform` | `web`, `ios`, or `flutter` |
 | `module-path` | Root path of the feature's module in the project |
+| `scope` | *(optional)* Comma-separated artifact types to search: `stateholder`, `screen`, `component`, `navigator`. Omit to search all. |
 
 ## Search Protocol
 
@@ -31,14 +32,16 @@ Never Read a file in full. Grep gives you the line number — read a window arou
 
 **Step 1 — Locate artifacts**
 
+If `scope` is provided, only glob for the artifact types listed in `scope`. Skip glob steps for types not in scope.
+
 Glob for presentation and UI artifacts related to `<feature>` under `<module-path>` and likely subdirectories (`Presentation/`, `presentation/`, `UI/`, `ui/`, `Screen/`, `View/`):
 
-| Artifact type | Glob pattern examples |
-|---|---|
-| StateHolder | `*<Feature>*ViewModel*`, `*<Feature>*Bloc*`, `*<Feature>*Cubit*`, `*<Feature>*Presenter*` |
-| Screen / View | `*<Feature>*Screen*`, `*<Feature>*View*`, `*<Feature>*Page*` |
-| Component / Widget | `*<Feature>*Widget*`, `*<Feature>*Component*`, `*<Feature>*Cell*` |
-| Navigator / Coordinator | `*<Feature>*Navigator*`, `*<Feature>*Coordinator*` |
+| Artifact type | Scope key | Glob pattern examples |
+|---|---|---|
+| StateHolder | `stateholder` | `*<Feature>*ViewModel*`, `*<Feature>*Bloc*`, `*<Feature>*Cubit*`, `*<Feature>*Presenter*` |
+| Screen / View | `screen` | `*<Feature>*Screen*`, `*<Feature>*View*`, `*<Feature>*Page*` |
+| Component / Widget | `component` | `*<Feature>*Widget*`, `*<Feature>*Component*`, `*<Feature>*Cell*` |
+| Navigator / Coordinator | `navigator` | `*<Feature>*Navigator*`, `*<Feature>*Coordinator*` |
 
 **Step 2 — Confirm and classify**
 
@@ -55,6 +58,15 @@ From found files, infer:
 **Step 4 — Key symbols**
 
 For any existing StateHolder likely to be modified: Grep for the class name → get line number → Read `offset=<line-5> limit=80` to capture state fields, event/action cases, constructor params, and MARK sections. Expand window if the class body is larger — StateHolders are often longer than other artifacts.
+
+**Step 4a — Demand-driven reference expansion**
+
+After reading primary artifact symbols, extract all referenced type names from constructor params, state fields, and event cases. For each referenced type not already in scope:
+
+- Fetch its symbol window **only if**:
+  - (a) its shape is needed to describe the new/modified artifact (e.g. StateHolder holds a domain Entity as state and its fields must be known to describe the state change), **or**
+  - (b) it is likely to be modified as a consequence of this change (e.g. a new screen requires a new navigator route)
+- Skip if the type is only a use case injected into the constructor and its internals are not relevant to the presentation findings
 
 ## Output
 

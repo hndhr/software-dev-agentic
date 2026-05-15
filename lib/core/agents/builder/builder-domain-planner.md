@@ -16,6 +16,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `feature` | Feature name to search for |
 | `platform` | `web`, `ios`, or `flutter` |
 | `module-path` | Root path of the feature's module in the project |
+| `scope` | *(optional)* Comma-separated artifact types to search: `entity`, `usecase`, `repository`, `service`. Omit to search all. |
 
 ## Search Protocol
 
@@ -31,14 +32,16 @@ Never Read a file in full. Grep gives you the line number — read a window arou
 
 **Step 1 — Locate artifacts**
 
+If `scope` is provided, only glob for the artifact types listed in `scope`. Skip glob steps for types not in scope.
+
 Glob for domain artifacts related to `<feature>` under `<module-path>` and likely domain subdirectories (`Domain/`, `domain/`, `Entities/`, `entities/`, `UseCases/`, `use_cases/`):
 
-| Artifact type | Glob pattern examples |
-|---|---|
-| Entity | `*<Feature>*Entity*`, `*<Feature>*` in entity directories |
-| Use case | `*<Feature>*UseCase*`, `*<Feature>*Usecase*`, `*<feature>*_use_case*` |
-| Repository interface | `*<Feature>*Repository*` — exclude `*Impl*`, `*Implementation*` |
-| Domain service | `*<Feature>*Service*` in domain directories |
+| Artifact type | Scope key | Glob pattern examples |
+|---|---|---|
+| Entity | `entity` | `*<Feature>*Entity*`, `*<Feature>*` in entity directories |
+| Use case | `usecase` | `*<Feature>*UseCase*`, `*<Feature>*Usecase*`, `*<feature>*_use_case*` |
+| Repository interface | `repository` | `*<Feature>*Repository*` — exclude `*Impl*`, `*Implementation*` |
+| Domain service | `service` | `*<Feature>*Service*` in domain directories |
 
 **Step 2 — Confirm and classify**
 
@@ -55,6 +58,17 @@ From found files, infer:
 **Step 4 — Key symbols**
 
 For any existing artifact that is likely to be modified: Grep for the class name → get line number → Read `offset=<line-5> limit=60` to capture constructor params and primary method signatures. Expand window only if the class body is larger than the window.
+
+**Step 4a — Demand-driven reference expansion**
+
+After reading primary artifact symbols, extract all referenced type names from constructor params and return types. For each referenced type not already in scope:
+
+- Fetch its symbol window **only if**:
+  - (a) its shape is needed to describe the new/modified artifact's signature (e.g. UseCase returns `UserEntity` and the entity's fields must be listed), **or**
+  - (b) it is likely to be modified as a consequence of this change (e.g. adding a use case output field requires a new entity property)
+- Skip if the type is only injected as a dependency and its shape is not needed to complete findings
+
+Do not fetch types that are neither structurally required nor modification targets.
 
 ## Output
 
