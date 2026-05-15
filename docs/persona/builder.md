@@ -107,6 +107,19 @@ Each planner explores one layer, reports findings, and returns. Spawned by the e
 | `builder-pres-planner` | StateHolders, screens, components, navigators, key symbols | → domain (missing use case), → app (new screen needs route) |
 | `builder-app-planner` | DI registration, routing, module registration, analytics, feature flags | → domain / presentation (flag or route impacts) |
 
+### Scope-Aware Entry
+
+The orchestrator passes a `scope` map in every `spawn-planners` decision block. Each planner uses its scope to skip glob steps for artifact types not relevant to the stated intent — so a "update use case" task causes the domain planner to only search for use cases, not entities, repository interfaces, or services.
+
+### Demand-Driven Reference Expansion
+
+After reading primary artifact symbols, each planner checks its referenced types and expands **only if**:
+
+- **(a) Structural need** — the referenced type's shape is required to describe the new/modified artifact (e.g. a use case returns `UserEntity` and its fields must be listed in the findings), **or**
+- **(b) Modification need** — the referenced type itself will be modified as a consequence of the change (e.g. adding a use case output field requires a new entity property)
+
+All other referenced types — injected dependencies, pass-throughs, unrelated artifacts — are skipped. The decision stays inside the planner; the orchestrator only controls the entry point via `scope`.
+
 ---
 
 ## Execution Phase — `builder-feature-worker`
