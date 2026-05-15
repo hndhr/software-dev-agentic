@@ -49,7 +49,6 @@ Skip all other steps entirely. Always run Step 1 (platform reference) regardless
 ```
 .claude/reference/builder/app-layer.md
 .claude/reference/builder/di.md
-.claude/reference/builder/di-containers.md
 .claude/reference/contract/builder/app-layer.md
 .claude/reference/contract/builder/di.md
 ```
@@ -58,7 +57,7 @@ Grep `^## ` in each file. For each heading that matches the scope, read it immed
 
 | Scope key | Sections to prioritize |
 |---|---|
-| `di` | All sections in `di.md` and `di-containers.md`; `## DI`-related sections in `app-layer.md` |
+| `di` | All sections in `di.md`; `## DI`-related sections in `app-layer.md` and platform `contract/builder/di.md` |
 | `route` | `## Route` / `## Navigation` sections in `app-layer.md` |
 | `module` | `## Module` sections in `app-layer.md` |
 | `analytics` | `## Analytics` sections in `app-layer.md` |
