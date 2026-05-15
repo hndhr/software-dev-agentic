@@ -412,7 +412,7 @@
 <body>
 
 <div id="progress"></div>
-<div id="counter">1 / 14</div>
+<div id="counter">1 / 15</div>
 <div id="deck">
 
   <!-- ═══════════════════════════════════════════
@@ -965,9 +965,70 @@ Still open:
   </section>
 
   <!-- ═══════════════════════════════════════════
-       SLIDE 14 — CLOSING
+       SLIDE 14 — WHAT'S NEXT
   ════════════════════════════════════════════ -->
   <section class="slide" id="s14">
+    <div class="label">What's Next</div>
+    <h2 class="headline">The system is built to grow. <em>Each capability unlocks the next.</em></h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px;">
+      <div class="code-panel">
+        <div class="code-panel-header good">Ongoing · Multi-platform AI</div>
+        <pre><span class="cm">Same agents. Same skills.</span>
+<span class="cm">Any AI runtime.</span>
+
+<span class="ac">Claude Code</span>   <span class="cm">← today</span>
+<span class="ac">Codex</span>         <span class="cm">← wiring in progress</span>
+<span class="ac">Gemini CLI</span>    <span class="cm">← wiring in progress</span>
+
+<span class="cm">Platform-neutral design</span>
+<span class="cm">was the prerequisite.</span></pre>
+      </div>
+      <div class="code-panel">
+        <div class="code-panel-header" style="color: var(--blue);">Next · One-shot from Ticket</div>
+        <pre><span class="cm">Today: separate sessions</span>
+  <span class="cm">groom → plan → build</span>
+
+<span class="cm">Next: one command</span>
+<span class="ac">/builder-build-from-ticket</span>
+  <span class="cm">derives intent from ticket</span>
+  <span class="cm">→ plans → builds</span>
+  <span class="cm">→ adjusts ticket</span>
+
+<span class="cm">Gap: deeper planner</span>
+<span class="cm">knowledge + contracts.</span></pre>
+      </div>
+      <div class="code-panel">
+        <div class="code-panel-header" style="color: var(--blue);">Next · Testing</div>
+        <pre><span class="cm">builder-test-worker exists.</span>
+<span class="cm">Gap: it runs after the fact.</span>
+
+<span class="ac">testing planner</span>
+  <span class="cm">joins convergence loop</span>
+  <span class="cm">finds gaps upfront</span>
+
+<span class="ac">UI test agent</span>
+  <span class="cm">XCTest UI / Espresso /</span>
+  <span class="cm">Flutter integration tests</span>
+
+<span class="ac">QA persona</span>
+  <span class="cm">full automation suite</span></pre>
+      </div>
+    </div>
+    <div class="tree" style="font-size: 12.5px;"><span class="dm">Vision ─────────────────────────────────────────────────────────────────</span>
+Input: <span class="ac">ticket / PRD</span>
+              │
+    <span class="rl">Persona Orchestrator</span>
+              ├── <span class="rl">Builder persona</span>    <span class="dm">→ feature code, layer by layer</span>
+              ├── <span class="rl">QA persona</span>         <span class="dm">→ unit tests + UI automation</span>
+              └── <span class="rl">Detective persona</span>  <span class="dm">→ regression checks + PR review</span>
+              │
+Output: <span class="ac">feature shipped · tests green · PR ready</span></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════
+       SLIDE 15 — CLOSING
+  ════════════════════════════════════════════ -->
+  <section class="slide" id="s15">
     <div class="label">software-dev-agentic</div>
     <p class="quote">
       An engineer describes what they want to build.
@@ -992,7 +1053,7 @@ Still open:
 
 <div id="mobile-nav" style="display:none">
   <button id="btn-prev" onclick="goTo(current - 1)">← Prev</button>
-  <span id="mobile-counter">1 / 14</span>
+  <span id="mobile-counter">1 / 15</span>
   <button id="btn-next" class="primary" onclick="goTo(current + 1)">Next →</button>
 </div>
 
