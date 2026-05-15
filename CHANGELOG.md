@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.4.2] — 2026-05-16
+
+### Changed
+- `builder-feature-orchestrator`: inlined `layer-contracts.md` as a two-table summary (artifacts + inter-layer imports) — eliminates Grep+Read tool call per run; single consumer, always loaded
+- `builder-app-planner`: removed `di-containers.md` from reference list; `di` scope now points to platform `contract/builder/di.md` for container detail
+
+### Removed
+- `lib/core/reference/builder/di-containers.md` — web-specific (Next.js server/client containers), redundant with `web/reference/contract/builder/di.md`, no other consumers
+- `lib/core/reference/builder/domain-purity.md` — web-specific import rules, zero agent/skill consumers, covered by `domain.md` `## Dependency Rule` and `## Entities`
+- `lib/core/reference/builder/layer-contracts.md` — inlined into `builder-feature-orchestrator`; single consumer, always loaded
+
 ## [6.4.1] — 2026-05-16
 
 ### Changed
