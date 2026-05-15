@@ -169,7 +169,7 @@ result.fold(
 
 ---
 
-## Widget Error UI <!-- 39 -->
+## Error UI <!-- 39 -->
 
 Standard patterns for surfacing errors:
 

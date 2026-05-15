@@ -436,7 +436,7 @@ getCurrentUserUseCase.execute(params: ()) { [weak self] result in
 - Discoverable — autocomplete shows params right from the UseCase type
 - Colocated — params definition lives next to the code that uses it
 
-## Services <!-- 348 -->
+## Domain Services <!-- 348 -->
 
 Pure business decisions — no I/O, no side effects, no async. Can be called by both UseCases and ViewModels. See extraction rules in `reference/builder/domain.md`.
 

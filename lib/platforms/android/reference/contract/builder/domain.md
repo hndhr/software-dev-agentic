@@ -78,7 +78,7 @@ Rules:
 - Return type wraps the domain entity — never raw response types
 - Name: `[Action][Entity]UseCase` (e.g. `GetTimeOffRequestsUseCase`, `SubmitTimeOffUseCase`)
 
-## Services <!-- 18 -->
+## Domain Services <!-- 18 -->
 
 Domain services encapsulate business logic that spans multiple entities or does not naturally belong to a single use case. In Android MVP, these are plain Kotlin classes with no Android framework dependencies.
 

@@ -265,7 +265,7 @@ class BaseResponse<T> {
 
 ---
 
-## Repository Implementations <!-- 68 -->
+## Repository Implementation <!-- 68 -->
 
 Implement domain interfaces. Orchestrate datasource → mapper → Either.
 

@@ -24,15 +24,34 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 |---|---|
 | Files by name pattern | `Glob` |
 | Class / struct / protocol names, method signatures | `Grep` |
-| Content around a Grepped line | `Read` with `offset` + `limit` — start at 60 lines, expand only if needed |
+| Content around a Grepped line in source files | `Read` with `offset` + `limit` — start at 60 lines, expand only if needed |
+| A section of a reference doc | `Grep` for the heading → use `<!-- N -->` as `limit` |
 
 Never Read a file in full. Grep gives you the line number — read a window around it.
 
 ## Workflow
 
-**Step 1 — Locate artifacts**
+**Step 0 — Load reference**
 
-If `scope` is provided, only glob for the artifact types listed in `scope`. Skip glob steps for types not in scope.
+```
+.claude/reference/builder/domain.md
+.claude/reference/contract/builder/domain.md
+```
+
+Grep `^## ` in each file. For each heading that matches the scope and its prerequisites, read it immediately using the `<!-- N -->` line count as `limit`:
+
+| Scope key | Direct sections | Structural prerequisites |
+|---|---|---|
+| `entity` | `Entit` | — |
+| `usecase` | `Use Case` | `Repository Interfaces`, `Entit` |
+| `repository` | `Repository Interfaces` | `Entit` |
+| `service` | `Domain Services` | — |
+
+Always include `Dependency Rule` and `Creation Order`. If scope is absent, read all sections.
+
+**Step 1 — Locate and classify artifacts**
+
+If `scope` is provided, glob only for artifact types in scope.
 
 Glob for domain artifacts related to `<feature>` under `<module-path>` and likely domain subdirectories (`Domain/`, `domain/`, `Entities/`, `entities/`, `UseCases/`, `use_cases/`):
 
@@ -43,23 +62,21 @@ Glob for domain artifacts related to `<feature>` under `<module-path>` and likel
 | Repository interface | `repository` | `*<Feature>*Repository*` — exclude `*Impl*`, `*Implementation*` |
 | Domain service | `service` | `*<Feature>*Service*` in domain directories |
 
-**Step 2 — Confirm and classify**
+Classify from filename. Grep to confirm the primary class/struct/protocol name only when the filename does not unambiguously encode the artifact type.
 
-For each found file, Grep for the primary class/struct/protocol name to confirm it is the right artifact and determine its type.
+**Step 2 — Naming conventions**
 
-**Step 3 — Naming conventions**
-
-From found files, infer:
+Use the platform reference loaded in Step 0 as the primary source. Confirm or correct against found files:
 - Entity suffix pattern (e.g. `Entity`, none)
 - UseCase suffix/naming pattern (e.g. `UseCase`, `use_case`)
 - Repository interface naming pattern
 - File location pattern (e.g. `Module/Domain/UseCases/`)
 
-**Step 4 — Key symbols**
+**Step 3 — Key symbols**
 
 For any existing artifact that is likely to be modified: Grep for the class name → get line number → Read `offset=<line-5> limit=60` to capture constructor params and primary method signatures. Expand window only if the class body is larger than the window.
 
-**Step 4a — Demand-driven reference expansion**
+**Step 3a — Demand-driven reference expansion**
 
 After reading primary artifact symbols, extract all referenced type names from constructor params and return types. For each referenced type not already in scope:
 

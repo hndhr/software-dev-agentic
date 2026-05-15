@@ -45,12 +45,17 @@ Extract from the inlined content:
 - Artifact tables per layer (Domain / Data / Presentation / UI)
 - Key Symbols per existing artifact from context.md
 
-Load both reference files before writing any code:
+Survey reference files before writing any code:
 ```
-reference/contract/builder/syntax-conventions.md
-reference/contract/builder/utilities.md
+.claude/reference/builder/syntax-conventions.md
+.claude/reference/builder/utilities.md
+.claude/reference/builder/error-handling.md
+.claude/reference/contract/builder/syntax-conventions.md
+.claude/reference/contract/builder/utilities.md
+.claude/reference/contract/builder/error-handling.md
 ```
-Read all sections and apply every convention throughout all artifacts — this is not optional.
+
+Grep `^## ` in each file to list all headings. From the artifact types present in plan.md, decide which sections are needed — load only those. If a section turns out to be needed mid-execution and was not loaded, read it then. Apply every loaded convention throughout all artifacts — this is not optional.
 
 Check for a state file to resume from a previous run:
 ```bash
@@ -95,7 +100,7 @@ Derive the skill from each artifact's type in plan.md:
 Before executing any Screen or Component artifact, check whether an existing one already covers the need.
 
 **Step 1 — Find the platform's shared component paths:**
-Grep `reference/contract/builder/presentation.md` for the section heading `Shared Component Paths`. This section lists the exact directories and file patterns to search for this platform.
+Grep `.claude/reference/contract/builder/presentation.md` for the section heading `Shared Component Paths`. This section lists the exact directories and file patterns to search for this platform.
 
 **Step 2 — Search those paths:**
 For each path listed, run a Grep for keywords matching the component need (e.g. the component type, a key prop name, or a UI concept like "card", "list", "avatar"). Use the file pattern from the section (e.g. `*View.swift`, `*.tsx`, `*.dart`).
@@ -136,7 +141,7 @@ App layer wiring is always direct `Read` + `Edit` — no skill is needed. For ea
 
 1. Load the platform app-layer reference to confirm the exact pattern:
    ```
-   reference/contract/builder/app-layer.md
+   .claude/reference/contract/builder/app-layer.md
    ```
    Grep for the section heading, then `Read` with `offset` + `limit`.
 2. `Read` the target file using `offset` + `limit` around the insertion point (Grep for a known symbol or section marker first).

@@ -33,7 +33,7 @@ An **Entity** is a pure data structure representing a business concept.
 
 ---
 
-## Repository <!-- 15 -->
+## Repository Interfaces <!-- 15 -->
 
 A **Repository** is a contract that defines data access operations — *what* is needed, not *how* it is done.
 

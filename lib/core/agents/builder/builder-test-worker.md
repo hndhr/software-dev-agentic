@@ -114,7 +114,13 @@ If the skill file does not exist for the given platform, check `reference/index.
 | StateHolder | loading → success → error state transitions |
 | UI components | renders correctly per state |
 
-Reference: `reference/contract/builder/testing.md` — `Grep` for the relevant section by keyword; only `Read` the full file if the section can't be located. If uncertain which reference file covers a topic, check `reference/index.md` first.
+After identifying the target layer, survey both reference files:
+```
+.claude/reference/builder/testing.md
+.claude/reference/contract/builder/testing.md
+```
+
+Grep `^## ` to list all headings. Based on the identified layer and `scope`, decide which sections are actually needed — read only those using `offset` + `limit`. If a section can't be located by heading grep, fall back to keyword search inline. If uncertain which file covers a topic, check `.claude/reference/index.md` first.
 
 ## Output
 

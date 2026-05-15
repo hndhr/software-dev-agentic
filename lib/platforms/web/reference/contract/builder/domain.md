@@ -150,7 +150,7 @@ export class UpdateEmployeeUseCaseImpl implements UpdateEmployeeUseCase {
 
 **Naming convention:** `[Verb][Feature]UseCase` — e.g., `GetEmployeeUseCase`, `SubmitAttendanceUseCase`, `CalculateLeaveBalanceUseCase`
 
-## Services <!-- 137 -->
+## Domain Services <!-- 137 -->
 
 Pure business decisions — no I/O, no side effects, no async. See extraction rules in `reference/builder/domain.md`.
 

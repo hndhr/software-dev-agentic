@@ -24,15 +24,34 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 |---|---|
 | Files by name pattern | `Glob` |
 | Class / struct names, method signatures | `Grep` |
-| Content around a Grepped line | `Read` with `offset` + `limit` — start at 60 lines, expand only if needed |
+| Content around a Grepped line in source files | `Read` with `offset` + `limit` — start at 60 lines, expand only if needed |
+| A section of a reference doc | `Grep` for the heading → use `<!-- N -->` as `limit` |
 
 Never Read a file in full. Grep gives you the line number — read a window around it.
 
 ## Workflow
 
-**Step 1 — Locate artifacts**
+**Step 0 — Load reference**
 
-If `scope` is provided, only glob for the artifact types listed in `scope`. Skip glob steps for types not in scope.
+```
+.claude/reference/builder/data.md
+.claude/reference/contract/builder/data.md
+```
+
+Grep `^## ` in each file. For each heading that matches the scope and its prerequisites, read it immediately using the `<!-- N -->` line count as `limit`:
+
+| Scope key | Direct sections | Structural prerequisites |
+|---|---|---|
+| `dto` | `DTO`, `Payload` | — |
+| `mapper` | `Mapper` | `DTO`, `Entit` (mapper input and output shapes must be known) |
+| `datasource` | `Data Source` | — |
+| `repository_impl` | `Repository Implementation` | `Data Source`, `Mapper` |
+
+Always include `Dependency Rule`, `Creation Order`, and `Layer Invariants`. If scope is absent, read all sections.
+
+**Step 1 — Locate and classify artifacts**
+
+If `scope` is provided, glob only for artifact types in scope.
 
 Glob for data layer artifacts related to `<feature>` under `<module-path>` and likely data subdirectories (`Data/`, `data/`, `DataSource/`, `data_source/`, `Mapper/`, `mapper/`):
 
@@ -44,24 +63,22 @@ Glob for data layer artifacts related to `<feature>` under `<module-path>` and l
 | DataSource impl | `datasource` | `*<Feature>*DataSource*Impl*`, `*<Feature>*Remote*DataSource*` |
 | Repository impl | `repository_impl` | `*<Feature>*Repository*Impl*`, `*<Feature>*Repository*Implementation*` |
 
-**Step 2 — Confirm and classify**
+Classify from filename. Grep to confirm the primary class/struct name only when the filename does not unambiguously encode the artifact type.
 
-For each found file, Grep for the primary class/struct name to confirm it is the right artifact and determine its type.
+**Step 2 — Naming conventions**
 
-**Step 3 — Naming conventions**
-
-From found files, infer:
+Use the platform reference loaded in Step 0 as the primary source. Confirm or correct against found files:
 - DTO/model suffix pattern (e.g. `Dto`, `Response`, `Model`)
 - Mapper naming pattern
 - DataSource naming pattern
 - RepositoryImpl naming pattern
 - File location pattern (e.g. `Module/Data/DataSource/`)
 
-**Step 4 — Key symbols**
+**Step 3 — Key symbols**
 
 For any existing artifact likely to be modified: Grep for the class name → get line number → Read `offset=<line-5> limit=60` to capture field declarations and primary method signatures. Expand window only if the class body is larger.
 
-**Step 4a — Demand-driven reference expansion**
+**Step 3a — Demand-driven reference expansion**
 
 After reading primary artifact symbols, extract all referenced type names from field declarations and method signatures. For each referenced type not already in scope:
 

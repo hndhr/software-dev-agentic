@@ -4,7 +4,7 @@
 
 Implements Domain interfaces. Handles all I/O: network, storage, caching.
 
-## DTOs (Data Transfer Objects) <!-- 43 -->
+## DTOs <!-- 43 -->
 
 Network response models. Separate from domain entities.
 

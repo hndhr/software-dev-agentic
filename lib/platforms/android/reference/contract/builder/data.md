@@ -99,7 +99,7 @@ Rules:
 - Use `@Query` for URL params, `@Path` for path segments, `@Body` for request body
 - One interface per feature module
 
-## Repository Implementations <!-- 38 -->
+## Repository Implementation <!-- 38 -->
 
 Implement domain repository interface — inject API and mapper via Dagger.
 

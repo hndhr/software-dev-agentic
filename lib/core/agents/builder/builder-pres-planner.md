@@ -24,15 +24,36 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 |---|---|
 | Files by name pattern | `Glob` |
 | Class / struct names, event cases, state fields | `Grep` |
-| Content around a Grepped line | `Read` with `offset` + `limit` — start at 60 lines, expand only if needed |
+| Content around a Grepped line in source files | `Read` with `offset` + `limit` — start at 60 lines, expand only if needed |
+| A section of a reference doc | `Grep` for the heading → use `<!-- N -->` as `limit` |
 
 Never Read a file in full. Grep gives you the line number — read a window around it.
 
 ## Workflow
 
-**Step 1 — Locate artifacts**
+**Step 0 — Load reference**
 
-If `scope` is provided, only glob for the artifact types listed in `scope`. Skip glob steps for types not in scope.
+```
+.claude/reference/builder/presentation.md
+.claude/reference/builder/ui.md
+.claude/reference/contract/builder/presentation.md
+.claude/reference/contract/builder/navigation.md
+```
+
+Grep `^## ` in each file. For each heading that matches the scope and its prerequisites, read it immediately using the `<!-- N -->` line count as `limit`:
+
+| Scope key | Direct sections | Structural prerequisites |
+|---|---|---|
+| `stateholder` | `StateHolder`, `State`, `Event`, `BLoC`, `Cubit`, `ViewModel`, `Presenter` | — |
+| `screen` | `Screen` | StateHolder-related sections (screen binds to stateholder contract) |
+| `component` | `Component`, `Widget`, `Shared` | — |
+| `navigator` | all sections of `navigation.md` | — |
+
+Always include `Dependency Rule`, `Creation Order`, and `Layer Invariants`. If scope is absent, read all sections.
+
+**Step 1 — Locate and classify artifacts**
+
+If `scope` is provided, glob only for artifact types in scope.
 
 Glob for presentation and UI artifacts related to `<feature>` under `<module-path>` and likely subdirectories (`Presentation/`, `presentation/`, `UI/`, `ui/`, `Screen/`, `View/`):
 
@@ -43,23 +64,21 @@ Glob for presentation and UI artifacts related to `<feature>` under `<module-pat
 | Component / Widget | `component` | `*<Feature>*Widget*`, `*<Feature>*Component*`, `*<Feature>*Cell*` |
 | Navigator / Coordinator | `navigator` | `*<Feature>*Navigator*`, `*<Feature>*Coordinator*` |
 
-**Step 2 — Confirm and classify**
+Classify from filename. Grep to confirm the primary class/struct name only when the filename does not unambiguously encode the artifact type.
 
-For each found file, Grep for the primary class/struct name to confirm it is the right artifact and determine its type.
+**Step 2 — Naming conventions**
 
-**Step 3 — Naming conventions**
-
-From found files, infer:
+Use the platform reference loaded in Step 0 as the primary source. Confirm or correct against found files:
 - StateHolder suffix pattern (e.g. `ViewModel`, `Bloc`, `Cubit`)
 - Screen/View suffix pattern
 - Component suffix pattern
 - File location pattern (e.g. `Module/Presentation/`)
 
-**Step 4 — Key symbols**
+**Step 3 — Key symbols**
 
 For any existing StateHolder likely to be modified: Grep for the class name → get line number → Read `offset=<line-5> limit=80` to capture state fields, event/action cases, constructor params, and MARK sections. Expand window if the class body is larger — StateHolders are often longer than other artifacts.
 
-**Step 4a — Demand-driven reference expansion**
+**Step 3a — Demand-driven reference expansion**
 
 After reading primary artifact symbols, extract all referenced type names from constructor params, state fields, and event cases. For each referenced type not already in scope:
 

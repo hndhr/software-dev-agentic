@@ -44,16 +44,27 @@ If `scope` is provided, only execute the steps below for the concerns listed in 
 
 Skip all other steps entirely. Always run Step 1 (platform reference) regardless of scope.
 
-**Step 1 — Load platform app-layer reference**
+**Step 1 — Load reference**
 
-Resolve the platform contract reference path for the given `platform`:
 ```
-reference/contract/builder/app-layer.md   (resolved downstream as .claude/reference/contract/builder/app-layer.md)
+.claude/reference/builder/app-layer.md
+.claude/reference/builder/di.md
+.claude/reference/builder/di-containers.md
+.claude/reference/contract/builder/app-layer.md
+.claude/reference/contract/builder/di.md
 ```
 
-Read each section with `offset` + `limit` to understand the platform's wiring patterns before searching the codebase. Sections marked with a stub (`> No convention established yet`) have no wiring pattern to enforce — skip codebase discovery for those sections.
+Grep `^## ` in each file. For each heading that matches the scope, read it immediately using the `<!-- N -->` line count as `limit`:
 
-For all other platforms, Grep for `^## ` to list all canonical headings. Read each section with `offset` + `limit` to understand the platform's wiring patterns before searching the codebase.
+| Scope key | Sections to prioritize |
+|---|---|
+| `di` | All sections in `di.md` and `di-containers.md`; `## DI`-related sections in `app-layer.md` |
+| `route` | `## Route` / `## Navigation` sections in `app-layer.md` |
+| `module` | `## Module` sections in `app-layer.md` |
+| `analytics` | `## Analytics` sections in `app-layer.md` |
+| `feature_flag` | `## Feature Flag` sections in `app-layer.md` |
+
+Always include `## Planner Search Patterns` from `app-layer.md` — Steps 2–6 depend on it. If scope is absent, read all sections. Sections marked with a stub (`> No convention established yet`) have no wiring pattern to enforce — skip codebase discovery for those sections.
 
 **Step 2 — Locate DI registration files**
 

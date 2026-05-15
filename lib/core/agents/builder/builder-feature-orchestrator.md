@@ -84,7 +84,7 @@ Called first for any new interactive feature. Ask only what is needed:
 After gathering intent, load the layer contracts reference:
 
 ```
-reference/builder/layer-contracts.md
+.claude/reference/builder/layer-contracts.md
 ```
 
 Use Grep to extract relevant sections — do not read the full file.

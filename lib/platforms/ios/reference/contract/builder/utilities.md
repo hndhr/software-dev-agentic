@@ -238,7 +238,7 @@ enum Log {
 
 ---
 
-## Helper Extensions Index <!-- 19 -->
+## Helper Extensions <!-- 19 -->
 
 Extension files live in `Talenta/Shared/Extension/`.
 
