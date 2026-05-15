@@ -7,6 +7,29 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [6.0.0] — 2026-05-15
+
+### Changed
+- Submodule is now installed at the project root (`software-dev-agentic/`) instead of inside `.claude/software-dev-agentic/` — makes the toolkit platform-neutral for Claude Code, Gemini CLI, and GitHub Copilot
+- `scripts/setup-symlinks.sh`: `PROJECT_ROOT` depth corrected; `REL_CORE`/`REL_PLATFORM` symlink prefixes updated from `../` to `../../` to account for the extra level from `.claude/agents/`
+- `scripts/sync.sh`, `scripts/setup-ai.sh`, `scripts/clean-ai.sh`: `PROJECT_ROOT` depth corrected
+- `scripts/sync.sh`: hardcoded submodule path in `git submodule update` and commit hint updated
+- All installer agents/skills, `perf-worker`, and `agentic-perf-review` shell snippets updated
+
+### Migration
+
+Downstream projects must relocate the submodule:
+
+```bash
+git mv .claude/software-dev-agentic software-dev-agentic
+# update .gitmodules: path = software-dev-agentic
+git add .gitmodules software-dev-agentic
+git commit -m "chore: migrate software-dev-agentic to project root"
+software-dev-agentic/scripts/setup-symlinks.sh --platform=<platform>
+```
+
+---
+
 ## [5.6.0] — 2026-05-14
 
 ### Added
