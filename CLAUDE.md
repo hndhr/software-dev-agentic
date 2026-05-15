@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 **software-dev-agentic** — Multi-platform Claude Code toolkit for Clean Architecture projects.
-Consumed as a git submodule at `.claude/software-dev-agentic/` in downstream projects. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
+Consumed as a git submodule at `software-dev-agentic/` (project root) in downstream projects. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
 
 Platforms: **web** (Next.js 15) · **ios** (Swift/UIKit) · **flutter** (Dart/BLoC)
 
@@ -9,8 +9,8 @@ Platforms: **web** (Next.js 15) · **ios** (Swift/UIKit) · **flutter** (Dart/BL
 
 ```bash
 # Wire into a downstream project — links all agents, skills, hooks, and reference
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
+software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 
 # Cut a release
 /release

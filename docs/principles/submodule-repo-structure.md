@@ -3,12 +3,12 @@
 
 ## Delivery Mechanism
 
-`software-dev-agentic` is consumed as a git submodule inside each project's `.claude/` directory:
+`software-dev-agentic` is consumed as a git submodule at the project root:
 
 ```
 /
+  software-dev-agentic/      ← submodule (project root, not inside .claude/)
   .claude/
-    software-dev-agentic/    ← submodule
     agents/                  ← symlinks only (core + platform)
     skills/                  ← symlinks only (platform)
     reference/               ← symlinks only (builder + platform)
@@ -208,8 +208,8 @@ software-dev-agentic enforces its own conventions through an automated internal 
 ## Setup & Installation
 
 ```bash
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
+software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 ```
 
 Idempotent — re-running never overwrites existing files (`link_if_absent` guard). All personas are installed; no menu or selection needed.
@@ -229,7 +229,7 @@ Idempotent — re-running never overwrites existing files (`link_if_absent` guar
 **Adopting Updates (`sync.sh`)**
 
 ```bash
-.claude/software-dev-agentic/scripts/sync.sh --platform=<platform>
+software-dev-agentic/scripts/sync.sh --platform=<platform>
 ```
 
 1. `git pull` inside the submodule
@@ -273,7 +273,7 @@ Idempotent — re-running never overwrites existing files (`link_if_absent` guar
 3. Review by peers (same process as any code PR)
 4. Merge to main
 5. Each project adopts: `./scripts/sync.sh --platform=<platform>`
-6. Commit the updated submodule pointer: `git add .claude/software-dev-agentic && git commit -m "chore: update agentic submodule"`
+6. Commit the updated submodule pointer: `git add software-dev-agentic && git commit -m "chore: update agentic submodule"`
 
 ---
 

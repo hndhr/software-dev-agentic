@@ -10,15 +10,15 @@ A git submodule that wires AI agents, skills, hooks, and architecture reference 
 
 ## How it works
 
-Add this repo as a submodule under `.claude/software-dev-agentic/`. The setup script symlinks agents and skills into `.claude/agents/` and `.claude/skills/` — Claude Code picks them up automatically. Your project code stays untouched.
+Add this repo as a submodule at the project root under `software-dev-agentic/`. The setup script symlinks agents and skills into `.claude/agents/` and `.claude/skills/` — Claude Code, Gemini CLI, and GitHub Copilot all pick them up from there. Your project code stays untouched.
 
 ```
 your-project/
+  software-dev-agentic/    ← this repo (submodule, at project root)
   .claude/
-    software-dev-agentic/   ← this repo (submodule)
-    agents/                 → symlinks into submodule
-    skills/                 → symlinks into submodule
-    agents.local/           ← your project-specific overrides (never touched by sync)
+    agents/                → symlinks into submodule
+    skills/                → symlinks into submodule
+    agents.local/          ← your project-specific overrides (never touched by sync)
 ```
 
 Agents are organized into **personas** — coherent workflow groups. All personas are installed by default.
@@ -35,12 +35,12 @@ npx create-next-app@latest my-app --typescript --tailwind --eslint --app --src-d
 cd my-app
 
 # 2. Add the submodule
-git submodule add https://github.com/mekaripaper/software-dev-agentic .claude/software-dev-agentic
+git submodule add https://github.com/mekaripaper/software-dev-agentic software-dev-agentic
 
 # 3. Wire everything — symlinks all agents, skills, hooks, and reference for the platform
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+software-dev-agentic/scripts/setup-symlinks.sh --platform=web
 # or
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
+software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 ```
 
 Open Claude Code and use trigger skills (`/builder-build-feature`, `/detective-debug`, etc.) as the entry point.
@@ -50,11 +50,11 @@ Open Claude Code and use trigger skills (`/builder-build-feature`, `/detective-d
 ### Adding to an existing project
 
 ```bash
-git submodule add https://github.com/mekaripaper/software-dev-agentic .claude/software-dev-agentic
+git submodule add https://github.com/mekaripaper/software-dev-agentic software-dev-agentic
 
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=web
+software-dev-agentic/scripts/setup-symlinks.sh --platform=web
 # or
-.claude/software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
+software-dev-agentic/scripts/setup-symlinks.sh --platform=ios
 ```
 
 The script wires symlinks, copies `CLAUDE.md`, and sets up `settings.local.json`. Re-running is safe — existing files and local overrides are never overwritten.
@@ -64,7 +64,7 @@ The script wires symlinks, copies `CLAUDE.md`, and sets up `settings.local.json`
 ## Keeping up to date
 
 ```bash
-.claude/software-dev-agentic/scripts/sync.sh --platform=<platform>
+software-dev-agentic/scripts/sync.sh --platform=<platform>
 ```
 
 Pulls the latest, re-runs symlink setup (idempotent), and reminds you to commit the updated submodule pointer. Local overrides in `agents.local/` and `skills.local/` are never touched.
