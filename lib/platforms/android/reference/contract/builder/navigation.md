@@ -1,5 +1,6 @@
 # Android — Navigation
 
+> Canonical terms and invariants: `reference/builder/ui.md` — `## Navigator / Coordinator` section.
 > Android does not use the Navigation Component. Navigation is handled via custom `NavigationImpl` classes injected into presenters.
 
 ## Navigator <!-- 29 -->

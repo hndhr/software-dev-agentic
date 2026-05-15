@@ -1,6 +1,6 @@
 # iOS — Navigation
 
-
+> Canonical terms and invariants: `reference/builder/ui.md` — `## Navigator / Coordinator` section.
 
 Talenta uses the **Coordinator pattern** with `BaseCoordinator` to handle navigation and decouple ViewControllers from navigation logic.
 

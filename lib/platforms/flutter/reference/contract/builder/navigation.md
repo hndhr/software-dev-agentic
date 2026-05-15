@@ -1,5 +1,7 @@
 # Flutter — Navigation (go_router)
 
+> Canonical terms and invariants: `reference/builder/ui.md` — `## Navigator / Coordinator` section.
+
 `go_router` is the standard Flutter navigation solution — declarative, deep-link ready, and type-safe with code generation.
 
 ---

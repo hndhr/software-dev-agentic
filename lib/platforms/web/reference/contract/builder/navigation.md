@@ -1,5 +1,6 @@
 # Web — Navigation
 
+> Canonical terms and invariants: `reference/builder/ui.md` — `## Navigator / Coordinator` section.
 
 ## Why Next.js App Router <!-- 10 -->
 
