@@ -558,10 +558,11 @@ options:
 scope: domain <span class="ac">[usecase]</span>
 
 <span class="rl">domain-planner</span>
+  Step 0   load reference  <span class="dm">← scope-matched sections only</span>
   Step 1   glob UseCase only  <span class="dm">← skip entity, repo, service</span>
-  Step 4   read primary symbols
+  Step 3   read primary symbols
 
-  Step 4a  demand-driven expansion
+  Step 3a  demand-driven expansion
   <span class="dm">UseCase returns</span>  <span class="ac">UserEntity</span>
     shape needed?   <span class="ac">yes</span>  <span class="dm">→ fetch window</span>
     will it change? <span class="ac">no</span>   <span class="dm">→ skip full read</span>

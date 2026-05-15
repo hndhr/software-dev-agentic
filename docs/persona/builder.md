@@ -142,12 +142,7 @@ All other referenced types — injected dependencies, pass-throughs, unrelated a
 | Planner | `builder-pres-planner` | Presentation layer exploration — StateHolders, screens, key symbols |
 | Planner | `builder-app-planner` | App layer exploration — DI, routing, module registration, analytics, feature flags |
 | Worker | `builder-feature-worker` | Plan-driven executor — reads plan.md, calls skills in layer order, validates each artifact |
-| Worker | `domain-worker` | Domain layer direct creation — for single known artifacts |
-| Worker | `data-worker` | Data layer direct creation — for single known artifacts |
-| Worker | `presentation-worker` | Presentation layer creation — StateHolder, state management |
-| Worker | `builder-ui-worker` | UI layer creation — screens, components, navigation |
 | Worker | `builder-test-worker` | Test generation across all layers |
-| Worker | `prompt-debug-worker` | Agent prompt diagnosis from perf reports |
 | Worker | `auditor-arch-review-worker` | CLEAN Architecture violation review (downstream projects) |
 
 **Deprecated (absorbed into orchestrator + entry skills):**
@@ -156,6 +151,15 @@ All other referenced types — injected dependencies, pass-throughs, unrelated a
 |---|---|
 | `builder-feature-planner` | `builder-feature-orchestrator` (synthesize mode) + entry skill (convergence loop) |
 | `builder-auto-feature-planner` | `builder-feature-orchestrator` (gather-intent-prefilled mode) + `builder-build-from-ticket` skill |
+
+**Removed:**
+
+| Agent | Removed in | Reason |
+|---|---|---|
+| `domain-worker` | v3.58.0 | Superseded by `builder-feature-worker` and `builder-backend-orchestrator` |
+| `data-worker` | v3.58.0 | Superseded by `builder-feature-worker` and `builder-backend-orchestrator` |
+| `presentation-worker` | v3.58.0 | Superseded by `builder-feature-worker` |
+| `builder-ui-worker` | v5.6.0 | No valid spawn path — violated Skill-First Entry; Component Reuse Check merged into `builder-feature-worker` |
 
 ### Platform agents
 
@@ -177,11 +181,11 @@ All other referenced types — injected dependencies, pass-throughs, unrelated a
 
 | Layer | Planner | Worker | Skills |
 |---|---|---|---|
-| Domain | `builder-domain-planner` | `domain-worker` | `domain-create-entity`, `domain-create-usecase`, `domain-create-repository`, `domain-create-service` |
-| Data | `builder-data-planner` | `data-worker` | `builder-data-create-datasource`, `builder-data-create-mapper`, `builder-data-create-repository-impl` |
-| Presentation | `builder-pres-planner` | `presentation-worker`, `builder-ui-worker` | `builder-pres-create-stateholder`, `builder-pres-create-screen`, `builder-pres-create-component` |
+| Domain | `builder-domain-planner` | `builder-feature-worker` | `builder-domain-create-entity`, `builder-domain-create-usecase`, `builder-domain-create-repository`, `builder-domain-create-service` |
+| Data | `builder-data-planner` | `builder-feature-worker` | `builder-data-create-datasource`, `builder-data-create-mapper`, `builder-data-create-repository-impl` |
+| Presentation | `builder-pres-planner` | `builder-feature-worker` | `builder-pres-create-stateholder`, `builder-pres-create-screen`, `builder-pres-create-component` |
 | App | `builder-app-planner` | `builder-feature-worker` (inline) | — |
-| Test | — | `builder-test-worker` | `test-create-domain`, `test-create-data`, `test-create-presentation` |
+| Test | — | `builder-test-worker` | `builder-test-create-domain`, `builder-test-create-data`, `builder-test-create-presentation` |
 
 ---
 
@@ -191,18 +195,18 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 
 | Skill | Called by | Layer |
 |---|---|---|
-| `domain-create-entity` | `domain-worker`, `builder-feature-worker` | Domain |
-| `domain-create-repository` | `domain-worker`, `builder-feature-worker` | Domain |
-| `domain-create-usecase` | `domain-worker`, `builder-feature-worker` | Domain |
-| `domain-create-service` | `domain-worker`, `builder-feature-worker` | Domain |
-| `data-create-mapper` | `data-worker`, `builder-feature-worker` | Data |
-| `data-create-datasource` | `data-worker`, `builder-feature-worker` | Data |
-| `data-create-repository-impl` | `data-worker`, `builder-feature-worker` | Data |
-| `pres-create-stateholder` | `presentation-worker`, `builder-feature-worker` | Presentation |
-| `pres-create-screen` | `builder-ui-worker`, `builder-feature-worker` | Presentation/UI |
-| `test-create-domain` | `builder-test-worker` | Test |
-| `test-create-data` | `builder-test-worker` | Test |
-| `test-create-presentation` | `builder-test-worker` | Test |
+| `builder-domain-create-entity` | `builder-feature-worker` | Domain |
+| `builder-domain-create-repository` | `builder-feature-worker` | Domain |
+| `builder-domain-create-usecase` | `builder-feature-worker` | Domain |
+| `builder-domain-create-service` | `builder-feature-worker` | Domain |
+| `builder-data-create-mapper` | `builder-feature-worker` | Data |
+| `builder-data-create-datasource` | `builder-feature-worker` | Data |
+| `builder-data-create-repository-impl` | `builder-feature-worker` | Data |
+| `builder-pres-create-stateholder` | `builder-feature-worker` | Presentation |
+| `builder-pres-create-screen` | `builder-feature-worker` | Presentation/UI |
+| `builder-test-create-domain` | `builder-test-worker` | Test |
+| `builder-test-create-data` | `builder-test-worker` | Test |
+| `builder-test-create-presentation` | `builder-test-worker` | Test |
 
 ---
 
@@ -210,7 +214,7 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 
 | Task | Path |
 |---|---|
-| Single known artifact | Worker directly (`domain-worker`, `data-worker`, `presentation-worker`, `builder-ui-worker`) |
+| Single known artifact | Entry skill (`/builder-build-feature`) with narrow intent → orchestrator scopes to one layer → `builder-feature-worker` |
 | Test generation | `builder-test-worker` directly |
 | Targeted edit to existing artifact | Worker with `context.md` Key Symbols if available |
 
@@ -221,7 +225,7 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 | Category | `lib/core/agents/` | `lib/platforms/ios/agents/` | `lib/platforms/web/agents/` |
 |---|---|---|---|
 | Orchestrators | 3 in `builder/` + 1 in `detective/` | 1 (`test-orchestrator`) | — |
-| Workers | 8 in `builder/` + 2 in `detective/` + 1 in `tracker/` + 1 in `auditor/` + 1 in `installer/` + 1 flat | 1 (`pr-review-worker`) | — |
+| Workers | 2 in `builder/` + 2 in `detective/` + 1 in `tracker/` + 1 in `auditor/` + 1 in `installer/` | 1 (`pr-review-worker`) | — |
 | Skills (Type A) | — | 29 | 29 |
 | Skills (Type B) | — | 2 | 0 |
 
@@ -236,7 +240,7 @@ These skills cover **artifact creation only**. Workers handle modifications to e
 **Direct action** — "Add import RxSwift to this file" → single-line edit, no agent needed
 
 **Single-layer task** — "Create GetLeaveRequestListUseCase"
-→ `domain-worker` spawned directly, assesses preconditions, sequences skills
+→ `/builder-build-feature` with narrow intent; orchestrator scopes to domain only; `builder-feature-worker` calls `builder-domain-create-usecase`
 
 **Multi-layer task** — "Build the leave request feature"
 → `/builder-plan-feature` skill: orchestrator decides which planners, skill runs convergence loop, plan approved, `builder-feature-worker` executes
@@ -277,12 +281,11 @@ pr-review-worker       (iOS platform worker)   ← iOS-specific workflow
 **Debug flow** *(detective)* — "Why is form submission silently failing?"
 → `detective-debug-orchestrator` gathers context, spawns `detective-debug-worker`
 
-**Agent prompt debugging** *(detective)* — "Why did domain-worker create an implementation instead of an interface?"
+**Agent prompt debugging** *(detective)* — "Why did the worker create an implementation instead of an interface?"
 
 ```
 perf-worker           ← scores session D1–D7
   D2: 5/10            ← worker invocation anomaly flagged
-prompt-debug-worker   ← reads perf-report + domain-worker.md
   → surfaces ambiguous "create the repository" instruction
   → suggests rewrite with explicit scope
 ```
