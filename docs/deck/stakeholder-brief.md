@@ -11,7 +11,7 @@ Building a feature used to look like this.
 
 An engineer picks up a ticket. They spend the first hour reading existing code — understanding how the project is structured, what patterns to follow, where files should go. Then they write the feature: domain logic, data layer, API wiring, UI. They make decisions along the way that may or may not be consistent with how another engineer solved the same problem last week on a different product.
 
-We have three mobile platforms — **iOS**, **Flutter**, and **Android**. Three codebases. Three sets of conventions. Three places where the same architecture decisions get made differently, drift over time, and create inconsistency that slows down every engineer who touches them next.
+We have four platforms — **iOS**, **Flutter**, **Android**, and **Web**. Four codebases. Four sets of conventions. Four places where the same architecture decisions get made differently, drift over time, and create inconsistency that slows down every engineer who touches them next.
 
 This is not a people problem. It is a **system problem**.
 
@@ -205,9 +205,9 @@ The system improves itself. Every session produces a performance report. Every p
 
 ### One toolkit, every platform
 
-The same AI engineering team works on iOS, Flutter, and Android. The architectural rules are shared. Platform-specific knowledge — Swift syntax, Dart/BLoC conventions, Kotlin patterns — is swapped in automatically based on the project.
+The same AI engineering team works on iOS, Flutter, Android, and Web. The architectural rules are shared. Platform-specific knowledge — Swift syntax, Dart/BLoC conventions, Kotlin patterns, TypeScript/Next.js conventions — is swapped in automatically based on the project.
 
-An improvement made for talenta-iOS ships to the Flutter products the same day.
+An improvement made for talenta-iOS ships to all other platforms the same day.
 
 ### It enforces our standards automatically
 
@@ -239,7 +239,7 @@ The toolkit today covers feature development, debugging, testing, and architectu
 
 What's next:
 
-**Android.** iOS and Flutter are active today. Android is the next platform — same shared architecture, same agent team, same standards. No changes to the shared system required to add it.
+**All four platforms active.** iOS, Flutter, Android, and Web are all live — same shared architecture, same agent team, same standards across all codebases. Reference docs are established and aligned to each platform's actual conventions.
 
 **Broader scope.** The same agent model that builds features can be applied to performance analysis, security review, and migration automation.
 

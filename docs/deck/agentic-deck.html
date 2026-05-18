@@ -700,7 +700,7 @@
         <div class="roadmap-num">01</div>
         <div class="roadmap-text">
           <strong>Foundation &nbsp;<span style="font-size: 10px; font-weight: 700; background: var(--accent); color: #000; border-radius: 4px; padding: 2px 8px; vertical-align: middle;">in progress</span></strong>
-          <span>Is the anatomy right? Does it hold across AI platforms? Agent and skill structure is validated on Claude Code. Remaining: port and compare across Codex, Gemini CLI, and other runtimes.</span>
+          <span>Is the anatomy right? Does it hold across AI platforms? Agent and skill structure is validated on Claude Code across iOS · Flutter · Android · Web. Remaining: port and compare across Codex, Gemini CLI, and other runtimes.</span>
         </div>
       </div>
       <div class="roadmap-item">
@@ -714,7 +714,7 @@
         <div class="roadmap-num">03</div>
         <div class="roadmap-text">
           <strong>Distribution &nbsp;<span style="font-size: 10px; font-weight: 700; background: rgba(121,192,255,0.15); color: var(--blue); border-radius: 4px; padding: 2px 8px; vertical-align: middle;">research &amp; prototyping</span></strong>
-          <span>How does the toolkit reach every project, reliably? Two approaches to evaluate: submodule + symlinks (current, proven for iOS · Flutter · Web) vs. monorepo with all products and the agentic repo as parent.</span>
+          <span>How does the toolkit reach every project, reliably? Two approaches to evaluate: submodule + symlinks (current, proven for iOS · Flutter · Android · Web) vs. monorepo with all products and the agentic repo as parent.</span>
         </div>
       </div>
       <div class="roadmap-item">
@@ -1179,10 +1179,11 @@ mcp__mmpa__mmpa_get_jira(
         <div class="card-label" style="margin-bottom: 12px;">Current Approach</div>
         <div class="tree">software-dev-agentic/
 ├── <span class="ac">lib/core/</span>          <span class="dm">← shared agents + skills</span>
-├── <span class="ac">lib/platforms/</span>     <span class="dm">← web · ios · flutter</span>
+├── <span class="ac">lib/platforms/</span>     <span class="dm">← web · ios · flutter · android</span>
 │   ├── web/
 │   ├── ios/
-│   └── flutter/
+│   ├── flutter/
+│   └── android/
 └── <span class="rl">docs/principles/</span>   <span class="dm">← reference docs</span></div>
         <div class="caption" style="margin-top: 14px;">Single source of truth — one PR, one version, all platforms.</div>
       </div>
@@ -1213,7 +1214,7 @@ mcp__mmpa__mmpa_get_jira(
     ├── agents → <span class="ac">../software-dev-agentic/lib/</span>
     └── skills → <span class="ac">../software-dev-agentic/lib/</span>
 
-<span class="ac">✓</span> Proven on iOS · Flutter · Web
+<span class="ac">✓</span> Proven on iOS · Flutter · Android · Web
 <span class="ac">✓</span> Each project pins a commit
 <span class="ac">✓</span> Works offline, no build step</pre>
       </div>
