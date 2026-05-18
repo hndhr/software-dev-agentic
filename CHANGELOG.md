@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.8.7] — 2026-05-19
+
+### Removed
+- `builder-test-worker` — dead fallback reference to non-existent `reference/index.md`
+- `detective-debug-worker` — dead fallback reference to non-existent `reference/debugging.md`
+
+---
+
 ## [7.8.6] — 2026-05-19
 
 ### Fixed

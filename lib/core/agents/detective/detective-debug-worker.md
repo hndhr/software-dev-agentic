@@ -59,8 +59,6 @@ Ask if not provided:
 | Crash on method call via DI | DI — interface not registered or wrong binding |
 | Method exists on interface but not implementation | Any — interface drift after refactor |
 
-Check `reference/debugging.md` if it exists — `Grep` for known platform-specific error signatures.
-
 ## Step 3 — Trace the Call Chain
 
 Follow the flow from entry point through layers:
