@@ -38,10 +38,10 @@ Never skip or reorder layers. Each layer depends on the one above it being compl
 
 See `.claude/reference/` for full naming conventions, patterns, and code examples:
 
-- `.claude/reference/builder/domain.md` — entity and use case rules
-- `.claude/reference/builder/data.md` — DTO, mapper, datasource rules
-- `.claude/reference/builder/presentation.md` — state management patterns
-- `.claude/reference/contract/builder/` — platform-specific code patterns
+- `.claude/reference/builder/domain-theory.md` — entity and use case rules
+- `.claude/reference/builder/data-theory.md` — DTO, mapper, datasource rules
+- `.claude/reference/builder/presentation-theory.md` — state management patterns
+- `.claude/reference/builder/*-impl.md` — platform-specific code patterns
 
 ---
 

@@ -5,7 +5,7 @@ user-invocable: false
 tools: Read, Write, Glob
 ---
 
-Create a reusable UI component following `reference/contract/builder/presentation.md`.
+Create a reusable UI component following `reference/builder/presentation-impl.md`.
 
 ## Component Placement
 
@@ -40,7 +40,7 @@ export function [Name]({ item, onAction }: [Name]Props) {
 - `'use client'` only if the component uses React state/effects/event handlers
 - No business logic — render only
 
-**Pattern:** `reference/contract/builder/presentation.md` — `Grep` for component/organism section.
+**Pattern:** `reference/builder/presentation-impl.md` — `Grep` for component/organism section.
 
 ## Output
 

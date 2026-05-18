@@ -60,24 +60,23 @@ Three-pass linking priority: `agents.local` > platform > core (first link wins)
 
 ---
 
-### 4. Reference Docs Split by Scope
+### 4. Reference Docs — Co-located Theory and Impl
 
-**Decision:** Reference docs live in four locations within the submodule:
-- `lib/core/reference/README.md` — taxonomy doc: placement rules for reference vs agent body vs skills (agentic use)
-- `lib/core/reference/builder/` — two kinds of files, both preserved as `builder/` subdir downstream (`.claude/reference/builder/<name>.md`):
-  - **Universal theory** (`layer-contracts.md`, `domain-purity.md`, `di-containers.md`) — cross-cutting CLEAN Architecture principles shared across all layers.
-  - **Layer canonical templates** (`domain.md`, and `data.md`, `presentation.md` in progress) — platform-agnostic concept definitions per CLEAN layer. Defines what each artifact IS, its invariants, and when to use it. Workers reference these for concepts; platform `contract/` files implement the same headings in platform syntax.
-- `lib/platforms/<platform>/reference/contract/builder/` — cross-platform standard patterns with code examples. Same eight filenames on every platform. Preserved as `contract/builder/` subdir downstream (`.claude/reference/contract/builder/<name>.md`). Syntax and platform-specific patterns only — conceptual definitions belong in the corresponding `lib/core/reference/builder/<layer>.md` template. New personas add their own sibling dir (e.g. `contract/detective/`).
-- `lib/platforms/<platform>/reference/` (flat) — platform-specific patterns unique to that platform (e.g. `ssr.md`, `server-actions.md` for web). Lands flat as `.claude/reference/<name>.md`.
+**Decision:** Each topic ships as a file pair, both living in the same platform directory:
 
-**Rationale:** The split between `builder/` (what X is) and `contract/` (how X looks in this platform) mirrors the DI pattern applied at the knowledge level: workers know the concept from the canonical template; platform contract files provide the implementation. Universal theory files handle cross-cutting principles that no single layer owns.
+- `lib/platforms/<platform>/reference/builder/<topic>-theory.md` — what the concept IS and why it exists. Platform-agnostic content, duplicated across platforms. Downstream: `.claude/reference/builder/<topic>-theory.md`.
+- `lib/platforms/<platform>/reference/builder/<topic>-impl.md` — how to implement it in that platform's language and syntax. Downstream: `.claude/reference/builder/<topic>-impl.md`.
+- `lib/platforms/<platform>/reference/` (flat) — platform-specific patterns with no theory counterpart (e.g. `ssr.md`, `server-actions.md` for web). Lands flat as `.claude/reference/<name>.md`.
+- `lib/core/reference/README.md` — placement rules for reference vs agent body vs skills.
 
-**Reference subdir rule:** All subdirectories under a reference source dir are preserved downstream. `contract/` and `builder/` both land as-is. Unlike agents and skills (always flat), reference docs maintain their subdir structure because agents reference them by path (e.g. `reference/builder/domain.md`, `reference/contract/builder/domain.md`). Any new subdir added under `lib/core/reference/` or `lib/platforms/<platform>/reference/` is automatically preserved.
+**Rationale:** Co-locating theory and impl in the same directory removes the two-path problem agents had (core path + platform path). Agent Grep calls are simpler: both files live at `reference/builder/<topic>-{theory,impl}.md`. Theory is intentionally duplicated across platforms — the tradeoff is accepted because a single base directory per platform is cleaner than separate core + contract directories.
 
-Every contract file follows a strict heading structure: `#` platform+topic title, `##` canonical Terms (agent-greppable grep keys), `###` subsections. This makes `grep "^## Term"` deterministic across all platforms.
+**Reference subdir rule:** The `builder/` subdir is preserved downstream. Unlike agents and skills (always flat), reference docs maintain their subdir structure. Any new subdir added under `lib/platforms/<platform>/reference/` is automatically preserved by the setup script.
+
+Every file follows a strict heading structure: `#` platform+topic title, `##` canonical Terms (agent-greppable grep keys), `###` subsections. This makes `grep "^## Term"` deterministic across all platforms.
 
 **Topic and Term vocabulary:**
-- **Topic** — the subject area a reference file covers (e.g. `domain`, `data`, `presentation`). Not engineering-specific: design, requirements, and testing references are also organized by topic.
+- **Topic** — the subject area a reference file covers (e.g. `domain`, `data`, `presentation`). Not engineering-specific.
 - **Term** — the canonical name for one concept within a topic. Each `##` heading is a Term. One Term = one name = one `##` heading across every platform. Platform dialect belongs in the body, never the heading.
 
 See [core-design-principles.md — Reference vocabulary](core-design-principles.md#reference-vocabulary--topic-and-term) for the full decision table.
@@ -106,11 +105,11 @@ See [core-design-principles.md — Reference vocabulary](core-design-principles.
 |---|---|---|
 | `lib/platforms/<platform>/skills/contract/<name>/` | `.claude/skills/<name>/` | No — lands flat |
 | `lib/platforms/<platform>/skills/<name>/` | `.claude/skills/<name>/` | No — already flat |
-| `lib/core/reference/builder/<name>.md` | `.claude/reference/builder/<name>.md` | **Yes** — `builder/` preserved |
-| `lib/platforms/<platform>/reference/contract/builder/<name>.md` | `.claude/reference/contract/builder/<name>.md` | **Yes** — `contract/builder/` preserved |
+| `lib/platforms/<platform>/reference/builder/<name>-theory.md` | `.claude/reference/builder/<name>-theory.md` | **Yes** — `builder/` preserved |
+| `lib/platforms/<platform>/reference/builder/<name>-impl.md` | `.claude/reference/builder/<name>-impl.md` | **Yes** — `builder/` preserved |
 | `lib/platforms/<platform>/reference/<name>.md` | `.claude/reference/<name>.md` | No — already flat |
 
-Skills land flat because workers resolve via `.claude/skills/<name>/SKILL.md` — the `contract/` grouping is a source-level convention only. References preserve `contract/` because skill files contain hard-coded paths like `reference/contract/builder/presentation.md`.
+Skills land flat because workers resolve via `.claude/skills/<name>/SKILL.md` — the `contract/` grouping is a source-level convention only. Both theory and impl reference files land under `builder/` downstream — agents resolve via `reference/builder/<topic>-theory.md` and `reference/builder/<topic>-impl.md`.
 
 ---
 
@@ -200,8 +199,8 @@ software-dev-agentic enforces its own conventions through an automated internal 
 | Platform-contract skills | `software-dev-agentic/lib/platforms/<platform>/skills/contract/` | Same name on all platforms, platform-specific implementation; create-only (`create-*`) — no update skills; lands flat in `.claude/skills/<name>/` downstream |
 | Platform-only skills | `software-dev-agentic/lib/platforms/<platform>/skills/` (flat) | Called by platform agents only |
 | Internal repo skills | `software-dev-agentic/skills/` | Convention checklist, report formatter — NOT symlinked to downstream projects |
-| Universal reference docs | `software-dev-agentic/lib/core/reference/builder/` | Language-agnostic CLEAN theory |
-| Cross-platform contract reference docs | `software-dev-agentic/lib/platforms/<platform>/reference/contract/<persona>/` | Grouped by persona; preserved as `contract/<persona>/` subdir downstream |
+| Reference docs — theory | `software-dev-agentic/lib/platforms/<platform>/reference/builder/<topic>-theory.md` | What/why — duplicated per platform, co-located with impl |
+| Reference docs — impl | `software-dev-agentic/lib/platforms/<platform>/reference/builder/<topic>-impl.md` | How in that language — platform-specific |
 | Platform-specific reference docs | `software-dev-agentic/lib/platforms/<platform>/reference/` (flat) | Platform-unique patterns; lands flat in `.claude/reference/<name>.md` downstream |
 | Project-specific agents | `.claude/agents.local/` | Only relevant to one project |
 | Agent/skill extensions | `.claude/*/extensions/` | Additive delta, project-scoped |

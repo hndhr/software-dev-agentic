@@ -34,10 +34,10 @@ Never Read a file in full. Grep gives you the line number — read a window arou
 **Step 0 — Load reference**
 
 ```
-.claude/reference/builder/presentation.md
-.claude/reference/builder/ui.md
-.claude/reference/contract/builder/presentation.md
-.claude/reference/contract/builder/navigation.md
+.claude/reference/builder/presentation-theory.md
+.claude/reference/builder/ui-theory.md
+.claude/reference/builder/presentation-impl.md
+.claude/reference/builder/navigation-impl.md
 ```
 
 Grep `^## ` in each file. For each heading that matches the scope and its prerequisites, read it immediately using the `<!-- N -->` line count as `limit`:

@@ -297,12 +297,12 @@ Reference docs are organized around two levels:
 
 | Level | Example | Rule |
 |---|---|---|
-| Topic | `domain` | One reference file per topic per platform |
+| Topic | `domain` | One reference file pair per topic per platform |
 | Term | `UseCase` | Same `##` heading on every platform that implements it |
-| Core definition | what a UseCase IS | `lib/core/reference/builder/<topic>.md` |
-| Platform implementation | how to write a UseCase in Swift | `lib/platforms/<platform>/reference/contract/builder/<topic>.md` |
+| Theory file | what a UseCase IS | `lib/platforms/<platform>/reference/builder/<topic>-theory.md` |
+| Impl file | how to write a UseCase in Swift | `lib/platforms/<platform>/reference/builder/<topic>-impl.md` |
 
-The core definition answers *what* and *why*. The platform implementation answers *how* in that language and syntax. A worker Greps the core file to understand the contract, then Greps the platform file to write the correct code. One Grep each. Never the full file.
+Both files live in the same directory per platform. Theory files are duplicated across platforms (accepted tradeoff for co-location). The theory file answers *what* and *why*; the impl file answers *how* in that language and syntax. A worker Greps the theory file to understand the contract, then Greps the impl file to write the correct code. One Grep each. Never the full file.
 
 **Placement decision rule — reference vs agent body:**
 
@@ -470,9 +470,8 @@ Not all combinations are meaningful. Use this as the decision gate when adding a
 
 | Scope | Location | Ships downstream? |
 |---|---|---|
-| **Core reference** | `lib/core/reference/` | Yes — all platforms. Defines what each concept IS (platform-agnostic). |
-| **Platform reference** | `lib/platforms/<platform>/reference/` | Yes — matching platform. Defines how each concept is implemented in that platform's syntax. |
-| **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides platform/core docs for project-specific conventions. |
+| **Platform reference** | `lib/platforms/<platform>/reference/builder/` | Yes — matching platform. Contains both `<topic>-theory.md` (what/why, duplicated per platform) and `<topic>-impl.md` (how in that language). |
+| **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides platform docs for project-specific conventions. |
 
 ---
 
@@ -544,8 +543,8 @@ Not every persona uses all layers. A simple persona may have only a trigger skil
 | New orchestration flow, same on all platforms | Core orchestrator |
 | New code generation pattern for one platform | Platform-contract skill (same name, platform implements) → `lib/platforms/<platform>/skills/contract/` |
 | Workflow too platform-specific for any core agent | Platform agent + platform skill → `lib/platforms/<platform>/skills/` (flat) |
-| Architecture reference knowledge (cross-platform standard) | `lib/platforms/<platform>/reference/contract/<persona>/` — grouped by persona; accessible as `.claude/reference/contract/<persona>/<name>.md` downstream |
-| Architecture reference knowledge (platform-specific) | `lib/platforms/<platform>/reference/` (flat) |
+| Architecture reference knowledge (any topic) | `lib/platforms/<platform>/reference/builder/<topic>-theory.md` (what/why) + `<topic>-impl.md` (how) — both co-located, accessible as `.claude/reference/builder/<topic>-theory.md` and `<topic>-impl.md` downstream |
+| Architecture reference knowledge (platform-specific, no theory counterpart) | `lib/platforms/<platform>/reference/` (flat) |
 
 **Planner vs Worker — when to use which:**
 

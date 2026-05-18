@@ -5,11 +5,11 @@ description: |
 user-invocable: false
 ---
 
-Create a Repository implementation following `.claude/reference/contract/builder/data.md ## Repository Implementations section` and DI rules in `.claude/reference/contract/builder/di.md`.
+Create a Repository implementation following `.claude/reference/builder/data-impl.md ## Repository Implementations section` and DI rules in `.claude/reference/builder/di-impl.md`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/contract/builder/data.md` for `## Repository Implementations` and `.claude/reference/contract/builder/di.md` for `## DI Module`; only **Read** a file in full if the section cannot be located
+1. **Grep** `.claude/reference/builder/data-impl.md` for `## Repository Implementations` and `.claude/reference/builder/di-impl.md` for `## DI Module`; only **Read** a file in full if the section cannot be located
 2. **Read** the domain Repository interface and Mapper to understand method signatures
 3. **Locate** the correct path: `feature_[module]/src/main/java/co/talenta/feature_[module]/data/repoimpl/`
 4. **Create** `[Module]RepositoryImpl.kt`

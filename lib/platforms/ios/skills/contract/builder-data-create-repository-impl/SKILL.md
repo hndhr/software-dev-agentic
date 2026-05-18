@@ -5,11 +5,11 @@ description: |
 user-invocable: false
 ---
 
-Create a RepositoryImpl following `.claude/reference/contract/builder/data.md ## Repository Implementation section`, DI rules in `.claude/reference/contract/builder/di.md ## DI Principles section`, and error handling in `.claude/reference/contract/builder/error-handling.md ## Error Flow section`.
+Create a RepositoryImpl following `.claude/reference/builder/data-impl.md ## Repository Implementation section`, DI rules in `.claude/reference/builder/di-impl.md ## DI Principles section`, and error handling in `.claude/reference/builder/error-handling-impl.md ## Error Flow section`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/contract/builder/data.md` for `## Repository Implementation`, `.claude/reference/contract/builder/di.md` for `## DI Principles`, and `.claude/reference/contract/builder/error-handling.md` for `## Error Flow`; only **Read** a file in full if the section cannot be located
+1. **Grep** `.claude/reference/builder/data-impl.md` for `## Repository Implementation`, `.claude/reference/builder/di-impl.md` for `## DI Principles`, and `.claude/reference/builder/error-handling-impl.md` for `## Error Flow`; only **Read** a file in full if the section cannot be located
 2. **Read** the Repository protocol, DataSource protocol, and Mapper protocol to understand signatures
 3. **Locate** module path: `Talenta/Module/[Module]/Data/Repository/`
 4. **Create** `[Feature]RepositoryImpl.swift`

@@ -47,10 +47,10 @@ Skip all other steps entirely. Always run Step 1 (platform reference) regardless
 **Step 1 — Load reference**
 
 ```
-.claude/reference/builder/app-layer.md
-.claude/reference/builder/di.md
-.claude/reference/contract/builder/app-layer.md
-.claude/reference/contract/builder/di.md
+.claude/reference/builder/app-layer-theory.md
+.claude/reference/builder/di-theory.md
+.claude/reference/builder/app-layer-impl.md
+.claude/reference/builder/di-impl.md
 ```
 
 Grep `^## ` in each file. For each heading that matches the scope, read it immediately using the `<!-- N -->` line count as `limit`:
