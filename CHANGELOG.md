@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.8.3] — 2026-05-18
+
+### Fixed
+- `sda.sh` interactive platform menu had stale short names (`ios`, `flutter`, `flutter-qontak`); updated to full names matching `lib/platforms/`
+- `setup-ai.sh` error message listed old short platform names
+- `sync.sh` missing `flutter-qontak-crm` in header, auto-detect case, and error message
+
+---
+
 ## [7.8.2] — 2026-05-18
 
 ### Fixed
