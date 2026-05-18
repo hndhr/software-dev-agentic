@@ -6,6 +6,21 @@ Domain lives inside each feature package at `lib/src/domain/`. It has zero depen
 
 ---
 
+## Dependency Rule <!-- 15 -->
+
+Domain is the innermost layer — it imports nothing from outer layers.
+
+**Allowed:** `dart:core`, `package:freezed_annotation`, `package:fpdart` (for `Either`), `package:[prefix]_core/[prefix]_core.dart` (re-exports `Failure` and `UseCase` base only).
+
+**Forbidden:**
+- `package:dio` / `package:http` — HTTP clients belong in data
+- `package:flutter/material.dart` or any Flutter UI package — domain must be pure Dart
+- Any BLoC, Cubit, or state-management import (`package:flutter_bloc`, `package:bloc`)
+- Any data-layer import — no `*Response`, `*Request`, `*Db`, `*DataSource`, or `*RepositoryImpl` types
+- Cross-module domain types must be imported through the module's public API (`package:[prefix]_[module]/[prefix]_[module].dart`), never via relative paths across package boundaries
+
+---
+
 ## Entities <!-- 28 -->
 
 ```dart
@@ -190,3 +205,21 @@ enum MessageStatus {
 ```
 
 No UI strings in enums — display formatting belongs in presentation.
+
+## Creation Order <!-- 17 -->
+
+When building a new feature's domain layer, create files in this sequence:
+
+```
+1. [prefix]_[feature]/lib/src/domain/entities/[concept].dart
+                                                     ← Entity (@freezed, no fromJson, no Entity suffix)
+2. [prefix]_[feature]/lib/src/domain/repositories/[feature]_repository.dart
+                                                     ← Repository abstract class
+3. [prefix]_[feature]/lib/src/domain/usecases/[verb]_[concept].dart
+   ...                                               ← Use Case(s) (callable, verb-only naming)
+4. [prefix]_[feature]/lib/src/domain/services/[concept]_[checker|calculator].dart
+                                                     ← Domain Service (only if needed)
+```
+
+Never create a use case before the repository abstract class it depends on.
+Cross-module domain entities must be accessed via the exporting package's public API — never via relative paths.

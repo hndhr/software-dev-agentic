@@ -2,6 +2,20 @@
 
 > Concepts and invariants: `reference/code-architecture/domain-theory.md`. This file covers TypeScript syntax and web-specific patterns.
 
+## Dependency Rule <!-- 14 -->
+
+Domain is the innermost layer — it imports nothing from outer layers.
+
+**Allowed:** TypeScript built-in types (`string`, `number`, `boolean`, `Date`, `Record`, `Promise`), pure utility types defined within the domain layer itself.
+
+**Forbidden:**
+- `import axios` / `import fetch` — HTTP clients belong in data
+- `import React` / `import { useXxx } from 'react'` or any Next.js import — UI belongs in presentation
+- Any data-layer type — no DTO, DataSource, or repository implementation import
+- `import { useState } from 'react'` or any hook — domain must be framework-free TypeScript
+
+---
+
 ## Entities <!-- 34 -->
 
 ```typescript
@@ -333,3 +347,18 @@ export class DomainError extends Error {
 ```
 
 ---
+
+## Creation Order <!-- 14 -->
+
+When building a new feature's domain layer, create files in this sequence:
+
+```
+1. domain/entities/[Feature].ts                              ← Entity (readonly interface)
+2. domain/repositories/[Feature]Repository.ts               ← Repository interface
+3. domain/use-cases/[feature]/Get[Feature]UseCase.ts
+   domain/use-cases/[feature]/Update[Feature]UseCase.ts
+   ...                                                       ← Use Case(s) (interface + impl)
+4. domain/services/[Feature][Noun].ts                       ← Domain Service (only if needed)
+```
+
+Never create a use case before the repository interface it depends on.

@@ -34,6 +34,17 @@ features/[prefix]_inbox/
 
 ---
 
+## What to Test Per Layer <!-- 11 -->
+
+| Layer | What to test | What NOT to test |
+|---|---|---|
+| Domain (UseCases) | Business rules, Either return values, edge cases | Internal use case implementation details |
+| Data (Mappers, RepositoryImpl) | Model → entity field mapping; AppException → Failure mapping | HTTP stack, real server responses |
+| Presentation (BLoC) | State sequence via `blocTest`; use case call counts | Widget rendering, layout |
+| Module API (ModuleApiImpl) | Delegation to use cases; null/failure handling | Cross-module integration in production |
+
+---
+
 ## Dev Dependencies (per feature package) <!-- 14 -->
 
 ```yaml
@@ -249,6 +260,20 @@ void main() {
 
 ---
 
+## Mock vs Real <!-- 14 -->
+
+| Use a mock/stub when… | Use a real implementation when… |
+|---|---|
+| The dependency has I/O (network, HTTP) | The dependency is pure (Mapper, domain use case with no I/O) |
+| The test must control exact return values | The test verifies full integration wiring |
+| Unit test speed matters | Correctness of data transformation matters |
+
+**Never mock Mappers** — they are pure functions. Instantiate directly and test with real input/output.
+
+Use `@GenerateNiceMocks` for interfaces (`InboxRepository`, `InboxRemoteDataSource`, cross-module APIs like `AuthModuleApi`). Pass mocks directly via constructor injection — avoid `getIt` in tests.
+
+---
+
 ## Test Fixtures <!-- 24 -->
 
 ```dart
@@ -305,3 +330,18 @@ void main() {
   });
 }
 ```
+
+## Test Naming Convention <!-- 14 -->
+
+Pattern: `'[returns/emits/calls] [expected] when [condition]'` (plain English inside `blocTest` / `test()`)
+
+Examples:
+
+- `'returns conversation list when repository succeeds'`
+- `'returns failure when repository fails'`
+- `'emits [loading, loaded] when use case returns conversations'`
+- `'emits [loading, empty] when use case returns empty list'`
+- `'emits [loading, error] when use case fails'`
+- `'fromResponseToEntity maps all fields'`
+- `'handles null fields with defaults'`
+- `'getUserId returns id when authenticated'`

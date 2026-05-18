@@ -234,7 +234,7 @@ void main() {
 
 ---
 
-## Rules <!-- 8 -->
+## Rules <!-- 11 -->
 
 1. **DataSources throw, Repositories return Either** — never mix
 2. **Never throw in domain or presentation** — only `Left(failure)` and `emit(...error...)`
@@ -242,3 +242,13 @@ void main() {
 4. **Log unexpected errors** in the repository catch-all before wrapping as `unknownFailure`
 5. **Keep user messages short** — technical details go in `developerMessage`, not `message`
 6. **Field validation errors** use `ValidationFailure` — never encode field names in `message`
+
+---
+
+## Layer Invariants <!-- 7 -->
+
+- DataSources throw `AppException` — they never return `Either` to signal failure
+- Repository implementations always catch and convert to `Left(Failure)` — no `AppException` propagates to use cases
+- Use cases propagate `Either<Failure, T>` unchanged — they do not re-map failures
+- BLoCs catch all `Either` results from use cases — no unhandled exception reaches the widget tree
+- Widgets never inspect `Failure` subtypes directly — they render the `ViewDataState` the BLoC emits

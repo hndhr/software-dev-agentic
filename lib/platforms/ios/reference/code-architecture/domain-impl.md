@@ -2,6 +2,20 @@
 
 > Concepts and invariants: `reference/code-architecture/domain-theory.md`. This file covers Swift syntax and iOS-specific patterns.
 
+## Dependency Rule <!-- 14 -->
+
+Domain is the innermost layer — it imports nothing from outer layers.
+
+**Allowed:** Swift standard library, `Foundation` primitives (`Date`, `UUID`, `Decimal`, `String`, `Int`, `Bool`).
+
+**Forbidden:**
+- `import UIKit` — any UIKit type signals a presentation leak into domain
+- `import RxSwift` / `import Combine` — reactive frameworks belong in data or presentation
+- `import Alamofire` / `import Moya` — networking belongs in data
+- Any type defined in a `*RepositoryImpl`, `*DataSource`, or `*Response` file
+
+---
+
 ## Entities <!-- 70 -->
 
 ```swift
@@ -830,3 +844,19 @@ enum TimeOffMenuType {
 - Use meaningful names tied to business domain
 - Prefer `String` raw values for API interop when needed
 - Location: `Domain/enum/`
+
+## Creation Order <!-- 15 -->
+
+When building a new feature's domain layer, create files in this sequence:
+
+```
+1. Domain/Entities/[Feature]Model.swift          ← Entity (pure struct)
+2. Domain/Repository/[Feature]Repository.swift   ← Repository protocol
+3. Domain/UseCase/[Feature]/Get[Feature]UseCase.swift
+   Domain/UseCase/[Feature]/Post[Feature]UseCase.swift
+   ...                                            ← Use Case(s)
+4. Domain/Services/[Feature]Service.swift        ← Domain Service (only if needed)
+```
+
+Never create a use case before the repository protocol it depends on.
+`EmployeeRepositoryImpl.sharedInstance` used as the default in `init` must already exist at dependency-injection time — but the protocol is what domain depends on.

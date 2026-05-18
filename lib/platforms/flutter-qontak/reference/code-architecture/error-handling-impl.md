@@ -181,7 +181,7 @@ BlocListener<InboxBloc, InboxState>(
 
 ---
 
-## Global Error Boundary <!-- 20 -->
+## Global Error Boundary <!-- 23 -->
 
 ```dart
 // main.dart
@@ -201,3 +201,13 @@ void main() {
   );
 }
 ```
+
+---
+
+## Layer Invariants <!-- 7 -->
+
+- DataSources throw `AppException` — they never return `Either` to signal failure
+- Repository implementations always catch and return `Left(Failure)` — no `AppException` propagates to use cases
+- Use cases propagate `Either<Failure, T>` unchanged — they do not re-map failures
+- BLoCs catch all `Either` results from use cases via `result.fold()` — no unhandled exception reaches the widget tree
+- Widgets never inspect `Failure` subtypes directly — they render the `ViewDataState` the BLoC emits

@@ -2,6 +2,21 @@
 
 > Concepts and invariants: `reference/code-architecture/domain-theory.md`. This file covers Kotlin syntax and Android-specific patterns.
 
+## Dependency Rule <!-- 15 -->
+
+Domain is the innermost layer — it imports nothing from outer layers.
+
+**Allowed:** Kotlin standard library (`kotlin.*`), `java.io.Serializable`, `RxJava3` schedulers used only in the base `UseCase` infrastructure.
+
+**Forbidden:**
+- `import retrofit2.*` — networking belongs in data
+- `import androidx.*` — any AndroidX import signals a framework dependency
+- Room annotations (`@Entity`, `@ColumnInfo`) — database concerns belong in data
+- OkHttp types — HTTP client belongs in data
+- Any `*Response`, `*Api`, or `*RepositoryImpl` type from the data layer
+
+---
+
 ## Entities <!-- 23 -->
 
 Pure Kotlin data classes — no JSON annotations, no Android framework imports.
@@ -114,3 +129,18 @@ Rules:
 - Sealed class — exhaustive `when` in presenter error handling
 - No transport types leak out — `ApiException`, `IOException` are mapped in `RepositoryImpl`
 - Presenters catch `DomainException` subtypes via `ErrorHandler`
+
+## Creation Order <!-- 14 -->
+
+When building a new feature's domain layer, create files in this sequence:
+
+```
+1. domain/entity/[Feature].kt                          ← Entity (pure Kotlin data class)
+2. domain/repository/[Feature]Repository.kt            ← Repository interface
+3. domain/usecase/Get[Feature]UseCase.kt
+   domain/usecase/Submit[Feature]UseCase.kt
+   ...                                                 ← Use Case(s) (extend SingleUseCase)
+4. domain/service/[Feature][Concept]Service.kt         ← Domain Service (only if needed)
+```
+
+Never create a use case before the repository interface it depends on.

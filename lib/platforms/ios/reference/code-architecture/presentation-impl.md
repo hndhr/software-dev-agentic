@@ -2,6 +2,90 @@
 
 > Concepts and invariants: `reference/code-architecture/presentation-theory.md`. This file covers Swift syntax and iOS-specific patterns.
 
+## Dependency Rule <!-- 8 -->
+
+Presentation depends on Domain only — no Data layer imports. ViewController and ViewModel may only import domain use case protocols, domain entities, and Swift/UIKit primitives.
+
+Forbidden: any `RepositoryImpl`, `DataSource`, `DTO`, mapper, `Alamofire` import, or Core Data type inside the Presentation layer.
+
+---
+
+## StateHolder <!-- 12 -->
+
+In iOS, the StateHolder is implemented as a **ViewModel** extending `BaseViewModelV2`. See `## BaseViewModelV2` and `## Concrete ViewModel` below for full implementation patterns.
+
+Invariants:
+- Receives use cases via constructor injection — default singleton parameters are acceptable for legacy code; prefer protocol types
+- Exposes state via `stateDriver: Driver<State>` — ViewController observes, never mutates
+- Emits navigation as an `Action` — never calls `navigator` directly from event handlers without routing through `emitAction`
+- One ViewModel per screen — scoped to the screen's lifecycle
+
+---
+
+## State <!-- 11 -->
+
+In iOS, **State** is a `struct` conforming to `ViewModelState` — a plain value type with an `initial` factory. See `## State Management` below for the full pattern.
+
+Invariants:
+- Immutable from the ViewController's perspective — updated only via `updateDataState` inside the ViewModel
+- Covers all render cases: loading flag, data fields, error/toast messages
+- No UIKit types — no `UIColor`, `UIImage`, `NSAttributedString`; use primitives or UIModel wrappers
+
+---
+
+## Events / Input <!-- 11 -->
+
+In iOS, Events are `enum` cases conforming to `ViewModelEvent`. ViewController calls `viewModel.emitEvent(.caseName)` for every user interaction. See `## State Management` (Event Protocol/Implementation) below.
+
+Invariants:
+- Named after user actions — `.submitButtonTapped`, `.viewDidLoad`, not `.buttonClicked`
+- Carry only the data needed — no raw `UIEvent` or `UITouch` objects
+- Processed inside `emitEvent(_ event:)` override — ViewController never acts on them directly
+
+---
+
+## Actions / Output <!-- 11 -->
+
+In iOS, Actions are `enum` cases conforming to `ViewModelAction`, emitted via `emitAction(_:)`. ViewController observes `actionDriver` and responds. See `## State Management` (Action Protocol/Implementation) below.
+
+Invariants:
+- One-shot — emitted through `PublishSubject`, not stored in state
+- Named after the outcome — `.navigateToSuccess`, `.showToast(message:)`, `.openCamera`
+- Navigation targets are abstract — the ViewModel emits `.navigateToSuccess`; the Coordinator/Navigator decides *how*
+
+---
+
+## StateHolder Contract <!-- 11 -->
+
+Before `builder-ui-worker` writes the ViewController, `builder-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
+- ViewModel class name and file path
+- `State` fields (name, type, purpose)
+- `Event` cases (name, payload if any)
+- `Action` cases (name, payload if any)
+- Navigator protocol name and methods
+
+---
+
+## Creation Order <!-- 10 -->
+
+```
+Use Cases → ViewModel (StateHolder) → StateHolder contract → ViewController (builder-ui-worker)
+```
+
+Never write the ViewController before the StateHolder contract exists.
+
+---
+
+## Layer Invariants <!-- 10 -->
+
+- ViewModel never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
+- Use cases injected via constructor — never `UseCase()` inside a ViewModel body
+- State is read-only from ViewController's perspective — only `updateDataState` mutates it
+- Actions are one-shot — emitted through `PublishSubject`, never stored in `stateRelay`
+- Navigation belongs to a Navigator/Coordinator — ViewModel emits the intent, never pushes a ViewController itself
+
+---
+
 ## State Management <!-- 81 -->
 
 Talenta iOS uses **BaseViewModelV2** with generic State/Event/Action pattern.

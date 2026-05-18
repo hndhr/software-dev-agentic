@@ -2,6 +2,19 @@
 
 > Concepts and invariants: `reference/code-architecture/data-theory.md`. This file covers Kotlin/Android-specific data layer patterns.
 
+## Dependency Rule <!-- 13 -->
+
+Data depends on Domain only. It never imports from Presentation or UI.
+
+**Allowed:** Retrofit2, OkHttp, Room, `@SerializedName` (Gson), `@Inject` (Dagger/Hilt), RxJava3 operators, domain entities and repository interfaces.
+
+**Forbidden:**
+- `import androidx.activity.*` / `import androidx.fragment.*` — Activity and Fragment are presentation concerns
+- Any ViewModel, LiveData, or StateFlow from presentation — data layer must not know about UI state holders
+- Any Presenter or View type — data layer output goes to domain, not directly to UI
+
+---
+
 ## DTOs <!-- 34 -->
 
 Android calls these **Response Models** (`*Response` suffix, placed in `data/response/`). Same contract as core — raw API shape, all fields nullable, `@SerializedName` for every field, no business logic. Never returned from repository — always mapped to an entity first.
@@ -137,3 +150,24 @@ Rules:
 - Use `mapper.mapList(response.data)` for list responses
 - Map `ApiException` to domain exceptions via `onErrorResumeNext`
 - Never expose response types outside the data layer
+
+## Creation Order <!-- 13 -->
+
+When building a new feature's data layer, create files in this sequence:
+
+```
+1. data/response/[Feature]Response.kt               ← DTO (*Response suffix, all nullable, @SerializedName)
+2. data/mapper/[Feature]Mapper.kt                   ← Mapper (extends BaseMapper<Response, Entity>)
+3. service/[Feature]Api.kt                          ← DataSource (Retrofit interface, *Api suffix)
+4. data/repoimpl/[Feature]RepositoryImpl.kt         ← Repository implementation
+```
+
+Never create a repository implementation before the Retrofit API interface it depends on.
+
+## Layer Invariants <!-- 7 -->
+
+- Import from domain layer only — never from Activity, Fragment, ViewModel, or Presenter files
+- `ApiException` and `IOException` never propagate upward — `RepositoryImpl` maps them to `DomainException` subtypes via `onErrorResumeNext` before returning to the domain
+- `*Response` classes never cross into the domain layer — `mapper.map()` or `mapper.mapList()` is the boundary
+- Retrofit interfaces are registered in the Dagger module — the concrete Retrofit implementation is never referenced outside the data layer
+- Room DAOs and OkHttp `Interceptor` live only in data layer infrastructure files — never in domain or presentation

@@ -4,6 +4,19 @@
 
 Implements Domain protocols. Handles all I/O: network, storage, caching.
 
+## Dependency Rule <!-- 13 -->
+
+Data depends on Domain only. It never imports from Presentation or UI.
+
+**Allowed:** `Foundation`, Moya, `MoyaProvider`, `JSONDecoder`, `UserDefaults`, `CoreData`, `NWPathMonitor`, any persistence or networking library.
+
+**Forbidden:**
+- `import UIKit` — UI types must not appear in data layer files
+- Any `ViewModel`, `ViewController`, `Coordinator`, or `Navigator` type
+- Any presentation-layer import — data layer must not know how results are displayed
+
+---
+
 ## DTOs <!-- 69 -->
 
 iOS calls these **Response Models** (`*Response` / `*ResponseData` structs). Same contract as core — raw API shape, all fields optional (`?`), `CodingKeys` for snake_case mapping, no business logic. Never escape the Data layer.
@@ -528,3 +541,25 @@ final class DashboardRepositoryImpl: DashboardRepository {
 - `defer { group.leave() }` ensures leave is always called
 - Decide on failure strategy: fail-fast (any error fails all) or partial success (return what you have)
 - Call `group.notify(queue: .main)` to deliver result on main thread
+
+## Creation Order <!-- 14 -->
+
+When building a new feature's data layer, create files in this sequence:
+
+```
+1. Data/Models/[Feature]/[Feature]Response.swift           ← DTO (Response struct, Decodable)
+2. Data/Mapper/[Feature]ModelMapper.swift                  ← Mapper (protocol + class)
+3. Data/DataSource/Remote/[Feature]RemoteDataSource.swift  ← DataSource protocol
+   Data/DataSource/Remote/[Feature]RemoteDataSourceImpl.swift ← DataSource implementation
+4. Data/RepositoriesImpl/[Feature]RepositoryImpl.swift     ← Repository implementation
+```
+
+Never create a repository implementation before the data source it depends on.
+
+## Layer Invariants <!-- 7 -->
+
+- Import from domain layer only — never from presentation, ViewController, ViewModel, or Navigator files
+- Raw transport errors (`TalentaBaseError`, `MoyaError`) never propagate upward — `RepositoryImpl` maps them to `BaseErrorModel` before calling the completion handler
+- `*Response` and `*ResponseData` structs never cross into the domain layer — mappers (`fromResponseToModel`) are the boundary
+- All `*RepositoryImpl` files conform to a domain protocol — no concrete type is referenced from outside the data layer
+- `MoyaProvider` and `JSONDecoder` live only in DataSource implementations — never in Repository or Domain files

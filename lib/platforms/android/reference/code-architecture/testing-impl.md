@@ -11,6 +11,15 @@
 
 Run `./gradlew test` for unit tests; `./gradlew connectedAndroidTest` for instrumented.
 
+## What to Test Per Layer <!-- 9 -->
+
+| Layer | What to test | What NOT to test |
+|---|---|---|
+| Domain (UseCases, Services) | Business rules, edge cases, error conditions | Implementation details of other layers |
+| Data (Mappers, RepositoryImpl) | Response → entity field mapping; ApiException → DomainException propagation | Real HTTP responses, network stack |
+| Presentation (Presenter) | View method call order; use case invocations; detached-view safety | Activity/Fragment lifecycle internals |
+| UI (Espresso) | Critical happy-path journeys only | Business logic, mapping logic |
+
 ## Repository Tests <!-- 48 -->
 
 Test that the repository implementation calls the API and maps the response correctly. Mock the API (`TimeOffApi`) and mapper (`TimeOffRequestMapper`).
@@ -166,6 +175,18 @@ class TimeOffRequestMapperTest {
 }
 ```
 
+## Mock vs Real <!-- 12 -->
+
+| Use a mock/stub when… | Use a real implementation when… |
+|---|---|
+| The dependency has I/O (Retrofit API, DB) | The dependency is pure (Mapper, domain service) |
+| The test must control exact return values | The test verifies full integration wiring |
+| Unit test speed matters | Correctness of data transformation matters |
+
+**Never mock Mappers** — they are pure functions. Instantiate directly and test with real input/output.
+
+Use `@Mock` with `MockitoJUnitRunner` for all collaborators (Api, Mapper, Repository, SchedulerTransformers). Use `.blockingGet()` for synchronous assertion on RxJava Singles.
+
 ## Presenter Tests <!-- 82 -->
 
 ```kotlin
@@ -248,3 +269,16 @@ Rules:
 - `presenter.attachView(mockView)` in `@Before`, `reset(...)` all mocks in `@After`
 - `presenter.detachView()` (not `detach()`) — test that detached presenter ignores use case results
 - Always test: success path, error path, detached-view path
+
+## Test Naming Convention <!-- 12 -->
+
+Pattern: `test_given[Condition]_when[Action]_then[ExpectedResult]`
+
+Examples:
+
+- `test_givenApiSuccess_whenGetRequests_thenMapperIsCalledAndEntityReturned`
+- `test_givenApiError_whenGetRequests_thenDomainExceptionPropagated`
+- `test_givenValidResponse_whenMap_thenEntityIsCorrect`
+- `test_givenNullFields_whenMap_thenDefaultsApplied`
+- `test_givenViewAttached_whenLoadData_thenShowLoadingThenData`
+- `test_givenViewDetached_whenLoadData_thenNoViewInteraction`

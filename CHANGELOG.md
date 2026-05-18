@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.4.0] — 2026-05-18
+
+### Added
+- `navigation-theory.md` — new canonical theory file with 6 Terms extracted from all platform navigation-impl files
+- `ui-impl.md` for all 5 platforms (ios, flutter, web, android, flutter-qontak) — previously missing entirely; 8 Terms each
+- `## Dependency Rule` and `## Creation Order` to all `domain-impl.md` (5 platforms)
+- `## Dependency Rule`, `## Creation Order`, `## Layer Invariants` to all `data-impl.md` (5 platforms)
+- `## Layer Invariants` to all `error-handling-impl.md` (5 platforms)
+- `## Helper Extensions` to `utilities-impl.md` (flutter, web, android, flutter-qontak)
+- `## What to Test Per Layer`, `## Mock vs Real`, `## Test Naming Convention` to all `testing-impl.md` (5 platforms)
+- `## Registration Order`, `## Scope Rules`, `## Testing with DI` to all `di-impl.md` (5 platforms)
+- 8 canonical Terms (`Dependency Rule`, `StateHolder`, `State`, `Events / Input`, `Actions / Output`, `StateHolder Contract`, `Creation Order`, `Layer Invariants`) to all `presentation-impl.md` (5 platforms) — existing framework sections untouched
+
+---
+
 ## [7.3.0] — 2026-05-18
 
 ### Changed

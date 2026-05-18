@@ -6,6 +6,19 @@ Data lives inside each feature package at `lib/src/data/`. It implements domain 
 
 ---
 
+## Dependency Rule <!-- 13 -->
+
+Data depends on Domain only. It never imports from Presentation or UI.
+
+**Allowed:** `package:dio`, `package:hive`, `package:shared_preferences`, `package:injectable`, `package:freezed_annotation`, domain entities and repository interfaces from `package:[prefix]_core` or sibling feature packages (via their public API only).
+
+**Forbidden:**
+- Any BLoC or Cubit import (`package:flutter_bloc`, `package:bloc`)
+- `package:flutter/material.dart` or any UI package
+- Any presentation-layer type — data must not know how results are displayed
+
+---
+
 ## DTO Models <!-- 68 -->
 
 Three kinds of DTO — all nullable fields, all with `fromJson`.
@@ -286,3 +299,32 @@ extension AppExceptionX on AppException {
   };
 }
 ```
+
+## Creation Order <!-- 21 -->
+
+When building a new feature's data layer, create files in this sequence:
+
+```
+1. [prefix]_[feature]/lib/src/data/models/[concept]_response.dart
+                                                     ← API response DTO (@freezed, fromJson, .g.dart)
+   [prefix]_[feature]/lib/src/data/models/[concept]_request.dart
+                                                     ← API request body (if POST/PUT)
+   [prefix]_[feature]/lib/src/data/models/[concept]_db.dart
+                                                     ← DB record (if local persistence needed)
+2. [prefix]_[feature]/lib/src/data/mappers/[concept]_mapper.dart
+                                                     ← Mapper (static class, from{Source}To{Dest})
+3. [prefix]_[feature]/lib/src/data/datasources/[feature]_remote_data_source.dart
+                                                     ← DataSource abstract class + implementation
+4. [prefix]_[feature]/lib/src/data/repositories/[feature]_repository_impl.dart
+                                                     ← Repository implementation
+```
+
+Never create a repository implementation before the data source it depends on.
+
+## Layer Invariants <!-- 7 -->
+
+- Import from domain layer only — never from presentation, BLoC, Cubit, or widget files
+- `AppException` subtypes thrown by DataSources are caught and converted to `Failure` in the repository `try/catch` boundary — never propagated to domain or presentation
+- `*Response`, `*Request`, and `*Db` model instances never cross into the domain layer — `[Concept]Mapper.from*To*()` is the boundary
+- Repository implementation is registered with `@LazySingleton(as: RepositoryInterface)` — the concrete class is never referenced outside the data layer
+- `Dio` and Hive boxes live only in DataSource implementations — never in repository or domain files

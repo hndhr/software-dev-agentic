@@ -55,7 +55,7 @@ export function humanizeError(code: DomainErrorCode): string {
 // strings are a display concern, not a domain concept.
 ```
 
-## Error UI <!-- 34 -->
+## Error UI <!-- 35 -->
 
 React error boundaries catch rendering errors; TanStack Query's error state surfaces data-fetch errors.
 
@@ -89,3 +89,11 @@ if (error) return <ErrorView message={humanizeError(error.code)} />;
 - `humanizeError` lives in `presentation/common/utils/errorMessages.ts` (presentation layer, not domain)
 
 ---
+
+## Layer Invariants <!-- 7 -->
+
+- DataSources throw `NetworkError` — they never return `null` or a partial response to signal failure
+- Repository implementations always catch and map to `DomainError` — no `NetworkError` propagates to use cases
+- Use cases propagate `DomainError` unchanged — they do not re-map errors
+- ViewModel hooks (TanStack Query) handle all errors from use cases — no unhandled promise rejection reaches the component
+- Components never inspect `DomainErrorCode` directly — they render the error UI via `humanizeError(code)`

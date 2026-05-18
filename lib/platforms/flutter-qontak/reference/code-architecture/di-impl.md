@@ -77,6 +77,51 @@ same `GetIt` instance without knowing the implementation.
 
 ---
 
+## Registration Order <!-- 32 -->
+
+Within each feature module, annotate classes in leaf-first order so `build_runner` generates a correct registration sequence:
+
+```dart
+// 1. External dependencies (via @module) — registered in [prefix]_core
+@module abstract class NetworkModule {
+  @lazySingleton Dio get dio => ...;
+}
+
+// 2. DataSources (depend on Dio from core)
+@LazySingleton(as: InboxRemoteDataSource)
+class InboxRemoteDataSourceImpl implements InboxRemoteDataSource { ... }
+
+// 3. Repositories (depend on DataSource)
+@LazySingleton(as: InboxRepository)
+class InboxRepositoryImpl implements InboxRepository { ... }
+
+// 4. Use Cases (depend on Repository)
+@lazySingleton class GetInbox { ... }
+
+// 5. Module API impl (depends on Use Cases)
+@LazySingleton(as: InboxModuleApi) class InboxModuleApiImpl implements InboxModuleApi { ... }
+
+// 6. BLoCs (depend on Use Cases) — @injectable, not singleton
+@injectable class InboxBloc extends Bloc<InboxEvent, InboxState> { ... }
+```
+
+Module init order across packages: `[prefix]_core` → feature modules → application module (see Registration Order Rules below).
+
+---
+
+## Scope Rules <!-- 13 -->
+
+| Annotation | Scope | Use for |
+|---|---|---|
+| `@lazySingleton` | Singleton, created on first access | DataSources, Repositories, Use Cases, Module APIs |
+| `@singleton` | Singleton, created at startup | Core services requiring eager init |
+| `@injectable` | New instance per injection | BLoCs, Cubits — stateful, one per screen |
+| `@LazySingleton(as: IFace)` | Singleton under abstract type | Module API and Repository implementations |
+
+**Never register a BLoC as `@lazySingleton`** — BLoC holds mutable state; every `BlocProvider` must get a fresh instance.
+
+---
+
 ## Registration Order Rules <!-- 9 -->
 
 1. `[prefix]_dependencies` — no DI (just re-exports)
@@ -111,3 +156,25 @@ cd features/[prefix]_auth && dart run build_runner build --delete-conflicting-ou
 ```
 
 Each module produces its own `*.config.dart` — never edit generated files.
+
+## Testing with DI <!-- 21 -->
+
+Prefer constructor injection in all unit and BLoC tests — pass mock instances directly, no `getIt` manipulation needed:
+
+```dart
+setUp(() {
+  mockGetInbox = MockGetInbox();
+  bloc = InboxBloc(mockGetInbox);  // constructor injection — no getIt
+});
+```
+
+When an integration test requires the container, reset and re-register per test:
+
+```dart
+setUp(() {
+  _authGetIt.reset();
+  _authGetIt.registerLazySingleton<InboxRepository>(() => MockInboxRepository());
+});
+```
+
+Each test gets its own container state. Never share module `GetIt` instances across test classes — call the module's `init*` function in `setUp` if needed.

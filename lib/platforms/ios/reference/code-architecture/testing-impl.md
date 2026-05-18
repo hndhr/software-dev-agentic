@@ -17,6 +17,15 @@
         └───────────────┘
 ```
 
+## What to Test Per Layer <!-- 9 -->
+
+| Layer | What to test | What NOT to test |
+|---|---|---|
+| Domain (UseCases, Services) | Business rules, edge cases, error conditions | Implementation details of other layers |
+| Data (Mappers, RepositoryImpl) | DTO → entity field mapping; error propagation to domain | Network stack, real server responses |
+| Presentation (ViewModel) | State transitions per event; use case call count and params; action emissions | UIKit rendering, view layout |
+| UI (XCUITest) | Critical happy-path user journeys only | Business logic, mapping logic |
+
 ## Service Tests <!-- 31 -->
 
 Highest priority. Pure input → output, no mocks needed.
@@ -195,6 +204,18 @@ class EmployeeModelMapperTests: XCTestCase {
 - One test for nil handling — verify `.orZero()`, `.orEmpty()`, `.orFalse()` defaults
 - Every Entity field must appear in at least one assertion
 
+## Mock vs Real <!-- 12 -->
+
+| Use a mock/stub when… | Use a real implementation when… |
+|---|---|
+| The dependency has I/O (network, HTTP, DB) | The dependency is pure (Mapper, Domain Service) |
+| The test must control exact return values | The test verifies the full integration path |
+| Unit test speed matters | Correctness of full wiring matters — integration test |
+
+**Never mock Mappers or Domain Services** — they are pure functions. Test them with real inputs and outputs (see Mapper Tests above).
+
+**Mock creation:** Use the Mock Pattern above — a concrete class implementing the protocol, with `callCount`, `paramsReceived`, and `resultToReturn` properties.
+
 ## Repository Tests <!-- 51 -->
 
 Test that RepositoryImpl correctly bridges DataSource results to Domain completions.
@@ -246,3 +267,15 @@ class EmployeeRepositoryImplTests: XCTestCase {
 - Mock both DataSource and Mapper — test RepositoryImpl in isolation
 - One success test, one failure test per method
 - Verify mapper is called on success; verify error is passed through unchanged on failure
+
+## Test Naming Convention <!-- 11 -->
+
+Pattern: `test_[unitUnderTest]_[scenario]_[expectedOutcome]`
+
+Examples:
+
+- `test_remainingBalance_noPending_returnsCorrectBalance`
+- `test_remainingBalance_negativeBalance_cappedAtZero`
+- `test_fromResponseToModel_mapsAllFields`
+- `test_getEmployee_success_callsCompletion_withMappedModel`
+- `test_emitEvent_viewDidLoad_shouldUpdateState`

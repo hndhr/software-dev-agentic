@@ -366,6 +366,41 @@ final class CICOLocationViewModelTest: XCTestCase {
 | **Coordinators** | Factory (new instance) | Parent coordinator |
 | **ViewControllers** | Factory (new instance) | Coordinator |
 
+## Registration Order <!-- 25 -->
+
+Dependencies must be declared before they are referenced. The correct order mirrors the dependency graph (leaf nodes first):
+
+```swift
+// SharedDIContainer.swift — infrastructure first
+lazy var networkMonitor: NetworkMonitoring = NetworkMonitor.shared
+lazy var locationManager: TalentaLocationManager = LocationManager()
+lazy var baseErrorMapper: BaseErrorModelMapper = BaseErrorModelMapper()
+
+// TalentaTMDIContainer.swift — data layer
+lazy var liveAttendanceRemoteDataSource: LiveAttendanceRemoteDataSource = LiveAttendanceRemoteDataSourceImpl()
+lazy var requestLiveAttendanceMapper: RequestLiveAttendanceModelMapperType = RequestLiveAttendanceModelMapper()
+lazy var liveAttendanceRepository: LiveAttendanceRepository = LiveAttendanceRepositoryImpl(
+    remoteDataSource: liveAttendanceRemoteDataSource,
+    requestLiveAttendanceMapper: requestLiveAttendanceMapper
+)
+
+// Domain layer — use cases depend on repositories
+lazy var postSubmitCICOUseCase: PostSubmitCICOUseCaseType = PostSubmitCICOUseCase(repository: liveAttendanceRepository)
+
+// Presentation — ViewModels created via factory methods, never as singletons
+func makeCICOLocationViewModel(navigator: CICOLocationNavigator) -> CICOLocationViewModel { ... }
+```
+
+## Scope Rules <!-- 10 -->
+
+| Scope | Swift pattern | Use for |
+|---|---|---|
+| Singleton (lazy) | `lazy var` on the container | Repositories, use cases, mappers, data sources — stateless, shared |
+| Factory | `func make*()` on the container | ViewModels — stateful, must be fresh per screen |
+| Per-coordinator | Stored on the `Coordinator` instance | Coordinators — owned by their parent coordinator |
+
+**Never register a ViewModel as a `lazy var` singleton** — it holds mutable UI state that must reset when the screen is destroyed. Always use `make*()` factory methods.
+
 ## Benefits of Manual DI Container <!-- 13 -->
 
 | Benefit | Description |
@@ -655,3 +690,26 @@ final class TalentaTMDIContainer {
 - **Lazy** - dependencies created only when needed
 - **Testable** - constructor injection still works for tests
 - **Zero magic** - no code generation, no runtime reflection
+
+## Testing with DI <!-- 22 -->
+
+Configure the container for `.testing` environment, then inject mocks via constructor parameters — never let the test call `TalentaTMDIContainer.shared` to resolve real dependencies.
+
+```swift
+override func setUp() {
+    super.setUp()
+
+    // Switch shared container to test environment (swaps network monitor, location, analytics)
+    SharedDIContainer.shared.configure(for: .testing)
+
+    // Inject mocks directly — bypass the DI container for the unit under test
+    sut = CICOLocationViewModel(
+        navigator: MockCICOLocationNavigator(),
+        postSubmitCICOUseCase: MockPostSubmitCICOUseCase(),
+        locationManager: MockLocationManager(),
+        analyticsService: MockAnalyticsService()
+    )
+}
+```
+
+Each test gets its own mock instances. Call `container.reset()` in `tearDown()` if shared container state could bleed between tests.

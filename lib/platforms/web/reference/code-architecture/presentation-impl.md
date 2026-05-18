@@ -2,6 +2,89 @@
 
 > Concepts and invariants: `reference/code-architecture/presentation-theory.md`. This file covers TypeScript syntax and web-specific patterns.
 
+## Dependency Rule <!-- 8 -->
+
+Presentation depends on Domain only — no Data layer imports. ViewModel hooks and React components may only import domain use case interfaces, domain entities, and TypeScript/React primitives.
+
+Forbidden: any `RepositoryImpl`, `ApiClient`, `DTO`, mapper, `fetch`/`axios` import, or ORM type directly inside ViewModel hooks or components.
+
+---
+
+## StateHolder <!-- 12 -->
+
+In Web, the StateHolder is implemented as a **ViewModel Hook** (`use*ViewModel`) for client components, or a **pure `build*ViewModel` function** for Server Components. See `## ViewModel Hook` and `## Server-Side ViewModel (Pure Function)` below for full patterns.
+
+Invariants:
+- Receives use cases via a `deps` parameter or `useDI()` — never imports a concrete repository or API client
+- Exposes state as hook return values — components destructure and render, never mutate
+- Handles navigation via `useRouter()` inside the hook — component receives handler functions, not router instances
+- One ViewModel hook per screen/view — not shared across sibling pages
+
+---
+
+## State <!-- 11 -->
+
+In Web, **State** is the return value of the ViewModel hook — a plain object with typed fields. TanStack Query's `isLoading`/`isError`/`data` pattern maps to `loading → error → data`. See `## State Management` (`QueryState<T>`) below.
+
+Invariants:
+- Immutable from the component's perspective — component receives values, never calls `setState` directly
+- Covers all render cases: `isLoading`, `isError`, `errorMessage`, `data` fields
+- No JSX types — no `ReactNode`, `JSX.Element` in ViewModel return types
+
+---
+
+## Events / Input <!-- 11 -->
+
+In Web, Events/Input are **handler functions** returned by the ViewModel hook (e.g. `handleEmployeeClick`, `handleSearchChange`). Components wire them to `onClick`/`onChange` props.
+
+Invariants:
+- Named after user actions with `handle` prefix — `handleSubmit`, `handleSearchChange`, not `setQuery`
+- Carry only the data needed — no raw `SyntheticEvent` or DOM element references
+- Side effects (navigation, mutation) execute inside the handler — component never calls router directly
+
+---
+
+## Actions / Output <!-- 11 -->
+
+In Web, Actions/Output are callbacks and router navigations executed inside handler functions. There is no separate action stream — navigation is triggered directly inside the hook's handler.
+
+Invariants:
+- One-shot — `router.push(...)` or `onSuccess` callback fires once per interaction
+- Named after the outcome — `handleNavigateToDetail`, `handleDeleteSuccess`
+- Navigation targets are defined in `ROUTES` constants — hooks reference routes by key, not raw strings
+
+---
+
+## StateHolder Contract <!-- 10 -->
+
+Before `builder-ui-worker` writes the View component, `builder-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
+- Hook name and file path (e.g. `useEmployeeListViewModel`)
+- State fields returned by the hook (name, type, purpose)
+- Handler functions returned by the hook (name, parameter types)
+- DI dependencies (`EmployeeListViewModelDeps` interface fields)
+
+---
+
+## Creation Order <!-- 10 -->
+
+```
+Use Cases → ViewModel Hook (StateHolder) → StateHolder contract → View Component (builder-ui-worker)
+```
+
+Never write the View component before the StateHolder contract exists.
+
+---
+
+## Layer Invariants <!-- 10 -->
+
+- ViewModel hook never imports from the data layer — no `RepositoryImpl`, no `ApiClient`, no `fetch` calls
+- Use cases injected via deps parameter or `useDI()` — never `new GetEmployeesUseCase()` inside a hook
+- State is read-only from the component's perspective — components destructure hook return values, never mutate
+- Navigation is one-shot — `router.push` inside a handler, never stored as state
+- Route paths are abstract — defined in `ROUTES` constants; hooks reference keys, not raw string paths
+
+---
+
 ## State Management <!-- 33 -->
 
 A unified state type for all view states — mirrors the `ViewState<T>` enum from the SwiftUI kit.

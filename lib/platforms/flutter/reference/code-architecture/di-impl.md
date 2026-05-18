@@ -206,6 +206,49 @@ Future<void> main() async {
 
 ---
 
+## Registration Order <!-- 30 -->
+
+`injectable` resolves order automatically via the dependency graph. Declare annotations in this sequence so the generated `injection.config.dart` registers leaf nodes first:
+
+```dart
+// 1. External dependencies (no app dependencies)
+@module abstract class AppModule {
+  @lazySingleton Dio get dio => ...;
+}
+
+// 2. DataSources (depend on Dio)
+@LazySingleton(as: EmployeeRemoteDataSource)
+class EmployeeRemoteDataSourceImpl implements EmployeeRemoteDataSource { ... }
+
+// 3. Mappers (no dependencies)
+@lazySingleton class EmployeeMapper { ... }
+
+// 4. Repositories (depend on DataSource + Mapper)
+@LazySingleton(as: EmployeeRepository)
+class EmployeeRepositoryImpl implements EmployeeRepository { ... }
+
+// 5. Use Cases (depend on Repository)
+@lazySingleton class GetEmployeeUseCase { ... }
+
+// 6. BLoCs (depend on Use Cases) — @injectable, not singleton
+@injectable class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> { ... }
+```
+
+---
+
+## Scope Rules <!-- 13 -->
+
+| Annotation | Scope | Use for |
+|---|---|---|
+| `@lazySingleton` | Singleton, created on first access | DataSources, Mappers, Repositories, Use Cases |
+| `@singleton` | Singleton, created at startup | Core services that must initialize eagerly |
+| `@injectable` | New instance per `getIt.get()` call | BLoCs, Cubits — stateful, one per screen |
+| `@LazySingleton(as: Interface)` | Singleton bound to abstract type | Repository/datasource implementations |
+
+**Never register a BLoC as `@lazySingleton`** — BLoC holds mutable state; every screen must get a fresh instance via `BlocProvider`.
+
+---
+
 ## Testing with getIt <!-- 27 -->
 
 Override registrations in tests by unregistering and re-registering:
@@ -233,3 +276,22 @@ final bloc = EmployeeBloc(
   updateEmployeeUseCase: mockUpdateEmployeeUseCase,
 );
 ```
+
+## Testing with DI <!-- 18 -->
+
+Prefer constructor injection over `getIt` in all unit and BLoC tests — dependencies are passed directly, no container manipulation needed.
+
+When a test does require the container (e.g. integration tests), reset and re-register per test:
+
+```dart
+setUp(() {
+  getIt.reset();
+  getIt.registerLazySingleton<EmployeeRepository>(() => MockEmployeeRepository());
+  getIt.registerFactory<EmployeeBloc>(() => EmployeeBloc(
+    getEmployeeUseCase: MockGetEmployeeUseCase(),
+    updateEmployeeUseCase: MockUpdateEmployeeUseCase(),
+  ));
+});
+```
+
+Each test gets its own container state — never share `getIt` registrations across tests.

@@ -6,6 +6,19 @@ Implements repository interfaces from the Domain layer. Knows about serializatio
 
 ---
 
+## Dependency Rule <!-- 13 -->
+
+Data depends on Domain only. It never imports from Presentation or UI.
+
+**Allowed:** `package:dio`, `package:hive`, `package:shared_preferences`, `package:injectable`, `package:freezed_annotation`, domain entities and repository interfaces.
+
+**Forbidden:**
+- Any BLoC or Cubit import (`package:flutter_bloc`, `package:bloc`)
+- `package:flutter/material.dart` or any UI package
+- Any presentation-layer type — data must not know how results are displayed
+
+---
+
 ## DTOs <!-- 35 -->
 
 DTO classes for API responses. **Always have `fromJson` — entities never do.**
@@ -509,4 +522,27 @@ Future<Either<Failure, EmployeeEntity>> getEmployee(String id) async {
     return Left(Failure.unknownFailure(message: e.toString()));
   }
 }
+
+## Creation Order <!-- 15 -->
+
+When building a new feature's data layer, create files in this sequence:
+
+```
+1. data/models/[feature]_model.dart                          ← DTO (@freezed, fromJson, .g.dart)
+   data/models/[feature]_payload.dart                        ← Write payload (if POST/PUT)
+2. data/mappers/[feature]_mapper.dart                        ← Mapper (BaseMapper subclass)
+3. data/datasources/[feature]_remote_data_source.dart        ← DataSource abstract class
+   data/datasources/[feature]_remote_data_source_impl.dart   ← DataSource implementation (Dio)
+4. data/repositories/[feature]_repository_impl.dart          ← Repository implementation
+```
+
+Never create a repository implementation before the data source it depends on.
+
+## Layer Invariants <!-- 8 -->
+
+- Import from domain layer only — never from presentation, BLoC, Cubit, or widget files
+- `AppException` subtypes thrown by DataSources are caught and converted to `Failure` in the repository `try/catch` boundary — never propagated to domain or presentation
+- `*Model` (DTO) instances never cross into the domain layer — `mapper.toEntity()` is the boundary
+- The repository implementation is registered with `@LazySingleton(as: RepositoryInterface)` — the concrete class is never referenced outside the data layer
+- `Dio` and `package:hive` live only in DataSource implementations — never in repository or domain files
 ```

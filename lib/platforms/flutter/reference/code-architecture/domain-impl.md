@@ -2,6 +2,20 @@
 
 > Concepts and invariants: `reference/code-architecture/domain-theory.md`. This file covers Dart syntax and Flutter-specific patterns.
 
+## Dependency Rule <!-- 14 -->
+
+Domain is the innermost layer — it imports nothing from outer layers.
+
+**Allowed:** `dart:core`, `package:freezed_annotation`, `package:equatable`, `package:fpdart` (for `Either`/`Option`).
+
+**Forbidden:**
+- `package:dio` / `package:http` — HTTP clients belong in data
+- `package:flutter/material.dart` or any Flutter UI package — domain must be pure Dart
+- Any BLoC, Cubit, or state-management import (`package:flutter_bloc`, `package:bloc`)
+- Any data-layer import — no `*Model`, `*Dto`, or `*DataSource` types from `data/`
+
+---
+
 ## Entities <!-- 30 -->
 
 Immutable business objects with `@freezed`. **No `fromJson` — ever.**
@@ -317,3 +331,19 @@ enum LeaveStatus {
 **Rules:**
 - Raw `String` values only when needed for direct API mapping
 - No UI strings — display formatting belongs in presentation
+
+## Creation Order <!-- 15 -->
+
+When building a new feature's domain layer, create files in this sequence:
+
+```
+1. domain/entities/[feature]_entity.dart           ← Entity (@freezed, no fromJson)
+2. domain/repositories/[feature]_repository.dart   ← Repository abstract class
+3. domain/usecases/[feature]/get_[feature]_usecase.dart
+   domain/usecases/[feature]/update_[feature]_usecase.dart
+   ...                                              ← Use Case(s)
+4. domain/services/[feature]_[calculator|validator].dart
+                                                   ← Domain Service (only if needed)
+```
+
+Never create a use case before the repository abstract class it depends on.

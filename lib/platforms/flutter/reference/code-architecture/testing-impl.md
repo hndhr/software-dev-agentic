@@ -48,6 +48,17 @@ test/
 
 ---
 
+## What to Test Per Layer <!-- 11 -->
+
+| Layer | What to test | What NOT to test |
+|---|---|---|
+| Domain (UseCases) | Business rules, Either return values, edge cases | Internal use case implementation details |
+| Data (Mappers, RepositoryImpl) | Model → entity field mapping; AppException → Failure mapping | HTTP stack, real server responses |
+| Presentation (BLoC) | State sequence via `blocTest`; use case call counts | Widget rendering, layout |
+| UI (widget tests) | State-to-widget binding; event dispatch on interaction | Business logic, mapping logic |
+
+---
+
 ## Mock Generation <!-- 32 -->
 
 Declare all mocks for a feature in one file:
@@ -358,6 +369,20 @@ void main() {
 
 ---
 
+## Mock vs Real <!-- 14 -->
+
+| Use a mock/stub when… | Use a real implementation when… |
+|---|---|
+| The dependency has I/O (network, HTTP) | The dependency is pure (Mapper, domain use case with no I/O) |
+| The test must control exact return values | The test verifies full integration wiring |
+| Unit test speed matters | Correctness of data transformation matters |
+
+**Never mock Mappers** — they are pure functions. Instantiate them directly and test with real input/output.
+
+Use `@GenerateNiceMocks` for interfaces (`EmployeeRepository`, `EmployeeRemoteDataSource`, `GetEmployeeUseCase`). Pass mocks directly via constructor injection — avoid `getIt` in tests.
+
+---
+
 ## Test Fixtures <!-- 33 -->
 
 Centralize test data — don't define inline in every test.
@@ -401,3 +426,18 @@ final tServerFailure = Failure.serverFailure(
 6. **Test both paths** — success and failure for every method
 7. **Run build_runner** after adding `@GenerateNiceMocks`
 8. **Fixture file** — one fixtures file per feature, reused across test files
+
+## Test Naming Convention <!-- 14 -->
+
+Pattern: `'[description of what is tested when condition]'` (plain English inside `blocTest` / `test()`)
+
+For plain `test()` calls use the `given/when/then` or `returns X when Y` style:
+
+Examples:
+
+- `'returns entity when repository succeeds'`
+- `'returns failure when repository fails'`
+- `'emits [loading, loaded] when use case succeeds'`
+- `'emits [loading, error] when use case fails'`
+- `'maps all fields correctly'`
+- `'handles null fields with defaults'`

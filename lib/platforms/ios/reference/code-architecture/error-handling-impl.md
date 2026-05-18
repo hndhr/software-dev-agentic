@@ -79,7 +79,7 @@ class BaseErrorModelMapper {
 
 ---
 
-## Error UI <!-- 26 -->
+## Error UI <!-- 29 -->
 
 ViewController observes ViewModel actions to surface errors. Platform patterns are in `UIViewController+Extensions.swift`.
 
@@ -105,3 +105,13 @@ viewModel.actionDriver
 - ViewModel never references UIKit — it emits typed `Action` values
 - ViewController maps actions to UI calls; no business logic here
 - `showErrorAlert(message:)` for blocking errors; `showToast` for non-blocking
+
+---
+
+## Layer Invariants <!-- 7 -->
+
+- DataSources throw `NetworkError` — they never return `nil` or a partial `Result` to signal failure
+- Repository implementations always catch and map to `BaseErrorModel` — no `NetworkError` propagates to use cases
+- Use cases propagate `Result<Model, BaseErrorModel>` unchanged — they do not re-map errors
+- ViewModels catch all results from use cases — no unhandled `Result.failure` reaches the ViewController
+- ViewControllers never inspect `BaseErrorModel` codes directly — they render the `Action` the ViewModel emits

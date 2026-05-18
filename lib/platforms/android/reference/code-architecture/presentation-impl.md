@@ -2,6 +2,90 @@
 
 > Concepts and invariants: `reference/code-architecture/presentation-theory.md`. This file covers Android MVP patterns with Kotlin.
 
+## Dependency Rule <!-- 8 -->
+
+Presentation depends on Domain only — no Data layer imports. Presenter and Activity/Fragment may only import domain use case interfaces, domain entities, and Android/Kotlin primitives.
+
+Forbidden: any `RepositoryImpl`, `DataSource`, `DTO`, mapper, `Retrofit` interface, or Room type inside the Presentation layer.
+
+---
+
+## StateHolder <!-- 12 -->
+
+In Android (MVP), the StateHolder is the **Presenter** extending `BasePresenter<View>`. See `## Presenter` below for full implementation patterns.
+
+Invariants:
+- Receives use cases via `@Inject constructor` — Dagger provides all dependencies; never instantiate use cases directly
+- Drives the View interface imperatively via `view?.show*` / `view?.hide*` calls — Activity/Fragment never mutates presenter state
+- Calls navigation via an injected `Navigation` interface — never starts Activities directly from the Presenter
+- One Presenter per screen — scoped to the Activity/Fragment lifecycle via `attachView`/`detachView`
+
+---
+
+## State <!-- 11 -->
+
+In Android (MVP), **State** is expressed via the View interface — discrete `show*`/`hide*` methods on the Contract.View interface represent loading, data, error, and empty states. See `## State Management` and `## MVP Contract` below.
+
+Invariants:
+- Immutable from the Activity's perspective — Presenter drives view state; Activity only renders what it is told
+- Covers all render cases: `showLoading`/`hideLoading`, `show*Data`, `showError`, `showEmptyState`
+- No business logic in View methods — Activity/Fragment implements rendering only
+
+---
+
+## Events / Input <!-- 11 -->
+
+In Android (MVP), Events/Input are **Presenter interface methods** defined in `[Feature]Contract.Presenter` and called by Activity/Fragment in response to user actions. See `## MVP Contract` below.
+
+Invariants:
+- Named after user actions — `loadTimeOffRequests`, `refreshData`, not `onButtonClick`
+- Called by Activity/Fragment lifecycle methods or UI listeners — Presenter handles all business logic
+- Carry only domain-level data — no raw `View`, `Context`, or `MotionEvent` objects in presenter methods
+
+---
+
+## Actions / Output <!-- 11 -->
+
+In Android (MVP), Actions/Output are View interface methods that the Presenter calls for navigation and one-time effects. Navigation is injected as a `[Feature]Navigation` interface. See `## Navigation` below.
+
+Invariants:
+- One-shot — Presenter calls `view?.navigateTo*` or `navigation.navigateTo*` once per event outcome
+- Named after the outcome — `navigateToTimeOffDetail`, `showError`, `showEmptyState`
+- Navigation belongs to an injected `Navigation` interface — Presenter never calls `startActivity` directly
+
+---
+
+## StateHolder Contract <!-- 11 -->
+
+Before `builder-ui-worker` writes the Activity/Fragment, `builder-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
+- Presenter class name and file path
+- Contract.View interface methods (name, parameter types)
+- Contract.Presenter interface methods (name, parameter types)
+- Navigation interface name and methods (if navigation is involved)
+- Dagger injection keys or module bindings
+
+---
+
+## Creation Order <!-- 10 -->
+
+```
+Use Cases → Presenter (StateHolder) → MVP Contract → StateHolder contract → Activity/Fragment (builder-ui-worker)
+```
+
+Never write the Activity/Fragment before the StateHolder contract exists.
+
+---
+
+## Layer Invariants <!-- 10 -->
+
+- Presenter never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
+- Use cases injected via `@Inject constructor` — never `GetTimeOffRequestsUseCase()` inside a Presenter
+- State is driven by the Presenter — Activity implements View methods, never holds business state
+- Navigation is one-shot — called via `Navigation` interface, never stored in presenter fields
+- `view?` guard on all view calls — view may be null after `detachView()`
+
+---
+
 ## State Management <!-- 18 -->
 
 Android MVP has no explicit state container. The **View interface** is the state surface — the Presenter drives it imperatively via `view?.show*` / `view?.hide*` calls. Loading, success, and error states are expressed as discrete View methods rather than a sealed state class.

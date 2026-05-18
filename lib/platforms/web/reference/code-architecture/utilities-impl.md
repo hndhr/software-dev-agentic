@@ -398,7 +398,7 @@ export function useFormField(validator: Validator) {
 
 ---
 
-## ImageCache <!-- 49 -->
+## ImageCache <!-- 50 -->
 
 Asynchronous image loading leveraging Next.js `<Image>` component and browser cache.
 
@@ -447,3 +447,15 @@ export function useImage(src: string) {
 ```
 
 ---
+
+## Helper Extensions <!-- 11 -->
+
+Utility functions live in `presentation/common/utils/` or `core/utils/`, grouped by the type they transform.
+
+| Helper | File | Key Functions |
+|--------|------|---------------|
+| `string` | `stringUtils.ts` | `removeWhitespace`, `capitalizeFirst`, `isNumeric`, `truncate(length)`, `maskEmail` |
+| `Date` | `dateUtils.ts` | `toDisplayDate(date)`, `toApiDate(date)`, `isToday(date)`, `isPast(date)` |
+| `number` | `numberUtils.ts` | `toCurrencyString(n, currency)`, `toFormattedString(n, decimals)` |
+| `Array<T>` | `arrayUtils.ts` | `groupBy(arr, key)`, `uniqueBy(arr, key)`, `chunkArray(arr, size)` |
+| `URL / query` | `queryUtils.ts` | `buildQueryString(params)`, `parseQueryString(search)` |

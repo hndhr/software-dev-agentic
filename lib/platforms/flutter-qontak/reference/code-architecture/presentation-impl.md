@@ -6,6 +6,90 @@ BLoC pattern. Widgets are dumb — they react to state and dispatch events. Busi
 
 ---
 
+## Dependency Rule <!-- 8 -->
+
+Presentation depends on Domain only — no Data layer imports. BLoC and Screen widgets may only import domain use case interfaces, domain entities, and Dart/Flutter primitives.
+
+Forbidden: any `RepositoryImpl`, `DataSourceImpl`, `DTO`, mapper, `http`/`dio` import, or database type inside the Presentation layer.
+
+---
+
+## StateHolder <!-- 12 -->
+
+In Flutter Qontak, the StateHolder is implemented as a **BLoC** (for event-driven flows) or **Cubit** (for simpler state). See `## BLoC` and `## Cubit (Simple State)` below for full implementation patterns.
+
+Invariants:
+- Receives use cases via constructor injection — annotated `@injectable`, created fresh per screen via `GetIt.instance`
+- Emits immutable `State` objects — never mutates state in place; use `emit(state.copyWith(...))`
+- Handles navigation as a side effect via `BlocListener` — not as a direct `Navigator.push` inside the BLoC
+- One BLoC/Cubit per screen — scoped to the screen's `BlocProvider`
+
+---
+
+## State <!-- 11 -->
+
+In Flutter Qontak, **State** is an immutable `@freezed` class with a `ViewDataState<T>` field per async operation (from `[prefix]_core`). See `## States` below for the full pattern.
+
+Invariants:
+- Immutable — produced by the BLoC via `emit`; widgets observe, never mutate
+- One `ViewDataState<T>` per distinct async operation — no raw `isLoading` booleans
+- No widget types — no `Color`, `Widget`, `BuildContext` in state classes
+
+---
+
+## Events / Input <!-- 11 -->
+
+In Flutter Qontak (BLoC), Events are `@freezed sealed class` cases dispatched by the widget via `context.read<XBloc>().add(XEvent.loadX())`. In Cubit, they are direct method calls. See `## Events` below.
+
+Invariants:
+- Named after user actions using verb + noun — `loadInbox`, `markAsRead`, not `buttonTapped`
+- Carry only the data needed — no `BuildContext`, no raw widget references
+- Processed by the BLoC's `on<Event>` handler — widgets never act on events directly
+
+---
+
+## Actions / Output <!-- 11 -->
+
+In Flutter Qontak, Actions/Output are navigation and one-time side effects handled via `BlocListener`. See `## BlocListener (Side Effects)` below.
+
+Invariants:
+- One-shot — triggered by a state transition (e.g. `markReadState.hasError`), consumed once in `BlocListener`
+- Named after the outcome — navigate, show snackbar, close dialog
+- Navigation targets are abstract — the BLoC transitions state; the `BlocListener` in the widget decides *how* to navigate
+
+---
+
+## StateHolder Contract <!-- 11 -->
+
+Before `builder-ui-worker` writes the Screen, `builder-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
+- BLoC/Cubit class name and file path
+- `State` fields (name, type, purpose)
+- `Event` cases or Cubit method signatures (name, payload if any)
+- Navigation side-effect triggers (which state transition causes navigation)
+- DI factory (`@injectable` or `@lazySingleton`)
+
+---
+
+## Creation Order <!-- 10 -->
+
+```
+Use Cases → BLoC/Cubit (StateHolder) → StateHolder contract → Screen (builder-ui-worker)
+```
+
+Never write the Screen before the StateHolder contract exists.
+
+---
+
+## Layer Invariants <!-- 10 -->
+
+- BLoC/Cubit never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
+- Use cases injected via constructor — never `GetInbox()` inside a BLoC body
+- State is read-only from widgets' perspective — widgets observe via `BlocBuilder`, never mutate
+- Navigation side effects are one-shot — triggered via `BlocListener`, not stored in persistent state
+- Navigation decisions belong to the widget layer — BLoC transitions state; the listener navigates
+
+---
+
 ## ViewDataState (shared in `[prefix]_core`) <!-- 46 -->
 
 ```dart

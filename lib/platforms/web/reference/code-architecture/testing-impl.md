@@ -26,6 +26,15 @@
 - **Manual mocks** for repositories and use cases in unit tests
 - **`vi.fn()`** for simple dependency mocking
 
+## What to Test Per Layer <!-- 9 -->
+
+| Layer | What to test | What NOT to test |
+|---|---|---|
+| Domain (Services, UseCases) | Business rules, edge cases, pure function outputs | Framework wiring, HTTP calls |
+| Data (Mappers, RepositoryImpl) | DTO → domain field mapping; error propagation | Real network responses |
+| Presentation (ViewModel hooks) | State shape on mount; handler behavior; use case call counts | React rendering internals |
+| UI (React Testing Library) | State → UI binding; event dispatch on interaction | Business logic, mapping |
+
 ## Service Tests <!-- 55 -->
 
 Highest priority. Pure input → output, no mocks needed.
@@ -230,4 +239,27 @@ describe('EmployeeMapperImpl', () => {
 });
 ```
 
----
+## Mock vs Real <!-- 12 -->
+
+| Use a mock/stub when… | Use a real implementation when… |
+|---|---|
+| The dependency has I/O (HTTP, browser storage) | The dependency is pure (Mapper, domain service) |
+| The test must control exact return values | The test verifies full integration wiring |
+| Unit test speed matters | Correctness of data transformation matters |
+
+**Never mock Mappers or domain Services** — they are pure functions. Instantiate and test with real inputs/outputs.
+
+Use `vi.fn()` for simple stubs; inline object mocks (`{ execute: vi.fn() }`) for use cases and repositories. Pass mocks directly to ViewModel hooks via constructor arguments.
+
+## Test Naming Convention <!-- 12 -->
+
+Pattern: `it('[returns/emits/calls] [expected] when [condition]', ...)`
+
+Examples:
+
+- `it('returns correct remaining balance with no pending requests', ...)`
+- `it('loads employees on mount', ...)`
+- `it('calls data source and mapper on getEmployee', ...)`
+- `it('maps all fields correctly', ...)`
+- `it('uses injected child mapper for department', ...)`
+- `it('updates search query on handleSearchChange', ...)`

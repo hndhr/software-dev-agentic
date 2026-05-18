@@ -217,7 +217,7 @@ class DateServiceImpl implements DateService {
 
 
 
-## Logger <!-- 64 -->
+## Logger <!-- 67 -->
 
 Structured logging using the `logger` package. Swap implementation per environment.
 
@@ -281,3 +281,18 @@ class EmployeeRepository implements EmployeeRepositoryProtocol {
   }
 }
 ```
+
+---
+
+## Helper Extensions <!-- 12 -->
+
+Extension files live in `core/extensions/`.
+
+| Helper | File | Key Methods |
+|--------|------|-------------|
+| `String` | `string_extensions.dart` | `.removeWhitespace`, `.capitalizeFirst`, `.isNumeric`, `.truncate(int)`, `.toNullIfEmpty()` |
+| `String?` | `string_extensions.dart` | `.orEmpty()`, `.orDash()` |
+| `DateTime` | `date_time_extensions.dart` | `.toDisplayDate()`, `.toApiDate()`, `.isToday`, `.isPast`, `.startOfDay` |
+| `num` | `num_extensions.dart` | `.orZero()`, `.toCurrencyString()`, `.toFormattedString()` |
+| `BuildContext` | `build_context_extensions.dart` | `.showSnackBar(message)`, `.navigator`, `.theme`, `.mediaQuery` |
+| `List<T>?` | `iterable_extensions.dart` | `.orEmpty()`, `.isNilOrEmpty` |

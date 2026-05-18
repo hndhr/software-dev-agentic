@@ -208,7 +208,7 @@ class DateServiceImpl implements DateService {
 
 ---
 
-## Auth Interceptor <!-- 22 -->
+## Auth Interceptor <!-- 25 -->
 
 ```dart
 // shared/[prefix]_core/lib/src/network/auth_interceptor.dart
@@ -230,3 +230,18 @@ class AuthInterceptor extends Interceptor {
   }
 }
 ```
+
+---
+
+## Helper Extensions <!-- 12 -->
+
+Extension files live in `shared/[prefix]_core/lib/src/extensions/`.
+
+| Helper | File | Key Methods |
+|--------|------|-------------|
+| `String` | `string_extensions.dart` | `.removeWhitespace`, `.capitalizeFirst`, `.isNumeric`, `.truncate(int)`, `.toNullIfEmpty()` |
+| `String?` | `string_extensions.dart` | `.orEmpty()`, `.orDash()` |
+| `DateTime` | `date_time_extensions.dart` | `.toDisplayDate()`, `.toApiDate()`, `.isToday`, `.isPast`, `.startOfDay` |
+| `num` | `num_extensions.dart` | `.orZero()`, `.toCurrencyString()`, `.toFormattedString()` |
+| `BuildContext` | `build_context_extensions.dart` | `.showSnackBar(message)`, `.navigator`, `.theme`, `.mediaQuery` |
+| `List<T>?` | `iterable_extensions.dart` | `.orEmpty()`, `.isNilOrEmpty` |
