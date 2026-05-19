@@ -13,7 +13,7 @@ Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasource
 
 ---
 
-## Screen <!-- 18 -->
+## Screen <!-- 20 -->
 
 A **Screen** is a `StatelessWidget` that owns `BlocProvider` setup. Each screen file includes its argument class via `part 'argument.dart'`. The view/content is split into a separate `content.dart` file.
 
@@ -94,7 +94,7 @@ The `Bloc` and its contract must exist before any UI layer file is written.
 
 ---
 
-## Planner Search Patterns <!-- 8 -->
+## Planner Search Patterns <!-- 10 -->
 
 When exploring the UI layer, glob for:
 - `**/presentation/screens/**/*screen.dart` — screen files
@@ -104,7 +104,7 @@ When exploring the UI layer, glob for:
 
 ---
 
-## Design System Bindings <!-- 22 -->
+## Design System Bindings <!-- 21 -->
 
 MekariPixel (`mekari_pixel`) is the design system for this platform. Agents must prefer MekariPixel components over raw Material/Cupertino widgets.
 

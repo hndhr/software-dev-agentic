@@ -84,7 +84,7 @@ The StateHolder and its contract must exist before any UI layer file is written.
 
 ---
 
-## Layer Invariants <!-- 7 -->
+## Layer Invariants <!-- 10 -->
 
 - UI never mutates state directly — observes only
 - UI never calls use cases directly — all interactions go through the StateHolder
@@ -94,7 +94,7 @@ The StateHolder and its contract must exist before any UI layer file is written.
 
 ---
 
-## Design System <!-- 15 -->
+## Design System <!-- 17 -->
 
 A **Design System** is a curated component library that UI artifacts must prefer over raw framework primitives.
 

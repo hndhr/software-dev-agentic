@@ -1,4 +1,4 @@
-## Error Flow
+## Error Flow <!-- 28 -->
 
 ```
 NetworkClient (Dio)
@@ -26,7 +26,7 @@ UI (BlocBuilder / BlocConsumer)
 
 ---
 
-## Error Types
+## Error Types <!-- 27 -->
 
 **`NetworkFailure`** (transport layer, `jurnal_core`):
 ```dart
@@ -53,7 +53,7 @@ ViewDataFailure(Failure failure)
 
 ---
 
-## Error Mapping
+## Error Mapping <!-- 10 -->
 
 - `BaseRemoteRepository.catchError()` catches exceptions and maps to `NetworkFailure` (transport → domain boundary).
 - `NetworkFailure.toFailure()` / `Failure.toNetworkFailure()` bridge between the two types when needed.
@@ -63,7 +63,7 @@ ViewDataFailure(Failure failure)
 
 ---
 
-## Error UI
+## Error UI <!-- 29 -->
 
 BLoC state exposes `ViewDataState<T>`. In UI:
 

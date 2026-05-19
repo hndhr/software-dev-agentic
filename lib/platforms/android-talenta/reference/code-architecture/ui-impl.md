@@ -89,7 +89,7 @@ The Presenter contract and View contract must exist before any UI layer file is 
 
 ---
 
-## Planner Search Patterns <!-- 7 -->
+## Planner Search Patterns <!-- 10 -->
 
 When exploring the UI layer, glob for:
 - `**/presentation/**/*Activity.kt` — screen Activity files
@@ -99,6 +99,6 @@ When exploring the UI layer, glob for:
 
 ---
 
-## Design System Bindings <!-- 4 -->
+## Design System Bindings <!-- 3 -->
 
 No design system is configured for this platform. UI artifacts use framework primitives directly. To adopt one, declare it in `.claude/dart-knowledge.yaml` with `kind: design_system`.

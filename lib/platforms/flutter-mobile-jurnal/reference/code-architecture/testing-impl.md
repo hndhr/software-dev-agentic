@@ -1,4 +1,4 @@
-## Test Pyramid
+## Test Pyramid <!-- 26 -->
 
 Tests are co-located within each feature package under `features/<feature>/test/`. Test structure mirrors source:
 
@@ -24,7 +24,7 @@ Test framework: `flutter_test`. Mocking: `mockito` with `@GenerateMocks` or `@Ge
 
 ---
 
-## Repository Tests
+## Repository Tests <!-- 62 -->
 
 Repository implementations are tested by mocking the datasource and mapper. The `catchError` wrapper on the repo is exercised via thrown exceptions.
 
@@ -86,7 +86,7 @@ void main() {
 
 ---
 
-## Mapper Tests
+## Mapper Tests <!-- 42 -->
 
 Mappers are instantiated directly — no mocks needed.
 
@@ -128,7 +128,7 @@ void main() {
 
 ---
 
-## Use Case Tests
+## Use Case Tests <!-- 36 -->
 
 Use cases are tested by mocking the repository. Params classes are constructed directly.
 
@@ -164,7 +164,7 @@ void main() {
 
 ---
 
-## BLoC Tests
+## BLoC Tests <!-- 15 -->
 
 BLoC tests use `bloc_test` package with `blocTest<Bloc, State>`.
 

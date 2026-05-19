@@ -96,7 +96,7 @@ Never reference asset paths as raw strings. Never edit files under `lib/gen/`.
 
 ---
 
-## Flavor-Gated UI <!-- 11 -->
+## Flavor-Gated UI <!-- 14 -->
 
 ```dart
 // Use FlavorChecker for flavor-specific UI elements
@@ -110,7 +110,7 @@ return const QontakCRMBranding();
 
 ---
 
-## Design System Bindings <!-- 22 -->
+## Design System Bindings <!-- 21 -->
 
 MekariPixel (`mekari_pixel`) is the design system for this platform. Agents must prefer MekariPixel components over raw Material/Cupertino widgets.
 

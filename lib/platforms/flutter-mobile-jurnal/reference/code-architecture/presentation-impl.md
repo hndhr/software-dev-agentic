@@ -1,4 +1,4 @@
-## State
+## State <!-- 99 -->
 
 BLoC state uses `freezed` with a `ViewDataState<T>` wrapper from `jurnal_core` for each distinct async operation. State class is annotated `@freezed` and holds one `ViewDataState<T>` per async operation plus pagination helpers.
 
@@ -97,7 +97,7 @@ class <Feature>Bloc extends Bloc<<Feature>Event, <Feature>State> {
 
 ---
 
-## Screen Structure
+## Screen Structure <!-- 37 -->
 
 Screens are `StatelessWidget` classes that own `BlocProvider` setup. The screen file also contains the argument class (via `part 'argument.dart'`). Content/view is split into a separate `content.dart` file.
 
@@ -134,7 +134,7 @@ BLoCs are instantiated via the feature's static `Injector.find<T>()` method — 
 
 ---
 
-## Shared Component Paths
+## Shared Component Paths <!-- 23 -->
 
 Reusable widgets live at:
 - `features/<feature>/lib/src/presentation/widgets/` — feature-scoped widgets

@@ -1,4 +1,4 @@
-## StorageService
+## StorageService <!-- 18 -->
 
 <!-- MISSING_PATTERN: no dedicated StorageService abstraction found at utils/helpers level — local storage is accessed via BaseLocalRepository (jurnal_core) and Hive/ObjectBox-based local datasources -->
 
@@ -16,7 +16,7 @@ For key-value or simple persistence, follow the pattern in `jurnal_core/lib/repo
 
 ---
 
-## DateService
+## DateService <!-- 17 -->
 
 <!-- MISSING_PATTERN: no DateService class found — date formatting is handled via DateTimeExtension -->
 
@@ -33,7 +33,7 @@ Use `DateTimeExtension` methods directly on `DateTime` instances. Do not create 
 
 ---
 
-## Logger
+## Logger <!-- 15 -->
 
 Logging utilities live in `jurnal_core` under:
 - `features/jurnal_core/lib/logger/` — `NetworkLogger`, `BlocLogger`, `RouteLogger`, `Log`
@@ -48,7 +48,7 @@ Log.e('Error message', error, stackTrace);
 
 ---
 
-## Null Safety
+## Null Safety <!-- 22 -->
 
 `JsonParser` in `jurnal_core/lib/utils/json_parser.dart` provides safe coercion utilities for JSON deserialization:
 
@@ -70,7 +70,7 @@ Use these in all `@freezed` response models where the API may return numbers as 
 
 ---
 
-## Other Utilities
+## Other Utilities <!-- 15 -->
 
 **`Debounce`** (`jurnal_core/lib/utils/debounce.dart`) — debounce search/input callbacks.
 

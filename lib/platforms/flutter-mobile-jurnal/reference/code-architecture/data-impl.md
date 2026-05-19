@@ -1,4 +1,4 @@
-## DTOs
+## DTOs <!-- 36 -->
 
 Response models (DTOs) live in `features/<feature>/lib/src/data/models/responses/` and request payloads in `features/<feature>/lib/src/data/models/requests/`. They use `freezed` + `json_serializable` (`@freezed` with `fromJson`/`toJson`). A `models.dart` barrel re-exports all.
 
@@ -34,7 +34,7 @@ class <Feature>Response with _$<Feature>Response {
 
 ---
 
-## Mappers
+## Mappers <!-- 37 -->
 
 Mappers live in `features/<feature>/lib/src/data/mappers/` and are plain Dart classes (no annotations, no DI framework). Each mapper class has `const` constructor.
 
@@ -71,7 +71,7 @@ class <Feature>Mapper {
 
 ---
 
-## Data Sources
+## Data Sources <!-- 55 -->
 
 DataSource interfaces and implementations live in `features/<feature>/lib/src/data/datasources/`. Remote datasources in `remote/`, local in `local/`.
 
@@ -126,7 +126,7 @@ class <Feature>RemoteDatasourceImpl extends <Feature>RemoteDatasource {
 
 ---
 
-## Repository Impl
+## Repository Impl <!-- 42 -->
 
 Repository implementations live in `features/<feature>/lib/src/data/repositories/remote/` and extend the domain abstract class. They use `catchError()` inherited from `BaseRemoteRepository`.
 

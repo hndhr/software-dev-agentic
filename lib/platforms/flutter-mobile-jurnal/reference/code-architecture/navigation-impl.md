@@ -1,4 +1,4 @@
-## Route Constants
+## Route Constants <!-- 22 -->
 
 Each feature defines a `<Feature>RouteName` class with a `prefix` constant and named route constants derived from it. All route names are prefixed to avoid collisions across features.
 
@@ -20,7 +20,7 @@ class Jurnal<Feature>RouteName {
 
 ---
 
-## Navigator
+## Navigator <!-- 24 -->
 
 Navigation is handled via a feature-level route factory function `getJurnal<Feature>RouteByName`. This function is passed to the host app's `onGenerateRoute` mechanism. No named router package is used — vanilla Flutter `Navigator`.
 

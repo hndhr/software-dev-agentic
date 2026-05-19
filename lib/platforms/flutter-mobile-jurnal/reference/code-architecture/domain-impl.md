@@ -1,4 +1,4 @@
-## Entities
+## Entities <!-- 32 -->
 
 Entities are defined in `features/<feature>/lib/src/domain/entities/` and use `freezed` for immutability. Each entity is annotated with `@freezed` and uses `const factory` constructors. The generated part file is `.freezed.dart` only — never `.g.dart`, as entities are not serialised from JSON.
 
@@ -30,7 +30,7 @@ class <EntityName> with _$<EntityName> {
 
 ---
 
-## Repository
+## Repository <!-- 25 -->
 
 Repository interfaces are defined in `features/<feature>/lib/src/domain/repositories/` and exported from `repositories.dart`. Implementations live in `features/<feature>/lib/src/data/repositories/`.
 
@@ -55,7 +55,7 @@ abstract class <Feature>RemoteRepository {
 
 ---
 
-## Use Cases
+## Use Cases <!-- 43 -->
 
 Use cases extend `UseCase<ReturnType, ParamsType>` from `jurnal_core` and live in `features/<feature>/lib/src/domain/usecases/`.
 
@@ -98,7 +98,7 @@ class Get<Feature>ListParams {
 
 ---
 
-## Services
+## Services <!-- 15 -->
 
 <!-- MISSING_PATTERN: no explicit domain service layer found in repo_path — domain logic is distributed via UseCases; no multi-entity orchestration service class was observed -->
 
@@ -113,7 +113,7 @@ abstract class <Feature>Service {
 
 ---
 
-## Domain Errors
+## Domain Errors <!-- 23 -->
 
 Domain errors are defined in `features/jurnal_core/lib/entities/failure/failure.dart` using `freezed` union types. The `Failure` sealed type has two variants: `ServerFailure` (network/API) and `LocalFailure` (local storage).
 

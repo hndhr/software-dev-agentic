@@ -90,7 +90,7 @@ The `Bloc`/`Cubit` and its contract must exist before any UI layer file is writt
 
 ---
 
-## Planner Search Patterns <!-- 7 -->
+## Planner Search Patterns <!-- 10 -->
 
 When exploring the UI layer, glob for:
 - `**/presentation/screens/**/*_screen.dart` — screen files
@@ -100,7 +100,7 @@ When exploring the UI layer, glob for:
 
 ---
 
-## Design System Bindings <!-- 22 -->
+## Design System Bindings <!-- 21 -->
 
 MekariPixel (`mekari_pixel`) is the design system for this platform. Agents must prefer MekariPixel components over raw Material/Cupertino widgets.
 
