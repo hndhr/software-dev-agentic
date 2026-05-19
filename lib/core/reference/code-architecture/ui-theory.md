@@ -91,3 +91,23 @@ The StateHolder and its contract must exist before any UI layer file is written.
 - StateHolder instantiated via DI — never `new ViewModel()` / `MyViewModel()` inline
 - Navigation delegated to navigator/coordinator — UI emits intent, not destination
 - No data layer knowledge — no DTOs, no datasources, no HTTP types visible in UI files
+
+---
+
+## Design System <!-- 15 -->
+
+A **Design System** is a curated component library that UI artifacts must prefer over raw framework primitives.
+
+**Invariants:**
+- Always resolve UI elements against the design system before using raw framework widgets
+- `### Design System Bindings` in the skill prompt is the authoritative source for widget choices in a feature
+- Fall back to framework primitives only when no design system match exists
+- Never use design system components not in the resolved binding table — prefer explicit matches only
+- Design system components follow the same dependency rule — UI layer only; never import into domain or data
+
+**Resolution flow:**
+1. `builder-feature-worker` calls `builder-pres-resolve-design` before each Screen or Component artifact
+2. Skill queries the project's design system RAG collection and returns a binding table
+3. `pres-create-screen` / `pres-create-component` apply the binding table when writing widget code
+
+**When design system is not configured:** `builder-pres-resolve-design` soft-fails with an empty table — proceed with framework primitives as normal.

@@ -132,5 +132,29 @@ When exploring the UI layer, glob for:
 - `**/lib/src/presentation/screens/**/*_screen.dart` — screen files within a module
 - `**/[prefix]_core/lib/src/widgets/**/*.dart` — shared component files
 - `**/[prefix]_core/lib/src/components/**/*.dart` — shared component files (alternate path)
+
+---
+
+## Design System Bindings <!-- 22 -->
+
+MekariPixel (`mekari_pixel`) is the design system for this platform. Agents must prefer MekariPixel components over raw Material/Cupertino widgets.
+
+**Import pattern:**
+```dart
+import 'package:mekari_pixel/mekari_pixel.dart';
+```
+
+**Applying the binding table:**
+The `### Design System Bindings` block in the skill prompt maps UI element descriptions to resolved MekariPixel symbols. Use the mapped symbol wherever the description appears in widget code. If no binding exists for an element, fall back to the Material equivalent.
+
+| Common mapping | MekariPixel symbol |
+|---|---|
+| Primary button | `PxButton` |
+| Avatar / profile image | `PxAvatar` |
+| List tile | `PxListTile` |
+| Text field / input | `PxTextField` |
+| Icon | `PxIcon` |
+
+**Collection config:** declare the MekariPixel ChromaDB collection in `.claude/dart-knowledge.yaml` with `kind: design_system` so `builder-pres-resolve-design` can locate it.
 - `**/lib/src/configs/*_module.dart` — module route registration files
 - `**/lib/src/configs/*_routes.dart` — per-module route constants

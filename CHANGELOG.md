@@ -7,6 +7,19 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.14.0] — 2026-05-20
+
+### Added
+- `builder-pres-resolve-design` — new core skill that queries a project's design system RAG collection (via `dart-repo-knowledge` ChromaDB) and returns a `## Design System Bindings` table mapping UI element descriptions to design system symbols. Soft-fails with an empty table if no collection is configured.
+- `ui-theory.md` — new `## Design System` section: canonical definition, invariants, and resolution flow for design system usage in the UI layer.
+- `flutter-mobile-jurnal/ui-impl.md` — created missing UI layer reference for the Jurnal Flutter platform.
+- `## Design System Bindings` section added to all platform `ui-impl.md` files — Flutter platforms (talenta, jurnal, qontak-chat, qontak-crm) include MekariPixel content; non-Flutter platforms (ios, web, android) include an empty placeholder.
+
+### Changed
+- `builder-feature-worker` — Screen and Component artifacts now check for a `kind: design_system` collection in `.claude/dart-knowledge.yaml`; if found, runs `builder-pres-resolve-design` and passes the binding table into the `pres-create-screen`/`pres-create-component` skill prompt. Config-driven — no platform condition.
+
+---
+
 ## [7.13.3] — 2026-05-19
 
 ### Changed

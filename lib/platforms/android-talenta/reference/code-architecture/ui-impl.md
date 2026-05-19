@@ -96,3 +96,9 @@ When exploring the UI layer, glob for:
 - `**/presentation/**/*Fragment.kt` — screen Fragment files
 - `**/presentation/common/views/**/*.kt` — shared component files
 - `**/navigation/**/*NavigationImpl.kt` — navigator implementation files
+
+---
+
+## Design System Bindings <!-- 4 -->
+
+No design system is configured for this platform. UI artifacts use framework primitives directly. To adopt one, declare it in `.claude/dart-knowledge.yaml` with `kind: design_system`.

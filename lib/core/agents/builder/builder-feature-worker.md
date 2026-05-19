@@ -120,11 +120,21 @@ Never skip this check. Creating a duplicate of an existing component is a worse 
    - For each file: `section-query` for `## <artifact name>` (use exact artifact name from plan.md)
    - If a match is found: collect the section content as `## Figma Design Reference` — pass it in the skill prompt
    - If no match: proceed without Figma context
-4. Resolve skill path: `.claude/skills/<skill-name>/SKILL.md`
-5. `Read` the skill file
-6. Follow its instructions as the authoritative procedure for `<platform>`
-7. Validate (see Validation below)
-8. Update state.json: add artifact to `completed_artifacts`, advance `next_artifact` to the following artifact
+4. **If artifact type is Screen or Component:**
+   Check for a design system config:
+   ```bash
+   grep -c "kind: design_system" "$(git rev-parse --show-toplevel)/.claude/dart-knowledge.yaml" 2>/dev/null
+   ```
+   If the file exists and contains `kind: design_system`:
+   - Read `.claude/skills/builder-pres-resolve-design/SKILL.md`
+   - Follow its instructions, passing the artifact name and UI description from plan.md
+   - Collect the `## Design System Bindings` output — pass it in the skill prompt
+   If not found or command returns nothing: proceed without design bindings.
+5. Resolve skill path: `.claude/skills/<skill-name>/SKILL.md`
+6. `Read` the skill file
+7. Follow its instructions as the authoritative procedure for `<platform>`
+8. Validate (see Validation below)
+9. Update state.json: add artifact to `completed_artifacts`, advance `next_artifact` to the following artifact
 
 **If `status: exists` — direct edit:**
 1. Write checkpoint: update `next_artifact` in state.json to this artifact's name before doing any other work

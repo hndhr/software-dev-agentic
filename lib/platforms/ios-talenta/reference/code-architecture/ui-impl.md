@@ -96,3 +96,9 @@ When exploring the UI layer, glob for:
 - `**/Presentation/Common/Views/**/*.swift` — shared component files
 - `**/Presentation/Coordinator/**/*Coordinator.swift` — coordinator files
 - `**/Presentation/Coordinator/**/*Navigator.swift` — navigator protocol files
+
+---
+
+## Design System Bindings <!-- 4 -->
+
+No design system is configured for this platform. UI artifacts use UIKit primitives directly. To adopt one, declare it in `.claude/dart-knowledge.yaml` with `kind: design_system`.

@@ -96,3 +96,9 @@ When exploring the UI layer, glob for:
 - `**/presentation/features/**/*View.tsx` — feature view components
 - `**/presentation/common/**/*.tsx` — shared component files
 - `**/presentation/navigation/routes.ts` — route constants
+
+---
+
+## Design System Bindings <!-- 4 -->
+
+No design system is configured for this platform. UI artifacts use framework primitives directly. To adopt one, declare it in `.claude/dart-knowledge.yaml` with `kind: design_system`.
