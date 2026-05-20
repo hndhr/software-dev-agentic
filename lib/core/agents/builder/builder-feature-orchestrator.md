@@ -278,21 +278,113 @@ module-path: <detected module path>
 
 **Step 6 — Return plan summary** as a flat numbered list (one line per artifact, layer + status). Do not return file contents — the entry skill handles the approval interaction.
 
-## Mode: review-resume
+## Mode: resume
 
-Called when the user selects an existing run. Receives `run_dir` — reads minimal state internally. Intent gathering and layer analysis are delegated to planners via the convergence loop.
+Called by the entry skill when existing runs are detected. Receives the raw output of `find … -name "plan.md"` and `find … -name "figma-groups.json"` as `found_plans` and `found_figma`. Owns the full resume flow — run selection, figma repair, and intent gathering.
 
-**Step 1 — Load minimal state**
+**Step 1 — Classify found paths**
+
+From `found_plans` and `found_figma`:
+- **Partial-planning run** — a `run_dir` that has `figma-groups.json` but no `plan.md` alongside it. For each, derive `run_dir` from the figma-groups.json path.
+- **Complete run** — a `run_dir` that has `plan.md` (with or without `figma-groups.json`).
+
+**Step 2 — Run selection**
+
+If any partial-planning run exists, call `AskUserQuestion`:
+
+```
+question    : "A planning session was interrupted before the plan was written. Resume it or discard?"
+header      : "Resume Planning"
+multiSelect : false
+options     :
+  - label: "Resume",  description: "Restore planner findings and re-enter the planning loop"
+  - label: "Discard", description: "Delete the partial run and start fresh"
+```
+
+**Resume** → set `run_dir`, read `figma-groups.json` to restore `figma_groups`, read all `findings-round-*.json` files (sorted) to restore `all_findings` and last completed `round`. Return:
+
+```
+## Decision: restore-partial
+run_dir: <run_dir>
+figma_groups: <json>
+all_findings: <concatenated findings>
+round: <last + 1>
+```
+
+**Discard** → return `## Decision: discard-partial` with `run_dir`. Entry skill deletes and starts fresh.
+
+If only complete runs exist, call `AskUserQuestion`:
+
+```
+question    : "Existing plans found. What would you like to do?"
+header      : "Resume or Start"
+multiSelect : false
+options     :
+  - label: "Continue existing", description: "Pick an existing plan to review and resume"
+  - label: "Start fresh",       description: "Plan and build a new feature from scratch"
+```
+
+**Start fresh** → return `## Decision: start-fresh`.
+
+**Continue existing** → extract run metadata via bash:
+
+```bash
+for plan_path in <each path from found_plans>; do
+  dir="$(dirname "$plan_path")"
+  feature="$(grep "^feature:" "$plan_path" | head -1 | sed 's/^feature: *//')"
+  plan_status="$(grep "^status:" "$plan_path" | head -1 | sed 's/^status: *//')"
+  count="$(python3 -c "import json; d=json.load(open('$dir/state.json')); print(len(d.get('completed_artifacts',[])))" 2>/dev/null || echo '?')"
+  echo "$feature|$plan_status|$count|$dir"
+done
+```
+
+Call `AskUserQuestion` with one option per line:
+
+```
+question    : "Which plan would you like to resume?"
+header      : "Existing Plans"
+multiSelect : false
+options     : one per line — label: <feature>, description: "<count> artifacts done · status: <plan_status>"
+```
+
+Set `run_dir` from the selected line's `<dir>` value.
+
+**Step 3 — Figma repair**
+
+```bash
+find "<run_dir>/inputs" -name "figma-*.md" 2>/dev/null | sort
+ls "<run_dir>/figma-groups.json" 2>/dev/null
+```
+
+For any `figma-*.md` whose `screenshot:` frontmatter starts with `http` and has no matching `.png` on disk:
+
+```bash
+curl -sL "<url>" -o "<run_dir>/inputs/figma-<slug>-screenshot.png"
+```
+
+Update the `screenshot:` frontmatter to the local path. Add `screenshot_url: <url>` if absent.
+
+If `figma-groups.json` is missing but figma inputs exist, reconstruct from `parent_frame` frontmatter:
+
+```bash
+cat > "<run_dir>/figma-groups.json" << 'EOF'
+<reconstructed JSON grouped by parent_frame>
+EOF
+```
+
+If `figma-groups.json` now exists, read it and store as `figma_groups`.
+
+**Step 4 — Load minimal plan state**
 
 Read from `run_dir`:
 - `plan.md` — frontmatter (`feature`, `platform`, `operations`) + artifact rows (name, type, progress column only)
 - `state.json` — `completed_artifacts` list
 
-Cross-reference artifact rows against `completed_artifacts`. Produce a one-line summary:
+Cross-reference rows against `completed_artifacts`. Produce a one-line summary:
 
 > `<X> of <Y> artifacts done — pending: <comma-separated names>`
 
-**Step 2 — Gather intent**
+**Step 5 — Gather intent**
 
 Call `AskUserQuestion`:
 
@@ -311,9 +403,9 @@ options     :
 ## Decision: resume-as-is
 ```
 
-**Describe changes** → ask the user to describe what needs fixing or changing (bugs found, design issues, scope additions, etc.). Listen fully before responding.
+**Describe changes** → ask the user to describe what needs fixing or changing. Listen fully before responding.
 
-**Step 3 — Decide which layers are affected**
+**Step 6 — Decide which layers are affected**
 
 From the user's description, determine which layers need re-planning:
 
@@ -326,7 +418,7 @@ From the user's description, determine which layers need re-planning:
 | Business rule / logic change | `domain` |
 | API contract change | `data` |
 
-Return `Decision: spawn-planners` with `open_questions` carrying the user's stated issues as explicit questions for the planners to answer. Frame each question as a concrete thing the planner must resolve (e.g. "Icon beside three-dots button is wrong — determine correct icon from Figma reference and plan the fix").
+Return `Decision: spawn-planners` with `open_questions` carrying the user's stated issues as explicit questions for planners to answer:
 
 ```
 ## Decision: spawn-planners
@@ -337,12 +429,12 @@ reason: <one line per planner>
 scope:
   <layer>: [<artifact types>]
 open_questions:
-  - <specific question from user's stated issue 1>
-  - <specific question from user's stated issue 2>
+  - <specific question from user's stated issue>
 feature: <from plan.md frontmatter>
 platform: <from plan.md frontmatter>
 module_path: <from plan.md frontmatter or inferred>
 completed_artifacts: [<list from state.json>]
+figma_groups: <json, omit if absent>
 ```
 
 ## Write Path Rule

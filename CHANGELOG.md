@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.22.7] — 2026-05-21
+
+### Changed
+- `builder-plan-feature` — Preflight reduced to two `find` commands + one agent spawn. All run selection, figma repair, and intent gathering moved into the orchestrator. Skill no longer calls `Read` or does any work before the orchestrator returns a decision.
+- `builder-feature-orchestrator` — `review-resume` mode replaced by `resume` mode. Owns the full resume flow: run classification (partial vs complete), run selection via `AskUserQuestion`, figma repair, plan state load, intent gathering, and layer routing. Returns one of five decisions: `start-fresh`, `discard-partial`, `restore-partial`, `resume-as-is`, `spawn-planners`.
+
+---
+
 ## [7.22.6] — 2026-05-21
 
 ### Fixed

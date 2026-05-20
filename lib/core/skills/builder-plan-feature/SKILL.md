@@ -5,9 +5,7 @@ user-invocable: true
 allowed-tools: Agent, AskUserQuestion, Bash, Read, WebFetch
 ---
 
-## Preflight — Check Existing Runs
-
-Before resolving any inputs, check for existing runs — both completed plans and partial-planning runs interrupted before synthesis:
+## Preflight — Detect Existing Runs
 
 ```bash
 find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs" -maxdepth 2 -name "plan.md" 2>/dev/null
@@ -16,109 +14,23 @@ find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs" -maxdepth 2 -
 
 If neither found → proceed to Step 0.
 
-**Partial-planning run detected** — if `figma-groups.json` exists in a run dir but no `plan.md` alongside it:
-- Set `run_dir` to the parent directory of the found `figma-groups.json`
-- Read `figma-groups.json` to restore `figma_groups`
-- Read all `findings-round-*.json` files in that run dir (sorted by round number) to restore `all_findings` and determine last completed `round`
-- Reconstruct `visited` from the union of all `findings-round-*.json` `visited` arrays
-- Call `AskUserQuestion`:
+If any paths found → spawn `builder-feature-orchestrator` in `resume` mode, passing the raw find output:
 
-```
-question    : "A planning session was interrupted before the plan was written. Resume it?"
-header      : "Resume Planning"
-multiSelect : false
-options     :
-  - label: "Resume", description: "Restore figma groups and planner findings, re-enter the planning loop"
-  - label: "Discard", description: "Delete the partial run and start fresh"
-```
-
-**Resume** → skip Steps 0–1.5b, set `round = <last completed round> + 1`, re-enter Step 2 with restored state.
-**Discard** → `rm -rf "<run_dir>"`, proceed to Step 0.
-
-If only `plan.md` found → call `AskUserQuestion`:
-
-```
-question    : "Existing plans found in runs/. What would you like to do?"
-header      : "Resume or Start"
-multiSelect : false
-options     :
-  - label: "Continue existing", description: "Pick an existing plan to review and resume"
-  - label: "Start fresh",       description: "Plan and build a new feature from scratch"
-```
-
-**Start fresh** → proceed to Step 0.
-
-**Continue existing** → run this bash command to extract run metadata without using the `Read` tool:
-
-```bash
-ROOT="$(git rev-parse --show-toplevel)/.claude/agentic-state/runs"
-find "$ROOT" -maxdepth 2 -name "plan.md" | while read f; do
-  dir="$(dirname "$f")"
-  feature="$(grep "^feature:" "$f" | head -1 | sed 's/^feature: *//')"
-  status="$(grep "^status:" "$f" | head -1 | sed 's/^status: *//')"
-  count="$(python3 -c "import json,sys; d=json.load(open('$dir/state.json')); print(len(d.get('completed_artifacts',[])))" 2>/dev/null || echo '?')"
-  echo "$feature|$status|$count|$dir"
-done
-```
-
-Call `AskUserQuestion` immediately with the bash output — one option per line:
-
-```
-question    : "Which plan would you like to resume?"
-header      : "Existing Plans"
-multiSelect : false
-options     : one per output line — label: <feature>, description: "<count> artifacts done · status: <status>"
-```
-
-After the user selects a run:
-
-1. Set `run_dir` to the `<dir>` value from the selected line.
-2. Proceed directly to **Step R**. The orchestrator owns all intent gathering and codebase exploration.
-
-## Step R — Review and Adjust (Resume path only)
-
-**Scope boundary:** only the shell commands listed below are permitted in Step R. All intent gathering and codebase exploration belong to the orchestrator and planners.
-
-### Step R0 — Figma repair pre-check
-
-```bash
-find "<run_dir>/inputs" -name "figma-*.md" 2>/dev/null | sort
-ls "<run_dir>/figma-groups.json" 2>/dev/null
-```
-
-**If figma-*.md files exist:**
-- Check each file's `screenshot:` frontmatter. For any value starting with `http` where no corresponding `.png` exists on disk:
-  ```bash
-  curl -sL "<url>" -o "<run_dir>/inputs/figma-<slug>-screenshot.png"
-  ```
-  Then update the `screenshot:` frontmatter in that `.md` to the local path. Add `screenshot_url: <url>` if absent.
-- If `figma-groups.json` is missing: read `parent_frame` frontmatter from every `figma-*.md` file and reconstruct it:
-  ```bash
-  cat > "<run_dir>/figma-groups.json" << 'EOF'
-  <reconstructed JSON grouped by parent_frame>
-  EOF
-  ```
-
-**Restore figma_groups:** if `figma-groups.json` now exists (found or just written), read it and store as `figma_groups` for use in Step 2.
-
-### Step R1 — Gather intent
-
-Spawn `builder-feature-orchestrator` with mode `review-resume`:
-
-> **Mode: review-resume**
+> **Mode: resume**
 >
-> **run_dir:** \<run_dir\>
+> **found_plans:**
+> \<newline-separated list of plan.md paths, or empty\>
+>
+> **found_figma:**
+> \<newline-separated list of figma-groups.json paths, or empty\>
 
-Wait for the orchestrator's decision block:
+Wait for the orchestrator's decision:
 
-- **`Decision: resume-as-is`** → proceed directly to Step 5 (Execute). No planning needed.
-
-- **`Decision: spawn-planners`** → extract from the decision block:
-  - `feature`, `platform`, `module_path` (used in Step 2)
-  - `completed_artifacts` list
-  - `open_questions` list (the user's stated issues — passed to planners)
-  - Initialize: `visited = []`, `all_findings = []`, `round = 1`, `update_mode = true`
-  - **Do NOT read any project files, search the codebase, or analyze artifacts here.** Planners own all artifact exploration — proceed immediately to Step 2.
+- **`Decision: start-fresh`** → proceed to Step 0.
+- **`Decision: discard-partial`** → `rm -rf "<run_dir from decision>"`, proceed to Step 0.
+- **`Decision: restore-partial`** → extract `run_dir`, `figma_groups`, `all_findings`, `round`. Reconstruct `visited` from `all_findings`. Skip Steps 0–1.5b, re-enter Step 2.
+- **`Decision: resume-as-is`** → extract `run_dir`. Proceed directly to Step 5 (Execute).
+- **`Decision: spawn-planners`** → extract `feature`, `platform`, `module_path`, `completed_artifacts`, `open_questions`, `figma_groups` (if present). Initialize `visited = []`, `all_findings = []`, `round = 1`, `update_mode = true`. Proceed to Step 2.
 
 ## Step 0 — Classify Inputs
 
