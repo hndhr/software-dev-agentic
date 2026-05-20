@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.22.2] — 2026-05-20
+
+### Fixed
+- `builder-plan-feature` — added explicit scope boundary at Step R entry and at the preflight run-selection handoff. The skill was reading plan.md, context.md, state.json, ticket files, and code files inline before spawning the orchestrator. All codebase reading is now prohibited in the skill; only the listed shell commands in R0 are permitted.
+
+---
+
 ## [7.22.1] — 2026-05-20
 
 ### Fixed

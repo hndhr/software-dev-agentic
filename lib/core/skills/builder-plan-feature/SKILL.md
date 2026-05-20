@@ -60,9 +60,12 @@ options     : one per found plan — label: <feature>, description: "<completed 
 After the user selects a run:
 
 1. Derive `run_dir` from the path of the selected `plan.md` — take its parent directory. Do not reconstruct from feature name.
-2. Proceed directly to **Step R**.
+2. **Do NOT read plan.md, context.md, state.json, ticket files, code files, or any other project files.** All context gathering is the orchestrator's and planners' responsibility.
+3. Proceed directly to **Step R**.
 
 ## Step R — Review and Adjust (Resume path only)
+
+**Scope boundary:** this skill does not read project files, ticket files, or code artifacts at any point in Step R. Only the shell commands explicitly listed below are permitted. All codebase reading is delegated to the orchestrator and planners.
 
 ### Step R0 — Figma repair pre-check
 
