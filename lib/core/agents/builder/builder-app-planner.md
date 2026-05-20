@@ -17,6 +17,8 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `platform` | `web`, `ios`, `flutter`, or `android` |
 | `module-path` | Root path of the feature's module in the project |
 | `scope` | *(optional)* Comma-separated concerns to search: `di`, `route`, `module`, `analytics`, `feature_flag`. Omit to search all. |
+| `open_questions` | *(optional, update path only)* List of specific issues or changes the user stated. Focus analysis on artifacts relevant to these questions. |
+| `completed_artifacts` | *(optional, update path only)* Artifact names already built. Report these as `exists` + locked — do not propose recreating them. |
 
 ## Search Protocol
 

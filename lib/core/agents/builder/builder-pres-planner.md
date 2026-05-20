@@ -18,6 +18,8 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `module-path` | Root path of the feature's module in the project |
 | `scope` | *(optional)* Comma-separated artifact types to search: `stateholder`, `screen`, `component`, `navigator`. Omit to search all. |
 | `figma_groups` | *(optional)* Verified screen groupings from the entry skill — `[{ screen, states: [{ state, file, layout_file, screenshot }] }]`. Already confirmed by the user. |
+| `open_questions` | *(optional, update path only)* List of specific issues or changes the user stated. Focus analysis on artifacts relevant to these questions. |
+| `completed_artifacts` | *(optional, update path only)* Artifact names already built. Report these as `exists` + locked — do not propose recreating them. |
 
 ## Search Protocol
 

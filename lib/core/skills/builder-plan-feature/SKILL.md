@@ -64,6 +64,30 @@ After the user selects a run:
 
 ## Step R — Review and Adjust (Resume path only)
 
+### Step R0 — Figma repair pre-check
+
+```bash
+find "<run_dir>/inputs" -name "figma-*.md" 2>/dev/null | sort
+ls "<run_dir>/figma-groups.json" 2>/dev/null
+```
+
+**If figma-*.md files exist:**
+- Check each file's `screenshot:` frontmatter. For any value starting with `http` where no corresponding `.png` exists on disk:
+  ```bash
+  curl -sL "<url>" -o "<run_dir>/inputs/figma-<slug>-screenshot.png"
+  ```
+  Then update the `screenshot:` frontmatter in that `.md` to the local path. Add `screenshot_url: <url>` if absent.
+- If `figma-groups.json` is missing: read `parent_frame` frontmatter from every `figma-*.md` file and reconstruct it:
+  ```bash
+  cat > "<run_dir>/figma-groups.json" << 'EOF'
+  <reconstructed JSON grouped by parent_frame>
+  EOF
+  ```
+
+**Restore figma_groups:** if `figma-groups.json` now exists (found or just written), read it and store as `figma_groups` for use in Step 2.
+
+### Step R1 — Gather intent
+
 Spawn `builder-feature-orchestrator` with mode `review-resume`:
 
 > **Mode: review-resume**
@@ -72,35 +96,14 @@ Spawn `builder-feature-orchestrator` with mode `review-resume`:
 
 Wait for the orchestrator's decision block:
 
-- **`Decision: resume-as-is`** — execute repairs if present (Step R1), then proceed to Step 4.
-- **`Decision: resume-updated`** — execute repairs if present (Step R1), then archive + write updated files, then proceed to Step 4:
+- **`Decision: resume-as-is`** → proceed directly to Step 5 (Execute). No planning needed.
 
-  ```bash
-  N=$(ls "<run_dir>/plan-v"*.md 2>/dev/null | wc -l | tr -d ' ')
-  N=$((N + 1))
-  mv "<run_dir>/plan.md"    "<run_dir>/plan-v${N}.md"
-  mv "<run_dir>/context.md" "<run_dir>/context-v${N}.md"
-  ```
-
-  Write updated `plan.md` and `context.md` from the orchestrator's response. Proceed to Step 4.
-
-- **`Decision: rerun-ui-with-figma`** — execute repairs if present (Step R1), then execute UI rerun (Step R2), then proceed to Step 5.
-
-### Step R1 — Execute Figma Repairs (skip if decision has no `figma_repair` section)
-
-For each entry in `figma_repair`:
-1. `curl -sL "<url>" -o "<output_path>"`
-2. Update the `screenshot:` frontmatter in `<md_file>` to the local path. Add `screenshot_url: <url>` if not already present.
-
-If `figma_groups_json` is present in the decision: write it to `<run_dir>/figma-groups.json`.
-
-### Step R2 — Rerun UI with Figma (only for `Decision: rerun-ui-with-figma`)
-
-1. Read `state.json`. Remove every name listed in `reset_artifacts` from `completed_artifacts`. Reset their `Progress` cells in `plan.md` to `pending`.
-2. Restore `figma_groups` from the `figma_groups_json` value in the decision block.
-3. Spawn `builder-pres-planner` with `figma_groups`.
-4. Update the `## Figma Alignment` section in `context.md` with the planner's output (replace existing section or append if absent).
-5. Proceed to Step 5 (Execute).
+- **`Decision: spawn-planners`** → extract from the decision block:
+  - `feature`, `platform`, `module_path` (used in Step 2)
+  - `completed_artifacts` list
+  - `open_questions` list (the user's stated issues — passed to planners)
+  - Initialize: `visited = []`, `all_findings = []`, `round = 1`, `update_mode = true`
+  - Proceed to Step 2.
 
 ## Step 0 — Classify Inputs
 
@@ -263,9 +266,13 @@ From the current `Decision: spawn-planners` block, read the `spawn:` list. Spawn
 - `builder-pres-planner` — if `pres` is in the spawn list
 - `builder-app-planner` — if `app` is in the spawn list
 
-Pass to each planner: feature name, platform, module-path (from orchestrator's gather-intent output).
+Pass to each planner: feature name, platform, module-path (from orchestrator's gather-intent or review-resume output).
 
-For `builder-pres-planner` specifically — if `figma_groups` was established in Step 1.5b or P2, also pass:
+**If `update_mode` is true** (resume path with new intent), also pass:
+- `open_questions` — the user's stated issues from the Decision block, verbatim. Planners use these to focus on what needs fixing rather than doing a full greenfield sweep.
+- `completed_artifacts` — list of already-built artifact names. Planners treat these as locked: report `exists` status, do not propose recreating them.
+
+For `builder-pres-planner` specifically — if `figma_groups` was established in Step 1.5b or Step R0, also pass:
 - The full `figma_groups` structure (screen → states + file paths) — do NOT inline file contents
 
 Wait for all planners in this round to complete.
@@ -307,12 +314,33 @@ Wait for the orchestrator's decision block.
 
 ## Step 3 — Synthesize Plan
 
+**If `update_mode` is true** — archive the current plan before synthesizing:
+
+```bash
+N=$(ls "<run_dir>/plan-v"*.md 2>/dev/null | wc -l | tr -d ' ')
+N=$((N + 1))
+mv "<run_dir>/plan.md"    "<run_dir>/plan-v${N}.md"
+mv "<run_dir>/context.md" "<run_dir>/context-v${N}.md"
+```
+
 Spawn `builder-feature-orchestrator` with mode `synthesize`:
 
 > **Mode: synthesize**
 >
+> \<if update_mode is true:\>
+> **update: true**
+>
+> **existing_plan:**
+> \<content of archived plan-vN.md\>
+>
+> **existing_context:**
+> \<content of archived context-vN.md\>
+>
+> **completed_artifacts:** \<comma-separated list\>
+> \<end if\>
+>
 > **All Accumulated Findings:**
-> <paste full all_findings content>
+> \<paste full all_findings content\>
 
 Wait for the orchestrator to return the plan summary and write plan.md + context.md.
 

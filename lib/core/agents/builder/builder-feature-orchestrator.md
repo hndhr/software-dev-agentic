@@ -156,6 +156,11 @@ If all required recommendations are covered by the visited set (or there are no 
 
 Called after the entry skill receives `Decision: converged`. The entry skill passes all accumulated findings inline.
 
+Two variants — the entry skill signals which applies:
+
+- **New feature** (`update: false`) — write plan.md and context.md from scratch.
+- **Update** (`update: true`) — patch the existing plan.md and context.md. The entry skill also passes `existing_plan`, `existing_context`, and `completed_artifacts` inline. Preserve every artifact row already in `completed_artifacts` with its current status and progress — do not remove or reset them. Only add new rows, update Notes on existing rows, or change Status/Progress on pending rows.
+
 **Step 1 — Load layer contracts** (already loaded in gather-intent; use cached knowledge — do not re-read).
 
 **Step 2 — Resolve project root:**
@@ -275,113 +280,69 @@ module-path: <detected module path>
 
 ## Mode: review-resume
 
-Called when the user selects an existing run. Receives `run_dir` — reads all files internally.
+Called when the user selects an existing run. Receives `run_dir` — reads minimal state internally. Intent gathering and layer analysis are delegated to planners via the convergence loop.
 
-**Step 1 — Load run state:**
-
-```bash
-git rev-parse --show-toplevel  # confirm working directory
-```
+**Step 1 — Load minimal state**
 
 Read from `run_dir`:
-- `plan.md` — all layer artifact tables + frontmatter
-- `context.md` — discovered artifacts, Figma Alignment section
+- `plan.md` — frontmatter (`feature`, `platform`, `operations`) + artifact rows (name, type, progress column only)
 - `state.json` — `completed_artifacts` list
 
-Parse all artifact rows from plan.md. Cross-reference each against `completed_artifacts`. Produce a one-line summary:
+Cross-reference artifact rows against `completed_artifacts`. Produce a one-line summary:
 
 > `<X> of <Y> artifacts done — pending: <comma-separated names>`
 
-**Step 2 — Check Figma inputs:**
-
-```bash
-find "<run_dir>/inputs" -name "figma-*.md" 2>/dev/null | sort
-ls "<run_dir>/figma-groups.json" 2>/dev/null
-```
-
-If figma-*.md files found:
-- Read frontmatter of each (`source:`, `state:`, `parent_frame:`, `screenshot:`, `layout_file:`)
-- Identify screenshots needing backfill: `screenshot:` starts with `http` and no corresponding `.png` exists on disk
-- Check if `figma-groups.json` is missing
-
-Collect:
-- `figma_files_count` — total figma-*.md files
-- `screenshots_needing_backfill` — `[{ url, output_path, md_file }]` for each URL screenshot without a local file; derive `output_path` as `<run_dir>/inputs/figma-<slug>-screenshot.png`
-- `needs_groups_reconstruction` — true if figma-groups.json is missing and figma files exist
-
-If `needs_groups_reconstruction`: group all entries by `parent_frame` from their frontmatter. Build `figma_groups`:
-
-```json
-[{ "screen": "<parent_frame>", "states": [{ "state": "<state>", "file": "<abs-path>", "layout_file": "<abs-path>", "screenshot": "<abs-path-or-null>" }] }]
-```
-
-**Step 3 — Identify completed UI artifacts (for re-run offer):**
-
-From `completed_artifacts` in state.json, find any Screen or Component artifact names. If any exist and figma files are present, offer the "Re-run UI with Figma" option below.
-
-**Step 4 — Ask the user:**
-
-Build summary line. If `screenshots_needing_backfill` or `needs_groups_reconstruction`, append: `(<N> Figma screenshots need downloading)`.
+**Step 2 — Gather intent**
 
 Call `AskUserQuestion`:
 
 ```
-question    : "<summary line>. How would you like to proceed?"
-header      : "Resume Plan"
+question    : "<summary line>. What needs to change, or should we just continue?"
+header      : "Resume Intent"
 multiSelect : false
 options     :
-  - label: "Resume as-is",         description: "Continue from where it left off — no changes to the plan"
-  - label: "Adjust scope",         description: "Add, remove, or change artifacts before resuming"
-  - label: "Add context",          description: "Provide updated requirements or new inputs before resuming"
-  - label: "Re-run UI with Figma", description: "Reset Screen/Component artifacts and rebuild with Figma layout + screenshots" (only if completed UI artifacts exist AND figma files are present)
+  - label: "Continue as-is",   description: "No changes — resume execution from the next pending artifact"
+  - label: "Describe changes", description: "Something needs to change — I'll describe what"
 ```
 
-**Step 5 — Return Decision:**
-
-In every Decision block, include `figma_repair` and `figma_groups_json` only if repairs are needed.
-
-**Resume as-is:**
+**Continue as-is** → return:
 
 ```
 ## Decision: resume-as-is
-figma_repair:
-  - url: "<original_url>"
-    output_path: "<run_dir>/inputs/figma-<slug>-screenshot.png"
-    md_file: "<abs-path-to-figma-*.md>"
-figma_groups_json: |
-  <reconstructed JSON, only if needs_groups_reconstruction>
 ```
 
-(omit `figma_repair` key entirely if `screenshots_needing_backfill` is empty; omit `figma_groups_json` key entirely if not reconstructed)
+**Describe changes** → ask the user to describe what needs fixing or changing (bugs found, design issues, scope additions, etc.). Listen fully before responding.
 
-**Adjust scope** → ask the user what to add, remove, or change. Update artifact rows in plan.md and affected sections of context.md. Return:
+**Step 3 — Decide which layers are affected**
 
-```
-## Decision: resume-updated
+From the user's description, determine which layers need re-planning:
 
-### plan.md
-<full updated plan.md content>
+| User describes | Spawn |
+|---|---|
+| UI layout / visual / icon / ordering issues | `pres` |
+| New or changed fields on existing data | `domain` + `data` |
+| New screen or flow | `domain` + `data` + `pres` + `app` |
+| Navigation or routing change | `pres` + `app` |
+| Business rule / logic change | `domain` |
+| API contract change | `data` |
 
-### context.md
-<full updated context.md content>
-
-figma_repair: [...]       (omit if not needed)
-figma_groups_json: |      (omit if not needed)
-  <json>
-```
-
-**Add context** → ask the user for updated requirements or new inputs. Incorporate into context.md. If new artifacts are implied, add them to plan.md with `Progress: pending`. Return `Decision: resume-updated` with same optional figma fields.
-
-**Re-run UI with Figma:**
+Return `Decision: spawn-planners` with `open_questions` carrying the user's stated issues as explicit questions for the planners to answer. Frame each question as a concrete thing the planner must resolve (e.g. "Icon beside three-dots button is wrong — determine correct icon from Figma reference and plan the fix").
 
 ```
-## Decision: rerun-ui-with-figma
-reset_artifacts:
-  - <Screen or Component artifact name>
-  ...
-figma_repair: [...]       (omit if not needed)
-figma_groups_json: |
-  <figma_groups as JSON>
+## Decision: spawn-planners
+round: 1
+spawn:
+  - <layer>
+reason: <one line per planner>
+scope:
+  <layer>: [<artifact types>]
+open_questions:
+  - <specific question from user's stated issue 1>
+  - <specific question from user's stated issue 2>
+feature: <from plan.md frontmatter>
+platform: <from plan.md frontmatter>
+module_path: <from plan.md frontmatter or inferred>
+completed_artifacts: [<list from state.json>]
 ```
 
 ## Write Path Rule

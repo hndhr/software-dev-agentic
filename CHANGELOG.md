@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.22.0] — 2026-05-20
+
+### Changed
+- `builder-feature-orchestrator` — `review-resume` mode redesigned: stripped to minimal state read (plan.md artifact summary + completed_artifacts) + intent gathering only. Returns `Decision: resume-as-is` (no planning needed) or `Decision: spawn-planners` carrying `open_questions` from the user's stated issues. No longer reads figma inputs, computes repairs, or writes updated plan files — all analysis is now delegated to planners via the convergence loop.
+- `builder-feature-orchestrator` — `synthesize` mode now accepts an `update: true` variant with `existing_plan`, `existing_context`, and `completed_artifacts` inline. Patches existing plan.md rather than rewriting from scratch — preserves completed artifact rows.
+- `builder-plan-feature` — resume path now always runs the convergence loop when the user describes changes. Step R restructured: R0 handles figma repair pre-check + restores `figma_groups`; R1 gathers intent from orchestrator; on `Decision: spawn-planners`, feeds directly into Step 2 with `update_mode = true`.
+- `builder-plan-feature` — Step 2a passes `open_questions` and `completed_artifacts` to planners when `update_mode` is true. Step 3 archives existing plan before synthesize and passes `existing_plan`/`existing_context`/`completed_artifacts` to orchestrator on update path.
+- `builder-domain-planner`, `builder-data-planner`, `builder-pres-planner`, `builder-app-planner` — added `open_questions` and `completed_artifacts` optional parameters. Planners use `open_questions` to focus analysis on stated issues; treat `completed_artifacts` as locked (`exists` status, no recreation).
+
+---
+
 ## [7.21.0] — 2026-05-20
 
 ### Added
