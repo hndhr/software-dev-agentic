@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.20.1] — 2026-05-20
+
+### Fixed
+- `builder-feature-worker` — screenshot read restructured as an explicit numbered sequential step (md → jsx → png) with rationale; no longer a deprioritizable bullet point that workers skip under context pressure.
+- `builder-plan-feature` — replaced flat "Figma Reference Files" list in both initial and checkpoint worker prompts with an explicit 4-step Figma read instruction tied to `## Figma Alignment` in context.md.
+
+---
+
 ## [7.20.0] — 2026-05-20
 
 ### Added
