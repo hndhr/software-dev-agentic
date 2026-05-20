@@ -409,9 +409,12 @@ Read `plan.md` and `context.md` from the run directory. Spawn `builder-feature-w
 > **context.md**
 > \<content\>
 >
-> \<if Figma inputs were resolved, include — otherwise omit\>
-> **Figma Reference Files:**
-> \<list each file path from resolved Figma inputs\>
+> \<if ## Figma Alignment section is present in context.md, include — otherwise omit\>
+> **Figma Instruction:** For every Screen and Component artifact, before writing any code:
+> 1. Look up the artifact in the `## Figma Alignment` table in context.md above to get its Figma Files list
+> 2. `Read` each `.md` file — extract components, states, interactions, tokens, annotations
+> 3. `Read` each `layout_file` JSX — full file, no truncation
+> 4. `Read` each `screenshot` `.png` — this is mandatory, not optional; the Read tool renders images and visual inspection is required before implementing
 >
 > Proceed directly to the first pending artifact.
 
@@ -428,9 +431,12 @@ Read `plan.md` and `context.md` from the run directory. Spawn `builder-feature-w
 > **Resume from:** \<next_artifact from checkpoint block\>
 > **State file:** \<state_file from checkpoint block\>
 >
-> \<if Figma inputs were resolved, include — otherwise omit\>
-> **Figma Reference Files:**
-> \<list each file path\>
+> \<if ## Figma Alignment section is present in context.md, include — otherwise omit\>
+> **Figma Instruction:** For every Screen and Component artifact, before writing any code:
+> 1. Look up the artifact in the `## Figma Alignment` table in context.md above to get its Figma Files list
+> 2. `Read` each `.md` file — extract components, states, interactions, tokens, annotations
+> 3. `Read` each `layout_file` JSX — full file, no truncation
+> 4. `Read` each `screenshot` `.png` — mandatory, not optional; visual inspection required before implementing
 >
 > Read state.json, skip completed artifacts, proceed directly to next_artifact.
 

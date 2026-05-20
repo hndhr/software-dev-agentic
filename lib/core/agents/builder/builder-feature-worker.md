@@ -137,10 +137,10 @@ Never create a duplicate of a catalog component or an existing project component
    - Look up this artifact's name in the `Figma Alignment` table — read the `Figma Files` column directly to get the list of `.md` file paths. No Glob needed.
    - `Read` each listed `.md` file — extract `Components`, `State`, `Interactions`, `Tokens`, `Annotations` from the body, and `layout_file` + `screenshot` paths from the frontmatter.
    - **StateHolder** — read the `.md` body only (all state files for this screen). Pass as implementation constraints: state fields must cover all named states; event cases must cover all interactions.
-   - **Screen / Component** — MUST read all three sources before calling the creation skill. Skipping any is a correctness violation:
-     - `.md` body — semantic layer: components, states, interactions, annotations
-     - `layout_file` path (from `.md` frontmatter) — `Read` this JSX file in full; it is the authoritative layout source. Do not summarize or truncate
-     - `screenshot` path (from `.md` frontmatter) — `Read` this local `.png` file; the `Read` tool loads images for visual grounding
+   - **Screen / Component** — execute these reads as explicit sequential steps before calling the creation skill. Do not skip any step, do not write code before all three are done:
+     1. `Read` each `.md` file — extract `Components`, `State`, `Interactions`, `Tokens`, `Annotations` from body
+     2. `Read` each `layout_file` JSX in full — authoritative layout source, do not truncate
+     3. `Read` each `screenshot` `.png` — **do this even if you have already read the .md and .jsx.** The Read tool renders images. Visual inspection of the screenshot is required before writing any code — it reveals spacing, color weight, and hierarchy that text alone cannot convey
    - Pass to the creation skill:
      - `## Design System Bindings` — hard constraint: use exactly these symbols, no framework primitive substitutions
      - `## Custom Widgets` — elements to implement as new widgets
