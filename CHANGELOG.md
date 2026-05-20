@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.22.5] — 2026-05-21
+
+### Fixed
+- `builder-plan-feature` — removed Step 0A (intent classification belongs to the orchestrator, not the skill). Preflight now explicitly states "Immediately call AskUserQuestion — no other work between reading and asking." After run selection, the only permitted next action is Step R — no analysis, no file reads. The orchestrator owns all intent gathering and codebase exploration.
+
+---
+
 ## [7.22.4] — 2026-05-21
 
 ### Fixed

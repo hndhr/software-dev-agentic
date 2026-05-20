@@ -5,18 +5,6 @@ user-invocable: true
 allowed-tools: Agent, AskUserQuestion, Bash, Read, WebFetch
 ---
 
-## Step 0A — Input Gate (always first)
-
-Read the user's message. Classify intent:
-
-**Verification / review intent** — triggered when the message contains any of: `verify`, `check`, `review`, `read the code`, `look at the code`, `test`, `confirm`, `validate`, `what was built`, `is it correct`, or similar phrases asking to inspect existing work.
-
-→ **Do not read any source files, run any tests, or do any codebase exploration.**
-→ Run the Preflight bash commands to find existing runs. Derive `run_dir`. Proceed directly to **Step R** — the orchestrator will gather the user's concerns as `open_questions` and route them to planners.
-→ The user's full message is the intent. Pass it verbatim to the orchestrator in Step R1. Do not act on it yourself.
-
-**New feature / planning intent** — no verification keywords → proceed to Preflight normally.
-
 ## Preflight — Check Existing Runs
 
 Before resolving any inputs, check for existing runs — both completed plans and partial-planning runs interrupted before synthesis:
@@ -60,7 +48,7 @@ options     :
 
 **Start fresh** → proceed to Step 0.
 
-**Continue existing** → read the `feature` name and `status` from the frontmatter of each found `plan.md`. Also read `state.json` alongside each plan to get `completed_artifacts` count. Call `AskUserQuestion` with one option per run (up to 4):
+**Continue existing** → read the `feature` name and `status` from the frontmatter of each found `plan.md`. Also read `state.json` alongside each plan to get `completed_artifacts` count. Immediately call `AskUserQuestion` — no other work between reading and asking:
 
 ```
 question    : "Which plan would you like to resume?"
@@ -69,15 +57,14 @@ multiSelect : false
 options     : one per found plan — label: <feature>, description: "<completed count> artifacts done · status: <status>"
 ```
 
-After the user selects a run:
+After the user selects a run, the next action is **Step R** — nothing else:
 
-1. Derive `run_dir` from the path of the selected `plan.md` — take its parent directory. Do not reconstruct from feature name.
-2. **Do NOT read any source code or implementation files — even if the user's message asks to verify or review code.** Pass verification concerns to the orchestrator as open questions; planners own all codebase exploration.
-3. Proceed directly to **Step R**.
+1. Derive `run_dir` from the path of the selected `plan.md` — take its parent directory.
+2. Proceed directly to **Step R**. Do not read any other files. Do not analyse the state. The orchestrator owns all intent gathering and codebase exploration.
 
 ## Step R — Review and Adjust (Resume path only)
 
-**Scope boundary:** this skill does not read source code or implementation files at any point in Step R. Only the shell commands explicitly listed below are permitted. All codebase exploration is delegated to the orchestrator and planners.
+**Scope boundary:** only the shell commands listed below are permitted in Step R. All intent gathering and codebase exploration belong to the orchestrator and planners.
 
 ### Step R0 — Figma repair pre-check
 
