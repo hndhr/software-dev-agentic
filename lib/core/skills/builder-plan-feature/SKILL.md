@@ -103,7 +103,7 @@ Wait for the orchestrator's decision block:
   - `completed_artifacts` list
   - `open_questions` list (the user's stated issues — passed to planners)
   - Initialize: `visited = []`, `all_findings = []`, `round = 1`, `update_mode = true`
-  - Proceed to Step 2.
+  - **Do NOT read any project files, search the codebase, or analyze artifacts here.** Planners own all artifact exploration — proceed immediately to Step 2.
 
 ## Step 0 — Classify Inputs
 

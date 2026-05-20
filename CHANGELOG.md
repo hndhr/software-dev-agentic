@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.22.1] — 2026-05-20
+
+### Fixed
+- `builder-plan-feature` — added explicit prohibition on codebase reading in Step R1 after receiving `Decision: spawn-planners`. The skill was exploring entity and mapper files before spawning planners, violating the principle that planners own all artifact knowledge.
+
+---
+
 ## [7.22.0] — 2026-05-20
 
 ### Changed
