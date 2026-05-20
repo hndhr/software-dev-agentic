@@ -2,7 +2,7 @@
 name: builder-figma-worker
 description: Fetch a Figma node via Figma MCP, write three artifacts — compact semantic .md, raw JSX layout file, and screenshot URL reference — then return a compact summary. Spawned by builder-plan-feature for each Figma input. Raw Figma data stays isolated in this agent's context window and never reaches the main session.
 model: sonnet
-tools: Write, Glob, mcp__Figma_MCP__get_design_context, mcp__Figma_MCP__get_screenshot
+tools: Write, Glob, Bash, mcp__Figma_MCP__get_design_context, mcp__Figma_MCP__get_screenshot
 ---
 
 You are the Figma design extractor. Fetch a Figma node, write three reference artifacts to disk, and return a compact summary. Raw Figma data never leaves this agent's context.
@@ -48,6 +48,14 @@ Call `mcp__Figma_MCP__get_screenshot` with the same `fileKey` and `nodeId`.
 
 Note the returned screenshot URL as `<screenshot_url>`.
 
+**Step 2b — Download screenshot to disk**
+
+```bash
+curl -sL "<screenshot_url>" -o "<run_dir>/inputs/figma-<slug>-screenshot.png"
+```
+
+Use `<run_dir>/inputs/figma-<slug>-screenshot.png` as `<screenshot_local>` everywhere screenshots are referenced. This allows the feature worker to `Read` the file as an image — a remote URL cannot be passed to the `Read` tool.
+
 From the design context response extract:
 - The fetched node's **name** — use as slug base
 - Its **parent frame or component set name** — the logical screen this node belongs to
@@ -70,7 +78,8 @@ Write three files to `<run_dir>/inputs/`:
 source: <figma_url>
 parent_frame: <parent frame or component set name>
 state: <state name this node represents>
-screenshot: <screenshot_url>
+screenshot: <run_dir>/inputs/figma-<slug>-screenshot.png
+screenshot_url: <screenshot_url>
 layout_file: <run_dir>/inputs/figma-<slug>-layout.jsx
 ---
 
@@ -93,7 +102,12 @@ Rules:
 
 **Step 4 — Verify**
 
-`Glob` for both `figma-<slug>.md` and `figma-<slug>-layout.jsx` to confirm both were written.
+`Glob` for all three output files to confirm they were written:
+- `figma-<slug>.md`
+- `figma-<slug>-layout.jsx`
+- `figma-<slug>-screenshot.png`
+
+If the screenshot file is missing (curl failed), retry Step 2b once. If it still fails, write a placeholder `.png.failed` file and record `screenshot: null` in the `.md` frontmatter — do not block on this.
 
 ## Output
 
@@ -104,7 +118,7 @@ Rules:
 source: <figma_url>
 file: <run_dir>/inputs/figma-<slug>.md
 layout_file: <run_dir>/inputs/figma-<slug>-layout.jsx
-screenshot: <screenshot_url>
+screenshot: <run_dir>/inputs/figma-<slug>-screenshot.png
 parent_frame: <parent frame or component set name>
 state: <state name this node represents>
 components: <comma-separated list of notable component names>

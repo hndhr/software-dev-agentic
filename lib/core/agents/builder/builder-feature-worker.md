@@ -134,19 +134,19 @@ Never create a duplicate of a catalog component or an existing project component
 1. Write checkpoint: update `next_artifact` in state.json to this artifact's name before doing any other work. Update this artifact's `Progress` cell in plan.md to `in-progress`.
 2. Load the layer-specific impl reference for this artifact type (e.g. `domain-impl.md` for entities/use cases, `data-impl.md` for mappers/datasources, `presentation-impl.md` for stateholders/screens). Grep `^## ` to list headings, read only the section(s) relevant to this artifact type
 3. **If artifact type is StateHolder, Screen, or Component:** resolve Figma reference for this artifact (if `## Figma Alignment` is present in context.md):
-   - Look up this artifact's name in the `Figma Alignment` table to get the corresponding `Frame` name.
-   - `Glob` for `figma-*.md` files in `runs/<feature>/inputs/` matching the frame name. For each matched file: `Grep` for `^## ` to confirm the section, then `Read` with `offset` + `limit` to extract the section only. Collect `Components`, `State`, `Interactions`, `Tokens`, `Annotations`, and the `screenshot` + `layout_file` paths from frontmatter.
-   - **StateHolder** — read `.md` files only (all states for this screen). Pass as implementation constraints: state fields must cover all named states; event cases must cover all interactions.
-   - **Screen / Component** — read all three artifact types:
-     - `.md` files — semantic layer (components, states, interactions, annotations)
-     - `-layout.jsx` files — exact layout, spacing, and design token values; read with `offset` + `limit` around the relevant component sections, not wholesale
-     - `screenshot` URLs — pass as visual reference so the creation skill can see the design directly
+   - Look up this artifact's name in the `Figma Alignment` table — read the `Figma Files` column directly to get the list of `.md` file paths. No Glob needed.
+   - `Read` each listed `.md` file — extract `Components`, `State`, `Interactions`, `Tokens`, `Annotations` from the body, and `layout_file` + `screenshot` paths from the frontmatter.
+   - **StateHolder** — read the `.md` body only (all state files for this screen). Pass as implementation constraints: state fields must cover all named states; event cases must cover all interactions.
+   - **Screen / Component** — MUST read all three sources before calling the creation skill. Skipping any is a correctness violation:
+     - `.md` body — semantic layer: components, states, interactions, annotations
+     - `layout_file` path (from `.md` frontmatter) — `Read` this JSX file in full; it is the authoritative layout source. Do not summarize or truncate
+     - `screenshot` path (from `.md` frontmatter) — `Read` this local `.png` file; the `Read` tool loads images for visual grounding
    - Pass to the creation skill:
      - `## Design System Bindings` — hard constraint: use exactly these symbols, no framework primitive substitutions
      - `## Custom Widgets` — elements to implement as new widgets
-     - `## Figma Design Reference` — semantic summary from `.md`
-     - `## Figma Layout Reference` — relevant JSX sections from `-layout.jsx`
-     - `## Figma Screenshot` — screenshot URL(s) for visual grounding
+     - `## Figma Design Reference` — semantic summary from `.md` body
+     - `## Figma Layout Reference` — full JSX content from `layout_file`
+     - `## Figma Screenshot` — image loaded from `screenshot` path
 4. Resolve skill path: `.claude/skills/<skill-name>/SKILL.md`
 5. `Read` the skill file
 6. Follow its instructions as the authoritative procedure for `<platform>`

@@ -17,7 +17,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `platform` | `web`, `ios`, or `flutter` |
 | `module-path` | Root path of the feature's module in the project |
 | `scope` | *(optional)* Comma-separated artifact types to search: `stateholder`, `screen`, `component`, `navigator`. Omit to search all. |
-| `figma_groups` | *(optional)* Verified screen groupings from the entry skill — `[{ screen, states: [...], files: [...] }]`. Already confirmed by the user. |
+| `figma_groups` | *(optional)* Verified screen groupings from the entry skill — `[{ screen, states: [{ state, file, layout_file, screenshot }] }]`. Already confirmed by the user. |
 
 ## Search Protocol
 
@@ -59,9 +59,9 @@ Always include `Dependency Rule`, `Creation Order`, and `Layer Invariants`. If s
 
 `figma_groups` is pre-verified by the user — do not re-question the grouping.
 
-For each group `{ screen, states, files }`:
-1. For each file in `files`: `Grep` for `^## ` to confirm available sections — do not read the whole file.
-2. For each state file: `Read` with `offset` + `limit` targeting that section only. Extract:
+For each group `{ screen, states }` where each state has `{ state, file, layout_file, screenshot }`:
+1. For each entry in `states`: `Grep` for `^## ` in `state.file` to confirm available sections — do not read the whole file.
+2. For each state entry: `Read` `state.file` with `offset` + `limit` targeting that section only. Extract:
    - `Components` — UI elements present in this state
    - `State` — the named state this frame represents
    - `Interactions` — user-initiated actions (tap, pull-to-refresh, swipe, FAB, etc.)
@@ -145,9 +145,9 @@ Return exactly this structure — no prose:
 ### Figma Alignment
 (omit section entirely if no Figma inputs were provided)
 
-| Screen (parent_frame) | Artifact | States | Key Interactions |
-|---|---|---|---|
-| <screen name from figma_groups> | <ArtifactClassName> | empty, loading, content, error | pull-to-refresh, FAB opens bottom sheet |
+| Screen (parent_frame) | Artifact | Figma Files | States | Key Interactions |
+|---|---|---|---|---|
+| <screen name from figma_groups> | <ArtifactClassName> | <comma-separated abs paths to figma-*.md files for this screen> | empty, loading, content, error | pull-to-refresh, FAB opens bottom sheet |
 
 ### Impact Recommendations
 | Layer | Reason | Urgency |

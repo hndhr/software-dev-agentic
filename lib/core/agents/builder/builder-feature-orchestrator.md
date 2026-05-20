@@ -217,6 +217,8 @@ separate-ui-layer: true | false
 
 **Step 5 — Write context.md:**
 
+Before writing, check all planner findings blocks for a `### Figma Alignment` section. If found, extract the full table — it will be embedded in `## Figma Alignment` below. This must happen before writing, not after.
+
 ```
 <root>/.claude/agentic-state/runs/<feature>/context.md
 ```
@@ -255,10 +257,11 @@ module-path: <detected module path>
 - File location pattern: `<ModuleName>/<Layer>/<Type>/`
 
 ## Figma Alignment
-(omit entirely if no Figma inputs were resolved)
+(omit this section entirely if no `### Figma Alignment` table was found in planner findings)
 
-| Frame | Artifact | States | Key Interactions |
-|---|---|---|---|
+| Screen (parent_frame) | Artifact | Figma Files | States | Key Interactions |
+|---|---|---|---|---|
+<rows copied verbatim from pres-planner's ### Figma Alignment table>
 
 ## Key Symbols
 (omit entirely for new-only features)
@@ -268,9 +271,7 @@ module-path: <detected module path>
 - execute_signature / primary_method_signature: ...
 ```
 
-**Step 6 — Populate Figma Alignment in context.md** (only if `### Figma Alignment` is present in any planner findings block): copy the full alignment table into the `## Figma Alignment` section of context.md. This is the authoritative frame→artifact mapping used by the worker during execution.
-
-**Step 7 — Return plan summary** as a flat numbered list (one line per artifact, layer + status). Do not return file contents — the entry skill handles the approval interaction.
+**Step 6 — Return plan summary** as a flat numbered list (one line per artifact, layer + status). Do not return file contents — the entry skill handles the approval interaction.
 
 ## Mode: review-resume
 

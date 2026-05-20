@@ -7,15 +7,35 @@ allowed-tools: Agent, AskUserQuestion, Bash, Read, WebFetch
 
 ## Preflight — Check Existing Runs
 
-Before resolving any inputs, check for existing runs:
+Before resolving any inputs, check for existing runs — both completed plans and partial-planning runs interrupted before synthesis:
 
 ```bash
 find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs" -maxdepth 2 -name "plan.md" 2>/dev/null
+find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs" -maxdepth 2 -name "figma-groups.json" 2>/dev/null
 ```
 
-If none found → proceed to Step 0.
+If neither found → proceed to Step 0.
 
-If found → call `AskUserQuestion`:
+**Partial-planning run detected** — if `figma-groups.json` exists in a run dir but no `plan.md` alongside it:
+- Set `run_dir` to the parent directory of the found `figma-groups.json`
+- Read `figma-groups.json` to restore `figma_groups`
+- Read all `findings-round-*.json` files in that run dir (sorted by round number) to restore `all_findings` and determine last completed `round`
+- Reconstruct `visited` from the union of all `findings-round-*.json` `visited` arrays
+- Call `AskUserQuestion`:
+
+```
+question    : "A planning session was interrupted before the plan was written. Resume it?"
+header      : "Resume Planning"
+multiSelect : false
+options     :
+  - label: "Resume", description: "Restore figma groups and planner findings, re-enter the planning loop"
+  - label: "Discard", description: "Delete the partial run and start fresh"
+```
+
+**Resume** → skip Steps 0–1.5b, set `round = <last completed round> + 1`, re-enter Step 2 with restored state.
+**Discard** → `rm -rf "<run_dir>"`, proceed to Step 0.
+
+If only `plan.md` found → call `AskUserQuestion`:
 
 ```
 question    : "Existing plans found in runs/. What would you like to do?"
@@ -39,8 +59,80 @@ options     : one per found plan — label: <feature>, description: "<completed 
 
 After the user selects a run:
 
-1. Read `plan.md`, `context.md`, and `state.json` from the selected run directory.
-2. Proceed to **Step R — Review and Adjust**, then continue to Step 4.
+1. Derive `run_dir` from the path of the selected `plan.md` — take its parent directory. Do not reconstruct from feature name.
+2. Read `plan.md`, `context.md`, and `state.json` from `run_dir`.
+3. Proceed to **Step P — Figma Input Repair**, then **Step R**, then Step 4.
+
+## Step P — Figma Input Repair (Resume path only — runs before Step R)
+
+Check for existing Figma artifacts in the selected run directory:
+
+```bash
+find "<run_dir>/inputs" -name "figma-*.md" 2>/dev/null | sort
+```
+
+**No files found** → no Figma resources available. Proceed to Step R.
+
+**Files found** — Figma resources exist. Work through P1–P3 below.
+
+### P1 — Backfill missing screenshots
+
+For each `figma-*.md` file, read its `screenshot:` frontmatter value. If it starts with `http` (URL, not a local path) and no corresponding `.png` exists on disk:
+
+```bash
+curl -sL "<screenshot_url>" -o "<run_dir>/inputs/figma-<slug>-screenshot.png"
+```
+
+After download, update the `.md` frontmatter in-place:
+- `screenshot:` → local `.png` path
+- `screenshot_url:` → original URL (add if not present)
+
+Report: `Backfilled N / M already local / K failed`.
+
+### P2 — Reconstruct figma-groups.json (skip if already exists)
+
+```bash
+ls "<run_dir>/figma-groups.json" 2>/dev/null
+```
+
+If missing: read every `figma-*.md` frontmatter and group entries by `parent_frame`. Build and write `figma-groups.json`:
+
+```json
+[
+  {
+    "screen": "<parent_frame>",
+    "states": [
+      { "state": "<state>", "file": "<abs-path>", "layout_file": "<abs-path>", "screenshot": "<abs-path-or-null>" }
+    ]
+  }
+]
+```
+
+Store result as `figma_groups` for use in P3.
+
+### P3 — Offer re-run
+
+Read `state.json`. Identify Screen and Component artifacts already in `completed_artifacts`.
+
+Call `AskUserQuestion`:
+
+```
+question    : "Figma resources found in inputs/ (<N> frames, <M> screenshots ready).
+               <X> UI artifacts were built without Figma reference. Re-run them now with full Figma layout + screenshots?"
+header      : "Figma Reference"
+multiSelect : false
+options     :
+  - label: "Re-run UI with Figma", description: "Reset Screen/Component artifacts and rebuild using Figma layout + screenshots"
+  - label: "Skip",                 description: "Proceed to review without re-running UI artifacts"
+```
+
+**Skip** → proceed to Step R.
+
+**Re-run UI with Figma:**
+1. Remove all Screen and Component artifact names from `completed_artifacts` in `state.json`. Reset their `Progress` cells in `plan.md` to `pending`.
+2. Spawn `builder-pres-planner` with `figma_groups` from P2 to produce an updated `### Figma Alignment` table.
+3. Update the `## Figma Alignment` section in `context.md` with the planner's output (replace existing section or append if absent).
+4. Skip Step R — proceed directly to Step 5 (Execute).
 
 ## Step R — Review and Adjust (Resume path only)
 
@@ -198,6 +290,14 @@ options     :
 ]
 ```
 
+**Persist figma_groups to disk** — write immediately after grouping is confirmed:
+
+```bash
+cat > "<run_dir>/figma-groups.json" << 'EOF'
+<figma_groups as JSON>
+EOF
+```
+
 Initialize:
 - `visited` = [] (empty set of explored layers)
 - `all_findings` = [] (accumulated planner findings across all rounds)
@@ -218,12 +318,24 @@ From the current `Decision: spawn-planners` block, read the `spawn:` list. Spawn
 
 Pass to each planner: feature name, platform, module-path (from orchestrator's gather-intent output).
 
-For `builder-pres-planner` specifically — if `figma_groups` was established in Step 0b, also pass:
+For `builder-pres-planner` specifically — if `figma_groups` was established in Step 1.5b or P2, also pass:
 - The full `figma_groups` structure (screen → states + file paths) — do NOT inline file contents
 
 Wait for all planners in this round to complete.
 
 Add each spawned layer to `visited`. Append each planner's full findings block to `all_findings`.
+
+**Persist findings to disk** — write after every round completes:
+
+```bash
+cat > "<run_dir>/findings-round-<N>.json" << 'EOF'
+{
+  "round": <N>,
+  "visited": [<visited list>],
+  "findings": "<all_findings for this round, escaped>"
+}
+EOF
+```
 
 ### 2b — Send findings to orchestrator
 
