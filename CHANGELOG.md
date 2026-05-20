@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.19.0] — 2026-05-20
+
+### Added
+- `builder-feature-worker` — **Context Checkpoint** mechanism: after each artifact, evaluates context pressure across three signals (heavy artifact type, accumulated impl references loaded, artifact count). Emits `## Context Checkpoint` and exits cleanly when 2+ signals are true — no mid-artifact data loss.
+- `builder-plan-feature` (Step 5) — **checkpoint loop**: when worker returns `## Context Checkpoint`, immediately re-spawns a fresh worker with plan.md + context.md re-read from disk and resume instructions pointing at `state.json`. Repeats until worker returns `## Feature Complete`. No user intervention required.
+
+---
+
 ## [7.18.1] — 2026-05-20
 
 ### Fixed
