@@ -30,23 +30,20 @@ Collect results as `found_plans` and `found_figma`. **Do not route yet.** Pass t
 
 ## Step 0 — Classify Inputs
 
-Parse all arguments passed to this skill. Classify each by pattern:
+Parse only the formal arguments passed on the invocation line. The skill only fetches things that require its network tools — local files and directories go to the orchestrator as raw paths.
 
 | Pattern | Type | Action |
 |---|---|---|
-| URL containing `jira` or `atlassian`, or bare ticket ID (e.g. `PROJ-123`) | Jira ticket | Fetch inline via Atlassian MCP |
-| URL containing `figma.com` | Figma design | Store in `pending_figma_urls` — fetch in Step 1.5 |
-| Any other URL | PRD / doc | Fetch inline via `WebFetch` |
-| Path ending in `.md` | Local file | Read inline via `Read` |
+| URL containing `jira` or `atlassian`, or bare ticket ID (e.g. `PROJ-123`) | Jira ticket | Fetch inline via Atlassian MCP → `resolved_inputs` |
+| Any other URL (including `figma.com`) | PRD / doc / design | Fetch inline via `WebFetch` → `resolved_inputs` (Figma page URLs) or add to `raw_paths` |
+| Local file path or directory path | Local content | Add to `raw_paths` — do not read |
 
-If no arguments are provided, skip this step — proceed to Step 1 with `resolved_inputs = []` and `pending_figma_urls = []`.
+If no arguments are provided, skip this step — proceed to Step 1 with `resolved_inputs = []` and `raw_paths = []`.
 
-Fetch all non-Figma inputs inline now. Collect:
-- `resolved_inputs` — successfully fetched non-Figma items: `{ type, source, content }`
-- `pending_figma_urls` — Figma URLs deferred until feature name is known after Step 1
-- `failed_inputs` — non-Figma items that could not be fetched: `{ type, source, reason }`
-
-After reading each `.md` file, scan its content for `figma.com` URLs and append any found to `pending_figma_urls`.
+Collect:
+- `resolved_inputs` — successfully fetched remote items: `{ type, source, content }`
+- `raw_paths` — local file and directory paths to hand to the orchestrator
+- `failed_inputs` — remote items that could not be fetched: `{ type, source, reason }`
 
 If `failed_inputs` is non-empty, call `AskUserQuestion`:
 
@@ -60,10 +57,8 @@ options     :
   - label: "Cancel",           description: "Stop and retry after fixing the inputs"
 ```
 
-**Continue** → proceed with `resolved_inputs` as-is.
-
-**Provide manually** → for each item in `failed_inputs`, ask the user to paste or describe the content. Append each to `resolved_inputs`. Then proceed.
-
+**Continue** → proceed with `resolved_inputs` as-is.  
+**Provide manually** → collect content from user, append to `resolved_inputs`. Then proceed.  
 **Cancel** → stop.
 
 ## Step 1 — Gather Intent
@@ -81,10 +76,13 @@ Spawn `builder-feature-orchestrator` with mode `gather-intent`:
 > **Existing figma groups:**
 > \<found_figma list, or "(none)"\>
 >
-> <if resolved_inputs or pending_figma_urls is non-empty, include the following block — otherwise omit>
+> <if resolved_inputs is non-empty, include:>
 > **Resolved Inputs:**
-> <for each non-Figma item: "### <type> — <source>\n<content>">
-> <if pending_figma_urls is non-empty: "### Figma designs (pending fetch)\n<list each URL — will be fetched after feature name is confirmed>">
+> <for each item: "### <type> — <source>\n<content>">
+>
+> <if raw_paths is non-empty, include:>
+> **Raw Paths:**
+> \<list each path — orchestrator should read these to extract context and Figma URLs\>
 >
 > Ask the user for feature intent. Surface any existing runs and let the user choose to continue or start fresh. Return a Decision block when done.
 
@@ -92,7 +90,7 @@ Wait for the orchestrator to return. Route based on the Decision block:
 
 - **`Decision: discard-partial`** → `rm -rf "<run_dir from decision>"`. Re-spawn orchestrator in `gather-intent` mode (same inputs, minus the discarded path from `found_plans`/`found_figma`).
 - **`Decision: resume-as-is`** → extract `run_dir`. Proceed directly to Step 5 (Execute).
-- **`Decision: spawn-planners`** → extract `feature`, `platform`, `module_path`, `run_dir`. If `update_mode: true` also extract `completed_artifacts`, `open_questions`, `figma_groups`. Initialize `visited = []`, `all_findings = []`, `round = 1`. Proceed to Step 1.5 (if `pending_figma_urls` non-empty) or Step 2.
+- **`Decision: spawn-planners`** → extract `feature`, `platform`, `module_path`, `run_dir`. If `update_mode: true` also extract `completed_artifacts`, `open_questions`, `figma_groups`. Extract `pending_figma_urls` (may be empty). Initialize `visited = []`, `all_findings = []`, `round = 1`. Proceed to Step 1.5 (if `pending_figma_urls` non-empty) or Step 2.
 
 ## Step 1.5 — Fetch Figma Inputs (skip if `pending_figma_urls` is empty)
 

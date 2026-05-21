@@ -45,6 +45,8 @@ scope:
   app:    [di, route, module, analytics, feature_flag]
 open_questions:
   - <any unresolved requirement or ambiguity that a planner must answer>
+pending_figma_urls:
+  - <figma.com URL>   # empty list if no Figma found
 completed_artifacts: [<list — omit if update_mode is false>]
 figma_groups: <json — omit if not present>
 ```
@@ -97,7 +99,13 @@ options:
 
 ## Mode: gather-intent
 
-Entry point for every run — fresh and resume. Called by the entry skill with optional `Existing runs` and `Existing figma groups` context and optional `Resolved Inputs`.
+Entry point for every run — fresh and resume. Called by the entry skill with: user message, optional `Existing runs` / `Existing figma groups`, optional `Resolved Inputs` (pre-fetched remote content), and optional `Raw Paths` (local files and directories to read).
+
+### Step G0 — Read raw inputs and extract Figma URLs
+
+If `Raw Paths` is non-empty, read each path now (file or directory listing). Scan all content for `figma.com` URLs — collect as `figma_urls`. Also extract any other context relevant to intent gathering (ticket summaries, PRD sections, design notes).
+
+This step runs before anything else so the orchestrator has full context when asking the user for intent.
 
 ### Step G1 — Existing run check
 
@@ -198,7 +206,7 @@ Resolve `run_dir`:
 - Resume path → already set from Step G1
 - Fresh path → standard path: `<project_root>/.claude/agentic-state/runs/<feature>`
 
-Return a `Decision: spawn-planners` block. Always include `run_dir`. Include `update_mode: true` and `completed_artifacts` / `open_questions` / `figma_groups` only on the resume path.
+Return a `Decision: spawn-planners` block. Always include `run_dir` and `pending_figma_urls` (empty list if none found). Include `update_mode: true` and `completed_artifacts` / `open_questions` / `figma_groups` only on the resume path.
 
 ### Layer selection table (fresh and resume)
 

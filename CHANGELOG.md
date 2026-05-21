@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.23.3] — 2026-05-21
+
+### Changed
+- `builder-plan-feature` — Step 0 simplified: skill only fetches things requiring network tools (Jira via Atlassian MCP, PRD URLs via WebFetch). Local files and directories are collected as `raw_paths` and passed to the orchestrator — the skill never reads them. `pending_figma_urls` removed from skill responsibility.
+- `builder-plan-feature` — Step 1 now passes `raw_paths` to the orchestrator alongside the user message and resolved inputs. `pending_figma_urls` for Step 1.5 is now extracted from the orchestrator's `Decision: spawn-planners` block (not computed by the skill).
+- `builder-feature-orchestrator` — `gather-intent` gains Step G0: reads all `Raw Paths` (files and directories), extracts `figma.com` URLs from their content, and collects other relevant context before asking the user for intent. `pending_figma_urls` is now included in every `Decision: spawn-planners` block (empty list if none found).
+
+---
+
 ## [7.23.2] — 2026-05-21
 
 ### Fixed
