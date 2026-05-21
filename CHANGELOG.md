@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.24.0] — 2026-05-21
+
+### Changed
+- `builder-feature-orchestrator` — `gather-intent` Step G1 replaced with a two-question resume flow. Q1 lists all existing runs with metadata (artifacts done, status) and a Start fresh option. Q2 (if a run is picked) asks "Start from beginning / Continue as-is". Start from beginning re-enters Step G2 with old plan history as context (`update_mode: true`). Continue as-is triggers Step G1c checkpoint detection.
+- `builder-feature-orchestrator` — new Step G1c (checkpoint detection): inspects `run_dir` disk state and routes to the correct entry point (Step 1.5, Step 2, Step 4, or Step 5) based on what exists. Partial-planning runs (figma but no plan) and complete runs (plan pending or approved) are all handled here. Returns `restore_findings: true` when existing `findings-round-*.json` should be restored.
+- `builder-feature-orchestrator` — `Decision: resume-as-is` now includes `plan_status: pending | approved` so the entry skill knows whether to resume at Step 4 (approve) or Step 5 (execute).
+- `builder-feature-orchestrator` — `Decision: spawn-planners` gains `restore_findings` field.
+- `builder-plan-feature` — routing updated: `resume-as-is` routes to Step 4 or Step 5 based on `plan_status`. `spawn-planners` restores `all_findings` from disk when `restore_findings: true`.
+
+---
+
 ## [7.23.4] — 2026-05-21
 
 ### Fixed

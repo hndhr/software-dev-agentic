@@ -89,8 +89,9 @@ Spawn `builder-feature-orchestrator` with mode `gather-intent`:
 Wait for the orchestrator to return. Route based on the Decision block:
 
 - **`Decision: discard-partial`** → `rm -rf "<run_dir from decision>"`. Re-spawn orchestrator in `gather-intent` mode (same inputs, minus the discarded path from `found_plans`/`found_figma`).
-- **`Decision: resume-as-is`** → extract `run_dir`. Proceed directly to Step 5 (Execute).
-- **`Decision: spawn-planners`** → extract `feature`, `platform`, `module_path`, `run_dir`. If `update_mode: true` also extract `completed_artifacts`, `open_questions`, `figma_groups`. Extract `pending_figma_urls` (may be empty). Initialize `visited = []`, `all_findings = []`, `round = 1`. Proceed to Step 1.5 (if `pending_figma_urls` non-empty) or Step 2.
+- **`Decision: resume-as-is`** with `plan_status: pending` → extract `run_dir`. Proceed to Step 4 (Approve).
+- **`Decision: resume-as-is`** with `plan_status: approved` → extract `run_dir`. Proceed to Step 5 (Execute).
+- **`Decision: spawn-planners`** → extract `feature`, `platform`, `module_path`, `run_dir`. If `update_mode: true` also extract `completed_artifacts`, `open_questions`, `figma_groups`. Extract `pending_figma_urls` (may be empty). Extract `restore_findings: true/false`. Initialize `visited = []`, `round = 1`. If `restore_findings: true` restore `all_findings` from `findings-round-*.json` in `run_dir` — otherwise `all_findings = []`. Proceed to Step 1.5 (if `pending_figma_urls` non-empty) or Step 2.
 
 ## Step 1.5 — Fetch Figma Inputs (skip if `pending_figma_urls` is empty)
 
