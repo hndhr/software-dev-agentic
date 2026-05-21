@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.23.1] — 2026-05-21
+
+### Fixed
+- `builder-feature-orchestrator` — on "Continue existing" resume path, `gather-intent` now reads all archived plan versions (`plan-v1.md`, `plan-v2.md`, …) in order before the current `plan.md` + `context.md`. Full plan history gives the orchestrator context on how the plan evolved, which layers were already explored, and what changed across iterations.
+
+---
+
 ## [7.23.0] — 2026-05-21
 
 ### Changed

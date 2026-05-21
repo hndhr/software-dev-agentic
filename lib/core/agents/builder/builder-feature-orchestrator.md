@@ -154,7 +154,14 @@ multiSelect : false
 options     : one per plan — label: <feature>, description: "<count> artifacts done · status: <status>"
 ```
 
-Set `run_dir` from the selected plan's dir. Read `plan.md` and `context.md` from `run_dir` — use as context for Step G2 intent gathering.
+Set `run_dir` from the selected plan's dir. Read all plan and context versions to build full history:
+
+```bash
+ls -v "<run_dir>"/plan-v*.md 2>/dev/null
+ls -v "<run_dir>"/context-v*.md 2>/dev/null
+```
+
+Read each archived file in version order (v1, v2, …), then read the current `plan.md` and `context.md`. Use the full history as context for Step G2 — understanding how the plan evolved across iterations informs which layers have already been explored and what has changed.
 
 ### Step G2 — Gather intent
 
