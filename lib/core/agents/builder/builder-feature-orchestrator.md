@@ -153,6 +153,8 @@ Read each archived file (v1, v2, …) then the current `plan.md` + `context.md`.
 
 ### Step G1b — Q2: How to continue?
 
+**Always call `AskUserQuestion` — never infer the answer from the user's message or prior context, even if the intent seems obvious.**
+
 Call `AskUserQuestion`:
 
 ```

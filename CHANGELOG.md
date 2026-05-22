@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.26.1] — 2026-05-22
+
+### Fixed
+- `builder-feature-orchestrator` — G1b now enforces `AskUserQuestion` unconditionally. Added explicit guard: "Never infer the answer from the user's message or prior context, even if the intent seems obvious." Prevents the orchestrator from silently skipping the resume-intent confirmation when it feels confident about the user's choice.
+
+---
+
 ## [7.26.0] — 2026-05-22
 
 ### Fixed
