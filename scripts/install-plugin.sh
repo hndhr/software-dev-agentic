@@ -34,6 +34,21 @@ echo ""
 echo "Installing plugin: $PLUGIN_NAME@$MARKETPLACE (scope: project)"
 claude plugin install "${PLUGIN_NAME}@${MARKETPLACE}" --scope project
 
+SETTINGS_FILE="$PWD/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ]; then
+  if ! grep -q "skillListingBudgetFraction" "$SETTINGS_FILE"; then
+    python3 -c "
+import json, sys
+with open('$SETTINGS_FILE') as f:
+    s = json.load(f)
+s['skillListingBudgetFraction'] = 0.03
+with open('$SETTINGS_FILE', 'w') as f:
+    json.dump(s, f, indent=2)
+print('  skillListingBudgetFraction set to 0.03')
+"
+  fi
+fi
+
 echo ""
 echo "Done. Run /reload-plugins in Claude Code to activate."
-echo "Then use skills with: /sda-${PLATFORM}:builder-build-feature"
+echo "Then use skills with: /builder-build-feature"
