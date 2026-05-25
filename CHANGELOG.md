@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.28.3] — 2026-05-25
+
+### Added
+- `scripts/install-plugin.sh` — now patches `.gitignore` (adds `.claude/agentic-state/`) and applies platform `CLAUDE-template.md` on install
+- `scripts/build-plugin.sh` — auto-upserts `marketplace.json` entry on every platform build
+- `scripts/install-plugin.sh` — auto-sets `skillListingBudgetFraction: 0.03` in project `settings.json`
+
+### Fixed
+- `README.md` — added curl one-liner install command for plugin path
+
+---
+
 ## [7.28.2] — 2026-05-25
 
 ### Added
