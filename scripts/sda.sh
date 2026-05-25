@@ -2,11 +2,12 @@
 # sda.sh — CLI entry point for software-dev-agentic setup and sync.
 #
 # Usage:
-#   scripts/sda.sh                               # interactive menu
-#   scripts/sda.sh setup --platform=ios-talenta           # first-time Claude Code wiring
-#   scripts/sda.sh sync                          # pull latest from main
+#   scripts/sda.sh                                              # interactive menu
+#   scripts/sda.sh setup --platform=ios-talenta                # first-time Claude Code wiring
+#   scripts/sda.sh sync                                        # pull latest from main
 #   scripts/sda.sh add-ai --ai=copilot --platform=ios-talenta
 #   scripts/sda.sh remove-ai --ai=gemini
+#   scripts/sda.sh install-plugin --platform=flutter-mobile-talenta  # install Claude Code plugin
 
 set -euo pipefail
 
@@ -75,7 +76,7 @@ PASSTHROUGH=()
 
 for arg in "$@"; do
   case "$arg" in
-    setup|sync|add-ai|remove-ai) COMMAND="$arg" ;;
+    setup|sync|add-ai|remove-ai|install-plugin) COMMAND="$arg" ;;
     *) PASSTHROUGH+=("$arg") ;;
   esac
 done
@@ -86,19 +87,21 @@ if [ -z "$COMMAND" ]; then
   print_header
   echo "  What do you want to do?"
   echo ""
-  echo "    1) $(bold Setup)      — first-time Claude Code wiring into a project"
-  echo "    2) $(bold Sync)       — pull latest from main"
-  echo "    3) $(bold Add AI)     — set up Copilot or Gemini alongside Claude"
-  echo "    4) $(bold Remove AI)  — clean up a Copilot or Gemini config"
+  echo "    1) $(bold Setup)          — first-time Claude Code wiring into a project"
+  echo "    2) $(bold Sync)           — pull latest from main"
+  echo "    3) $(bold Add AI)         — set up Copilot or Gemini alongside Claude"
+  echo "    4) $(bold Remove AI)      — clean up a Copilot or Gemini config"
+  echo "    5) $(bold Install Plugin) — add sda marketplace and install platform plugin"
   echo ""
-  printf "  Choice [1-4]: "
+  printf "  Choice [1-5]: "
   read -r choice
   echo ""
   case "$choice" in
-    1|setup)     COMMAND="setup"     ;;
-    2|sync)      COMMAND="sync"      ;;
-    3|add-ai)    COMMAND="add-ai"    ;;
-    4|remove-ai) COMMAND="remove-ai" ;;
+    1|setup)          COMMAND="setup"          ;;
+    2|sync)           COMMAND="sync"           ;;
+    3|add-ai)         COMMAND="add-ai"         ;;
+    4|remove-ai)      COMMAND="remove-ai"      ;;
+    5|install-plugin) COMMAND="install-plugin" ;;
     *)
       echo "Invalid choice. Exiting."
       exit 1
@@ -152,9 +155,16 @@ case "$COMMAND" in
     fi
     exec "$SCRIPTS/clean-ai.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
     ;;
+  install-plugin)
+    if [ -z "$PLATFORM" ]; then
+      ask_platform
+      PASSTHROUGH+=("--platform=$PLATFORM")
+    fi
+    exec "$SCRIPTS/install-plugin.sh" "${PASSTHROUGH[@]+"${PASSTHROUGH[@]}"}"
+    ;;
   *)
     echo "Unknown command: $COMMAND"
-    echo "Usage: $0 [setup|sync|add-ai|remove-ai]"
+    echo "Usage: $0 [setup|sync|add-ai|remove-ai|install-plugin]"
     exit 1
     ;;
 esac
