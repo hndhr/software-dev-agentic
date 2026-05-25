@@ -31,8 +31,8 @@ echo "Adding marketplace: $MARKETPLACE → $REPO"
 claude plugin marketplace add "$REPO"
 
 echo ""
-echo "Installing plugin: $PLUGIN_NAME@$MARKETPLACE"
-claude plugin install "${PLUGIN_NAME}@${MARKETPLACE}"
+echo "Installing plugin: $PLUGIN_NAME@$MARKETPLACE (scope: project)"
+claude plugin install "${PLUGIN_NAME}@${MARKETPLACE}" --scope project
 
 echo ""
 echo "Done. Run /reload-plugins in Claude Code to activate."
