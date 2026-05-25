@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.27.0] — 2026-05-25
+
+### Changed
+- `builder-feature-orchestrator` — G1a now enforces `AskUserQuestion` unconditionally; added "never infer" guard with explicit trigger-word examples ("re-work", "redo", "continue"). Added `New run directory` option to G1b so users can create a fresh run directory for an existing feature without abandoning it entirely.
+
+---
+
 ## [7.26.1] — 2026-05-22
 
 ### Fixed
