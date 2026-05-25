@@ -36,7 +36,26 @@ Spawn `builder-groom-orchestrator` with mode `detect-scope`:
 Wait for the orchestrator to return a `Decision: spawn-planners` or `Decision: blocked`.
 
 - **`Decision: blocked`** → surface the orchestrator's question to the user via `AskUserQuestion`, then stop or retry based on the answer.
-- **`Decision: spawn-planners`** → proceed to Step 3.
+- **`Decision: spawn-planners`** → extract `spawn`, `reason`, and `skipped` from the block. Call `AskUserQuestion`:
+
+  ```
+  question    : "Scope detected. Ready to explore these layers?
+
+                 In scope:
+                 <for each layer in spawn: "• <layer> — <reason>">
+
+                 <if skipped is non-empty:>
+                 Skipped:
+                 <for each entry in skipped: "• <layer> — <reason>">"
+  header      : "Scope"
+  multiSelect : false
+  options     :
+    - label: "Looks correct", description: "Proceed with these layers"
+    - label: "Adjust",        description: "Change which layers are explored before continuing"
+  ```
+
+  **Looks correct** → proceed to Step 3.  
+  **Adjust** → ask the user what to add or remove. Re-spawn `builder-groom-orchestrator` in `detect-scope` mode with the user's correction appended to the prompt, then re-evaluate.
 
 ## Step 3 — Spawn Planners
 
