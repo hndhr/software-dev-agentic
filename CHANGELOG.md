@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.28.1] — 2026-05-25
+
+### Fixed
+- `README.md` — `enabledPlugins` corrected from array to record format (`{ "plugin-name": "marketplace" }`)
+- `README.md` — repo URL corrected to `hndhr/software-dev-agentic`
+
+---
+
 ## [7.28.0] — 2026-05-25
 
 ### Added

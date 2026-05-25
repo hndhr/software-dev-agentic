@@ -27,30 +27,25 @@ Two distribution paths — same source, same behavior:
 
 The plugin path requires no submodule, no symlinks, and updates automatically on every release.
 
-### Step 1 — Add the marketplace to your downstream project
+### Add to your downstream project's `.claude/settings.json`
 
-Add to `.claude/settings.json` in your project (commit this — all engineers get it automatically):
+Commit this file — it declares the marketplace and auto-installs the right plugin for the repo. Engineers just trust the folder and Claude Code handles the rest.
 
+**Flutter (mobile-talenta):**
 ```json
 {
   "extraKnownMarketplaces": {
     "sda": {
-      "source": {
-        "source": "github",
-        "repo": "mekari-engineering/software-dev-agentic"
-      }
+      "source": { "source": "github", "repo": "hndhr/software-dev-agentic" }
     }
+  },
+  "enabledPlugins": {
+    "sda-flutter-mobile-talenta": "sda"
   }
 }
 ```
 
-### Step 2 — Each engineer installs once
-
-```
-/plugin install sda-flutter-mobile-talenta@sda
-```
-
-Available plugin names:
+Replace `enabledPlugins` with the plugin matching your project:
 
 | Plugin | Platform |
 |---|---|
@@ -62,7 +57,7 @@ Available plugin names:
 | `sda-android-talenta` | Android / talenta |
 | `sda-web` | Web / Next.js |
 
-### Step 3 — Use trigger skills
+### Use trigger skills
 
 ```
 /sda-flutter-mobile-talenta:builder-build-feature
@@ -92,7 +87,7 @@ npx create-next-app@latest my-app --typescript --tailwind --eslint --app --src-d
 cd my-app
 
 # 2. Add the submodule
-git submodule add https://github.com/mekari-engineering/software-dev-agentic software-dev-agentic
+git submodule add https://github.com/hndhr/software-dev-agentic software-dev-agentic
 
 # 3. Wire everything — symlinks all agents, skills, hooks, and reference for the platform
 software-dev-agentic/scripts/setup-symlinks.sh --platform=web
@@ -114,7 +109,7 @@ Open Claude Code and use trigger skills (`/builder-build-feature`, `/detective-d
 ### Adding to an existing project
 
 ```bash
-git submodule add https://github.com/mekari-engineering/software-dev-agentic software-dev-agentic
+git submodule add https://github.com/hndhr/software-dev-agentic software-dev-agentic
 software-dev-agentic/scripts/setup-symlinks.sh --platform=web
 ```
 
