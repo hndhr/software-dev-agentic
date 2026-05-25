@@ -1,6 +1,6 @@
 {
   "name": "sda",
-  "description": "software-dev-agentic — multi-platform agentic toolkit for Clean Architecture projects",
+  "description": "software-dev-agentic \u2014 multi-platform agentic toolkit for Clean Architecture projects",
   "owner": {
     "name": "Jurnal Engineering",
     "email": "engineering@jurnal.id"
@@ -9,7 +9,7 @@
     {
       "name": "sda-flutter-mobile-talenta",
       "source": "./dist/plugins/flutter-mobile-talenta",
-      "description": "Builder, detective, tracker, auditor personas for Flutter (mobile-talenta)",
+      "description": "Builder, detective, tracker, auditor personas for flutter-mobile-talenta",
       "category": "development-workflows"
     },
     {

@@ -131,6 +131,34 @@ MANIFEST
   fi
 
   echo "  → test: claude --plugin-dir $out"
+
+  # ── Upsert marketplace.json entry ────────────────────────────────────────────
+  local marketplace="$SUBMODULE/.claude-plugin/marketplace.json"
+  local plugin_name="sda-${platform}"
+  local description
+  description="Builder, detective, tracker, auditor personas for ${platform}"
+
+  python3 - "$marketplace" "$plugin_name" "$platform" "$description" <<'PYEOF'
+import json, sys
+marketplace_path, plugin_name, platform, description = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
+with open(marketplace_path) as f:
+    m = json.load(f)
+plugins = m.setdefault("plugins", [])
+existing = next((p for p in plugins if p["name"] == plugin_name), None)
+if existing:
+    existing["source"] = f"./dist/plugins/{platform}"
+    existing["description"] = description
+else:
+    plugins.append({
+        "name": plugin_name,
+        "source": f"./dist/plugins/{platform}",
+        "description": description,
+        "category": "development-workflows"
+    })
+with open(marketplace_path, "w") as f:
+    json.dump(m, f, indent=2)
+print(f"  marketplace   {'updated' if existing else 'added'} entry: {plugin_name}")
+PYEOF
 }
 
 # ── Entry ────────────────────────────────────────────────────────────────────
