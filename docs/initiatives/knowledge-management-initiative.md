@@ -170,8 +170,8 @@ Entry point for backfilling existing features that predate the KMS.
 | `librarian-synthesizer-worker` | — | Merges worker findings into Feature Doc schema |
 
 **Platform-aware flow:**
-1. Accept feature name or Jira ticket ID
-2. Detect configured repos from `CLAUDE.md`
+1. Accept feature name or Jira ticket ID, plus optional `--ios/--android/--flutter=<path>` flags
+2. Use repo paths from flags; omitted platforms are treated as unconfigured
 3. If existing Feature Doc at `.claude/reference/feature-docs/<name>.md` → read it, find `[pending-scan]` platforms
 4. Spawn only needed workers in parallel (available repos / pending platforms only)
 5. Pass findings to `librarian-synthesizer-worker`
@@ -192,15 +192,12 @@ Next session: skill reads the doc, detects `[pending-scan]` on Android, spawns o
 
 **Repo input — local only.** All repos must be checked out locally. No remote fetching (no Bitbucket API, no git clone). Workers scan via `Read`/`Grep` on local filesystem paths.
 
-**Config — local repo paths** in downstream project's `CLAUDE.md`:
+**Repo paths are passed as flags — no CLAUDE.md config required:**
 ```
-# Librarian repos (must be local checkouts)
-KMS_IOS_REPO=../ios-app
-KMS_ANDROID_REPO=../android-app
-KMS_FLUTTER_REPO=../flutter-module
+/librarian-scan time-off --ios=../ios-app --android=../android-app --flutter=../flutter-module
 ```
 
-If a repo path is not configured or does not exist on disk → that platform is marked `[pending-scan]`, not an error.
+Omitted platforms are marked `[pending-scan]`, not an error. Run the skill again with the missing flag once that repo is available.
 
 **Risk:** Code grepping gives *what exists*, not *why*. Human review before publish is a hard gate, not optional.
 
@@ -391,5 +388,5 @@ Before the first Feature Doc is written or any skill is built, the following mus
 - Which features get backfilled first — new features only, or retroactive for high-traffic ones?
 - Who owns the Feature Doc — the feature squad, or a dedicated knowledge role?
 - Should the schema be enforced via a Confluence template, or validated by the `prd-to-knowledge` skill?
-- For `codebase-to-knowledge`: should repo paths live in `CLAUDE.md` (zero-arg UX) or be passed as args (more portable across team members)?
+- ~~For `codebase-to-knowledge`: should repo paths live in `CLAUDE.md` (zero-arg UX) or be passed as args (more portable across team members)?~~ **Resolved:** paths are passed as `--ios/--android/--flutter` flags — no CLAUDE.md config needed.
 - ADR coverage for legacy features is likely sparse — is there a fallback source (e.g., PR descriptions, Slack threads) the worker should also scan?
