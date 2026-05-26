@@ -1,6 +1,6 @@
 ---
 name: release
-description: Cut a new release of software-dev-agentic — bumps VERSION, prepends a CHANGELOG entry, commits, tags, and pushes.
+description: Cut a new release of software-dev-agentic — bumps VERSION, prepends a CHANGELOG entry, commits, tags, rebuilds all plugins, and pushes.
 user-invocable: true
 tools: Read, Edit, Bash
 ---
@@ -64,6 +64,17 @@ git commit -m "chore(release): vX.Y.Z"
 git tag vX.Y.Z
 for remote in $(git remote); do
   git push "$remote" main && git push "$remote" --tags
+done
+```
+
+### 5 — Rebuild and commit all plugins
+
+```bash
+bash scripts/build-plugin.sh --platform=all
+git add dist/plugins/
+git commit -m "chore(plugin): build vX.Y.Z"
+for remote in $(git remote); do
+  git push "$remote" main
 done
 ```
 
