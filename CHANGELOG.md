@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [7.28.5] — 2026-05-26
+
+### Fixed
+- `builder-groom-ticket` — blocked flow now re-spawns orchestrator with clarification in prompt instead of using `SendMessage` (which required a `summary` field)
+- `builder-groom-ticket` — skill now invokes `tracker-adjust-ticket` directly after synthesis; orchestrator no longer tries to chain to it via extension (which failed silently)
+- `tracker-adjust-ticket` — corrected frontmatter `tools:` → `allowed-tools:` so skill loads correctly in plugin context
+
+---
+
 ## [7.28.4] — 2026-05-25
 
 ### Added
