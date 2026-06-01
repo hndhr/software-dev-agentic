@@ -125,7 +125,7 @@ A new standalone persona — separate from `developer`. Distinct workflow (docum
   librarian-merge/SKILL.md
 ```
 
-**Skill workflows (Type W):**
+**Skill workflows (Type O):**
 
 | Skill | Intent | Input | Output |
 |---|---|---|---|
@@ -140,7 +140,7 @@ A new standalone persona — separate from `developer`. Distinct workflow (docum
 
 ---
 
-### `librarian-generate` (Type W)
+### `librarian-generate` (Type O)
 
 Entry point for new features. Triggered manually or on ticket pickup.
 
@@ -162,7 +162,7 @@ Accepts PRD input in three ways — skill detects which is provided:
 
 ---
 
-### `librarian-scan` (Type W)
+### `librarian-scan` (Type O)
 
 Entry point for backfilling existing features that predate the KMS.
 
@@ -234,7 +234,7 @@ For feature modifications (not greenfield), planners skip the first discovery ro
 |---|---|---|
 | Path matching `.claude/reference/feature-docs/*.md` | `knowledge` | Add to `raw_paths` as type `knowledge` — orchestrator reads it as architecture context |
 
-### `librarian-merge` (Type W)
+### `librarian-merge` (Type O)
 
 A continuous improvement tool — not a setup tool. Used after articles already exist and a merge becomes obviously worth it.
 
@@ -261,7 +261,7 @@ A continuous improvement tool — not a setup tool. Used after articles already 
 
 Human review before publish is a hard gate — HLD and Data Flow require judgment the skill can't fully automate when originals have divergent Platform Variants.
 
-### `librarian-explain` (Type W)
+### `librarian-explain` (Type O)
 
 Read-only skill — no file written. Explains a feature to the user in the current conversation.
 
