@@ -3,7 +3,7 @@
 
 ## Delivery Mechanism
 
-> **Distribution phase:** The submodule + symlinks approach is the current, proven mechanism (iOS · Flutter · Android · Web). A monorepo alternative — where all products and the agentic repo share a single root — is under evaluation. No decision has been made. This doc describes the current approach.
+> **Distribution:** Two supported paths. (1) **Submodule + symlinks** — proven on iOS · Flutter · Android · Web; projects pin a commit and run `setup-symlinks.sh`. (2) **Claude Plugin** — `install-plugin.sh --platform=<platform>` patches `enabledPlugins` in `.claude/settings.json`; no submodule or symlinks needed. Both paths are maintained. This doc describes the submodule path. For the plugin path see `scripts/install-plugin.sh` and `.claude-plugin/marketplace.json`.
 
 `software-dev-agentic` is consumed as a git submodule at the project root:
 
