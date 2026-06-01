@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [8.1.0] — 2026-06-01
+
+### Changed
+- **Run state grouped by persona** — `developer-plan-feature` and `developer-feature-strategist` now store runs under `.claude/agentic-state/runs/developer/<feature>` (was `runs/<feature>`); leaves room for `runs/debugger/`, `runs/qa/`, etc.
+- **Planner findings moved off main context** — all four planners (`developer-domain-planner`, `developer-data-planner`, `developer-pres-planner`, `developer-app-planner`) now write findings to `<run_dir>/findings/<layer>-findings.md` and return a short `## Findings Written` acknowledgment; findings are never pasted inline into the SKILL or strategist context
+- **Planners: `run_dir` required input, `Bash`/`Write` tools added** — callers must now pass `run_dir` to all four planners
+- **Strategist reads findings from disk** — `process-findings` and `synthesize` modes glob `<run_dir>/findings/*-findings.md` instead of receiving inline content
+
+---
+
 ## [8.0.0] — 2026-06-01
 
 ### Changed
