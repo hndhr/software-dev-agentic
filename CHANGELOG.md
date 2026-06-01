@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [8.3.0] — 2026-06-01
+
+### Changed
+- **Deck: Roadmap slide (s6)** — restructured from linear phases to a cycle model; core loop (Foundation → Build → Release → Evaluation) on the left with per-phase outputs; Research Tracks (A: Collaboration, B: Distribution, C: Expansion) on the right running in parallel; cycle framing in caption
+- **Deck: Build phase added** — new phase 02 in the core loop between Foundation and Research Tracks; represents constructing agents, personas, and orchestrator skills against stable design principles
+- **Deck: Slide 7 component definitions** — stripped design-principle content (Two types, agent anatomy slots, three-tier reference) from each card; cards now describe natural platform behavior and definition only
+- **Deck: Capabilities added to slides 7+8** — "Spawns agents" and "Calls skills" added to Skill and Agent descriptions (slide 7) and as new rows in the capability matrix (slide 8); "Multiple invocation modes" added as Agent-only capability
+- **Deck: Slides 20/22/23 moved after slide 8** — Evolution, Persona, and Limitations slides repositioned immediately after the capability matrix, before the component deep-dives; labeled Phase 01 — Foundation · Output
+- **Deck: Slides 12+13 merged** — Skills overview (Type O/P) and Orchestrator high-level (owns/delegates/constraint) combined into one slide; owns/delegates/parallel spawn/convergence/constraint now shown as inline rows inside the Type O card
+- **Deck: Evolution slide (s11-evolution) + Orchestrator checklist merged** — 4-question design checklist appended below the evolution story as a derived-principles section; s11-design removed as standalone slide
+- **Deck: Persona slide moved before Evolution** — s11-persona now precedes s11-evolution (slide 9 → 10 swap); establishes the persona model before the design evolution story
+
+---
+
 ## [8.2.0] — 2026-06-01
 
 ### Added
