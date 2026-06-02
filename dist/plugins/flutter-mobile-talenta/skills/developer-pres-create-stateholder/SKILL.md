@@ -1,147 +1,25 @@
 ---
 name: developer-pres-create-stateholder
-description: Create a BLoC (or Cubit) with its Event and State types for a feature. Flutter mapping — StateHolder = BLoC.
+description: Create the StateHolder (BLoC / ViewModel / Presenter) for a feature screen.
 user-invocable: false
 ---
 
-> **Flutter mapping**: StateHolder = BLoC (or Cubit for simple state)
-
-Create a BLoC following `.claude/reference/code-architecture/presentation-impl.md ## Events, ## States, ## BLoC sections` and DI rules in `.claude/reference/code-architecture/di-impl.md ## Annotations section`.
+Create the StateHolder following `.claude/reference/code-architecture/presentation-impl.md ## StateHolder`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/presentation-impl.md` for `## 2. Events` and `## 3. States`; only **Read** the full file if sections cannot be located
-2. **Read** the UseCase signatures that this BLoC will call — never guess method names
-3. **Decide**: BLoC or Cubit? (see reference ## Cubit (Simpler Alternative) section — use Cubit for 1-3 simple mutations with no payload)
-4. **Locate** path: `lib/src/features/[feature]/presentation/blocs/`
-5. **Create** `[feature]_event.dart` → `[feature]_state.dart` → `[feature]_bloc.dart`
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — read `## StateHolder` and all `###` sub-sections for invariants and the platform-specific implementation pattern
+2. **Confirm** use cases exist in domain layer before proceeding
+3. **Locate** path per `### Creation Order` in the impl doc
+4. **Create** the StateHolder file(s) following the implementation pattern
+5. **Produce** `.claude/runs/<feature>/stateholder-contract.md` per `### StateHolder Contract`
 
-## BLoC Pattern
+## Rules
 
-```dart
-// [feature]_event.dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-part '[feature]_event.freezed.dart';
-
-@freezed
-sealed class [Feature]Event with _$[Feature]Event {
-  const factory [Feature]Event.load[Feature]({required String id}) = Load[Feature];
-  const factory [Feature]Event.refresh[Feature]() = Refresh[Feature];
-  // verb + noun; see reference ## Events section for naming guide
-}
-
-// [feature]_state.dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/[feature]_entity.dart';
-import '../../../../shared/presentation/states/view_data_state.dart';
-part '[feature]_state.freezed.dart';
-
-@freezed
-class [Feature]State with _$[Feature]State {
-  const factory [Feature]State({
-    required ViewDataState<[Feature]Entity> [feature]State,
-    // one ViewDataState<T> per distinct async operation
-  }) = _[Feature]State;
-
-  factory [Feature]State.initial() => [Feature]State(
-        [feature]State: ViewDataState.initial(),
-      );
-}
-
-// [feature]_bloc.dart
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injectable/injectable.dart';
-import '../../domain/usecases/get_[feature]_usecase.dart';
-import '../../../../shared/presentation/states/view_data_state.dart';
-import '[feature]_event.dart';
-import '[feature]_state.dart';
-
-@injectable
-class [Feature]Bloc extends Bloc<[Feature]Event, [Feature]State> {
-  [Feature]Bloc({required this.get[Feature]UseCase})
-      : super([Feature]State.initial()) {
-    on<Load[Feature]>(_onLoad[Feature]);
-  }
-
-  final Get[Feature]UseCase get[Feature]UseCase;
-
-  Future<void> _onLoad[Feature](
-    Load[Feature] event,
-    Emitter<[Feature]State> emit,
-  ) async {
-    emit(state.copyWith([feature]State: ViewDataState.loading()));
-    final result = await get[Feature]UseCase(event.id);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        [feature]State: ViewDataState.error(
-          message: failure.message,
-          failure: failure,
-        ),
-      )),
-      (entity) => emit(state.copyWith(
-        [feature]State: ViewDataState.loaded(data: entity),
-      )),
-    );
-  }
-}
-```
+- StateHolder never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
+- Use cases injected via constructor — never instantiated inline
+- Follows the platform's DI registration pattern (see impl doc)
 
 ## Output
 
-Confirm all file paths created, then **write the stateholder contract file**:
-
-```
-.claude/agentic-state/runs/<feature>/stateholder-contract.md
-```
-
-Contract format:
-
-```markdown
----
-type: bloc | cubit
-bloc_class: [Feature]Bloc
-state_class: [Feature]State
-event_class: [Feature]Event
-import_bloc: package:talenta/src/features/[feature]/presentation/blocs/[feature]_bloc.dart
-import_state: package:talenta/src/features/[feature]/presentation/blocs/[feature]_state.dart
-import_event: package:talenta/src/features/[feature]/presentation/blocs/[feature]_event.dart
----
-
-## State Fields
-| Field | Type | Default |
-|---|---|---|
-| [feature]State | ViewDataState<[Feature]Entity> | ViewDataState.initial() |
-
-## Events
-| Class | Factory | Parameters | When to dispatch |
-|---|---|---|---|
-| Load[Feature] | [Feature]Event.load[Feature] | id: String | on screen init |
-| Refresh[Feature] | [Feature]Event.refresh[Feature] | — | pull to refresh |
-
-## ViewDataState Variants
-| Variant | UI action |
-|---|---|
-| ViewDataState.initial() | show skeleton |
-| ViewDataState.loading() | show skeleton |
-| ViewDataState.loaded(data) | render content |
-| ViewDataState.error(message, failure) | show error widget |
-
-## Wiring Snippet
-\```dart
-BlocProvider<[Feature]Bloc>(
-  create: (context) => getIt<[Feature]Bloc>()..add(Load[Feature](id: id)),
-  child: BlocBuilder<[Feature]Bloc, [Feature]State>(
-    builder: (context, state) {
-      return state.[feature]State.when(
-        initial: () => const [Skeleton](),
-        loading: () => const [Skeleton](),
-        loaded: (data) => [ContentWidget](entity: data),
-        error: (message, failure) => [ErrorWidget](message: message),
-      );
-    },
-  ),
-)
-\```
-```
-
-Fill every placeholder with the actual values from the files you just created. The wiring snippet must compile — use real class names, not templates.
+Confirm file path(s), list all state fields, list all events/methods, and confirm stateholder-contract.md written.

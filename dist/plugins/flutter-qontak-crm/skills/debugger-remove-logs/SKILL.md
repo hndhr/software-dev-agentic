@@ -1,27 +1,24 @@
 ---
 name: debugger-remove-logs
-description: Remove all [DebugTest] debug log statements from a Flutter Qontak CRM codebase before committing.
+description: Remove all debug logs added by debugger-add-logs.
 user-invocable: false
-tools: Grep, Edit, Glob
+allowed-tools: Read, Edit, Glob, Grep
 ---
 
-Remove all `[DebugTest]` debug log statements added during debugging.
+Remove all debug instrumentation logs using the platform's log prefix from `.claude/reference/code-architecture/presentation-impl.md ## Logging`.
 
 ## Steps
 
-1. `Grep` for `\[DebugTest\]` across all `.dart` files in the project
-2. For each match: remove the entire log statement line
-   - `qontakCommonDependency<QontakMonitor>().logCrashMonitor(logName: '...[DebugTest]...')` → remove entire call
-   - `debugPrint('[DebugTest]...')` → remove entire call
-3. If a file's only `QontakMonitor` usage was `[DebugTest]` lines, check if the import can also be removed
-4. Verify: run `Grep` again for `\[DebugTest\]` — result must be zero matches
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Logging` for the platform's debug log prefix (e.g. `[DebugTest]`)
+2. `Grep` the codebase for the debug prefix to find all instrumented files
+3. For each file: `Read` the file, then `Edit` to remove every debug log line
+4. Confirm no debug logs remain
 
 ## Rules
 
-- Never remove non-`[DebugTest]` logging (production `logCrashMonitor` calls without `[DebugTest]`, `print`, `debugPrint` without `[DebugTest]`, etc.)
-- Never remove adjacent code
-- Do not remove the `qontak_common` import if it is used for other purposes in the same file
+- Remove only debug log lines — never touch other logic
+- Verify removal with a final grep for the prefix
 
 ## Output
 
-Confirm count of lines removed and final grep result showing zero matches.
+List each file where logs were removed and confirm final grep shows zero matches.

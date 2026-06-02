@@ -1,44 +1,24 @@
 ---
 name: developer-data-create-mapper
-description: |
-  Create a Mapper protocol and implementation to convert a Response DTO to a Domain Entity.
+description: Create a mapper that converts DTOs to domain entities and vice versa.
 user-invocable: false
 ---
 
-Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers section` and null safety utilities in `.claude/reference/code-architecture/utilities-impl.md ## Null Safety Extensions section`.
+Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## Mappers` and `.claude/reference/code-architecture/utilities-impl.md` for `## Null Safety Extensions`; only **Read** a file in full if the section cannot be located
-2. **Read** the Response DTO and Entity to understand all fields
-3. **Locate** module path: `Talenta/Module/[Module]/Data/Mapper/`
-4. **Create** `[Feature]ModelMapper.swift`
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Mappers` for the canonical pattern and path convention
+2. **Confirm** both the DTO and domain entity exist before creating the mapper
+3. **Locate** path per the impl doc's mapper directory convention
+4. **Create** the mapper file following the impl doc pattern
 
-## Mapper Pattern
+## Rules
 
-```swift
-protocol [Feature]ModelMapperProtocol {
-    func fromResponseToModel(from response: [Feature]Response) -> [Feature]Model
-}
-
-final class [Feature]ModelMapper: [Feature]ModelMapperProtocol {
-    func fromResponseToModel(from response: [Feature]Response) -> [Feature]Model {
-        return [Feature]Model(
-            id: response.id.orZero(),
-            name: response.name.orEmpty(),
-            isActive: response.isActive.orFalse()
-        )
-    }
-}
-```
-
-Rules:
-- **Every Entity field must appear in the mapper call** — no silent defaults
-- Use `.orEmpty()` / `.orZero()` / `.orFalse()` — never `?? ""`
-- Wrap optional chains: `(response.nested?.field).orEmpty()`
-- For list responses: map each item, filter out nils
-- Mark class `final`
+- Mapper contains only mapping logic — no business logic, no API calls
+- Covers all fields — no silent field drops; use sensible defaults for optional → required mappings
+- Bidirectional where needed (DTO → Entity and Entity → Payload)
 
 ## Output
 
-Confirm file path, list all mapped fields, and flag any Entity field not present in the Response.
+Confirm file path and list all mapped fields with any non-trivial transformations noted.

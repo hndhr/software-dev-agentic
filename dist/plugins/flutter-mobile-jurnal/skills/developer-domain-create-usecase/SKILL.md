@@ -1,58 +1,24 @@
 ---
 name: developer-domain-create-usecase
-description: Create a UseCase class and its Params class for a feature operation.
+description: Create a domain use case.
 user-invocable: false
 ---
 
-Create a UseCase following `.claude/reference/code-architecture/domain-impl.md ## Use Cases section`.
+Create a Use Case following `.claude/reference/code-architecture/domain-impl.md ## Use Cases`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/domain-impl.md` for `## Use Cases`; only **Read** the full file if the section cannot be located
-2. **Read** the Repository interface to confirm the method signature being delegated to
-3. **Locate** path: `features/<feature>/lib/src/domain/usecases/`
-4. **Create** `<verb>_<feature>_usecase.dart`
-5. **Export** from barrel `usecases.dart`
-6. **Register** in `Jurnal<Feature>Injector.init()` under the Use Cases section
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Use Cases` for the canonical pattern and path convention
+2. **Identify** the single business operation this use case performs
+3. **Locate** path per the impl doc's use case directory convention
+4. **Create** the use case file following the impl doc pattern
 
-## UseCase Pattern
+## Rules
 
-```dart
-import 'package:jurnal_core/jurnal_core.dart';
-import '../domains.dart';
-
-class <Verb><Feature>UseCase extends UseCase<<ReturnType>?, <Verb><Feature>Params> {
-  const <Verb><Feature>UseCase(this._repository);
-  final <Feature>RemoteRepository _repository;
-
-  @override
-  Future<Result<<ReturnType>?>> call(<Verb><Feature>Params params) =>
-      _repository.<repositoryMethod>(
-        page: params.page,
-        pageSize: params.pageSize,
-        // map all params fields to repository named params
-      );
-}
-
-class <Verb><Feature>Params {
-  const <Verb><Feature>Params({
-    this.page = 1,
-    this.pageSize = 20,
-    this.searchKey,
-  });
-
-  final int page;
-  final int pageSize;
-  final String? searchKey;
-}
-```
-
-**Rules:**
-- Verb naming: Get, Create, Edit, Delete, Archive, Unarchive, Upload — match repository method verb
-- Params class in same file as UseCase
-- `const` constructor on UseCase
-- `call` delegates to repository only — no business logic
+- One use case per business operation — no multi-responsibility use cases
+- Depends only on repository interfaces — never on concrete implementations
+- Returns domain entities or errors — no DTOs, no UI types
 
 ## Output
 
-Confirm file path, UseCase class name, Params fields, and injector registration line.
+Confirm file path, use case name, input params type, and return type.

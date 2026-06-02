@@ -1,29 +1,24 @@
 ---
 name: developer-domain-create-usecase
-description: Create a use case interface and implementation. Called by domain-worker.
+description: Create a domain use case.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create a use case at `src/domain/use-cases/[feature]/[Verb][Feature]UseCase.ts`.
+Create a Use Case following `.claude/reference/code-architecture/domain-impl.md ## Use Cases`.
 
-**Preconditions:**
-- File must NOT exist — fail fast if it does
-- `src/domain/repositories/[Feature]Repository.ts` must exist — run `domain-create-repository` first if missing
+## Steps
 
-**Rules:**
-- One file per operation (GetList, GetById, Create, Update, Delete)
-- Interface + `Impl` class in the same file
-- `Impl` calls only the repository — no direct data source access
-- Zero framework imports in domain layer
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Use Cases` for the canonical pattern and path convention
+2. **Identify** the single business operation this use case performs
+3. **Locate** path per the impl doc's use case directory convention
+4. **Create** the use case file following the impl doc pattern
 
-**Params pattern by operation:**
-- GET single: `{ id: string }`
-- GET list: `{ page: number; limit: number; filters?: ... }`
-- POST: `{ payload: { [fields] } }`
-- PUT: `{ id: string; payload: { [fields] } }`
-- DELETE: `{ id: string }`
+## Rules
 
-**Pattern:** `reference/code-architecture/domain-impl.md` — Grep `## Use Cases`
+- One use case per business operation — no multi-responsibility use cases
+- Depends only on repository interfaces — never on concrete implementations
+- Returns domain entities or errors — no DTOs, no UI types
 
-**Return:** created file path. Suggest next step: `data-worker`.
+## Output
+
+Confirm file path, use case name, input params type, and return type.

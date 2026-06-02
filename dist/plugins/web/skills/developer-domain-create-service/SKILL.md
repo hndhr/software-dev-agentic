@@ -1,22 +1,24 @@
 ---
 name: developer-domain-create-service
-description: Create a pure domain service for business logic that spans multiple entities or use cases. Called by domain-worker.
+description: Create a domain service for business logic that spans multiple entities or use cases.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create a domain service at `src/domain/services/[Name]Service.ts`.
+Create a Domain Service following `.claude/reference/code-architecture/domain-impl.md ## Domain Services`.
 
-**Preconditions:**
-- File must NOT exist — fail fast if it does
-- Verify the service is genuinely pure logic — if it requires I/O or async, it belongs in a use case instead
+## Steps
 
-**Rules:**
-- Synchronous pure functions only — no `async`, no `fetch`, no DOM APIs, no side effects
-- Zero imports from `react`, `next`, `axios`, `src/data/`, or `src/presentation/`
-- No display formatting (no `formatCurrency`, no CSS class names) — return structured data (numbers, enums, booleans)
-- Exported as a class with static methods, or plain exported functions — your call, match existing project style
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Domain Services` for the canonical pattern and path convention
+2. **Confirm** this logic cannot live in a single entity or use case before creating a service
+3. **Locate** path per the impl doc's service directory convention
+4. **Create** the service file following the impl doc pattern
 
-**Pattern:** `reference/code-architecture/domain-impl.md` — Grep `## Services`
+## Rules
 
-**Return:** created file path.
+- Domain service contains pure business logic — no infrastructure dependencies
+- Stateless — no mutable fields
+- Depends only on domain types — entities, value objects, domain errors
+
+## Output
+
+Confirm file path and list all public methods with signatures.

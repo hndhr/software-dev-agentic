@@ -1,36 +1,25 @@
 ---
 name: developer-test-create-data
-description: Write unit tests for mappers and integration tests for repository implementations. Called by developer-test-worker.
+description: Create unit tests for repository implementations and mappers.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Write tests for a data layer file (mapper or repository impl).
+Create data layer tests following `.claude/reference/code-architecture/testing-impl.md ## Repository Tests` and `## Mapper Tests`.
 
-**Preconditions:**
-- Read the target file: extract class, constructor deps, and public methods
-- Check `__tests__/mocks/` for existing mocks — create missing ones via `test-create-mock` first
-- Output location:
-  - Mapper → `__tests__/data/mappers/[Name]Mapper.test.ts`
-  - Repository impl → `__tests__/data/repositories/[Feature]RepositoryImpl.test.ts`
+## Steps
 
-**Mapper test rules:**
-- No mocks needed
-- Test `toEntity()` with a real DTO — assert every field is mapped correctly
-- Test nullable/optional fields: pass `null` values, assert they map correctly
+1. **Read** `.claude/reference/code-architecture/testing-impl.md` — locate `## Repository Tests` and `## Mapper Tests` for the canonical pattern
+2. **Read** the repository impl and mapper implementations completely
+3. **Identify** all code paths: data source success, data source error, mapping edge cases
+4. **Locate** path per the impl doc's test directory convention
+5. **Create** test file(s) following the impl doc pattern
 
-**Repository integration test rules:**
-- Mock: data source, mapper, error mapper
-- For each public method, cover:
-  - Happy path: correct params forwarded → DTO mapped → entity returned
-  - HTTP 400 → `DomainError.badRequest`
-  - HTTP 401 → `DomainError.unauthorized`
-  - HTTP 403 → `DomainError.forbidden`
-  - HTTP 404 → `DomainError.notFound`
-  - HTTP 500 → `DomainError.serverError`
-  - Network failure (no response) → `DomainError.networkFailure`
-  - Assert `errorMapper.map` is always called with the original error
+## Rules
 
-**Pattern:** `reference/code-architecture/testing-impl.md` — Grep `## Mapper Tests`, `## Repository Tests`
+- Mock the data source — never make real network calls in unit tests
+- Mapper tests use static fixtures — no mocks needed
+- Verify DTO → entity mapping covers all fields
 
-**Return:** created test file path.
+## Output
+
+Confirm file path(s) and list all test cases by name.

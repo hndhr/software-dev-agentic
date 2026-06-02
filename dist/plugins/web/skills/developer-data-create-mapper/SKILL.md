@@ -1,29 +1,24 @@
 ---
 name: developer-data-create-mapper
-description: Create a DTO and its mapper (interface + Impl). Called by data-worker.
+description: Create a mapper that converts DTOs to domain entities and vice versa.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create two files for a new entity's data representation:
-1. `src/data/dtos/[Name]DTO.ts`
-2. `src/data/mappers/[Name]Mapper.ts`
+Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers`.
 
-**Preconditions:**
-- `src/domain/entities/[Name].ts` must exist — run `domain-create-entity` first if missing
-- Check `Glob: src/data/mappers/*.ts` — read one existing mapper to match project style
+## Steps
 
-**DTO rules:**
-- Mirrors raw API response shape (snake_case if the API returns it)
-- All fields non-readonly
-- No domain logic
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Mappers` for the canonical pattern and path convention
+2. **Confirm** both the DTO and domain entity exist before creating the mapper
+3. **Locate** path per the impl doc's mapper directory convention
+4. **Create** the mapper file following the impl doc pattern
 
-**Mapper rules:**
-- Interface: `[Name]Mapper` with `toEntity(dto: [Name]DTO): [Name]`
-- Implementation: `[Name]MapperImpl implements [Name]Mapper`
-- Handle null/undefined optional fields explicitly (`.orEmpty()`, `.orZero()`, etc.)
-- Map API field names to domain property names
+## Rules
 
-**Pattern:** `reference/code-architecture/data-impl.md` — Grep `## DTOs`, `## Mappers`
+- Mapper contains only mapping logic — no business logic, no API calls
+- Covers all fields — no silent field drops; use sensible defaults for optional → required mappings
+- Bidirectional where needed (DTO → Entity and Entity → Payload)
 
-**Return:** both created file paths. Suggest next step: `data-create-datasource`.
+## Output
+
+Confirm file path and list all mapped fields with any non-trivial transformations noted.

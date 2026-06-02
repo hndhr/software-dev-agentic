@@ -1,22 +1,23 @@
 ---
 name: developer-domain-create-entity
-description: Create a domain entity interface. Called by domain-worker.
+description: Create a domain entity class.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create a domain entity at `src/domain/entities/[Name].ts`.
+Create a domain Entity following `.claude/reference/code-architecture/domain-impl.md ## Entities`.
 
-**Preconditions:**
-- File must NOT exist — fail fast if it does
-- `Glob: src/domain/entities/*.ts` — read one existing entity to match project style
+## Steps
 
-**Rules:**
-- Every property is `readonly`
-- Zero imports (no framework, no data layer, no presentation)
-- Interface only — no class, no decorators
-- Properties represent business concepts, not API field names
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Entities` for the canonical pattern and path convention
+2. **Identify** the business concept the entity represents
+3. **Locate** path per the impl doc's entity directory convention
+4. **Create** the entity file following the impl doc pattern
 
-**Pattern:** `reference/code-architecture/domain-impl.md` — Grep `## Entities`
+## Rules
 
-**Return:** created file path. Suggest next step: `domain-create-repository` or `domain-create-usecase`.
+- Entity contains only domain fields and business identity — no persistence annotations, no UI types
+- Immutable by default — use value equality
+
+## Output
+
+Confirm file path and list all fields.

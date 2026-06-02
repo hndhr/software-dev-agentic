@@ -1,45 +1,24 @@
 ---
 name: developer-data-create-mapper
-description: |
-  Create a Mapper extending BaseMapper to convert a Response DTO to a Domain Entity.
+description: Create a mapper that converts DTOs to domain entities and vice versa.
 user-invocable: false
 ---
 
-Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers section` and null-safety extensions in `.claude/reference/code-architecture/utilities-impl.md ## Null Safety Extensions section`.
+Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## Mappers` and `.claude/reference/code-architecture/utilities-impl.md` for `## Null Safety Extensions`; only **Read** a file in full if the section cannot be located
-2. **Read** the Response class and Entity class to understand all fields
-3. **Locate** the correct path: `feature_[module]/src/main/java/co/talenta/feature_[module]/data/mapper/`
-4. **Create** `[Entity]Mapper.kt`
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Mappers` for the canonical pattern and path convention
+2. **Confirm** both the DTO and domain entity exist before creating the mapper
+3. **Locate** path per the impl doc's mapper directory convention
+4. **Create** the mapper file following the impl doc pattern
 
-## Mapper Pattern
+## Rules
 
-```kotlin
-import com.mekari.commons.extension.orEmpty
-import com.mekari.commons.extension.orZero
-import com.mekari.commons.extension.orFalse
-
-class FeatureEntityMapper : BaseMapper<FeatureResponse, FeatureEntity> {
-    override fun map(input: FeatureResponse): FeatureEntity {
-        return FeatureEntity(
-            id = input.id.orEmpty(),
-            name = input.name.orEmpty(),
-            count = input.count.orZero(),
-            isActive = input.isActive.orFalse()
-        )
-    }
-}
-```
-
-Rules:
-- **Every entity field must appear in the mapper call** — no silent defaults
-- Use `.orEmpty()` for String/List, `.orZero()` for Int/Long/Double, `.orFalse()` or `.orTrue()` for Boolean
-- Never use `?: ""` or `?: 0` — always the extension function
-- For nested objects: create a nested mapper and delegate
-- For lists: `input.items?.map { nestedMapper.map(it) }.orEmpty()`
+- Mapper contains only mapping logic — no business logic, no API calls
+- Covers all fields — no silent field drops; use sensible defaults for optional → required mappings
+- Bidirectional where needed (DTO → Entity and Entity → Payload)
 
 ## Output
 
-Confirm file path, list all mapped fields, and flag any entity field not present in the response.
+Confirm file path and list all mapped fields with any non-trivial transformations noted.

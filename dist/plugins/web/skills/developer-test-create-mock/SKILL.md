@@ -1,23 +1,23 @@
 ---
 name: developer-test-create-mock
-description: Scaffold a Mock class for any interface, using vi.fn() for every method. Called by developer-test-worker.
+description: Generate mock classes for domain interfaces used in tests.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create `__tests__/mocks/Mock[InterfaceName].ts`.
+Create mocks following `.claude/reference/code-architecture/testing-impl.md ## Mock Generation`.
 
-**Preconditions:**
-- Check `Glob: __tests__/mocks/Mock[InterfaceName].ts` — if it exists, update it rather than create a new file
-- Read the interface file to extract every method signature
+## Steps
 
-**Rules:**
-- Class name: `Mock[InterfaceName]` — always `Mock` prefix, never `Impl` suffix
-- `implements [InterfaceName]` — TypeScript enforces completeness
-- Every method → one `vi.fn()` property typed with `Parameters<...>` and `ReturnType<...>`
-- No logic — mocks are pure stubs
-- If test framework is Jest: use `jest.fn()` from `@jest/globals`
+1. **Read** `.claude/reference/code-architecture/testing-impl.md` — locate `## Mock Generation` for the canonical mock pattern and generation approach
+2. **Identify** the interfaces that need mocking (repository, use case, service)
+3. **Locate** path per the impl doc's mock directory convention
+4. **Create** or generate the mock file(s) following the impl doc pattern
 
-**Pattern:** `reference/code-architecture/testing-impl.md` — Grep `## Presenter Tests`
+## Rules
 
-**Return:** created/updated file path and a minimal usage example.
+- Mocks implement the domain interface — never mock concrete classes
+- Follow the platform's mock generation approach (codegen vs manual per impl doc)
+
+## Output
+
+Confirm file path(s) and list all mocked interfaces.

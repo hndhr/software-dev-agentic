@@ -1,41 +1,25 @@
 ---
 name: developer-pres-create-screen
-description: Create a View component and App Router page. Handles both Client Component (hook pattern) and Server Component (build*ViewModel pattern). Called by developer-ui-worker.
+description: Create the Screen / View that binds to the StateHolder and renders state.
 user-invocable: false
-tools: Read, Write, Edit, Glob
 ---
 
-Create the View component and App Router page. Pattern depends on which ViewModel was created.
+Create a Screen following `.claude/reference/code-architecture/presentation-impl.md ## Screen Structure`.
 
-**Determine pattern from the ViewModel file:**
-- `use*ViewModel.ts` exists → **Client Component path**
-- `build*ViewModel.ts` exists → **Server Component path**
+## Steps
 
----
+1. **Read** `.claude/runs/<feature>/stateholder-contract.md` completely — must match state fields and events exactly
+2. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Screen Structure` for the canonical pattern and file path convention
+3. **Locate** path per the impl doc's screen directory convention
+4. **Create** the screen file following the impl doc pattern
+5. **Register** route/navigation entry if required by the platform (see impl doc)
 
-**Client Component path:**
-- `src/presentation/features/[feature]/[Feature]View.tsx` — `'use client'`, calls `useDI()` + hook
-- `src/app/[route]/page.tsx` — Server Component, renders `<[Feature]View />`
+## Rules
 
-**Server Component path:**
-- `src/presentation/features/[feature]/[Feature]View.tsx` — receives `viewModel` as prop. Add `'use client'` only if the view has interactivity (event handlers, modals, etc.)
-- `src/app/[route]/page.tsx` — `async` Server Component, fetches data → `build*ViewModel()` → passes result as prop
+- Screen is state-management-aware only as a consumer — it reads state and dispatches events; it never contains business logic
+- Navigation side effects belong in the listener/observer pattern (see impl doc), not inline in render methods
+- All state fields and event types must match the stateholder-contract exactly
 
----
+## Output
 
-**Preconditions:**
-- ViewModel file must exist — run `pres-create-stateholder` first if missing
-- Check `Glob: src/presentation/features/*/[A-Z]*View.tsx` — read one to match style
-
-**Rules (both paths):**
-- Views render — no business logic
-- Atoms/molecules → `src/presentation/common/` — primitive props only
-- Organisms → `[feature]/organisms/` — accept entities as props, never call `useDI()`
-- Only Client Component Views call `useDI()`
-- `async page.tsx` props must be serializable (no `Date` instances, no class instances)
-
-**Route constant:** add to `src/presentation/navigation/routes.ts`
-
-**Pattern:** `reference/code-architecture/presentation-impl.md` — Grep `## React Component (View)`, `## Server-Side ViewModel (Pure Function)` · `reference/code-architecture/navigation-impl.md` — Grep `## Route Constants` · `reference/ssr.md` — Grep `## Presentation Layer — Mostly Client`
-
-**Return:** created file paths.
+Confirm file path, list all handled state cases, list all dispatched events, and confirm route registration if applicable.

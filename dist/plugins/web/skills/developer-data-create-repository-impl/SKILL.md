@@ -1,24 +1,25 @@
 ---
 name: developer-data-create-repository-impl
-description: Create a remote repository implementation that adapts a data source to a domain repository interface. Called by data-worker.
+description: Create the repository implementation that bridges domain interfaces and data sources.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create `src/data/repositories/[Feature]RepositoryImpl.ts`.
+Create a Repository Implementation following `.claude/reference/code-architecture/data-impl.md ## Repository Implementation`.
 
-**Preconditions:**
-- `src/domain/repositories/[Feature]Repository.ts` must exist
-- `src/data/data-sources/remote/[Feature]RemoteDataSource.ts` must exist
-- `src/data/mappers/[Name]Mapper.ts` must exist
-- `src/data/mappers/ErrorMapper.ts` must exist (seed file)
+## Steps
 
-**Rules:**
-- Implements the domain repository interface — never introduces new methods
-- Every method wraps with `try/catch → this.errorMapper.map(error)` — no exceptions
-- Calls mapper to convert DTOs to entities — never returns raw DTOs
-- Constructor injects: `dataSource`, `mapper`, `errorMapper`
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Repository Implementation` for the canonical pattern and path convention
+2. **Confirm** the domain repository interface, data source, and mapper all exist
+3. **Locate** path per the impl doc's repository impl directory convention
+4. **Create** the repository implementation file following the impl doc pattern
+5. **Register** in DI if required by the platform
 
-**Pattern:** `reference/code-architecture/data-impl.md` — Grep `## Repository Implementation`
+## Rules
 
-**Return:** created file path. Suggest next step: `pres-wire-di`.
+- Implements the domain repository interface — every method must match exactly
+- Calls data source, then maps DTO → entity via mapper — never maps inline
+- Error handling converts data layer exceptions to domain errors
+
+## Output
+
+Confirm file path, confirm all interface methods are implemented, and confirm DI registration if applicable.

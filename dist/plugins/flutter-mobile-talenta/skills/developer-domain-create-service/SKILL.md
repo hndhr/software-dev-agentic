@@ -1,43 +1,24 @@
 ---
 name: developer-domain-create-service
-description: Create a Domain Service class for pure synchronous business logic.
+description: Create a domain service for business logic that spans multiple entities or use cases.
 user-invocable: false
 ---
 
-Create a Domain Service following `.claude/reference/code-architecture/domain-impl.md ## Domain Services section`.
+Create a Domain Service following `.claude/reference/code-architecture/domain-impl.md ## Domain Services`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/domain-impl.md` for `## Domain Services`; only **Read** the full file if the section cannot be located
-2. **Locate** path: `lib/src/features/[feature]/domain/services/`
-3. **Create** `[feature]_[noun].dart` (e.g. `leave_balance_calculator.dart`)
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Domain Services` for the canonical pattern and path convention
+2. **Confirm** this logic cannot live in a single entity or use case before creating a service
+3. **Locate** path per the impl doc's service directory convention
+4. **Create** the service file following the impl doc pattern
 
-## Service Pattern
+## Rules
 
-```dart
-import '../entities/[feature]_entity.dart';
-
-class [Feature][Noun] {
-  /// [Brief description of what this service computes or decides]
-
-  bool isEligible([Feature]Entity entity) {
-    // pure logic — no async, no I/O
-  }
-
-  int calculate([Feature]Entity entity) {
-    // returns structured data — never formatted strings
-  }
-}
-```
-
-Rules:
-- **No `async`** — services are pure synchronous
-- **No I/O** — no network, no storage, no file access
-- Returns structured data (numbers, booleans, enums) — never formatted display strings
-- No `@lazySingleton` unless the service has injectable dependencies
+- Domain service contains pure business logic — no infrastructure dependencies
 - Stateless — no mutable fields
-- Extract to a service only when: logic is > 3 lines complex, reused by ≥ 2 use cases, or needs isolated testing
+- Depends only on domain types — entities, value objects, domain errors
 
 ## Output
 
-Confirm file path and list all public method signatures.
+Confirm file path and list all public methods with signatures.

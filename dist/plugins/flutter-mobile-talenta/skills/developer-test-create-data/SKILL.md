@@ -1,95 +1,25 @@
 ---
 name: developer-test-create-data
-description: Create unit tests for Data layer artifacts — Mapper, Repository implementation.
+description: Create unit tests for repository implementations and mappers.
 user-invocable: false
 ---
 
-Create data layer tests following `.claude/reference/code-architecture/testing-impl.md ## Repository Tests, ## Mapper Tests sections`.
+Create data layer tests following `.claude/reference/code-architecture/testing-impl.md ## Repository Tests` and `## Mapper Tests`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/testing-impl.md` for `## Repository Tests` and `## Mapper Tests`
-2. **Read** the RepositoryImpl and/or Mapper file being tested
-3. **Update** `test/helpers/mocks/[feature]_mocks.dart` with any missing mock specs
-4. **Update** `test/helpers/fixtures/[feature]_fixtures.dart` with models and responses
-5. **Create** test files in `test/features/[feature]/data/repositories/` and/or `data/mappers/`
+1. **Read** `.claude/reference/code-architecture/testing-impl.md` — locate `## Repository Tests` and `## Mapper Tests` for the canonical pattern
+2. **Read** the repository impl and mapper implementations completely
+3. **Identify** all code paths: data source success, data source error, mapping edge cases
+4. **Locate** path per the impl doc's test directory convention
+5. **Create** test file(s) following the impl doc pattern
 
-## Repository Test Pattern
+## Rules
 
-```dart
-void main() {
-  late Mock[Feature]RemoteDataSource mockDataSource;
-  late Mock[Feature]Mapper mockMapper;
-  late [Feature]RepositoryImpl repository;
-
-  setUp(() {
-    mockDataSource = Mock[Feature]RemoteDataSource();
-    mockMapper = Mock[Feature]Mapper();
-    repository = [Feature]RepositoryImpl(
-      remoteDataSource: mockDataSource,
-      mapper: mockMapper,
-    );
-  });
-
-  group('get[Feature]', () {
-    test('returns entity when datasource succeeds', () async {
-      // Arrange
-      when(mockDataSource.get[Feature](any))
-          .thenAnswer((_) async => t[Feature]Model);
-      when(mockMapper.toEntity(any)).thenReturn(t[Feature]Entity);
-      // Act
-      final result = await repository.get[Feature]('1');
-      // Assert
-      expect(result, Right(t[Feature]Entity));
-    });
-
-    test('returns ServerFailure when AppException thrown', () async {
-      when(mockDataSource.get[Feature](any)).thenThrow(
-        AppException.server(message: 'Not found', statusCode: 404),
-      );
-      final result = await repository.get[Feature]('1');
-      expect(result.isLeft(), isTrue);
-      result.fold((f) => expect(f, isA<ServerFailure>()), (_) => fail('Expected Left'));
-    });
-
-    test('returns unknownFailure for unexpected exception', () async {
-      when(mockDataSource.get[Feature](any)).thenThrow(Exception('Crash'));
-      final result = await repository.get[Feature]('1');
-      expect(result.isLeft(), isTrue);
-    });
-  });
-}
-```
-
-## Mapper Test Pattern (no mocks needed)
-
-```dart
-void main() {
-  late [Feature]Mapper mapper;
-  setUp(() => mapper = [Feature]Mapper());
-
-  group('[Feature]Mapper', () {
-    test('maps all fields correctly', () {
-      final entity = mapper.toEntity(t[Feature]Model);
-      expect(entity.id, t[Feature]Model.id);
-      expect(entity.name, t[Feature]Model.name);
-    });
-
-    test('handles null fields with defaults', () {
-      final entity = mapper.toEntity(const [Feature]Model());
-      expect(entity.id, '');
-      expect(entity.name, '');
-    });
-  });
-}
-```
-
-Rules:
-- Repository: three cases per method — success, `AppException`, unexpected `Exception`
-- Mapper: two cases — all fields present, all fields null
-- `AppException` caught → specific Failure subtype asserted
-- Mapper tests need no mocks — instantiate directly
+- Mock the data source — never make real network calls in unit tests
+- Mapper tests use static fixtures — no mocks needed
+- Verify DTO → entity mapping covers all fields
 
 ## Output
 
-Confirm test file paths and list all test group + test names.
+Confirm file path(s) and list all test cases by name.

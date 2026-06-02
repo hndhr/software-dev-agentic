@@ -1,62 +1,24 @@
 ---
 name: developer-data-create-mapper
-description: Create a Model (DTO) and Mapper for a feature — both the freezed model and the BaseMapper implementation.
+description: Create a mapper that converts DTOs to domain entities and vice versa.
 user-invocable: false
 ---
 
-Create a Model and Mapper following `.claude/reference/code-architecture/data-impl.md ## DTOs` and `## Mappers sections`.
+Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## DTOs` and `## Mappers`; only **Read** the full file if sections cannot be located
-2. **Verify** the domain entity exists
-3. **Locate** paths:
-   - Model: `lib/src/features/[feature]/data/models/`
-   - Mapper: `lib/src/features/[feature]/data/mappers/`
-4. **Create** `[feature]_model.dart` then `[feature]_mapper.dart`
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Mappers` for the canonical pattern and path convention
+2. **Confirm** both the DTO and domain entity exist before creating the mapper
+3. **Locate** path per the impl doc's mapper directory convention
+4. **Create** the mapper file following the impl doc pattern
 
-## Model Pattern
+## Rules
 
-```dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part '[feature]_model.freezed.dart';
-part '[feature]_model.g.dart';
-
-@freezed
-class [Feature]Model with _$[Feature]Model {
-  const factory [Feature]Model({
-    @JsonKey(name: '[api_field]') String? id,
-    @JsonKey(name: '[api_field]') String? name,
-    @JsonKey(name: '[api_field]') String? createdAt,
-  }) = _[Feature]Model;
-
-  factory [Feature]Model.fromJson(Map<String, dynamic> json) =>
-      _$[Feature]ModelFromJson(json);
-}
-```
-
-## Mapper Pattern
-
-```dart
-import 'package:injectable/injectable.dart';
-import '../../domain/entities/[feature]_entity.dart';
-import '../models/[feature]_model.dart';
-import 'base_mapper.dart';
-
-@lazySingleton
-class [Feature]Mapper extends BaseMapper<[Feature]Model, [Feature]Entity> {
-  @override
-  [Feature]Entity toEntity([Feature]Model model) => [Feature]Entity(
-        id: model.id ?? '',
-        name: model.name ?? '',
-        createdAt: model.createdAt != null
-            ? DateTime.tryParse(model.createdAt!)
-            : null,
-      );
-}
-```
+- Mapper contains only mapping logic — no business logic, no API calls
+- Covers all fields — no silent field drops; use sensible defaults for optional → required mappings
+- Bidirectional where needed (DTO → Entity and Entity → Payload)
 
 ## Output
 
-Confirm both file paths and list all mapped fields with their source → target names.
+Confirm file path and list all mapped fields with any non-trivial transformations noted.

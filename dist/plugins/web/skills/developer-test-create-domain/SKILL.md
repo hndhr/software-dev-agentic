@@ -1,29 +1,25 @@
 ---
 name: developer-test-create-domain
-description: Write unit tests for domain layer files — use cases and domain services. Called by developer-test-worker.
+description: Create unit tests for domain use cases and services.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Write unit tests for a domain layer file.
+Create domain tests following `.claude/reference/code-architecture/testing-impl.md ## Use Case Tests`.
 
-**Preconditions:**
-- Read the target file: extract class name, constructor params, and all public methods
-- Check `__tests__/mocks/` for existing mocks — create missing ones via `test-create-mock` first
-- Output location:
-  - Use case → `__tests__/domain/use-cases/[Verb][Feature]UseCase.test.ts`
-  - Service → `__tests__/domain/services/[Name]Service.test.ts`
+## Steps
 
-**Use case test rules:**
-- Mock the repository — never instantiate the real one
-- Cover: happy path, error propagation (repository throws `DomainError`)
-- Assert that `execute()` calls the repository with the correct params
+1. **Read** `.claude/reference/code-architecture/testing-impl.md` — locate `## Use Case Tests` (and `## Service Tests` if applicable) for the canonical pattern
+2. **Read** the use case / service implementation completely
+3. **Identify** all code paths and edge cases to cover
+4. **Locate** path per the impl doc's test directory convention
+5. **Create** the test file following the impl doc pattern
 
-**Service test rules:**
-- No mocks needed — services are pure functions
-- Cover all branches: every condition, every edge case
-- 100% branch coverage target
+## Rules
 
-**Pattern:** `reference/code-architecture/testing-impl.md` — Grep `## Service Tests`
+- Use mocks for all dependencies — never hit real repositories or APIs in unit tests
+- Test each handler/method independently
+- Cover success, error, and edge cases
 
-**Return:** created test file path.
+## Output
+
+Confirm file path and list all test cases by name.

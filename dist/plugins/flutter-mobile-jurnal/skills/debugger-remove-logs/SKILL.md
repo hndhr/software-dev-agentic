@@ -1,39 +1,24 @@
 ---
 name: debugger-remove-logs
-description: Remove all debug log statements previously added by debugger-add-logs from flutter-mobile-jurnal files.
+description: Remove all debug logs added by debugger-add-logs.
 user-invocable: false
+allowed-tools: Read, Edit, Glob, Grep
 ---
 
-Remove debug logging added during a debug session.
+Remove all debug instrumentation logs using the platform's log prefix from `.claude/reference/code-architecture/presentation-impl.md ## Logging`.
 
 ## Steps
 
-1. **Grep** across the feature for `Log.d(` patterns added during the debug session
-2. **Read** each file that contains debug logs
-3. **Remove** only the `Log.d` lines added for debugging — do not remove `Log.e`, `Log.w`, or `Log.i` that were pre-existing production logs
-4. **Verify** no stray import is left unused after removal
-
-## Identification
-
-Debug logs added by `debugger-add-logs` follow the pattern:
-```
-Log.d('[<Feature>Bloc]
-Log.d('[<Feature>Repo]
-Log.d('[<Feature>Mapper]
-```
-
-## Grep Command
-
-```bash
-grep -rn "Log\.d('\[<Feature>" features/<feature>/lib/
-```
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Logging` for the platform's debug log prefix (e.g. `[DebugTest]`)
+2. `Grep` the codebase for the debug prefix to find all instrumented files
+3. For each file: `Read` the file, then `Edit` to remove every debug log line
+4. Confirm no debug logs remain
 
 ## Rules
 
-- Remove `Log.d` lines only — preserve `Log.e` and `Log.w` (production error/warning logging)
-- Remove the log line entirely (do not replace with comment)
-- If the debug log was the only statement in an `if` block, remove the entire `if` block
+- Remove only debug log lines — never touch other logic
+- Verify removal with a final grep for the prefix
 
 ## Output
 
-List all files modified and all log statements removed.
+List each file where logs were removed and confirm final grep shows zero matches.

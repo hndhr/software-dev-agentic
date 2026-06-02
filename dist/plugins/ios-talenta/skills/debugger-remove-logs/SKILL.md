@@ -1,39 +1,24 @@
 ---
 name: debugger-remove-logs
-description: Remove all [DebugTest] debug print statements from the codebase before committing.
+description: Remove all debug logs added by debugger-add-logs.
 user-invocable: false
-allowed-tools: Grep, Edit, Glob
+allowed-tools: Read, Edit, Glob, Grep
 ---
 
-# Debug: Remove Logs (iOS / Swift)
+Remove all debug instrumentation logs using the platform's log prefix from `.claude/reference/code-architecture/presentation-impl.md ## Logging`.
 
-Remove all `print("[DebugTest]...)` and `.do(onNext:)` debug instrumentation added during debugging.
+## Steps
 
-## Step 1 — Find All Debug Logs
-
-```bash
-grep -rn '\[DebugTest\]' Talenta/ --include="*.swift"
-```
-
-Or `Grep` with pattern `\[DebugTest\]` across all Swift files.
-
-## Step 2 — Remove Each Log
-
-For each file with matches:
-- Remove standalone `print("[DebugTest]...)` lines entirely
-- For `.do(onNext:)` blocks added purely for debugging — remove the entire `.do(onNext:)` operator
-- Preserve any `.do(onNext:)` that existed before debugging (check git diff if uncertain)
-
-## Step 3 — Verify
-
-Run `Grep` again for `[DebugTest]` — result must be zero matches.
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Logging` for the platform's debug log prefix (e.g. `[DebugTest]`)
+2. `Grep` the codebase for the debug prefix to find all instrumented files
+3. For each file: `Read` the file, then `Edit` to remove every debug log line
+4. Confirm no debug logs remain
 
 ## Rules
 
-- Never commit `[DebugTest]` logs — they are temporary instrumentation only
-- If a log reveals a real issue, fix the issue, then still remove the log
-- Do not remove non-`[DebugTest]` logging (production Logger calls, OSLog, etc.)
+- Remove only debug log lines — never touch other logic
+- Verify removal with a final grep for the prefix
 
-## Extension Point
+## Output
 
-Check for `.claude/skills.local/extensions/debug-remove-logs.md` — if it exists, follow its additional instructions.
+List each file where logs were removed and confirm final grep shows zero matches.

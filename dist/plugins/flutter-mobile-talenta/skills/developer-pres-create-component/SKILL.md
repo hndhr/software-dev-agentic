@@ -1,53 +1,25 @@
 ---
 name: developer-pres-create-component
-description: Create a reusable presentational Widget that takes plain entities as parameters with no BLoC awareness.
+description: Create a reusable presentational component that takes plain domain entities with no state-management awareness.
 user-invocable: false
 ---
 
-Create a presentational Widget following `.claude/reference/code-architecture/presentation-impl.md ## Screen Structure section`.
+Create a presentational component following `.claude/reference/code-architecture/presentation-impl.md ## Component`.
 
 ## Steps
 
-1. **Identify** the entity or data type the component displays
-2. **Locate** path: `lib/src/features/[feature]/presentation/widgets/`
-3. **Create** `[feature]_[component].dart` (e.g. `employee_card.dart`)
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Component` for the canonical pattern and path convention
+2. **Check** `## Shared Component Paths` for existing reusable components before creating a new one
+3. **Identify** the entity or data type the component displays
+4. **Locate** the path per the impl doc's component directory convention
+5. **Create** the component file following the impl doc pattern
 
-## Component Pattern
+## Rules
 
-```dart
-import 'package:flutter/material.dart';
-import '../../domain/entities/[feature]_entity.dart';
-
-class [Feature][Component] extends StatelessWidget {
-  const [Feature][Component]({
-    super.key,
-    required this.[feature],
-  });
-
-  final [Feature]Entity [feature];
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              [feature].name,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text([feature].email),
-          ],
-        ),
-      ),
-    );
-  }
-}
-```
+- Component is state-management-unaware — receives only plain entity data via constructor/props
+- No state manager bindings inside a component
+- Use immutable/const constructor — all fields final/readonly
 
 ## Output
 
-Confirm file path and list all constructor parameters.
+Confirm file path and list all constructor parameters / props.

@@ -1,40 +1,24 @@
 ---
 name: developer-domain-create-repository
-description: Create a Domain Repository abstract class for a new feature.
+description: Create a domain repository interface.
 user-invocable: false
 ---
 
-Create a Repository interface following `.claude/reference/code-architecture/domain-impl.md ## Repository Interfaces section`.
+Create a Repository interface following `.claude/reference/code-architecture/domain-impl.md ## Repository Interfaces`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/domain-impl.md` for `## Repository Interfaces`; only **Read** the full file if the section cannot be located
-2. **Verify** the entity exists in `lib/src/features/[feature]/domain/entities/`
-3. **Locate** path: `lib/src/features/[feature]/domain/repositories/`
-4. **Create** `[feature]_repository.dart`
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Repository Interfaces` for the canonical pattern and path convention
+2. **Identify** the data operations the feature needs
+3. **Locate** path per the impl doc's repository interface convention
+4. **Create** the interface file following the impl doc pattern
 
-## Repository Pattern
+## Rules
 
-```dart
-import 'package:fpdart/fpdart.dart';
-import '../entities/[feature]_entity.dart';
-import '../../../../shared/domain/errors/failure.dart';
-
-abstract class [Feature]Repository { // abstract class — never interface or mixin
-  // all methods return Either<Failure, T> — never throw; params use Params objects not Map
-  Future<Either<Failure, [Feature]Entity>> get[Feature](String id);
-  Future<Either<Failure, List<[Feature]Entity>>> get[Feature]s({
-    int page = 1,
-    int limit = 20,
-  });
-  Future<Either<Failure, [Feature]Entity>> update[Feature](
-    String id,
-    Update[Feature]Params params,
-  );
-  Future<Either<Failure, void>> delete[Feature](String id);
-}
-```
+- Interface lives in the domain layer — no data layer imports
+- Methods return domain entities or primitives — no DTOs, no DB types
+- Error handling follows the platform's domain error pattern (see impl doc)
 
 ## Output
 
-Confirm file path and list all declared method signatures.
+Confirm file path and list all interface methods with return types.

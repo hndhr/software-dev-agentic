@@ -1,81 +1,25 @@
 ---
 name: developer-pres-create-component
-description: |
-  Create a reusable UI component *(iOS: UITableViewCell or UICollectionViewCell)* with UIModel pattern and SnapKit layout.
+description: Create a reusable presentational component that takes plain domain entities with no state-management awareness.
 user-invocable: false
 ---
 
-Create a Cell following `.claude/reference/code-architecture/presentation-impl.md ## ViewController section` and UIModel Advanced Pattern.
+Create a presentational component following `.claude/reference/code-architecture/presentation-impl.md ## Component`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/presentation-impl.md` for `## ViewController`; only **Read** the full file if the section cannot be located
-2. **Locate** module path: `Talenta/Module/[Module]/Presentation/View/Cell/`
-3. **Create** `[Feature]TableViewCell.swift` (or `CollectionViewCell`)
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Component` for the canonical pattern and path convention
+2. **Check** `## Shared Component Paths` for existing reusable components before creating a new one
+3. **Identify** the entity or data type the component displays
+4. **Locate** the path per the impl doc's component directory convention
+5. **Create** the component file following the impl doc pattern
 
-## Cell Pattern
+## Rules
 
-```swift
-final class [Feature]TableViewCell: UITableViewCell {
-    static let reuseIdentifier = "[Feature]TableViewCell"
-
-    // MARK: - UIModel
-    struct UIModel {
-        let title: String
-        let subtitle: String
-        let isHighlighted: Bool
-    }
-
-    // MARK: - Views
-    private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
-    private let disposeBag = DisposeBag()
-
-    // MARK: - Init
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        setupViews()
-    }
-
-    required init?(coder: NSCoder) { fatalError() }
-
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        disposeBag = DisposeBag()  // reset subscriptions
-        titleLabel.text = nil
-        subtitleLabel.text = nil
-    }
-
-    // MARK: - Layout
-    private func setupViews() {
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-
-        titleLabel.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(MpSpacing.medium)
-        }
-        subtitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(MpSpacing.small)
-            make.leading.trailing.bottom.equalToSuperview().inset(MpSpacing.medium)
-        }
-    }
-
-    // MARK: - Configure
-    func configure(with model: UIModel) {
-        titleLabel.text = model.title
-        subtitleLabel.text = model.subtitle
-        contentView.backgroundColor = model.isHighlighted ? .systemYellow : .clear
-    }
-}
-```
-
-Rules:
-- UIModel is a nested struct — pure display data, no business logic
-- `prepareForReuse()` must reset `disposeBag` and clear all displayed values
-- SnapKit for layout — no storyboards
-- Use MekariPixel tokens for spacing/radius/colors
-- Mark class `final`
+- Component is state-management-unaware — receives only plain entity data via constructor/props
+- No state manager bindings inside a component
+- Use immutable/const constructor — all fields final/readonly
 
 ## Output
 
-Confirm file path, list all UIModel fields, and note the reuseIdentifier.
+Confirm file path and list all constructor parameters / props.

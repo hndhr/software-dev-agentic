@@ -1,24 +1,24 @@
 ---
 name: developer-data-create-datasource
-description: Create a remote data source interface and Axios implementation. Called by data-worker.
+description: Create a data source (remote or local) in the data layer.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create two files for a remote (external API) data source:
-1. `src/data/data-sources/remote/[Feature]RemoteDataSource.ts` — interface
-2. `src/data/data-sources/remote/[Feature]RemoteDataSourceImpl.ts` — Axios implementation
+Create a DataSource following `.claude/reference/code-architecture/data-impl.md ## Data Sources`.
 
-**Preconditions:**
-- `src/data/dtos/[Name]DTO.ts` must exist — run `data-create-mapper` first if missing
-- Check `Glob: src/data/data-sources/remote/*Impl.ts` — read one to match project style
-- Verify `src/data/networking/HTTPClient.ts` exists (seed file)
+## Steps
 
-**Rules:**
-- Interface methods accept params and return DTOs (never domain entities)
-- Implementation uses injected `HTTPClient` — never import Axios directly
-- Use `APIResponse<T>` wrapper type for list responses where applicable
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Data Sources` for the canonical pattern, path convention, and HTTP client usage
+2. **Identify** whether this is a remote (API) or local (cache/DB) data source
+3. **Locate** path per the impl doc's data source directory convention
+4. **Create** the data source interface and implementation files following the impl doc pattern
 
-**Pattern:** `reference/code-architecture/data-impl.md` — Grep `## Data Sources`
+## Rules
 
-**Return:** both created file paths. Suggest next step: `data-create-repository-impl`.
+- DataSource depends on the platform's HTTP client or local storage — never on domain types directly
+- Returns DTOs — never domain entities
+- Error handling maps HTTP/storage errors to domain errors via the platform's error pattern
+
+## Output
+
+Confirm file path(s), list all methods with DTO return types, and confirm error mapping approach.

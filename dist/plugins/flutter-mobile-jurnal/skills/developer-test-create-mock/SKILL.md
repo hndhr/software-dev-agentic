@@ -1,52 +1,23 @@
 ---
 name: developer-test-create-mock
-description: Generate or update mock classes for a feature using mockito @GenerateMocks / @GenerateNiceMocks.
+description: Generate mock classes for domain interfaces used in tests.
 user-invocable: false
 ---
 
-Create or update mock specs for a feature.
+Create mocks following `.claude/reference/code-architecture/testing-impl.md ## Mock Generation`.
 
 ## Steps
 
-1. **Identify** which interfaces need mocking: Repository, DataSource, UseCase (as needed by tests)
-2. **Locate** or create: `features/<feature>/test/helpers/test_data.dart`
-3. **Add** `@GenerateMocks` annotation and run code generation
+1. **Read** `.claude/reference/code-architecture/testing-impl.md` — locate `## Mock Generation` for the canonical mock pattern and generation approach
+2. **Identify** the interfaces that need mocking (repository, use case, service)
+3. **Locate** path per the impl doc's mock directory convention
+4. **Create** or generate the mock file(s) following the impl doc pattern
 
-## Mock Spec Pattern
+## Rules
 
-```dart
-// features/<feature>/test/src/<layer>/<file>_test.dart
-// (mocks are declared per-test-file in this codebase)
-
-import 'package:mockito/annotations.dart';
-import 'package:jurnal_<feature>/src/domain/domains.dart';
-import 'package:jurnal_<feature>/src/data/data.dart';
-
-@GenerateMocks([
-  <Feature>RemoteRepository,    // for UseCase tests
-  <Feature>RemoteDatasource,    // for RepositoryImpl tests
-  Get<Feature>ListUseCase,      // for BLoC tests
-])
-void main() { ... }
-```
-
-## Code Generation
-
-After adding `@GenerateMocks`, run:
-
-```bash
-cd features/<feature>
-dart run build_runner build --delete-conflicting-outputs
-```
-
-This generates `<file>_test.mocks.dart` alongside the test file.
-
-**Conventions:**
-- `@GenerateMocks` in the same file that uses the mock (not a shared mocks file)
-- `@GenerateNiceMocks` when strict verification is not needed (stubs return sensible defaults)
-- Generated file: `<test_file>_test.mocks.dart` — committed to VCS
-- Import: `import '<test_file>_test.mocks.dart';`
+- Mocks implement the domain interface — never mock concrete classes
+- Follow the platform's mock generation approach (codegen vs manual per impl doc)
 
 ## Output
 
-Confirm which mocks were added, and the build_runner command to run.
+Confirm file path(s) and list all mocked interfaces.

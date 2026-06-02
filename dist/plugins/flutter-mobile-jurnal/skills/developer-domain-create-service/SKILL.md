@@ -1,51 +1,24 @@
 ---
 name: developer-domain-create-service
-description: Create a Domain Service for cross-entity orchestration logic that does not belong to any single repository.
+description: Create a domain service for business logic that spans multiple entities or use cases.
 user-invocable: false
 ---
 
-Create a Domain Service following `.claude/reference/code-architecture/domain-impl.md ## Services section`.
+Create a Domain Service following `.claude/reference/code-architecture/domain-impl.md ## Domain Services`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/domain-impl.md` for `## Services`; only **Read** the full file if the section cannot be located
-2. **Confirm** this logic genuinely spans multiple entities or repositories — if it fits a single UseCase, use a UseCase instead
-3. **Locate** path: `features/<feature>/lib/src/domain/services/`
-4. **Create** `<feature>_service.dart` (abstract interface) and `<feature>_service_impl.dart`
-5. **Register** in `Jurnal<Feature>Injector.init()`
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Domain Services` for the canonical pattern and path convention
+2. **Confirm** this logic cannot live in a single entity or use case before creating a service
+3. **Locate** path per the impl doc's service directory convention
+4. **Create** the service file following the impl doc pattern
 
-## Service Pattern
+## Rules
 
-```dart
-// Abstract
-abstract class <Feature>Service {
-  Future<Result<void>> <orchestrationMethod>(<Params> params);
-}
-
-// Implementation
-class <Feature>ServiceImpl extends <Feature>Service {
-  final <RepositoryA>RemoteRepository _repositoryA;
-  final <RepositoryB>RemoteRepository _repositoryB;
-
-  const <Feature>ServiceImpl({
-    required <RepositoryA>RemoteRepository repositoryA,
-    required <RepositoryB>RemoteRepository repositoryB,
-  })  : _repositoryA = repositoryA,
-        _repositoryB = repositoryB;
-
-  @override
-  Future<Result<void>> <orchestrationMethod>(<Params> params) =>
-      catchError(() async {
-        // cross-entity orchestration
-      });
-}
-```
-
-**Rules:**
-- Only create when logic spans 2+ repositories/entities
-- Service impl extends `BaseRemoteRepository` if using `catchError()`
-- Abstract interface in domain layer; implementation registered in injector
+- Domain service contains pure business logic — no infrastructure dependencies
+- Stateless — no mutable fields
+- Depends only on domain types — entities, value objects, domain errors
 
 ## Output
 
-Confirm file paths, injected repositories, and all method signatures.
+Confirm file path and list all public methods with signatures.

@@ -1,38 +1,23 @@
 ---
 name: developer-domain-create-entity
-description: Create a Domain Entity class for a new feature using freezed.
+description: Create a domain entity class.
 user-invocable: false
 ---
 
-Create a Domain Entity following `.claude/reference/code-architecture/domain-impl.md ## Entities section`.
+Create a domain Entity following `.claude/reference/code-architecture/domain-impl.md ## Entities`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/domain-impl.md` for `## Entities`; only **Read** the full file if the section cannot be located
-2. **Locate** the correct feature path: `features/<feature>/lib/src/domain/entities/`
-3. **Create** `<entity_name>.dart`
-4. **Export** from the barrel: `features/<feature>/lib/src/domain/entities/entities.dart`
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Entities` for the canonical pattern and path convention
+2. **Identify** the business concept the entity represents
+3. **Locate** path per the impl doc's entity directory convention
+4. **Create** the entity file following the impl doc pattern
 
-## Entity Pattern
+## Rules
 
-```dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part '<entity_name>.freezed.dart'; // .freezed.dart only — entities are not serialised
-
-@freezed
-class <EntityName> with _$<EntityName> {
-  const factory <EntityName>({
-    required int id,
-    required String name,
-    // required fields first; T? only when domain genuinely allows null
-    @Default(false) bool isActive,
-    String? optionalField,
-  }) = _<EntityName>;
-  // no fromJson — entities are never deserialised from JSON
-}
-```
+- Entity contains only domain fields and business identity — no persistence annotations, no UI types
+- Immutable by default — use value equality
 
 ## Output
 
-Confirm file path, list all entity fields, and confirm barrel export updated.
+Confirm file path and list all fields.

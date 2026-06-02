@@ -1,19 +1,24 @@
 ---
 name: debugger-remove-logs
-description: Remove all [DebugTest] debugPrint debug statements from a Flutter/Dart codebase before committing.
+description: Remove all debug logs added by debugger-add-logs.
 user-invocable: false
-allowed-tools: Grep, Edit, Glob
+allowed-tools: Read, Edit, Glob, Grep
 ---
 
-Remove all `debugPrint('[DebugTest]...)` statements added during debugging.
+Remove all debug instrumentation logs using the platform's log prefix from `.claude/reference/code-architecture/presentation-impl.md ## Logging`.
 
 ## Steps
 
-1. `Grep` for `\[DebugTest\]` across all `.dart` files
-2. For each match: remove the `debugPrint(...)` line entirely
-3. Verify: run `Grep` again — result must be zero matches
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Logging` for the platform's debug log prefix (e.g. `[DebugTest]`)
+2. `Grep` the codebase for the debug prefix to find all instrumented files
+3. For each file: `Read` the file, then `Edit` to remove every debug log line
+4. Confirm no debug logs remain
 
 ## Rules
 
-- Never remove non-`[DebugTest]` logging (print statements, Logger, etc.)
-- Never remove adjacent code
+- Remove only debug log lines — never touch other logic
+- Verify removal with a final grep for the prefix
+
+## Output
+
+List each file where logs were removed and confirm final grep shows zero matches.

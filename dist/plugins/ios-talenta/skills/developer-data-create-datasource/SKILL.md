@@ -1,51 +1,24 @@
 ---
 name: developer-data-create-datasource
-description: |
-  Create a DataSource protocol and RemoteDataSourceImpl for a new feature.
+description: Create a data source (remote or local) in the data layer.
 user-invocable: false
 ---
 
-Create a DataSource following `.claude/reference/code-architecture/data-impl.md ## Data Sources section`.
+Create a DataSource following `.claude/reference/code-architecture/data-impl.md ## Data Sources`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## Data Sources`; only **Read** the full file if the section cannot be located
-2. **Locate** module paths:
-   - Protocol: `Talenta/Module/[Module]/Data/DataSource/[Feature]DataSource.swift`
-   - Impl: `Talenta/Module/[Module]/Data/DataSource/[Feature]RemoteDataSourceImpl.swift`
-3. **Create** both files
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Data Sources` for the canonical pattern, path convention, and HTTP client usage
+2. **Identify** whether this is a remote (API) or local (cache/DB) data source
+3. **Locate** path per the impl doc's data source directory convention
+4. **Create** the data source interface and implementation files following the impl doc pattern
 
-## DataSource Pattern
+## Rules
 
-```swift
-// Protocol
-protocol [Feature]DataSourceProtocol {
-    func methodName(params: [UseCase].Params,
-                    completion: @escaping (Result<[Feature]Response, BaseErrorModel>) -> Void)
-}
-
-// Remote Implementation
-final class [Feature]RemoteDataSourceImpl: [Feature]DataSourceProtocol {
-    private let apiClient: APIClientProtocol
-
-    init(apiClient: APIClientProtocol) {
-        self.apiClient = apiClient
-    }
-
-    func methodName(params: [UseCase].Params,
-                    completion: @escaping (Result<[Feature]Response, BaseErrorModel>) -> Void) {
-        let request = [Feature]Request(params: params)
-        apiClient.request(request, completion: completion)
-    }
-}
-```
-
-Rules:
-- DataSource works with Response types — not Entities
-- One DataSource protocol per feature module (can have multiple methods)
-- Remote impl uses the project's `APIClient` — check existing patterns for the correct API client class
-- Mark impl class `final`
+- DataSource depends on the platform's HTTP client or local storage — never on domain types directly
+- Returns DTOs — never domain entities
+- Error handling maps HTTP/storage errors to domain errors via the platform's error pattern
 
 ## Output
 
-Confirm both file paths and list all declared method signatures.
+Confirm file path(s), list all methods with DTO return types, and confirm error mapping approach.

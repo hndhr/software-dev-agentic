@@ -1,54 +1,25 @@
 ---
 name: developer-data-create-repository-impl
-description: Create a Repository implementation that bridges the domain interface with the DataSource and Mapper.
+description: Create the repository implementation that bridges domain interfaces and data sources.
 user-invocable: false
 ---
 
-Create a RepositoryImpl following `.claude/reference/code-architecture/data-impl.md ## Repository Implementations section` and `.claude/reference/code-architecture/error-handling-impl.md`.
+Create a Repository Implementation following `.claude/reference/code-architecture/data-impl.md ## Repository Implementation`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## Repository Implementations`; only **Read** the full file if the section cannot be located
-2. **Verify** all three dependencies exist: domain repository interface, datasource, mapper
-3. **Locate** path: `lib/src/features/[feature]/data/repositories/`
-4. **Create** `[feature]_repository_impl.dart`
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Repository Implementation` for the canonical pattern and path convention
+2. **Confirm** the domain repository interface, data source, and mapper all exist
+3. **Locate** path per the impl doc's repository impl directory convention
+4. **Create** the repository implementation file following the impl doc pattern
+5. **Register** in DI if required by the platform
 
-## Repository Impl Pattern
+## Rules
 
-```dart
-import 'package:fpdart/fpdart.dart';
-import 'package:injectable/injectable.dart';
-import '../../domain/entities/[feature]_entity.dart';
-import '../../domain/errors/failure.dart';
-import '../../domain/repositories/[feature]_repository.dart';
-import '../datasources/[feature]_remote_data_source.dart';
-import '../exceptions/app_exception.dart';
-import '../mappers/[feature]_mapper.dart';
-
-@LazySingleton(as: [Feature]Repository)
-class [Feature]RepositoryImpl implements [Feature]Repository {
-  [Feature]RepositoryImpl({
-    required this.remoteDataSource,
-    required this.mapper,
-  });
-
-  final [Feature]RemoteDataSource remoteDataSource;
-  final [Feature]Mapper mapper;
-
-  @override
-  Future<Either<Failure, [Feature]Entity>> get[Feature](String id) async {
-    try {
-      final model = await remoteDataSource.get[Feature](id);
-      return Right(mapper.toEntity(model));
-    } on AppException catch (e) {
-      return Left(e.toFailure());
-    } catch (e) {
-      return Left(Failure.unknownFailure(message: e.toString()));
-    }
-  }
-}
-```
+- Implements the domain repository interface — every method must match exactly
+- Calls data source, then maps DTO → entity via mapper — never maps inline
+- Error handling converts data layer exceptions to domain errors
 
 ## Output
 
-Confirm file path and list all implemented methods with their try/catch structure confirmed.
+Confirm file path, confirm all interface methods are implemented, and confirm DI registration if applicable.

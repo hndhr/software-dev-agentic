@@ -1,56 +1,25 @@
 ---
 name: developer-data-create-repository-impl
-description: |
-  Create a Repository implementation in the Data layer, injecting API and Mapper via Dagger.
+description: Create the repository implementation that bridges domain interfaces and data sources.
 user-invocable: false
 ---
 
-Create a Repository implementation following `.claude/reference/code-architecture/data-impl.md ## Repository Implementations section` and DI rules in `.claude/reference/code-architecture/di-impl.md`.
+Create a Repository Implementation following `.claude/reference/code-architecture/data-impl.md ## Repository Implementation`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## Repository Implementations` and `.claude/reference/code-architecture/di-impl.md` for `## DI Module`; only **Read** a file in full if the section cannot be located
-2. **Read** the domain Repository interface and Mapper to understand method signatures
-3. **Locate** the correct path: `feature_[module]/src/main/java/co/talenta/feature_[module]/data/repoimpl/`
-4. **Create** `[Module]RepositoryImpl.kt`
-5. **Add** `@Provides` binding in the DI module
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Repository Implementation` for the canonical pattern and path convention
+2. **Confirm** the domain repository interface, data source, and mapper all exist
+3. **Locate** path per the impl doc's repository impl directory convention
+4. **Create** the repository implementation file following the impl doc pattern
+5. **Register** in DI if required by the platform
 
-## Repository Impl Pattern
+## Rules
 
-```kotlin
-class FeatureRepositoryImpl @Inject constructor(
-    private val api: FeatureApi,
-    private val mapper: FeatureEntityMapper
-) : FeatureRepository {
-
-    override fun getFeatureItems(page: Int, limit: Int): Single<List<FeatureEntity>> {
-        return api.getFeatureItems(page, limit)
-            .map { response ->
-                response.data?.map { mapper.map(it) } ?: emptyList()
-            }
-    }
-}
-```
-
-## DI Binding
-
-```kotlin
-@Provides
-fun provideFeatureRepository(
-    api: FeatureApi,
-    mapper: FeatureEntityMapper
-): FeatureRepository {
-    return FeatureRepositoryImpl(api, mapper)
-}
-```
-
-Rules:
-- `@Inject constructor` on the impl class — Dagger resolves constructor params automatically
-- The `@Provides` method binds the interface to the impl; Dagger calls the `@Inject constructor` internally
-- Map response to domain entity via mapper before returning
-- Implement every method declared in the domain repository interface
-- Never expose response types outside the data layer
+- Implements the domain repository interface — every method must match exactly
+- Calls data source, then maps DTO → entity via mapper — never maps inline
+- Error handling converts data layer exceptions to domain errors
 
 ## Output
 
-Confirm file path, list all implemented methods, and confirm DI binding added.
+Confirm file path, confirm all interface methods are implemented, and confirm DI registration if applicable.

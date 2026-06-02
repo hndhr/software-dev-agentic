@@ -1,94 +1,28 @@
 ---
 name: debugger-add-logs
-description: Add strategic debug logs to a Next.js Clean Architecture codebase to trace execution flow at runtime.
+description: Add strategic debug logs to trace execution flow or diagnose a bug.
 user-invocable: false
-tools: Read, Edit, Glob, Grep
+allowed-tools: Read, Edit, Glob, Grep
 ---
 
-# Debug: Add Strategic Logs (Web / Next.js)
+Add debug instrumentation logs following `.claude/reference/code-architecture/presentation-impl.md ## Logging` for format and prefix rules.
 
-Add `console.log` statements with a `[DebugTest]` prefix for easy filtering in browser devtools or server terminal.
+## Steps
 
-## Log Format
+Follow the `INSTRUMENTATION_BRIEF` provided by the caller:
 
-```ts
-// Method entry
-console.log('[DebugTest][ClassName.methodName] entry —', { param1, param2 })
+1. **Read** `.claude/reference/code-architecture/presentation-impl.md` — locate `## Logging` for the platform's log format and prefix
+2. `Grep` each target method name to locate the exact line
+3. `Read` only the method body — not the full file
+4. Insert logs at entry, exit, branch points, and error handlers as specified in the brief
 
-// State change
-console.log('[DebugTest][ClassName.methodName] state —', { before, after })
+## Rules
 
-// Result / exit
-console.log('[DebugTest][ClassName.methodName] result —', result)
+- Log only at locations specified in the brief
+- Never modify logic
+- Never log passwords or tokens — log `.length` / `.count` instead
+- Never commit debug logs
 
-// Error
-console.error('[DebugTest][ClassName.methodName] error —', error)
-```
+## Output
 
-## Filtering
-
-- **Browser devtools Console tab**: filter by `[DebugTest]`
-- **Server terminal**: `| grep '\[DebugTest\]'`
-
-## Placement by Layer
-
-### StateHolder (ViewModel hook)
-```ts
-// Log event received and state change
-const handleSubmit = useCallback((data: FormData) => {
-  console.log('[DebugTest][useLeaveViewModel.handleSubmit] entry —', data)
-  submitUseCase.execute(data).then(result => {
-    console.log('[DebugTest][useLeaveViewModel.handleSubmit] result —', result)
-    setState(result)
-  }).catch(err => {
-    console.error('[DebugTest][useLeaveViewModel.handleSubmit] error —', err)
-  })
-}, [])
-```
-
-### Use Case
-```ts
-async execute(params: Params): Promise<Result> {
-  console.log('[DebugTest][SubmitLeaveUseCase.execute] entry —', params)
-  const result = await this.repository.submit(params)
-  console.log('[DebugTest][SubmitLeaveUseCase.execute] result —', result)
-  return result
-}
-```
-
-### Repository Impl
-```ts
-async submit(params: Params): Promise<Entity> {
-  console.log('[DebugTest][LeaveRepositoryImpl.submit] entry —', params)
-  try {
-    const dto = await this.dataSource.submit(params)
-    console.log('[DebugTest][LeaveRepositoryImpl.submit] raw dto —', dto)
-    return this.mapper.toDomain(dto)
-  } catch (error) {
-    console.error('[DebugTest][LeaveRepositoryImpl.submit] error —', error)
-    throw this.errorMapper.map(error)
-  }
-}
-```
-
-### Server Action
-```ts
-export const submitLeaveAction = createSafeAction(schema, async (data) => {
-  console.log('[DebugTest][submitLeaveAction] entry —', data)
-  const result = await container.submitLeaveUseCase.execute(data)
-  console.log('[DebugTest][submitLeaveAction] result —', result)
-  return result
-})
-```
-
-## Key Principles
-
-- Log entry params and exit results at every layer boundary
-- Log before/after every conditional branch
-- Log before/after every async boundary
-- Never log passwords, tokens, or PII — use `[REDACTED]` or log `.length` only
-- Never commit `[DebugTest]` logs — use `debug-remove-logs` to clean up
-
-## Extension Point
-
-Check for `.claude/skills.local/extensions/debug-add-logs.md` — if it exists, follow its additional instructions.
+List each file and line where a log was inserted.

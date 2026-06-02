@@ -1,21 +1,24 @@
 ---
 name: developer-domain-create-repository
-description: Create a domain repository interface. Called by domain-worker.
+description: Create a domain repository interface.
 user-invocable: false
-tools: Read, Write, Glob
 ---
 
-Create a repository interface at `src/domain/repositories/[Feature]Repository.ts`.
+Create a Repository interface following `.claude/reference/code-architecture/domain-impl.md ## Repository Interfaces`.
 
-**Preconditions:**
-- File must NOT exist — fail fast if it does
-- `src/domain/entities/[Name].ts` must exist — run `domain-create-entity` first if missing
+## Steps
 
-**Rules:**
-- Interface only — no implementation
-- Methods return domain entities, never DTOs or DB records
-- Method signatures match the CRUD operations requested
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Repository Interfaces` for the canonical pattern and path convention
+2. **Identify** the data operations the feature needs
+3. **Locate** path per the impl doc's repository interface convention
+4. **Create** the interface file following the impl doc pattern
 
-**Pattern:** `reference/code-architecture/domain-impl.md` — Grep `## Repository Interfaces`
+## Rules
 
-**Return:** created file path. Suggest next step: `domain-create-usecase`.
+- Interface lives in the domain layer — no data layer imports
+- Methods return domain entities or primitives — no DTOs, no DB types
+- Error handling follows the platform's domain error pattern (see impl doc)
+
+## Output
+
+Confirm file path and list all interface methods with return types.

@@ -1,52 +1,24 @@
 ---
 name: developer-data-create-mapper
-description: Create a Mapper class that converts a DTO response to a domain entity.
+description: Create a mapper that converts DTOs to domain entities and vice versa.
 user-invocable: false
 ---
 
-Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers section`.
+Create a Mapper following `.claude/reference/code-architecture/data-impl.md ## Mappers`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/data-impl.md` for `## Mappers`; only **Read** the full file if the section cannot be located
-2. **Read** the Response model and the Entity to map all fields
-3. **Locate** path: `features/<feature>/lib/src/data/mappers/`
-4. **Create** `<feature>_mapper.dart`
-5. **Export** from `mappers.dart` barrel
-6. **Register** as singleton in `Jurnal<Feature>Injector.init()` under Mappers section
+1. **Read** `.claude/reference/code-architecture/data-impl.md` — locate `## Mappers` for the canonical pattern and path convention
+2. **Confirm** both the DTO and domain entity exist before creating the mapper
+3. **Locate** path per the impl doc's mapper directory convention
+4. **Create** the mapper file following the impl doc pattern
 
-## Mapper Pattern
+## Rules
 
-```dart
-import 'package:jurnal_<feature>/src/data/data.dart';
-import 'package:jurnal_<feature>/src/domain/domains.dart';
-
-class <Feature>Mapper {
-  const <Feature>Mapper();
-
-  <Feature>Response? fromJsonToResponse(Map<String, dynamic>? response) {
-    if (response == null) return null;
-    return <Feature>Response.fromJson(response['<root_key>']);
-  }
-
-  <Entity> responseToEntity(<Feature>Response response) => <Entity>(
-        id: response.id ?? 0,
-        name: response.name ?? '',
-        // map every field; supply domain defaults for nullables
-      );
-
-  // For list responses:
-  List<<Entity>> responseToEntityList(<Feature>ListResponse response) =>
-      response.items?.map(responseToEntity).toList() ?? [];
-}
-```
-
-**Rules:**
-- `const` constructor — mappers are stateless value objects
-- `fromJsonToResponse` extracts root key (e.g. `response['product']`, `response['data']`)
-- `responseToEntity` provides domain-safe defaults for all nullable response fields
-- Registered as `registerSingletonIfAbsent` in the injector (mappers section, before datasources)
+- Mapper contains only mapping logic — no business logic, no API calls
+- Covers all fields — no silent field drops; use sensible defaults for optional → required mappings
+- Bidirectional where needed (DTO → Entity and Entity → Payload)
 
 ## Output
 
-Confirm file path, list all field mappings (response field → entity field), and injector line.
+Confirm file path and list all mapped fields with any non-trivial transformations noted.

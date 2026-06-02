@@ -1,41 +1,24 @@
 ---
 name: developer-domain-create-repository
-description: Create a Domain Repository abstract class for a feature.
+description: Create a domain repository interface.
 user-invocable: false
 ---
 
-Create a Repository interface following `.claude/reference/code-architecture/domain-impl.md ## Repository section`.
+Create a Repository interface following `.claude/reference/code-architecture/domain-impl.md ## Repository Interfaces`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/domain-impl.md` for `## Repository`; only **Read** the full file if the section cannot be located
-2. **Locate** path: `features/<feature>/lib/src/domain/repositories/`
-3. **Create** `<feature>_remote_repository.dart` (abstract interface)
-4. **Export** from barrel `repositories.dart`
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Repository Interfaces` for the canonical pattern and path convention
+2. **Identify** the data operations the feature needs
+3. **Locate** path per the impl doc's repository interface convention
+4. **Create** the interface file following the impl doc pattern
 
-## Repository Pattern
+## Rules
 
-```dart
-import 'package:jurnal_core/jurnal_core.dart';
-import '../entities/entities.dart';
-
-abstract class <Feature>RemoteRepository {
-  Future<Result<<Entity>?>> get<Entity>(int id);
-  Future<Result<<Entity>List?>> get<Entity>List({
-    int page,
-    int pageSize,
-    String? searchKey,
-  });
-  Future<Result<void>> create<Entity>(<Create><Entity>Request request);
-  Future<Result<void>> delete<Entity>(int id);
-}
-```
-
-**Rules:**
-- Abstract class only — no implementation here
-- Return type always `Future<Result<T?>>` — never throws, never `Either`
-- Suffix: `RemoteRepository` (network) or `LocalRepository` (local storage)
+- Interface lives in the domain layer — no data layer imports
+- Methods return domain entities or primitives — no DTOs, no DB types
+- Error handling follows the platform's domain error pattern (see impl doc)
 
 ## Output
 
-Confirm file path and list all declared method signatures.
+Confirm file path and list all interface methods with return types.

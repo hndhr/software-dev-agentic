@@ -1,47 +1,24 @@
 ---
 name: developer-domain-create-service
-description: |
-  Create a Domain Service class that coordinates multiple use cases or repositories for complex domain logic.
+description: Create a domain service for business logic that spans multiple entities or use cases.
 user-invocable: false
 ---
 
-Create a Domain Service following DI rules in `.claude/reference/code-architecture/di-impl.md ## DI Principles section`.
+Create a Domain Service following `.claude/reference/code-architecture/domain-impl.md ## Domain Services`.
 
 ## Steps
 
-1. **Grep** `.claude/reference/code-architecture/di-impl.md` for `## DI Principles`; only **Read** the full file if the section cannot be located
-2. **Locate** the correct path: `feature_[module]/src/main/java/co/talenta/feature_[module]/domain/`
-3. **Create** `[Feature]Service.kt`
-4. **Add** `@Provides` entry in the feature's DI module
+1. **Read** `.claude/reference/code-architecture/domain-impl.md` — locate `## Domain Services` for the canonical pattern and path convention
+2. **Confirm** this logic cannot live in a single entity or use case before creating a service
+3. **Locate** path per the impl doc's service directory convention
+4. **Create** the service file following the impl doc pattern
 
-## Domain Service Pattern
+## Rules
 
-```kotlin
-@OpenForTesting
-class FeatureService @Inject constructor(
-    private val featureRepository: FeatureRepository,
-    private val otherRepository: OtherRepository
-) {
-
-    fun computeFeatureResult(params: Params): Single<FeatureResult> {
-        return featureRepository.getFeatureItems(params.page, params.limit)
-            .flatMap { items ->
-                otherRepository.getRelatedData(items.map { it.id })
-                    .map { related -> FeatureResult(items, related) }
-            }
-    }
-
-    data class Params(val page: Int, val limit: Int)
-}
-```
-
-Rules:
-- Annotate with `@OpenForTesting`
-- Use `@Inject constructor` — never instantiate directly
-- Only coordinate repositories and domain logic — no UI or data-layer concerns
-- Return `Single<T>` for all async operations
-- Name: `[Feature]Service`
+- Domain service contains pure business logic — no infrastructure dependencies
+- Stateless — no mutable fields
+- Depends only on domain types — entities, value objects, domain errors
 
 ## Output
 
-Confirm file path, service class name, and all public method signatures.
+Confirm file path and list all public methods with signatures.
