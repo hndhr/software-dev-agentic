@@ -2,6 +2,7 @@
 name: librarian-audit-worker
 description: Audits a Feature Doc draft against the rules in docs/principles/feature-doc-principles.md. Returns structured findings — violations block publish, warnings surface to reviewer. Called internally by librarian skills — never invoked directly.
 model: haiku
+user-invocable: false
 tools: Read
 ---
 

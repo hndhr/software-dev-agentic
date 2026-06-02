@@ -2,6 +2,7 @@
 name: librarian-flutter-worker
 description: Scans a local Flutter module repo for a named feature — discovers BLoCs, UseCases, Repositories, DataSources, and Widgets. Always [Clean] for Flutter. Returns structured findings for librarian-synthesizer-worker. Never writes files.
 model: sonnet
+user-invocable: false
 tools: Read, Glob, Grep
 ---
 

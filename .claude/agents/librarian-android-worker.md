@@ -2,6 +2,7 @@
 name: librarian-android-worker
 description: Scans a local Android repo for a named feature — discovers Fragments, Activities, ViewModels, UseCases, Repositories, and API call sites. Detects [pre-Clean]/[Clean] based on layer structure. Returns structured findings for librarian-synthesizer-worker. Never writes files.
 model: sonnet
+user-invocable: false
 tools: Read, Glob, Grep
 ---
 

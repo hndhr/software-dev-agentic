@@ -2,6 +2,7 @@
 name: librarian-synthesizer-worker
 description: Merges raw inputs (PRD content, platform scan findings, or existing Feature Docs) into a Feature Doc draft conforming to the schema in docs/principles/feature-doc-principles.md. Returns a filled draft — does not write files.
 model: sonnet
+user-invocable: false
 tools: Read, Glob, Grep
 ---
 

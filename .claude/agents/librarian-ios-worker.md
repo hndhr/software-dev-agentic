@@ -2,6 +2,7 @@
 name: librarian-ios-worker
 description: Scans a local iOS repo for a named feature — discovers ViewControllers, Managers, Services, Coordinators, API call sites, and data models. Detects [pre-Clean]/[Clean] based on layer structure. Returns structured findings for librarian-synthesizer-worker. Never writes files.
 model: sonnet
+user-invocable: false
 tools: Read, Glob, Grep
 ---
 
