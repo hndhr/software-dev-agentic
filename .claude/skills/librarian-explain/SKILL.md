@@ -2,7 +2,7 @@
 name: librarian-explain
 description: Explain a feature from its Feature Doc — read-only, no file written. Supports --aspect and --for flags.
 user-invocable: true
-allowed-tools: Read, Glob, AskUserQuestion
+tools: Read, Glob, AskUserQuestion
 ---
 
 ## Arguments

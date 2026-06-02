@@ -2,7 +2,7 @@
 name: librarian-scan
 description: Backfill a Feature Doc by scanning local platform repos. Supports incremental [pending-scan] expansion — only scans platforms not yet covered. Synthesizes, audits, and writes on approval.
 user-invocable: true
-allowed-tools: Read, Glob, Bash, AskUserQuestion, Agent
+tools: Read, Glob, Bash, AskUserQuestion, Agent
 ---
 
 ## Arguments
