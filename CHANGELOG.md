@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [8.4.1] — 2026-06-02
+
+### Fixed
+- **Librarian agents** — added missing `user-invocable: false` to all five librarian workers (`android`, `ios`, `flutter`, `synthesizer`, `audit`)
+- **Librarian skills** — renamed `allowed-tools:` → `tools:` in `librarian-explain`, `librarian-generate`, `librarian-merge`, `librarian-scan`
+- **`agent-scaffold-worker`** — strategist template tools corrected to `Read, Glob, Grep` only (removed `Bash`, `AskUserQuestion`); skill template label updated from `Type W (Workflow)` to `Type O (Orchestrator)`; agent naming hint updated to `<persona>-[descriptive]-<role>` format
+- **`arch-check-conventions`** — naming rule updated to `<persona>-[descriptive]-<role>.md`; persona subdir list corrected (`builder/` → `developer/`, added `qa/`)
+
+---
+
 ## [8.4.0] — 2026-06-01
 
 ### Added
