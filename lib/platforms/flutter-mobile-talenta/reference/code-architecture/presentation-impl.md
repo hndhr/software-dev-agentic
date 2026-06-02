@@ -14,9 +14,9 @@ Forbidden: any `RepositoryImpl`, `DataSourceImpl`, `DTO`, mapper, `http`/`dio` i
 
 ---
 
-## StateHolder <!-- 12 -->
+## StateHolder <!-- 329 -->
 
-In Flutter, the StateHolder is implemented as a **BLoC** (for event-driven flows) or **Cubit** (for simpler state). See `## BLoC` and `## Cubit (Simpler Alternative)` below for full implementation patterns.
+In Flutter, the StateHolder is implemented as a **BLoC** (for event-driven flows) or **Cubit** (for simpler state).
 
 Invariants:
 - Receives use cases via constructor injection — annotated `@injectable`, created fresh per screen via `getIt`
@@ -26,7 +26,7 @@ Invariants:
 
 ---
 
-## State <!-- 11 -->
+### State <!-- 11 -->
 
 In Flutter, **State** is an immutable `@freezed` class with a `ViewDataState<T>` field per async operation. See `## States` below for the full pattern.
 
@@ -37,7 +37,7 @@ Invariants:
 
 ---
 
-## Events / Input <!-- 11 -->
+### Events / Input <!-- 11 -->
 
 In Flutter (BLoC), Events are `@freezed sealed class` cases dispatched by the widget via `context.read<XBloc>().add(XEvent.loadX())`. In Cubit, they are direct method calls. See `## Events` below.
 
@@ -48,7 +48,7 @@ Invariants:
 
 ---
 
-## Actions / Output <!-- 11 -->
+### Actions / Output <!-- 11 -->
 
 In Flutter, Actions/Output are navigation and one-time side effects handled via `BlocListener`. See `## BlocListener (Side Effects)` below.
 
@@ -59,7 +59,7 @@ Invariants:
 
 ---
 
-## StateHolder Contract <!-- 11 -->
+### StateHolder Contract <!-- 11 -->
 
 Before `developer-ui-worker` writes the Screen, `developer-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
 - BLoC/Cubit class name and file path
@@ -70,7 +70,7 @@ Before `developer-ui-worker` writes the Screen, `developer-feature-worker` produ
 
 ---
 
-## Creation Order <!-- 10 -->
+### Creation Order <!-- 10 -->
 
 ```
 Use Cases → BLoC/Cubit (StateHolder) → StateHolder contract → Screen (developer-ui-worker)
@@ -80,7 +80,7 @@ Never write the Screen before the StateHolder contract exists.
 
 ---
 
-## Layer Invariants <!-- 10 -->
+### Layer Invariants <!-- 10 -->
 
 - BLoC/Cubit never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
 - Use cases injected via constructor — never `GetEmployeeUseCase()` inside a BLoC body
@@ -90,7 +90,7 @@ Never write the Screen before the StateHolder contract exists.
 
 ---
 
-## State Management <!-- 63 -->
+### State Management <!-- 63 -->
 
 A generic state wrapper for async data operations. Used in every BLoC state that holds fetched or submitted data.
 
@@ -153,7 +153,7 @@ class ViewDataState<T> extends Equatable {
 
 ---
 
-## Events <!-- 37 -->
+### Events <!-- 37 -->
 
 Sealed classes with freezed. Name with **verb + noun** pattern.
 
@@ -190,7 +190,7 @@ sealed class EmployeeEvent with _$EmployeeEvent {
 
 ---
 
-## States <!-- 33 -->
+### States <!-- 33 -->
 
 Single immutable state class per BLoC. Use `ViewDataState<T>` for each async operation.
 
@@ -223,7 +223,7 @@ class EmployeeState with _$EmployeeState {
 
 ---
 
-## BLoC <!-- 88 -->
+### BLoC
 
 ```dart
 // presentation/blocs/employee_bloc.dart
@@ -311,7 +311,7 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
 
 ---
 
-## Cubit (Simpler Alternative) <!-- 32 -->
+### Cubit (Simpler Alternative)
 
 Use Cubit when there are no events — only method calls.
 
@@ -473,6 +473,73 @@ final isLoading = context.select<EmployeeBloc, bool>(
   (bloc) => bloc.state.employeeState.isLoading,
 );
 ```
+
+---
+
+## Component <!-- 47 -->
+
+Reusable presentational widget — BLoC-unaware. Receives plain domain entities via constructor.
+
+Path: `lib/src/features/[feature]/presentation/widgets/[feature]_[component].dart`
+
+```dart
+import 'package:flutter/material.dart';
+import '../../domain/entities/[feature]_entity.dart';
+
+class [Feature][Component] extends StatelessWidget {
+  const [Feature][Component]({
+    super.key,
+    required this.[entity],
+  });
+
+  final [Feature]Entity [entity];
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              [entity].name,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text([entity].email),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+Rules:
+- No `BlocProvider`, `BlocBuilder`, or `context.read` inside a component
+- `const` constructor — all fields `final`
+- Shared cross-feature widgets go in `lib/src/shared/core/`
+
+---
+
+## Logging <!-- 20 -->
+
+Log format: `debugPrint('[DebugTest][MethodName] <event> — <value>')`.
+
+```dart
+// Entry
+debugPrint('[DebugTest][methodName] entry — param: $param');
+// State
+debugPrint('[DebugTest][methodName] state — before: $before, after: $after');
+// Error
+debugPrint('[DebugTest][methodName] error — $error');
+```
+
+Rules:
+- Use `[DebugTest]` prefix on every log — enables grep filtering
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
 
 ---
 

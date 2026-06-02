@@ -10,9 +10,9 @@ Forbidden: any `RepositoryImpl`, `DataSource`, `DTO`, mapper, `Alamofire` import
 
 ---
 
-## StateHolder <!-- 12 -->
+## StateHolder <!-- 375 -->
 
-In iOS, the StateHolder is implemented as a **ViewModel** extending `BaseViewModelV2`. See `## BaseViewModelV2` and `## Concrete ViewModel` below for full implementation patterns.
+In iOS, the StateHolder is implemented as a **ViewModel** extending `BaseViewModelV2`.
 
 Invariants:
 - Receives use cases via constructor injection — default singleton parameters are acceptable for legacy code; prefer protocol types
@@ -22,7 +22,7 @@ Invariants:
 
 ---
 
-## State <!-- 11 -->
+### State <!-- 11 -->
 
 In iOS, **State** is a `struct` conforming to `ViewModelState` — a plain value type with an `initial` factory. See `## State Management` below for the full pattern.
 
@@ -33,7 +33,7 @@ Invariants:
 
 ---
 
-## Events / Input <!-- 11 -->
+### Events / Input <!-- 11 -->
 
 In iOS, Events are `enum` cases conforming to `ViewModelEvent`. ViewController calls `viewModel.emitEvent(.caseName)` for every user interaction. See `## State Management` (Event Protocol/Implementation) below.
 
@@ -44,7 +44,7 @@ Invariants:
 
 ---
 
-## Actions / Output <!-- 11 -->
+### Actions / Output <!-- 11 -->
 
 In iOS, Actions are `enum` cases conforming to `ViewModelAction`, emitted via `emitAction(_:)`. ViewController observes `actionDriver` and responds. See `## State Management` (Action Protocol/Implementation) below.
 
@@ -55,7 +55,7 @@ Invariants:
 
 ---
 
-## StateHolder Contract <!-- 11 -->
+### StateHolder Contract <!-- 11 -->
 
 Before `developer-ui-worker` writes the ViewController, `developer-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
 - ViewModel class name and file path
@@ -66,7 +66,7 @@ Before `developer-ui-worker` writes the ViewController, `developer-feature-worke
 
 ---
 
-## Creation Order <!-- 10 -->
+### Creation Order <!-- 10 -->
 
 ```
 Use Cases → ViewModel (StateHolder) → StateHolder contract → ViewController (developer-ui-worker)
@@ -76,7 +76,7 @@ Never write the ViewController before the StateHolder contract exists.
 
 ---
 
-## Layer Invariants <!-- 10 -->
+### Layer Invariants <!-- 10 -->
 
 - ViewModel never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
 - Use cases injected via constructor — never `UseCase()` inside a ViewModel body
@@ -86,7 +86,7 @@ Never write the ViewController before the StateHolder contract exists.
 
 ---
 
-## State Management <!-- 81 -->
+### State / Event / Action
 
 Talenta iOS uses **BaseViewModelV2** with generic State/Event/Action pattern.
 
@@ -167,7 +167,7 @@ enum CICOLocationViewModelAction: ViewModelAction {
 }
 ```
 
-## BaseViewModelV2 <!-- 89 -->
+### BaseViewModelV2
 
 Generic base class for all ViewModels with reactive state management.
 
@@ -256,7 +256,7 @@ class BaseViewModelV2<State: ViewModelState, Event: ViewModelEvent, Action: View
 - Subclasses override `emitEvent(_ event:)` for user interactions
 - Subclasses override `setBinders()` for RxSwift bindings
 
-## Concrete ViewModel <!-- 129 -->
+### Concrete ViewModel
 
 ```swift
 // Presentation/ViewModel/CICOLocation/CICOLocationViewModel.swift
@@ -385,7 +385,7 @@ class CICOLocationViewModel: BaseViewModelV2<
 - Use `weak self` in closures
 - Dispose subscriptions via `disposeBag`
 
-## ViewController <!-- 133 -->
+## Screen Structure <!-- 133 -->
 
 ```swift
 // Presentation/View/CICOLocation/CICOLocationViewController.swift
@@ -824,6 +824,80 @@ final class CICOLocationViewModel {
 ```
 
 **Best Practices:** Inject as protocol for testability. Always provide `defaultValue`. Check flags before expensive operations.
+
+---
+
+## Component <!-- 57 -->
+
+Reusable cell or view — UIModel pattern, no ViewModel awareness. Receives a plain `UIModel` struct via `configure(with:)`.
+
+Path: `Talenta/Module/[Module]/Presentation/View/Cell/[Feature]TableViewCell.swift`
+
+```swift
+final class [Feature]TableViewCell: UITableViewCell {
+    static let reuseIdentifier = "[Feature]TableViewCell"
+
+    struct UIModel {
+        let title: String
+        let subtitle: String
+    }
+
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupViews()
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        titleLabel.text = nil
+        subtitleLabel.text = nil
+    }
+
+    private func setupViews() {
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(subtitleLabel)
+        titleLabel.snp.makeConstraints { $0.top.leading.trailing.equalToSuperview().inset(MpSpacing.medium) }
+        subtitleLabel.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(MpSpacing.small)
+            $0.leading.trailing.bottom.equalToSuperview().inset(MpSpacing.medium)
+        }
+    }
+
+    func configure(with model: UIModel) {
+        titleLabel.text = model.title
+        subtitleLabel.text = model.subtitle
+    }
+}
+```
+
+Rules:
+- `UIModel` is a nested struct — pure display data, no business logic
+- `prepareForReuse()` must clear all displayed values (and reset `disposeBag` if RxSwift is used)
+- SnapKit for layout — no storyboards
+- Use MekariPixel tokens for spacing/colors
+- Mark class `final`
+
+---
+
+## Logging <!-- 17 -->
+
+Log format: `print("[DebugTest][ClassName.methodName] <event> — <value>")`.
+
+```swift
+print("[DebugTest][methodName] entry — param: \(param)")
+print("[DebugTest][methodName] state — before: \(before), after: \(after)")
+print("[DebugTest][methodName] error — \(error)")
+```
+
+Rules:
+- Use `[DebugTest]` prefix on every log — filter in Xcode console with `Cmd+K` then search `[DebugTest]`
+- Never log passwords or tokens — log `.count` instead
+- Never commit `[DebugTest]` logs
 
 ---
 

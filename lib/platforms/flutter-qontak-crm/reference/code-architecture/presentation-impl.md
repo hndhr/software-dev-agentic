@@ -14,7 +14,19 @@ Forbidden: any `RepositoryImpl`, `DataSourceImpl`, DTO, mapper, `http`/`dio` imp
 
 ---
 
-## ViewDataState (from `qontak_common`) <!-- 26 -->
+## StateHolder <!-- 136 -->
+
+In Flutter Qontak CRM, the StateHolder is implemented as a **BLoC**. BLoCs are **not** registered in `get_it` — they are instantiated inline in `route_manager.dart`.
+
+Invariants:
+- Receives use cases via named constructor parameters — no `@injectable` or DI annotations
+- Emits immutable `State` objects — never mutates state in place; use `emit(state.copyWith(...))`
+- Handles navigation as a side effect via `BlocListener` — not as a direct `Navigator.push` inside the BLoC
+- One BLoC per screen — instantiated via `BlocProvider` in `route_manager.dart`
+
+---
+
+### ViewDataState
 
 `ViewDataState<T>` is defined in `qontak_common`. The API surface uses a `.status` field with extension getters — NOT direct bool helpers on `ViewDataState`:
 
@@ -40,7 +52,7 @@ state.companyListState.message             // String? error message
 
 ---
 
-## Events <!-- 21 -->
+### Events <!-- 21 -->
 
 Events are `@freezed` classes. Named after user intent — verb + noun.
 
@@ -61,7 +73,7 @@ class CompanyEvent with _$CompanyEvent {
 
 ---
 
-## States <!-- 21 -->
+### States <!-- 21 -->
 
 ```dart
 // features/crm_company/lib/src/presentation/bloc/company/company_state.dart
@@ -82,7 +94,7 @@ class CompanyState with _$CompanyState {
 
 ---
 
-## BLoC <!-- 56 -->
+### BLoC
 
 BLoCs use named constructor parameters. No `@injectable` or `@lazySingleton` annotations — registration is manual. BLoCs are **NOT** registered in `get_it` — they are instantiated inline in `route_manager.dart`.
 
@@ -242,6 +254,67 @@ BlocListener<CompanyBloc, CompanyState>(
 | `BlocConsumer` | Both in the same tree |
 
 Key: Use `.status.isHasData` (not `.isLoaded`), `.status.isError` (not `.hasError`).
+
+---
+
+## Component <!-- 44 -->
+
+Reusable presentational widget — BLoC-unaware. Receives plain domain entities via constructor.
+
+Path: `features/[prefix]_[feature]/lib/src/presentation/widgets/[feature]_[component].dart`
+
+```dart
+import 'package:flutter/material.dart';
+import '../../domain/entities/[feature]_entity.dart';
+
+class [Feature][Component] extends StatelessWidget {
+  const [Feature][Component]({
+    super.key,
+    required this.[entity],
+  });
+
+  final [Feature]Entity [entity];
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text([entity].name, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text([entity].subtitle),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+Rules:
+- No `BlocProvider`, `BlocBuilder`, or `context.read` inside a component
+- `const` constructor — all fields `final`
+- Cross-feature shared widgets go in `features/qontak_component_lib/`
+
+---
+
+## Logging <!-- 17 -->
+
+Log format: `debugPrint('[DebugTest][MethodName] <event> — <value>')`.
+
+```dart
+debugPrint('[DebugTest][methodName] entry — param: $param');
+debugPrint('[DebugTest][methodName] state — before: $before, after: $after');
+debugPrint('[DebugTest][methodName] error — $error');
+```
+
+Rules:
+- Use `[DebugTest]` prefix — enables grep filtering
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
 
 ---
 

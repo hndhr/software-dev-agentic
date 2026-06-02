@@ -1,4 +1,16 @@
-## State <!-- 99 -->
+## StateHolder <!-- 111 -->
+
+In Flutter Jurnal, the StateHolder is implemented as a **BLoC** using `jurnal_core`'s `ViewDataState<T>` variants.
+
+Invariants:
+- Receives use cases via constructor injection — instantiated via the feature's `Injector.find<T>()`
+- Emits immutable `@freezed` `State` objects — never mutates state in place; use `emit(state.copyWith(...))`
+- Handles navigation and one-time effects via `BlocConsumer.listener` — BLoC never navigates directly
+- One BLoC per screen — scoped to the screen's `BlocProvider`
+
+---
+
+### State <!-- 99 -->
 
 BLoC state uses `freezed` with a `ViewDataState<T>` wrapper from `jurnal_core` for each distinct async operation. State class is annotated `@freezed` and holds one `ViewDataState<T>` per async operation plus pagination helpers.
 
@@ -131,6 +143,51 @@ class <Feature>Screen extends StatelessWidget {
 ```
 
 BLoCs are instantiated via the feature's static `Injector.find<T>()` method — never `context.read`.
+
+---
+
+## Component <!-- 28 -->
+
+Reusable presentational widget — BLoC-unaware. Receives plain entities or primitives via constructor.
+
+Path: `features/[feature]/lib/src/presentation/widgets/[feature]_[component].dart`
+
+```dart
+class [Feature][ComponentName] extends StatelessWidget {
+  const [Feature][ComponentName]({
+    super.key,
+    required this.[entity],
+  });
+
+  final [Entity] [entity];
+
+  @override
+  Widget build(BuildContext context) { ... }
+}
+```
+
+Rules:
+- No BLoC awareness — receives entities or primitive values only
+- `const` constructor — all fields `final`
+- Cross-feature shared widgets go in `features/jurnal_core/lib/`
+- `ChangeNotifier`-based controllers are acceptable for complex multi-widget coordination
+
+---
+
+## Logging <!-- 17 -->
+
+Log format: `debugPrint('[DebugTest][MethodName] <event> — <value>')`.
+
+```dart
+debugPrint('[DebugTest][methodName] entry — param: $param');
+debugPrint('[DebugTest][methodName] state — before: $before, after: $after');
+debugPrint('[DebugTest][methodName] error — $error');
+```
+
+Rules:
+- Use `[DebugTest]` prefix — enables grep filtering
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
 
 ---
 

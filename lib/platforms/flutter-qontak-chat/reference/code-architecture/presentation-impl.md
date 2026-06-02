@@ -14,9 +14,9 @@ Forbidden: any `RepositoryImpl`, `DataSourceImpl`, `DTO`, mapper, `http`/`dio` i
 
 ---
 
-## StateHolder <!-- 12 -->
+## StateHolder <!-- 257 -->
 
-In Flutter Qontak, the StateHolder is implemented as a **BLoC** (for event-driven flows) or **Cubit** (for simpler state). See `## BLoC` and `## Cubit (Simple State)` below for full implementation patterns.
+In Flutter Qontak, the StateHolder is implemented as a **BLoC** (for event-driven flows) or **Cubit** (for simpler state).
 
 Invariants:
 - Receives use cases via constructor injection — annotated `@injectable`, created fresh per screen via `GetIt.instance`
@@ -26,7 +26,7 @@ Invariants:
 
 ---
 
-## State <!-- 11 -->
+### State <!-- 11 -->
 
 In Flutter Qontak, **State** is an immutable `@freezed` class with a `ViewDataState<T>` field per async operation (from `[prefix]_core`). See `## States` below for the full pattern.
 
@@ -37,7 +37,7 @@ Invariants:
 
 ---
 
-## Events / Input <!-- 11 -->
+### Events / Input <!-- 11 -->
 
 In Flutter Qontak (BLoC), Events are `@freezed sealed class` cases dispatched by the widget via `context.read<XBloc>().add(XEvent.loadX())`. In Cubit, they are direct method calls. See `## Events` below.
 
@@ -48,7 +48,7 @@ Invariants:
 
 ---
 
-## Actions / Output <!-- 11 -->
+### Actions / Output <!-- 11 -->
 
 In Flutter Qontak, Actions/Output are navigation and one-time side effects handled via `BlocListener`. See `## BlocListener (Side Effects)` below.
 
@@ -59,7 +59,7 @@ Invariants:
 
 ---
 
-## StateHolder Contract <!-- 11 -->
+### StateHolder Contract <!-- 11 -->
 
 Before `developer-ui-worker` writes the Screen, `developer-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
 - BLoC/Cubit class name and file path
@@ -70,7 +70,7 @@ Before `developer-ui-worker` writes the Screen, `developer-feature-worker` produ
 
 ---
 
-## Creation Order <!-- 10 -->
+### Creation Order <!-- 10 -->
 
 ```
 Use Cases → BLoC/Cubit (StateHolder) → StateHolder contract → Screen (developer-ui-worker)
@@ -80,7 +80,7 @@ Never write the Screen before the StateHolder contract exists.
 
 ---
 
-## Layer Invariants <!-- 10 -->
+### Layer Invariants <!-- 10 -->
 
 - BLoC/Cubit never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
 - Use cases injected via constructor — never `GetInbox()` inside a BLoC body
@@ -90,7 +90,7 @@ Never write the Screen before the StateHolder contract exists.
 
 ---
 
-## ViewDataState (from `qontak_common`) <!-- 63 -->
+### ViewDataState
 
 `ViewDataState<T>` is defined in `qontak_common` (re-exported via `chat_core`). The API surface uses a `.status` field with extension getters — NOT direct bool helpers on `ViewDataState`:
 
@@ -153,7 +153,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
 ---
 
-## Events <!-- 19 -->
+### Events <!-- 19 -->
 
 Events are `@freezed` classes with named factory constructors. Sealed classes (`sealed class`) are used when the BLoC pattern-matches exhaustively.
 
@@ -172,7 +172,7 @@ class LoginEvent with _$LoginEvent {
 
 ---
 
-## States <!-- 33 -->
+### States <!-- 33 -->
 
 ```dart
 // lib/presentation/bloc/login/login_state.dart
@@ -205,7 +205,7 @@ class ProductTourState with _$ProductTourState {
 
 ---
 
-## BLoC <!-- 52 -->
+### BLoC
 
 BLoCs use **named constructor parameters** (not positional). No `@injectable` annotation in the app module — registration is done manually in `MainDependency._registerPresentation()`.
 
@@ -254,6 +254,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 - No `@injectable` in the app module — use `registerFactory` in `MainDependency`
 - Each handler emits loading first, then result via `result.fold()`
 - Use `Emitter<State>` — never call `emit()` after `await` on a closed BLoC
+
+---
+
+### Cubit (Simple State)
+
+```dart
+@lazySingleton
+class ThemeCubit extends Cubit<ThemeMode> {
+  ThemeCubit() : super(ThemeMode.light);
+  void toggle() => emit(state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light);
+}
+```
+
+Use Cubit when there are no events — only direct method calls, no payloads.
 
 ---
 
@@ -338,17 +352,64 @@ BlocListener<ResolveRoomBloc, ResolveRoomState>(
 
 ---
 
-## Cubit (Simple State) <!-- 14 -->
+## Component <!-- 44 -->
+
+Reusable presentational widget — BLoC-unaware. Receives plain domain entities via constructor.
+
+Path: `features/[prefix]_[feature]/lib/src/presentation/widgets/[feature]_[component].dart`
 
 ```dart
-@lazySingleton
-class ThemeCubit extends Cubit<ThemeMode> {
-  ThemeCubit() : super(ThemeMode.light);
-  void toggle() => emit(state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light);
+import 'package:flutter/material.dart';
+import '../../domain/entities/[feature]_entity.dart';
+
+class [Feature][Component] extends StatelessWidget {
+  const [Feature][Component]({
+    super.key,
+    required this.[entity],
+  });
+
+  final [Feature]Entity [entity];
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text([entity].name, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text([entity].subtitle),
+          ],
+        ),
+      ),
+    );
+  }
 }
 ```
 
-Use Cubit when there are no events — only direct method calls, no payloads.
+Rules:
+- No `BlocProvider`, `BlocBuilder`, or `context.read` inside a component
+- `const` constructor — all fields `final`
+- Cross-feature shared widgets go in `shared/[prefix]_core/lib/src/widgets/`
+
+---
+
+## Logging <!-- 17 -->
+
+Log format: `debugPrint('[DebugTest][MethodName] <event> — <value>')`.
+
+```dart
+debugPrint('[DebugTest][methodName] entry — param: $param');
+debugPrint('[DebugTest][methodName] state — before: $before, after: $after');
+debugPrint('[DebugTest][methodName] error — $error');
+```
+
+Rules:
+- Use `[DebugTest]` prefix — enables grep filtering
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
 
 ---
 

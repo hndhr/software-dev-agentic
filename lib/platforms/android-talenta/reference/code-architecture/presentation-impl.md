@@ -10,9 +10,9 @@ Forbidden: any `RepositoryImpl`, `DataSource`, `DTO`, mapper, `Retrofit` interfa
 
 ---
 
-## StateHolder <!-- 12 -->
+## StateHolder <!-- 163 -->
 
-In Android (MVP), the StateHolder is the **Presenter** extending `BasePresenter<View>`. See `## Presenter` below for full implementation patterns.
+In Android (MVP), the StateHolder is the **Presenter** extending `BasePresenter<View>`.
 
 Invariants:
 - Receives use cases via `@Inject constructor` — Dagger provides all dependencies; never instantiate use cases directly
@@ -22,7 +22,7 @@ Invariants:
 
 ---
 
-## State <!-- 11 -->
+### State <!-- 11 -->
 
 In Android (MVP), **State** is expressed via the View interface — discrete `show*`/`hide*` methods on the Contract.View interface represent loading, data, error, and empty states. See `## State Management` and `## MVP Contract` below.
 
@@ -33,7 +33,7 @@ Invariants:
 
 ---
 
-## Events / Input <!-- 11 -->
+### Events / Input <!-- 11 -->
 
 In Android (MVP), Events/Input are **Presenter interface methods** defined in `[Feature]Contract.Presenter` and called by Activity/Fragment in response to user actions. See `## MVP Contract` below.
 
@@ -44,7 +44,7 @@ Invariants:
 
 ---
 
-## Actions / Output <!-- 11 -->
+### Actions / Output <!-- 11 -->
 
 In Android (MVP), Actions/Output are View interface methods that the Presenter calls for navigation and one-time effects. Navigation is injected as a `[Feature]Navigation` interface. See `## Navigation` below.
 
@@ -55,7 +55,7 @@ Invariants:
 
 ---
 
-## StateHolder Contract <!-- 11 -->
+### StateHolder Contract <!-- 11 -->
 
 Before `developer-ui-worker` writes the Activity/Fragment, `developer-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
 - Presenter class name and file path
@@ -66,7 +66,7 @@ Before `developer-ui-worker` writes the Activity/Fragment, `developer-feature-wo
 
 ---
 
-## Creation Order <!-- 10 -->
+### Creation Order <!-- 10 -->
 
 ```
 Use Cases → Presenter (StateHolder) → MVP Contract → StateHolder contract → Activity/Fragment (developer-ui-worker)
@@ -76,7 +76,7 @@ Never write the Activity/Fragment before the StateHolder contract exists.
 
 ---
 
-## Layer Invariants <!-- 10 -->
+### Layer Invariants <!-- 10 -->
 
 - Presenter never imports from the data layer — no DTOs, no `RepositoryImpl`, no `DataSource`
 - Use cases injected via `@Inject constructor` — never `GetTimeOffRequestsUseCase()` inside a Presenter
@@ -86,7 +86,7 @@ Never write the Activity/Fragment before the StateHolder contract exists.
 
 ---
 
-## State Management <!-- 18 -->
+### State Management
 
 Android MVP has no explicit state container. The **View interface** is the state surface — the Presenter drives it imperatively via `view?.show*` / `view?.hide*` calls. Loading, success, and error states are expressed as discrete View methods rather than a sealed state class.
 
@@ -104,11 +104,7 @@ interface TimeOffRequestContract {
 
 For screens that need richer state (e.g. multi-section loading), define a `ViewState` data class and expose it via a single `renderState(state: ViewState)` method on the View interface.
 
-## Shared Component Paths <!-- 4 -->
-
-> Android shared components are not yet catalogued. Add common widget paths here when established (e.g. `presentation/common/`, `base/ui/`).
-
-## MVP Contract <!-- 28 -->
+### MVP Contract
 
 Interface defining the View and Presenter contracts for a feature screen.
 
@@ -136,7 +132,7 @@ Rules:
 - Presenter methods correspond to user interactions and lifecycle events
 - Name: `[Feature]Contract`
 
-## Presenter <!-- 39 -->
+### Presenter
 
 Extends `BasePresenter<View>` — injects use case and `ErrorHandler` via Dagger.
 Uses `doOnSubscribe`/`doFinally` for loading state, `addToDisposables()` for cleanup.
@@ -175,7 +171,60 @@ Rules:
 - `view?.` guard on all view calls — view may be null after `detachView()`
 - One presenter per screen
 
-## Activity / Fragment <!-- 56 -->
+---
+
+## Component <!-- 30 -->
+
+Reusable item view for RecyclerView — ViewHolder pattern, no Presenter awareness. Receives a plain data class via `bind(model)`.
+
+Path: `presentation/common/[Feature]ItemView.kt` or as a ViewHolder inside `[Feature]Adapter.kt`
+
+```kotlin
+class [Feature]ViewHolder(
+    private val binding: Item[Feature]Binding
+) : RecyclerView.ViewHolder(binding.root) {
+
+    data class UIModel(
+        val title: String,
+        val subtitle: String
+    )
+
+    fun bind(model: UIModel) {
+        binding.titleText.text = model.title
+        binding.subtitleText.text = model.subtitle
+    }
+}
+```
+
+Rules:
+- `UIModel` is a plain data class — display values only, no business logic
+- No Presenter or UseCase references inside ViewHolder
+- Use ViewBinding — no `findViewById`
+
+---
+
+## Logging <!-- 17 -->
+
+Log format: `Log.d("DebugTest", "[MethodName] <event> — <value>")`.
+
+```kotlin
+Log.d("DebugTest", "[methodName] entry — param: $param")
+Log.d("DebugTest", "[methodName] state — before: $before, after: $after")
+Log.d("DebugTest", "[methodName] error — $error")
+```
+
+Rules:
+- Use `"DebugTest"` tag on every log — filter in Logcat with tag `DebugTest`
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
+
+---
+
+## Shared Component Paths <!-- 4 -->
+
+> Android shared components are not yet catalogued. Add common widget paths here when established (e.g. `presentation/common/`, `base/ui/`).
+
+## Screen Structure <!-- 56 -->
 
 Extends `BaseMvpVbActivity<Presenter, View, Binding>` — three type params in order: Presenter contract, View contract, ViewBinding. ViewBinding via `bindingInflater`, presenter injected via `@Inject`.
 

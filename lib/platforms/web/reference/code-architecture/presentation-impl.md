@@ -10,9 +10,9 @@ Forbidden: any `RepositoryImpl`, `ApiClient`, `DTO`, mapper, `fetch`/`axios` imp
 
 ---
 
-## StateHolder <!-- 12 -->
+## StateHolder <!-- 309 -->
 
-In Web, the StateHolder is implemented as a **ViewModel Hook** (`use*ViewModel`) for client components, or a **pure `build*ViewModel` function** for Server Components. See `## ViewModel Hook` and `## Server-Side ViewModel (Pure Function)` below for full patterns.
+In Web, the StateHolder is implemented as a **ViewModel Hook** (`use*ViewModel`) for client components, or a **pure `build*ViewModel` function** for Server Components.
 
 Invariants:
 - Receives use cases via a `deps` parameter or `useDI()` — never imports a concrete repository or API client
@@ -22,7 +22,7 @@ Invariants:
 
 ---
 
-## State <!-- 11 -->
+### State <!-- 11 -->
 
 In Web, **State** is the return value of the ViewModel hook — a plain object with typed fields. TanStack Query's `isLoading`/`isError`/`data` pattern maps to `loading → error → data`. See `## State Management` (`QueryState<T>`) below.
 
@@ -33,7 +33,7 @@ Invariants:
 
 ---
 
-## Events / Input <!-- 11 -->
+### Events / Input <!-- 11 -->
 
 In Web, Events/Input are **handler functions** returned by the ViewModel hook (e.g. `handleEmployeeClick`, `handleSearchChange`). Components wire them to `onClick`/`onChange` props.
 
@@ -44,7 +44,7 @@ Invariants:
 
 ---
 
-## Actions / Output <!-- 11 -->
+### Actions / Output <!-- 11 -->
 
 In Web, Actions/Output are callbacks and router navigations executed inside handler functions. There is no separate action stream — navigation is triggered directly inside the hook's handler.
 
@@ -55,7 +55,7 @@ Invariants:
 
 ---
 
-## StateHolder Contract <!-- 10 -->
+### StateHolder Contract <!-- 10 -->
 
 Before `developer-ui-worker` writes the View component, `developer-feature-worker` produces `.claude/runs/<feature>/stateholder-contract.md` containing:
 - Hook name and file path (e.g. `useEmployeeListViewModel`)
@@ -65,7 +65,7 @@ Before `developer-ui-worker` writes the View component, `developer-feature-worke
 
 ---
 
-## Creation Order <!-- 10 -->
+### Creation Order <!-- 10 -->
 
 ```
 Use Cases → ViewModel Hook (StateHolder) → StateHolder contract → View Component (developer-ui-worker)
@@ -75,7 +75,7 @@ Never write the View component before the StateHolder contract exists.
 
 ---
 
-## Layer Invariants <!-- 10 -->
+### Layer Invariants <!-- 10 -->
 
 - ViewModel hook never imports from the data layer — no `RepositoryImpl`, no `ApiClient`, no `fetch` calls
 - Use cases injected via deps parameter or `useDI()` — never `new GetEmployeesUseCase()` inside a hook
@@ -85,7 +85,7 @@ Never write the View component before the StateHolder contract exists.
 
 ---
 
-## State Management <!-- 33 -->
+### State Management
 
 A unified state type for all view states — mirrors the `ViewState<T>` enum from the SwiftUI kit.
 
@@ -118,7 +118,7 @@ export function getDataOrNull<T>(state: QueryState<T>): T | null {
 }
 ```
 
-## ViewModel Hook <!-- 91 -->
+### ViewModel Hook
 
 The ViewModel pattern is implemented as a custom React hook. No class inheritance — just a hook that orchestrates use cases, manages state, and handles navigation.
 
@@ -209,7 +209,7 @@ export function useEmployeeListViewModel({
 }
 ```
 
-## ViewModel Hook with Service Integration <!-- 58 -->
+### ViewModel Hook with Service Integration
 
 When a ViewModel hook needs business decisions, it delegates to a Domain Service:
 
@@ -267,7 +267,59 @@ export function useLeaveRequestViewModel({
 }
 ```
 
-## React Component (View) <!-- 65 -->
+### Server-Side ViewModel (Pure Function)
+
+When a page is a **Server Component** (`async page.tsx`), data is fetched server-side and there are no React hooks. The ViewModel is a **pure function** instead of a hook.
+
+**Naming:** `build[Feature]ViewModel` — the `build*` prefix signals "not a hook, not stateful"
+**Location:** `src/presentation/features/[feature]/build[Feature]ViewModel.ts`
+**Runtime:** Isomorphic — runs on server at request time; trivially testable as a pure function
+
+```typescript
+// presentation/features/career-page/buildCareerPageViewModel.ts
+import type { Company } from '@/domain/entities/Company';
+import type { Job } from '@/domain/entities/Job';
+
+export interface CareerPageViewModelInput {
+  company: Company;
+  jobs: Job[];
+}
+
+export interface CareerPageViewModel {
+  company: Company;
+  jobs: Job[];
+  isHiring: boolean;
+  featuredJobs: Job[];
+}
+
+export function buildCareerPageViewModel(input: CareerPageViewModelInput): CareerPageViewModel {
+  return {
+    company: input.company,
+    jobs: input.jobs,
+    isHiring: input.company.siteStatus === 'active',
+    featuredJobs: input.jobs.filter((j) => j.isFeatured),
+  };
+}
+```
+
+**Pattern selection guide:**
+
+| Scenario | Pattern |
+|----------|---------|
+| Server Component, read-only | `build*ViewModel` pure function |
+| Client Component, live data / caching | `use*ViewModel` hook + TanStack Query |
+| Client Component, mutations (full-stack) | `use*ViewModel` hook + Server Actions |
+| RSC page + client interactivity | `build*ViewModel` → pass as `initialData` to `use*ViewModel` hook |
+
+**Rules:**
+- `build*ViewModel` is a **pure function** — no hooks, no async, no side effects
+- Input: domain entities only
+- Output: a plain serializable object (safe to cross the Server → Client boundary)
+- No display formatting (CSS classes, locale strings) — those stay in the component or organism
+
+---
+
+## Screen Structure <!-- 65 -->
 
 Components are dumb renderers. They receive state and callbacks from the ViewModel hook and render UI.
 
@@ -404,90 +456,57 @@ const STATUS_TEXT: Record<BudgetStatus, string> = {
 | Raw numbers / booleans | Domain | `remaining: number`, `isOverrun: boolean` |
 | User-facing message strings | Presentation | `'The requested resource was not found.'` |
 
-## Server-Side ViewModel (Pure Function) <!-- 87 -->
+## Component <!-- 35 -->
 
-When a page is a **Server Component** (`async page.tsx`), data is fetched server-side and there are no React hooks. The ViewModel is a **pure function** instead of a hook.
+Reusable React component — ViewModel-unaware. Receives plain domain entities or primitives as props.
 
-**Naming:** `build[Feature]ViewModel` — the `build*` prefix signals "not a hook, not stateful"
-**Location:** `src/presentation/features/[feature]/build[Feature]ViewModel.ts`
-**Runtime:** Isomorphic — runs on server at request time; trivially testable as a pure function
+Placement follows Atomic Design (see `## Atomic Design`):
+- **Atom** → `shared/presentation/common/atoms/[ComponentName].tsx` — primitive props only
+- **Molecule** → `shared/presentation/common/molecules/[ComponentName].tsx` — primitive props only
+- **Organism** → `features/[feature]/presentation/organisms/[ComponentName].tsx` — may accept domain entities
 
 ```typescript
-// presentation/features/career-page/buildCareerPageViewModel.ts
-import type { Company } from '@/domain/entities/Company';
-import type { Job } from '@/domain/entities/Job';
-
-export interface CareerPageViewModelInput {
-  company: Company;
-  jobs: Job[];
+// Atom example
+interface [ComponentName]Props {
+  title: string;
+  subtitle?: string;
+  onClick?: () => void;
 }
 
-export interface CareerPageViewModel {
-  company: Company;
-  jobs: Job[];
-  isHiring: boolean;
-  featuredJobs: Job[];
-}
-
-export function buildCareerPageViewModel(input: CareerPageViewModelInput): CareerPageViewModel {
-  return {
-    company: input.company,
-    jobs: input.jobs,
-    isHiring: input.company.siteStatus === 'active',
-    featuredJobs: input.jobs.filter((j) => j.isFeatured),
-  };
+export function [ComponentName]({ title, subtitle, onClick }: [ComponentName]Props) {
+  return (
+    <div className="..." onClick={onClick}>
+      <p className="...">{title}</p>
+      {subtitle && <p className="...">{subtitle}</p>}
+    </div>
+  );
 }
 ```
 
-**Call site — `async` Server Component page:**
-
-```typescript
-// app/careers/[slug]/page.tsx
-import { getCompanyUseCase, getJobsUseCase } from '@/di/container.server';
-import { buildCareerPageViewModel } from '@/presentation/features/career-page/buildCareerPageViewModel';
-import { CareerPageView } from '@/presentation/features/career-page/CareerPageView';
-
-export default async function CareerPage({ params }: { params: { slug: string } }) {
-  const [company, jobs] = await Promise.all([
-    getCompanyUseCase().execute({ slug: params.slug }),
-    getJobsUseCase().execute({ companySlug: params.slug }),
-  ]);
-  const viewModel = buildCareerPageViewModel({ company, jobs });
-  return <CareerPageView viewModel={viewModel} />;
-}
-```
-
-**View receives the pre-built ViewModel as a prop:**
-
-```typescript
-// presentation/features/career-page/CareerPageView.tsx
-// Add 'use client' only if interactivity is needed
-import type { CareerPageViewModel } from './buildCareerPageViewModel';
-
-export function CareerPageView({ viewModel }: { viewModel: CareerPageViewModel }) {
-  const { company, isHiring, featuredJobs } = viewModel;
-  return ( /* render */ );
-}
-```
-
-**Pattern selection guide:**
-
-| Scenario | Pattern |
-|----------|---------|
-| Server Component, read-only | `build*ViewModel` pure function |
-| Client Component, live data / caching | `use*ViewModel` hook + TanStack Query |
-| Client Component, mutations (full-stack) | `use*ViewModel` hook + Server Actions |
-| RSC page + client interactivity | `build*ViewModel` → pass as `initialData` to `use*ViewModel` hook |
-
-**Rules:**
-- `build*ViewModel` is a **pure function** — no hooks, no async, no side effects
-- Input: domain entities only
-- Output: a plain serializable object (safe to cross the Server → Client boundary)
-- Derived fields (computed from entities) belong here, not inside the component
-- No display formatting (CSS classes, locale strings) — those stay in the component or organism
+Rules:
+- No `useDI()`, no ViewModel hooks inside a component
+- Atoms and molecules accept only primitive props — no domain entities
+- Organisms may accept domain entities as props — they render, but do not fetch
+- A component used in ≥2 features must be promoted to `shared/presentation/common/`
 
 ---
 
+## Logging <!-- 19 -->
+
+Log format: `console.log('[DebugTest][ClassName.methodName] <event> —', value)`.
+
+```typescript
+console.log('[DebugTest][methodName] entry —', { param })
+console.log('[DebugTest][methodName] state —', { before, after })
+console.error('[DebugTest][methodName] error —', error)
+```
+
+Filter in browser devtools Console tab with `[DebugTest]`, or server terminal with `| grep '\[DebugTest\]'`.
+
+Rules:
+- Use `[DebugTest]` prefix on every log
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
 
 ---
 
