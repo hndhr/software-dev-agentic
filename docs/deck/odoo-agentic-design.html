@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Odoo Agentic System — Design</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0F1117;
+      --surface:    #161B22;
+      --surface-2:  #1C2128;
+      --border:     #30363D;
+      --text:       #E6EDF3;
+      --muted:      #8B949E;
+      --accent:     #00C48C;
+      --accent-bg:  rgba(0, 196, 140, 0.08);
+      --accent-bd:  rgba(0, 196, 140, 0.28);
+      --bad:        #FF7B7B;
+      --bad-bg:     rgba(255, 123, 123, 0.08);
+      --bad-bd:     rgba(255, 123, 123, 0.28);
+      --blue:       #79C0FF;
+      --purple:     #D2A8FF;
+      --orange:     #FFA657;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', 'Courier New', monospace;
+    }
+
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--sans); }
+
+    #progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.25s ease; z-index: 200; }
+    #counter  { position: fixed; bottom: 24px; right: 32px; font-size: 12px; font-family: var(--mono); color: var(--muted); z-index: 200; letter-spacing: 0.05em; }
+    #deck     { width: 100%; height: 100%; position: relative; }
+
+    .slide { display: none; position: absolute; inset: 0; padding: 52px 88px; flex-direction: column; justify-content: center; gap: 0; }
+    .slide.active { display: flex; }
+
+    .label    { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+    .slide-title { font-size: 52px; font-weight: 700; line-height: 1.12; letter-spacing: -0.025em; color: var(--text); }
+    .slide-title em { color: var(--accent); font-style: normal; }
+    .headline { font-size: 30px; font-weight: 600; line-height: 1.3; color: var(--text); margin-bottom: 24px; letter-spacing: -0.01em; }
+    .headline em { color: var(--accent); font-style: normal; }
+    .divider  { width: 44px; height: 3px; background: var(--accent); border-radius: 2px; margin: 24px 0; }
+    .body-text { font-size: 17px; line-height: 1.7; color: var(--muted); }
+    .body-text strong { color: var(--text); }
+
+    .bullets { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+    .bullets li { font-size: 16px; line-height: 1.65; color: var(--muted); padding-left: 22px; position: relative; }
+    .bullets li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+    .bullets li strong { color: var(--text); }
+
+    .caption { margin-top: 18px; font-size: 13.5px; color: var(--muted); border-left: 3px solid var(--accent); padding-left: 14px; line-height: 1.6; }
+    .caption strong { color: var(--text); }
+
+    .tag { display: inline-block; background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-bd); border-radius: 5px; padding: 4px 12px; font-size: 12px; font-weight: 600; font-family: var(--mono); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--border); }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); color: var(--muted); line-height: 1.5; }
+    td:first-child { color: var(--text); font-weight: 600; }
+    td strong { color: var(--accent); }
+    tr:last-child td { border-bottom: none; }
+
+    .cards { display: grid; gap: 14px; }
+    .card  { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 22px 20px; }
+    .card-label  { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+    .card-metric { font-size: 36px; font-weight: 700; color: var(--text); line-height: 1.1; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .card-desc   { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .tree { font-family: var(--mono); font-size: 13px; line-height: 1.75; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; white-space: pre; }
+    .tree .dm { color: var(--muted); }
+    .tree .ac { color: var(--accent); }
+    .tree .bl { color: var(--blue); }
+    .tree .or { color: var(--orange); }
+    .tree .pu { color: var(--purple); }
+
+    .t-table { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .t-head  { display: grid; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+    .t-head-cell { padding: 10px 18px; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .t-row   { display: grid; border-bottom: 1px solid var(--border); }
+    .t-row:last-child { border-bottom: none; }
+    .t-cell  { padding: 14px 18px; font-size: 14px; line-height: 1.5; }
+    .t-cell.hi { color: var(--text); font-weight: 600; }
+    .t-cell.ac { color: var(--accent); }
+    .t-cell.dm { color: var(--muted); }
+
+    .code-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .code-panel-header { padding: 8px 14px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; font-family: var(--mono); letter-spacing: 0.04em; }
+    .code-panel pre { padding: 14px 16px; font-family: var(--mono); font-size: 12px; line-height: 1.65; color: var(--text); }
+    .code-panel pre .cm { color: var(--muted); }
+    .code-panel pre .ac { color: var(--accent); }
+    .code-panel pre .bl { color: var(--blue); }
+
+    @media (max-width: 767px) {
+      html, body { overflow: auto; height: auto; }
+      #deck { height: auto; position: static; }
+      .slide { display: none; position: static; padding: 40px 24px 80px; min-height: 100svh; justify-content: flex-start; }
+      .slide.active { display: flex; }
+      .slide-title { font-size: 32px; }
+      .headline    { font-size: 22px; }
+      [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+      #counter { display: none; }
+      #mobile-nav { display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300; background: var(--bg); border-top: 1px solid var(--border); padding: 10px 20px; gap: 12px; align-items: center; }
+      #mobile-nav button { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font-size: 15px; font-family: var(--sans); cursor: pointer; }
+      #mobile-nav button.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 600; }
+      #mobile-counter { font-size: 12px; font-family: var(--mono); color: var(--muted); text-align: center; min-width: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="counter">1 / 10</div>
+<div id="deck">
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 1 — COVER
+  ════════════════════════════════════════ -->
+  <section class="slide active" id="s1">
+    <div class="label">Odoo Agentic System · Design · 2026</div>
+    <h1 class="slide-title">Agentic System<br>for <em>Odoo Development</em></h1>
+    <div class="divider"></div>
+    <p class="body-text" style="max-width: 580px; margin-bottom: 24px;">
+      A single-repo Claude Code toolkit that covers the full SDLC for Odoo —
+      from requirement analysis to implementation and testing.
+      <strong>Four personas. Seven agents. Six orchestrator skills.</strong>
+    </p>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <span class="tag">analyst</span>
+      <span class="tag">designer</span>
+      <span class="tag">developer</span>
+      <span class="tag">tester</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 2 — WHY AGENTIC FOR ODOO
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s2">
+    <div class="label">Context</div>
+    <h2 class="headline">Odoo is framework-heavy. <em>Errors are cryptic. Patterns repeat.</em></h2>
+    <div class="t-table">
+      <div class="t-head" style="grid-template-columns: 1fr 1fr;">
+        <div class="t-head-cell">Without agentic</div>
+        <div class="t-head-cell">With agentic</div>
+      </div>
+      <div class="t-row" style="grid-template-columns: 1fr 1fr;">
+        <div class="t-cell dm">Every change requires tracing the <code style="font-family:var(--mono);font-size:12px;">_inherit</code> chain manually before writing a single line.</div>
+        <div class="t-cell ac">Planner traces the chain first — worker writes with full context, zero guesswork.</div>
+      </div>
+      <div class="t-row" style="grid-template-columns: 1fr 1fr;">
+        <div class="t-cell dm">4 artifact types always move together — model, view, security, manifest. Easy to miss one.</div>
+        <div class="t-cell ac">Worker calls the right P skills in sequence. Manifest update is enforced every time.</div>
+      </div>
+      <div class="t-row" style="grid-template-columns: 1fr 1fr;">
+        <div class="t-cell dm">Odoo errors are cryptic — AccessError, ORM constraint, broken XPath. Hard to categorize fast.</div>
+        <div class="t-cell ac">Debug worker loads a decision tree, categorizes first, traces from the right starting point.</div>
+      </div>
+      <div class="t-row" style="grid-template-columns: 1fr 1fr;">
+        <div class="t-cell dm">New module vs extend existing — a design decision made inconsistently, often too late.</div>
+        <div class="t-cell ac">Designer persona resolves this upfront. Developer picks it up from <code style="font-family:var(--mono);font-size:12px;">module-design.md</code>.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 3 — SDLC CHAIN
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s3">
+    <div class="label">Architecture · SDLC Chain</div>
+    <h2 class="headline">Four phases. <em>Each produces a handoff artifact for the next.</em></h2>
+
+    <div style="display: flex; flex-direction: column; gap: 0; margin-bottom: 16px;">
+
+      <div style="padding-bottom: 6px;">
+        <span style="font-family:var(--mono);font-size:12px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:6px;padding:5px 14px;">business requirement</span>
+      </div>
+      <div style="color:var(--muted);font-size:14px;padding:2px 0 2px 70px;">↓</div>
+
+      <div style="display:grid;grid-template-columns:160px 1fr auto;gap:14px;align-items:center;padding:3px 0;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);">Requirement</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px;">analyst</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);">→&nbsp; functional requirements · affected modules · data model · UI needs</div>
+        <code style="font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:4px;padding:3px 10px;white-space:nowrap;">requirements.md</code>
+      </div>
+      <div style="color:var(--muted);font-size:14px;padding:2px 0 2px 70px;">↓</div>
+
+      <div style="display:grid;grid-template-columns:160px 1fr auto;gap:14px;align-items:center;padding:3px 0;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);">Design</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px;">designer</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);">→&nbsp; new vs extend · dependencies · data model · view plan · security needs</div>
+        <code style="font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:4px;padding:3px 10px;white-space:nowrap;">module-design.md</code>
+      </div>
+      <div style="color:var(--muted);font-size:14px;padding:2px 0 2px 70px;">↓</div>
+
+      <div style="display:grid;grid-template-columns:160px 1fr auto;gap:14px;align-items:center;padding:3px 0;">
+        <div style="background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:8px;padding:10px 14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);">Implementation</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px;">developer</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);">→&nbsp; models · views · security · manifest · controllers</div>
+        <code style="font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:4px;padding:3px 10px;white-space:nowrap;">source files</code>
+      </div>
+      <div style="color:var(--muted);font-size:14px;padding:2px 0 2px 70px;">↓</div>
+
+      <div style="display:grid;grid-template-columns:160px 1fr auto;gap:14px;align-items:center;padding:3px 0;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);">Testing</div>
+          <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-top:3px;">tester</div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);">→&nbsp; TransactionCase / HttpCase tests · registered in __manifest__</div>
+        <code style="font-family:var(--mono);font-size:11px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:4px;padding:3px 10px;white-space:nowrap;">tests/</code>
+      </div>
+    </div>
+
+    <div class="caption">
+      The chain is <strong>composable, not forced.</strong> Every phase can be entered directly — each skill degrades gracefully, asking the user for what it can't find on disk.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 4 — SYSTEM COMPONENTS
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s4">
+    <div class="label">Architecture · Components</div>
+    <h2 class="headline">Three components. <em>Each with one clear responsibility.</em></h2>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px;">
+
+      <div class="code-panel">
+        <div class="code-panel-header" style="color:var(--accent);background:var(--accent-bg);border-color:var(--accent-bd);border-bottom-color:var(--border);">Reference — The Knowledge</div>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.65;">Markdown files agents load whole. Scoped tightly — one file per artifact type or concern. Each file answers one question a specific agent needs to ask.</p>
+          <div style="font-size:12px;color:var(--muted);line-height:1.6;">
+            <span style="color:var(--text);font-weight:600;">model-impl.md</span> · <span style="color:var(--text);font-weight:600;">view-impl.md</span><br>
+            <span style="color:var(--text);font-weight:600;">security-impl.md</span> · <span style="color:var(--text);font-weight:600;">debugger-impl.md</span><br>
+            <span style="color:var(--text);font-weight:600;">testing-impl.md</span> · <span style="color:var(--text);font-weight:600;">controller-impl.md</span>
+          </div>
+          <div class="caption" style="margin-top:0;font-size:12px;">If a file grows beyond what one agent needs — split it. Don't annotate it.</div>
+        </div>
+      </div>
+
+      <div class="code-panel">
+        <div class="code-panel-header" style="color:var(--blue);background:rgba(121,192,255,0.06);border-color:rgba(121,192,255,0.25);border-bottom-color:var(--border);">Skill — The Hands</div>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.65;">Procedural instructions that run in the caller's session. Two types: <strong style="color:var(--text);">Orchestrator (O)</strong> — user entry points that drive the full workflow. <strong style="color:var(--text);">Procedure (P)</strong> — thin create steps called by workers.</p>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+            <span style="color:var(--blue);font-weight:600;">O — user entry</span><br>
+            <code style="font-size:11px;">/analyst-analyze-requirement</code><br>
+            <code style="font-size:11px;">/developer-build-feature</code><br><br>
+            <span style="color:var(--blue);font-weight:600;">P — worker-only</span><br>
+            <code style="font-size:11px;">odoo-model-create/SKILL.md</code><br>
+            <code style="font-size:11px;">odoo-manifest-update/SKILL.md</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-panel">
+        <div class="code-panel-header" style="color:var(--purple);background:rgba(210,168,255,0.06);border-color:rgba(210,168,255,0.25);border-bottom-color:var(--border);">Agent — The Brain</div>
+        <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+          <p style="font-size:13px;color:var(--muted);line-height:1.65;">Isolated reasoning in its own context window. Loads reference docs, makes decisions, returns structured output. Context cost stays out of the main session.</p>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7;">
+            <span style="color:var(--purple);font-weight:600;">Strategist</span> — routes + synthesizes<br>
+            <span style="color:var(--purple);font-weight:600;">Planner</span> — explores, read-only<br>
+            <span style="color:var(--purple);font-weight:600;">Worker</span> — executes, writes files<br>
+          </div>
+          <div class="caption" style="margin-top:0;font-size:12px;">Agent complexity is matched to workflow complexity — not every persona needs a strategist.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="caption">
+      <strong>Skills reach the codebase.</strong> Agents reason about it. Reference docs inform both. Each component has one job and does nothing else.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 5 — PERSONA ROSTER
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s5">
+    <div class="label">Architecture · Persona Roster</div>
+    <h2 class="headline">Four personas. <em>Agent structure matched to workflow complexity.</em></h2>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:16px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Persona</th>
+            <th>SDLC Phase</th>
+            <th>O Skills</th>
+            <th>Agents</th>
+            <th>Why this structure</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:12px;color:var(--accent);">analyst</code></td>
+            <td style="color:var(--muted);">Requirement</td>
+            <td style="color:var(--muted);">1</td>
+            <td style="color:var(--muted);">worker only</td>
+            <td style="color:var(--muted);">Pure reasoning — no code exploration needed</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:12px;color:var(--accent);">designer</code></td>
+            <td style="color:var(--muted);">Design</td>
+            <td style="color:var(--muted);">1</td>
+            <td style="color:var(--muted);">worker only</td>
+            <td style="color:var(--muted);">Light module exploration + design in one pass</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:12px;color:var(--accent);">developer</code></td>
+            <td style="color:var(--muted);">Implementation · Debug</td>
+            <td><strong>3</strong></td>
+            <td><strong>strategist + planner + 2 workers</strong></td>
+            <td style="color:var(--muted);">Inheritance chain demands pre-exploration; build vs debug are distinct pipelines</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:12px;color:var(--accent);">tester</code></td>
+            <td style="color:var(--muted);">Testing</td>
+            <td style="color:var(--muted);">1</td>
+            <td style="color:var(--muted);">worker only</td>
+            <td style="color:var(--muted);">Write task with clear reference patterns</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caption">
+      <strong>Developer earns the multi-agent pipeline</strong> — the <code style="font-family:var(--mono);font-size:12px;">_inherit</code> chain problem means you can't start writing without exploring first. The other three personas don't have that constraint.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 6 — ORCHESTRATOR SKILLS
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s6">
+    <div class="label">Architecture · Orchestrator Skills — I/O Contracts</div>
+    <h2 class="headline" style="margin-bottom:16px;">Six O skills. <em>Each with explicit input and output.</em></h2>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <table style="font-size:13px;">
+        <thead>
+          <tr>
+            <th style="width:220px;">Skill</th>
+            <th>Input</th>
+            <th>Output</th>
+            <th>Pipeline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">/analyst-analyze-requirement</code></td>
+            <td style="color:var(--muted);font-size:12px;">Raw requirement text; existing <code style="font-family:var(--mono);font-size:11px);">requirements.md</code> (optional)</td>
+            <td style="color:var(--muted);font-size:12px;"><code style="font-family:var(--mono);font-size:11px;">requirements.md</code></td>
+            <td style="color:var(--muted);font-size:12px;">→ analyst-worker</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">/designer-plan-module</code></td>
+            <td style="color:var(--muted);font-size:12px;"><code style="font-family:var(--mono);font-size:11px;">requirements.md</code> (optional); module path (optional)</td>
+            <td style="color:var(--muted);font-size:12px;"><code style="font-family:var(--mono);font-size:11px;">module-design.md</code></td>
+            <td style="color:var(--muted);font-size:12px;">→ designer-worker</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">/developer-build-feature</code></td>
+            <td style="color:var(--muted);font-size:12px;"><code style="font-family:var(--mono);font-size:11px;">module-design.md</code> (optional); feature name</td>
+            <td style="color:var(--muted);font-size:12px;">Source files — model, view, security, manifest</td>
+            <td style="color:var(--muted);font-size:12px;">→ strategist → planner → feature-worker</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">/developer-quick-edit</code></td>
+            <td style="color:var(--muted);font-size:12px;">Scoped instruction (required); file path (optional)</td>
+            <td style="color:var(--muted);font-size:12px;">Targeted edit to existing source file(s)</td>
+            <td style="color:var(--muted);font-size:12px;">→ feature-worker directly</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">/developer-debug</code></td>
+            <td style="color:var(--muted);font-size:12px;">Error message + stack trace (required); file path (optional)</td>
+            <td style="color:var(--muted);font-size:12px;">Fixed file(s) + root cause explanation</td>
+            <td style="color:var(--muted);font-size:12px;">→ debug-worker</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">/tester-write-tests</code></td>
+            <td style="color:var(--muted);font-size:12px;">Module path (required); <code style="font-family:var(--mono);font-size:11px;">plan.md</code> (optional)</td>
+            <td style="color:var(--muted);font-size:12px;"><code style="font-family:var(--mono);font-size:11px;">tests/test_&lt;feature&gt;.py</code> + manifest updated</td>
+            <td style="color:var(--muted);font-size:12px;">→ tester-worker</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="caption" style="margin-top:14px;">
+      <strong>analyst and designer handle new + update in one skill</strong> — they detect whether the output file exists and create or revise accordingly.
+      <strong>developer has 3 skills</strong> — build, quick-edit, and debug are genuinely different pipelines.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 7 — AGENT DETAIL
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s7">
+    <div class="label">Architecture · Agent Roles</div>
+    <h2 class="headline" style="margin-bottom:16px;">Seven agents. <em>Input, output, and knowledge for each.</em></h2>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <table style="font-size:12.5px;">
+        <thead>
+          <tr>
+            <th style="width:210px;">Agent</th>
+            <th>Input</th>
+            <th>Output</th>
+            <th>Knowledge loaded</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">analyst-worker</code></td>
+            <td style="color:var(--muted);">Raw requirement; existing <code style="font-family:var(--mono);font-size:10px;">requirements.md</code> (opt)</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">requirements.md</code></td>
+            <td style="color:var(--muted);">None — pure reasoning</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">designer-worker</code></td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">requirements.md</code> (opt); module path (opt)</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">module-design.md</code></td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">module-structure-impl.md</code> · <code style="font-family:var(--mono);font-size:10px;">model-impl.md</code></td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">developer-feature-strategist</code></td>
+            <td style="color:var(--muted);">Feature scope; <code style="font-family:var(--mono);font-size:10px;">module-design.md</code> (opt); planner findings (synthesize mode)</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">Decision:</code> block · <code style="font-family:var(--mono);font-size:10px;">plan.md</code> + <code style="font-family:var(--mono);font-size:10px;">context.md</code></td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">module-structure-impl.md</code></td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">developer-module-planner</code></td>
+            <td style="color:var(--muted);">Feature intent + target module path</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">findings.md</code> — models · views · security · impact</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">model-impl.md</code> · <code style="font-family:var(--mono);font-size:10px;">view-impl.md</code> · <code style="font-family:var(--mono);font-size:10px;">security-impl.md</code></td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">developer-feature-worker</code></td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">plan.md</code> + <code style="font-family:var(--mono);font-size:10px;">context.md</code> <em>or</em> scoped instruction (quick-edit)</td>
+            <td style="color:var(--muted);">Model · view · security · manifest source files</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">model-impl</code> · <code style="font-family:var(--mono);font-size:10px;">view-impl</code> · <code style="font-family:var(--mono);font-size:10px;">security-impl</code> · <code style="font-family:var(--mono);font-size:10px;">module-structure-impl</code> · <code style="font-family:var(--mono);font-size:10px;">controller-impl</code> (conditional)</td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">developer-debug-worker</code></td>
+            <td style="color:var(--muted);">Error message + stack trace; file path (opt)</td>
+            <td style="color:var(--muted);">Fixed file(s) + root cause explanation</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">debugger-impl.md</code></td>
+          </tr>
+          <tr>
+            <td><code style="font-family:var(--mono);font-size:11px;color:var(--accent);">tester-worker</code></td>
+            <td style="color:var(--muted);">Module path; <code style="font-family:var(--mono);font-size:10px;">plan.md</code> (opt)</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">tests/test_&lt;feature&gt;.py</code> + manifest updated</td>
+            <td style="color:var(--muted);"><code style="font-family:var(--mono);font-size:10px;">testing-impl.md</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 8 — DEVELOPER PERSONA FLOW
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s8">
+    <div class="label">Developer Persona · Three Entry Flows</div>
+    <h2 class="headline" style="margin-bottom:20px;">Build, quick-edit, debug. <em>Different pipelines for different needs.</em></h2>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+      <div style="border:1px solid var(--accent-bd);border-radius:10px;overflow:hidden;background:var(--accent-bg);">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--accent-bd);">
+          <code style="font-family:var(--mono);font-size:12px;color:var(--accent);">/developer-build-feature</code>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Full pipeline — new features or multi-file changes</div>
+        </div>
+        <div style="padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--muted);">
+          <span style="color:var(--accent);">O skill</span> — routing + context load<br>
+          <span style="color:var(--muted);">↓</span><br>
+          <span style="color:var(--accent);">strategist</span> <span style="color:var(--muted);">(gather-intent)</span><br>
+          <span style="color:var(--muted);">↓ reads module-design.md if found</span><br>
+          <span style="color:var(--accent);">module-planner</span> <span style="color:var(--muted);">→ findings.md</span><br>
+          <span style="color:var(--muted);">↓</span><br>
+          <span style="color:var(--accent);">strategist</span> <span style="color:var(--muted);">(synthesize)</span><br>
+          <span style="color:var(--muted);">↓ plan.md + context.md</span><br>
+          <span style="color:var(--accent);">feature-worker</span> <span style="color:var(--muted);">→ source files</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);">
+          <code style="font-family:var(--mono);font-size:12px;color:var(--blue);">/developer-quick-edit</code>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Lightweight — single field, label, constraint, view tweak</div>
+        </div>
+        <div style="padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--muted);">
+          <span style="color:var(--blue);">O skill</span> — collects scoped instruction<br>
+          <span style="color:var(--muted);">↓ no strategist, no planner</span><br>
+          <span style="color:var(--blue);">feature-worker</span> <span style="color:var(--muted);">directly</span><br>
+          <span style="color:var(--muted);">↓ instruction used as plan</span><br>
+          <span style="color:var(--blue);">P skills</span> <span style="color:var(--muted);">→ targeted edit</span><br>
+          <br>
+          <span style="color:var(--muted);font-size:11px;">Use for ≤ 2–3 files.<br>Larger scope → /build-feature</span>
+        </div>
+      </div>
+
+      <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface-2);">
+          <code style="font-family:var(--mono);font-size:12px;color:var(--bad);">/developer-debug</code>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Reactive — error in hand</div>
+        </div>
+        <div style="padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.9;color:var(--muted);">
+          <span style="color:var(--bad);">O skill</span> — collects error + trace<br>
+          <span style="color:var(--muted);">↓</span><br>
+          <span style="color:var(--bad);">debug-worker</span><br>
+          <span style="color:var(--muted);">↓ loads debugger-impl.md</span><br>
+          <span style="color:var(--muted);">categorize error:</span><br>
+          <span style="color:var(--muted);">  AccessError · ORM constraint</span><br>
+          <span style="color:var(--muted);">  View rendering · Module load</span><br>
+          <span style="color:var(--muted);">↓</span><br>
+          <span style="color:var(--bad);">trace → fix</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 9 — FILE STRUCTURE
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s9">
+    <div class="label">Architecture · File Structure</div>
+    <h2 class="headline" style="margin-bottom:20px;">Everything flat in <em><code style="font-size:0.85em;">.claude/</code></em> — no nesting, no submodule.</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+      <div class="tree"><span class="dm">.claude/</span>
+  <span class="dm">agents/</span>
+    <span class="ac">analyst-worker.md</span>
+    <span class="ac">designer-worker.md</span>
+    <span class="ac">developer-feature-strategist.md</span>
+    <span class="ac">developer-module-planner.md</span>
+    <span class="ac">developer-feature-worker.md</span>
+    <span class="ac">developer-debug-worker.md</span>
+    <span class="ac">tester-worker.md</span>
+
+  <span class="dm">skills/</span>
+    <span class="dm"># Orchestrator (O) — user entry</span>
+    <span class="bl">analyst-analyze-requirement/SKILL.md</span>
+    <span class="bl">designer-plan-module/SKILL.md</span>
+    <span class="bl">developer-build-feature/SKILL.md</span>
+    <span class="bl">developer-quick-edit/SKILL.md</span>
+    <span class="bl">developer-debug/SKILL.md</span>
+    <span class="bl">tester-write-tests/SKILL.md</span></div>
+
+      <div class="tree"><span class="dm">    # Procedure (P) — workers only</span>
+    <span class="or">odoo-model-create/SKILL.md</span>
+    <span class="or">odoo-model-inherit/SKILL.md</span>
+    <span class="or">odoo-view-create/SKILL.md</span>
+    <span class="or">odoo-view-inherit/SKILL.md</span>
+    <span class="or">odoo-controller-create/SKILL.md</span>
+    <span class="or">odoo-security-create/SKILL.md</span>
+    <span class="or">odoo-manifest-update/SKILL.md</span>
+
+  <span class="dm">reference/</span>
+    <span class="pu">model-impl.md</span>
+    <span class="pu">view-impl.md</span>
+    <span class="pu">security-impl.md</span>
+    <span class="pu">module-structure-impl.md</span>
+    <span class="pu">debugger-impl.md</span>
+    <span class="pu">testing-impl.md</span>
+    <span class="pu">controller-impl.md</span></div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       SLIDE 10 — BUILD PRIORITY
+  ════════════════════════════════════════ -->
+  <section class="slide" id="s10">
+    <div class="label">Build Priority</div>
+    <h2 class="headline" style="margin-bottom:20px;">Start with reference docs. <em>Everything else depends on them.</em></h2>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:6px;padding:8px;text-align:center;">01</div>
+        <div style="padding-top:2px;">
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;">Reference docs — model · view · security · module-structure</div>
+          <div style="font-size:13px;color:var(--muted);">Every agent loads at least one of these. Build them first or nothing else works correctly.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:6px;padding:8px;text-align:center;">02</div>
+        <div style="padding-top:2px;">
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;"><code style="font-family:var(--mono);font-size:14px;">developer</code> implementation pipeline + <code style="font-family:var(--mono);font-size:14px;">/developer-build-feature</code></div>
+          <div style="font-size:13px;color:var(--muted);">strategist + planner + feature-worker + all P skills. Highest daily use.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:6px;padding:8px;text-align:center;">03</div>
+        <div style="padding-top:2px;">
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;"><code style="font-family:var(--mono);font-size:14px;">developer-debug-worker</code> + <code style="font-family:var(--mono);font-size:14px;">debugger-impl.md</code> + <code style="font-family:var(--mono);font-size:14px;">/developer-debug</code></div>
+          <div style="font-size:13px;color:var(--muted);">High value — Odoo errors are painful without a structured decision tree.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center;">04</div>
+        <div style="padding-top:2px;">
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;"><code style="font-family:var(--mono);font-size:14px;">designer-worker</code> + <code style="font-family:var(--mono);font-size:14px;">/designer-plan-module</code></div>
+          <div style="font-size:13px;color:var(--muted);">Optional but improves implementation quality. Skippable for small changes.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center;">05</div>
+        <div style="padding-top:2px;">
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;"><code style="font-family:var(--mono);font-size:14px;">analyst-worker</code> + <code style="font-family:var(--mono);font-size:14px;">/analyst-analyze-requirement</code></div>
+          <div style="font-size:13px;color:var(--muted);">Useful for complex features. Skippable when scope is already clear.</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:48px 1fr;gap:16px;align-items:start;">
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px;text-align:center;">06</div>
+        <div style="padding-top:2px;">
+          <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;"><code style="font-family:var(--mono);font-size:14px;">tester-worker</code> + <code style="font-family:var(--mono);font-size:14px;">testing-impl.md</code> + <code style="font-family:var(--mono);font-size:14px;">/tester-write-tests</code></div>
+          <div style="font-size:13px;color:var(--muted);">v2 — blocked on <code style="font-family:var(--mono);font-size:12px;">testing-impl.md</code> being authored first. Without it, worker will produce structurally incorrect tests.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+
+<div id="mobile-nav" style="display:none;">
+  <button onclick="prev()">←</button>
+  <div id="mobile-counter" class="mono">1 / 10</div>
+  <button class="primary" onclick="next()">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total  = slides.length;
+  let cur = 0;
+
+  function show(n) {
+    slides[cur].classList.remove('active');
+    cur = (n + total) % total;
+    slides[cur].classList.add('active');
+    document.getElementById('progress').style.width = ((cur + 1) / total * 100) + '%';
+    document.getElementById('counter').textContent  = (cur + 1) + ' / ' + total;
+    const mc = document.getElementById('mobile-counter');
+    if (mc) mc.textContent = (cur + 1) + ' / ' + total;
+  }
+
+  function next() { show(cur + 1); }
+  function prev() { show(cur - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                    { e.preventDefault(); prev(); }
+  });
+
+  document.getElementById('deck').addEventListener('click', e => {
+    const w = window.innerWidth;
+    if (e.clientX > w / 2) next(); else prev();
+  });
+
+  show(0);
+</script>
+</body>
+</html>
