@@ -33,14 +33,19 @@
 
 | Task | Status |
 |---|---|
-| `kms/domain/entities.ts` — `KnowledgeNode`, `KnowledgeSection` | ⬜ Pending |
-| `kms/domain/repository.ts` — `KnowledgeRepository` interface | ⬜ Pending |
-| `kms/domain/use-cases/` — fetch (cascade), query, upsert | ⬜ Pending |
-| `kms/data/schema.sql` — `knowledge_nodes` + `knowledge_sections` | ⬜ Pending |
-| `kms/data/sqlite-repository.ts` | ⬜ Pending |
-| `kms/application/mcp-server.ts` — 4 tools wired | ⬜ Pending |
-| `build-plugin.sh` updated to compile + bundle KMS | ⬜ Pending |
-| Flutter base knowledge seeded as first nodes | ⬜ Pending |
+| `kms/domain/entities.py` — `KnowledgeNode`, `KnowledgeSection` types | ⬜ Pending |
+| `kms/domain/repository.py` — `KnowledgeRepository` interface | ⬜ Pending |
+| `kms/domain/use_cases/list_knowledge.py` — merged TOC (project + platform + universal) | ⬜ Pending |
+| `kms/domain/use_cases/fetch_knowledge.py` — cascade fetch (project → platform → universal) | ⬜ Pending |
+| `kms/domain/use_cases/query_knowledge.py` — vector search + optional metadata filter | ⬜ Pending |
+| `kms/domain/use_cases/upsert_knowledge.py` | ⬜ Pending |
+| `kms/data/chroma_repository.py` — implements `KnowledgeRepository` via ChromaDB embedded | ⬜ Pending |
+| `kms/application/mcp_server.py` — `kms_list`, `kms_fetch`, `kms_query`, `kms_upsert` | ⬜ Pending |
+| `kms/scripts/seed_kms.py` — bootstrap: reads `lib/core/knowledge/` → upserts into ChromaDB; extracts summary from first sentence of `## Theory` | ⬜ Pending |
+| `build-plugin.sh` updated — run seed_kms.py, bundle `chroma/` dir + `kms/` Python package | ⬜ Pending |
+| Flutter base knowledge seeded as first collection | ⬜ Pending |
+| Update agent + skill `knowledge_scope:` — simplify from file paths to `discipline + platform` scope | ⬜ Pending |
+| Update agent Step 0 — replace direct `Read` calls with `kms_list` → reason → `kms_fetch` flow | ⬜ Pending |
 
 ### Phase 2 — Scan Agent
 
@@ -61,9 +66,9 @@
 
 | Task | Status |
 |---|---|
-| `PostgresKnowledgeRepository` implemented | ⬜ Pending |
-| Standalone deployment | ⬜ Pending |
-| Plugin points to remote MCP | ⬜ Pending |
+| `RemoteChromaKnowledgeRepository` implemented — points to hosted ChromaDB | ⬜ Pending |
+| Standalone ChromaDB deployment | ⬜ Pending |
+| Plugin `settings.json` points to remote MCP instead of local script | ⬜ Pending |
 
 ---
 
@@ -91,7 +96,7 @@ Pain points:
 
 ## Solution
 
-A SQLite-backed knowledge store shipped inside the Claude Code plugin. Agents replace grep calls with a single MCP tool call.
+A ChromaDB-backed knowledge store shipped inside the Claude Code plugin. Single DB, two query modes — metadata-filtered fetch for precision, vector search for discovery. Agents replace grep calls with a single MCP tool call.
 
 **Before:**
 ```
@@ -101,44 +106,55 @@ Grep "^## UseCase" reference/code-architecture/domain-impl.md
 
 **After:**
 ```
+# Agent knows exactly what it needs → metadata-filtered fetch (exact, no vector)
 kms_fetch({ platform: "flutter", project: "talenta", topic: "domain", pattern: "use_case" })
-→ returns sections: [{ type: "theory", content }, { type: "code_pattern", content }]
+→ returns full pattern doc (theory + definition + code_pattern)
+
+# Agent discovering by intent → semantic search with optional scope filter
+kms_query("how is authentication handled", { discipline: "engineering" })
+→ returns top-k matching pattern docs ranked by relevance
 ```
+
+**Why ChromaDB over SQLite:** Knowledge will scale beyond engineering patterns into feature system design, product, and design disciplines. At that scale agents need intent-based discovery — they won't always know the exact topic+pattern upfront. ChromaDB supports both exact metadata lookup and vector similarity in one store, eliminating the need to maintain two separate DBs.
 
 ---
 
 ## Architecture
 
-Clean Architecture + SOLID — repository pattern as the abstraction boundary so SQLite → Postgres is a data source swap with zero changes to domain or MCP layer.
+Clean Architecture + SOLID — repository pattern as the abstraction boundary so ChromaDB → any other vector store is a data source swap with zero changes to domain or MCP layer.
 
 ```
 MCP Server (application)
   └─ Use Cases (domain)
        └─ KnowledgeRepository (abstract interface)
-            └─ SQLiteKnowledgeRepository (data)
+            └─ ChromaKnowledgeRepository (data)
 ```
 
-**Dependency rule:** MCP Server → Use Cases → KnowledgeRepository (abstract). SQLiteKnowledgeRepository implements the interface. Nothing in domain or application imports SQLite directly.
+**Dependency rule:** MCP Server → Use Cases → KnowledgeRepository (abstract). ChromaKnowledgeRepository implements the interface. Nothing in domain or application imports ChromaDB directly.
+
+**Runtime:** Python — MCP server and seed script both use the ChromaDB Python client. Single runtime, no cross-language friction.
+
+**Source of truth:** ChromaDB is authoritative after initial seed. `lib/core/knowledge/` `.md` files are the bootstrap source — seeded once into ChromaDB. Subsequent edits go through the dashboard → ChromaDB directly. `.md` files are not kept in sync after initial seed.
 
 ### Directory structure
 
 ```
 kms/
   domain/
-    entities.ts              # KnowledgeNode, KnowledgeSection types
-    repository.ts            # KnowledgeRepository interface
-    use-cases/
-      fetch-knowledge.ts     # applies cascade resolution
-      query-knowledge.ts
-      upsert-knowledge.ts
+    entities.py              # KnowledgeNode, KnowledgeSection types
+    repository.py            # KnowledgeRepository interface
+    use_cases/
+      fetch_knowledge.py     # metadata-filtered fetch + cascade (project → platform → universal)
+      list_knowledge.py      # merged TOC view — project + platform + universal
+      query_knowledge.py     # vector search + optional metadata filter
+      upsert_knowledge.py
   data/
-    sqlite-repository.ts     # implements KnowledgeRepository
-    schema.sql
+    chroma_repository.py     # implements KnowledgeRepository via ChromaDB embedded client
   application/
-    mcp-server.ts            # wires use cases → MCP tools (kms_fetch, kms_query, kms_list, kms_upsert)
-  knowledge.db               # gitignored locally; seeded at plugin build time
-  package.json
-  tsconfig.json
+    mcp_server.py            # wires use cases → MCP tools (kms_fetch, kms_query, kms_list, kms_upsert)
+  scripts/
+    seed_kms.py              # one-time bootstrap: reads lib/core/knowledge/ → upserts into ChromaDB
+  requirements.txt           # chromadb, sentence-transformers (or openai embeddings)
 ```
 
 ---
@@ -188,29 +204,42 @@ null, null, security,  auth_patterns, jwt_handling
 
 ## Knowledge Schema
 
-```sql
-CREATE TABLE knowledge_nodes (
-  id          TEXT PRIMARY KEY,  -- "{platform}:{project}:{discipline}:{topic}:{pattern}"
-  platform    TEXT,              -- flutter | web | ios | null (universal)
-  project     TEXT,              -- talenta | jurnal | qontak-crm | null (shared)
-  discipline  TEXT NOT NULL,     -- engineering | design | qa | devops | security | ...
-  topic       TEXT NOT NULL,     -- domain | state_management | components | ci_pipeline | ...
-  pattern     TEXT NOT NULL,     -- use_case | bloc | button | github_actions | ...
-  tags        TEXT,              -- JSON array
-  source_file TEXT,              -- repo path scan agent pulled from
-  updated_at  TEXT
-);
+Each pattern file becomes one ChromaDB document. Full content is the vector-searchable body; structured dimensions are metadata fields for exact filtering.
 
-CREATE TABLE knowledge_sections (
-  id            TEXT PRIMARY KEY,
-  node_id       TEXT NOT NULL REFERENCES knowledge_nodes(id),
-  section_type  TEXT NOT NULL,   -- discipline-defined: theory | definition | code_pattern | checklist | ...
-  content       TEXT NOT NULL,
-  display_order INTEGER DEFAULT 0
-);
+```python
+collection.add(
+  ids=["flutter:null:engineering:domain:use_case"],
+  documents=["## Theory\n...\n## Definition\n...\n## Code Pattern\n..."],
+  metadatas=[{
+    "platform":   "flutter",           # flutter | web | ios | android | null (universal)
+    "project":    None,                # talenta | jurnal | qontak-crm | null (platform-base)
+    "discipline": "engineering",       # engineering | design | qa | devops | security | product | ...
+    "topic":      "domain",            # domain | state_management | components | ci_pipeline | ...
+    "pattern":    "use_case",          # use_case | bloc | button | github_actions | ...
+    "tags":       "[]",                # JSON array string
+    "source_file": "lib/core/knowledge/flutter/engineering/domain/use_case.md",
+    "updated_at": "2026-06-03"
+  }]
+)
 ```
 
-**Section types per discipline:**
+**`kms_fetch` — exact metadata lookup (no vector):**
+```python
+collection.get(
+  where={"platform": "flutter", "topic": "domain", "pattern": "use_case"}
+)
+```
+
+**`kms_query` — semantic search with optional scope:**
+```python
+collection.query(
+  query_texts=["how is authentication handled"],
+  where={"discipline": "engineering"},   # optional scope filter
+  n_results=3
+)
+```
+
+**Section types per discipline** (stored as free text within the document body — no schema change to add a new discipline):
 
 | Discipline | Section types |
 |---|---|
@@ -220,8 +249,31 @@ CREATE TABLE knowledge_sections (
 | devops | overview, config_example, runbook |
 | security | threat_model, mitigation, checklist |
 | code_review | rules, examples, rationale |
+| product | context, decisions, acceptance_criteria |
 
-No schema change to add a new discipline — `section_type` is a free string. Each discipline defines its own vocabulary.
+---
+
+## Agent Query Flow
+
+Agents always start with `kms_list` — not `kms_fetch`. The index is the reasoning step.
+
+```
+1. kms_list({ platform, discipline? })   ← scoped TOC, metadata only, cheap
+        ↓
+2. Agent reasons over TOC
+   "I'm building a Flutter domain layer — I need domain + dependency_injection.
+    No product/ or design/ nodes exist for this platform yet — skip them."
+        ↓
+3. kms_fetch(platform, topic, pattern) × N   ← only what agent decided it needs
+```
+
+**Why TOC-first:**
+- Agent sees exactly what exists — no assumptions about missing patterns
+- Sparse knowledge is fine — index is honest about gaps, agent adapts
+- Selection is explicit and traceable — visible in agent reasoning
+- New knowledge added via dashboard appears in `kms_list` immediately — no scope config update, no rebuild
+
+**`kms_query` is for unscoped discovery** — when the agent doesn't know which discipline or topic is relevant (e.g. feature planner reasoning across all knowledge before delegating to workers).
 
 ---
 
@@ -231,48 +283,66 @@ Four tools exposed by `kms-server.ts`:
 
 | Tool | Input | Output |
 |---|---|---|
-| `kms_fetch` | `platform, project, discipline, topic, pattern` | Resolved node + sections (cascade applied) |
-| `kms_query` | any subset of dimensions | Array of matching nodes |
-| `kms_list` | `platform?, project?, discipline?, topic?` | Available patterns as index |
-| `kms_upsert` | full node + sections payload | Written/updated node (scan agent uses this) |
+| `kms_list` | `platform?, project?, discipline?, topic?` | Scoped TOC — metadata only, no content |
+| `kms_fetch` | `platform, project, discipline, topic, pattern` | Full node content (cascade applied) |
+| `kms_query` | `text, where?` | Top-k nodes ranked by semantic similarity |
+| `kms_upsert` | full node + content payload | Written/updated node (dashboard + scan agent) |
 
-**`kms_fetch` applies cascade automatically** — caller passes the most specific context it has; the tool resolves project → platform → universal and returns the first match per dimension.
+**`kms_list`** — returns merged TOC: project-specific + platform-base + universal nodes combined. Each entry includes `id`, `discipline`, `topic`, `pattern`, `summary` (first sentence of `## Theory`, extracted at seed time). No content returned — metadata only. Agents reason over this before fetching.
 
-```ts
-// Agent building flutter-talenta domain layer
-kms_fetch({ platform: "flutter", project: "talenta", discipline: "engineering", topic: "domain", pattern: "use_case" })
+**`kms_fetch`** — cascade fetch: resolves `project → platform → universal`, returns first match with full content. Caller passes most specific context it has.
 
-// Agent querying by layer across all flutter projects
-kms_query({ platform: "flutter", discipline: "engineering", topic: "domain" })
+**`kms_query`** — semantic search with optional metadata filter. Used by feature planners for cross-discipline discovery before delegating to scoped workers.
 
-// Agent querying by discipline only
-kms_query({ discipline: "security", topic: "auth_patterns" })
+**`kms_upsert`** — writes to ChromaDB directly. Used by dashboard (live edits) and scan agent. ChromaDB is authoritative — `.md` files are bootstrap-only.
+
+```python
+# Step 1 — Agent gets merged TOC for its context
+kms_list(platform="flutter", project="talenta", discipline="engineering")
+# → [
+#     { topic: "domain", pattern: "use_case", summary: "Single-responsibility business logic unit" },
+#     { topic: "data", pattern: "repository_impl", summary: "Implements domain repository interface" },
+#     ...  # platform-base + universal nodes merged in
+#   ]
+
+# Step 2 — Agent reasons over TOC, fetches what it needs
+kms_fetch(platform="flutter", project="talenta", discipline="engineering", topic="domain", pattern="use_case")
+
+# Feature planner — cross-discipline semantic discovery
+kms_query("authentication flow and token handling", platform="flutter")
 ```
 
 ---
 
 ## Distribution — Claude Code Plugin
 
-`knowledge.db` is seeded at plugin build time and ships inside the plugin directory. No env vars, no network, no hosted service.
+ChromaDB runs in embedded mode (no server) — the collection persists as a directory on disk, seeded at plugin build time.
 
 ```
 dist/plugins/flutter-mobile-talenta/
-  knowledge.db          ← seeded DB bundled by build-plugin.sh
+  chroma/               ← seeded ChromaDB collection dir
   kms/
-    mcp-server.js       ← compiled TypeScript
+    mcp_server.py       ← Python MCP server
+    domain/             ← entities, repository, use cases
+    data/               ← chroma_repository.py
+  requirements.txt
   .claude/
     settings.json       ← MCP server auto-configured
 ```
 
 **Engineer experience:** install plugin → MCP server is auto-wired → `kms_fetch` available immediately.
 
-**Knowledge updates:** update `knowledge.db` in this repo → rebuild plugin → engineers reinstall.
+**Knowledge updates:** update pattern files in this repo → rebuild plugin → engineers reinstall.
 
 `build-plugin.sh` additions:
 1. Compile `kms/` TypeScript
-2. Seed `knowledge.db` from canonical data
-3. Copy both into plugin directory
+2. Seed ChromaDB collection from `lib/core/knowledge/` pattern files
+3. Copy compiled JS + `chroma/` dir into plugin directory
 4. Add MCP server entry to plugin `settings.json`
+
+**Dependency:** Python + ChromaDB (`pip install chromadb sentence-transformers`). Required both at build time (seeding) and at runtime (MCP server). Engineers need Python installed.
+
+**Source of truth:** ChromaDB. `lib/core/knowledge/` `.md` files bootstrap the initial collection via `seed_kms.py` — after that, edits go through dashboard → ChromaDB directly. `.md` files are not updated after initial seed.
 
 ---
 
@@ -287,8 +357,7 @@ dist/plugins/flutter-mobile-talenta/
 
 `code_pattern` is extractable (concrete, observable). `theory` and `definition` require human judgment.
 
-**Dashboard (v1):** SQLite GUI (TablePlus / DB Browser for SQLite) — engineers navigate `platform → discipline → topic → pattern` and CRUD sections directly. Zero build needed.
-**Dashboard (v2):** Local web UI served by a companion script — hierarchical nav + section editor per node, one section type at a time.
+**Dashboard (Phase 3):** Local web UI served by a companion script — hierarchical nav + section editor per node, vector search across disciplines.
 
 ---
 
@@ -308,9 +377,9 @@ Current `.md` files stay untouched while KMS is built and populated in parallel.
 
 When multi-project real-time sync is needed (knowledge updates without submodule bumps):
 
-1. Write `PostgresKnowledgeRepository` implementing `KnowledgeRepository` — same interface
+1. Write `RemoteChromaKnowledgeRepository` implementing `KnowledgeRepository` — points to hosted ChromaDB
 2. Swap binding in `mcp-server.ts` — one line change
-3. Deploy as standalone service
+3. Deploy ChromaDB as standalone service
 4. Plugin `settings.json` points to remote MCP instead of local script
 
 Nothing in domain or use case layer changes. Clean Arch pays off here.
@@ -445,14 +514,17 @@ pattern: use_case
 - [ ] Update agent reference paths to point at `lib/core/knowledge/`
 
 ### Phase 1 — Core KMS (build here)
-- [ ] `kms/domain/entities.ts` — `KnowledgeNode`, `KnowledgeSection` types
-- [ ] `kms/domain/repository.ts` — `KnowledgeRepository` interface
-- [ ] `kms/domain/use-cases/` — `fetch-knowledge` (with cascade), `query-knowledge`, `upsert-knowledge`
-- [ ] `kms/data/schema.sql` — `knowledge_nodes` + `knowledge_sections` tables
-- [ ] `kms/data/sqlite-repository.ts` — implements `KnowledgeRepository`
-- [ ] `kms/application/mcp-server.ts` — `kms_fetch`, `kms_query`, `kms_list`, `kms_upsert`
-- [ ] `build-plugin.sh` updated to compile + bundle KMS
-- [ ] Flutter base knowledge seeded as first `platform=flutter, project=null` nodes
+- [ ] `kms/domain/entities.py` — `KnowledgeNode`, `KnowledgeSection` types
+- [ ] `kms/domain/repository.py` — `KnowledgeRepository` interface
+- [ ] `kms/domain/use_cases/list_knowledge.py` — merged TOC (project + platform + universal)
+- [ ] `kms/domain/use_cases/fetch_knowledge.py` — cascade fetch (project → platform → universal)
+- [ ] `kms/domain/use_cases/query_knowledge.py` — vector search + optional metadata filter
+- [ ] `kms/domain/use_cases/upsert_knowledge.py`
+- [ ] `kms/data/chroma_repository.py` — implements `KnowledgeRepository` via ChromaDB embedded
+- [ ] `kms/application/mcp_server.py` — `kms_list`, `kms_fetch`, `kms_query`, `kms_upsert`
+- [ ] `kms/scripts/seed_kms.py` — bootstrap from `lib/core/knowledge/`; summary = first sentence of `## Theory`
+- [ ] `build-plugin.sh` updated — run seed_kms.py, bundle `chroma/` + `kms/` Python package
+- [ ] Flutter base knowledge seeded as first collection
 
 ### Phase 2 — Scan Agent
 - [ ] Extend `sync-platform` to extract `code_pattern` sections and upsert via `kms_upsert`
@@ -460,11 +532,11 @@ pattern: use_case
 
 ### Phase 3 — Dashboard (local web UI)
 - [ ] TypeScript/Node local server — `platform → discipline → topic → pattern` nav + section editor
-- [ ] Replaces SQLite GUI for teams that want a polished CRUD experience
+- [ ] Vector search UI — intent-based knowledge discovery across disciplines
 
 ### Phase 4 — Extraction (when needed)
-- [ ] `PostgresKnowledgeRepository` implementing same `KnowledgeRepository` interface
-- [ ] Standalone deployment — zero domain/use-case changes
+- [ ] `RemoteChromaKnowledgeRepository` — points to hosted ChromaDB instance
+- [ ] Standalone ChromaDB deployment — zero domain/use-case changes
 - [ ] Plugin `settings.json` points to remote MCP endpoint
 
 ---
