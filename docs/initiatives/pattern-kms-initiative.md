@@ -1,6 +1,6 @@
 # Pattern KMS Initiative
 
-**Status:** Phase 1 complete — KMS Python package + MCP server built; agents and skills updated to KMS-first flow
+**Status:** Phase 2 in progress — `agent-kms-scan-worker` built; sync-platform wired; flutter base + project scans pending
 **Goal:** Replace static `lib/platforms/*/reference/*.md` files with a queryable SQLite-backed knowledge store — agents fetch implementation patterns via MCP instead of grepping flat files.
 
 ---
@@ -51,8 +51,8 @@
 
 | Task | Status |
 |---|---|
-| `sync-platform` extended to extract `code_pattern` sections | ⬜ Pending |
-| Flutter base covered | ⬜ Pending |
+| `sync-platform` extended to extract `code_pattern` sections | ✅ Done — `agent-kms-scan-worker` built; `sync-platform` Step 3c added |
+| Flutter base covered | ⬜ Pending — run `/sync-platform` against flutter-mobile-talenta (or any flutter repo) |
 | Project-specific (talenta, jurnal) covered | ⬜ Pending |
 | Web + iOS covered | ⬜ Pending |
 
@@ -535,6 +535,7 @@ pattern: use_case
 ### Phase 3 — Dashboard (local web UI)
 - [ ] TypeScript/Node local server — `platform → discipline → topic → pattern` nav + section editor
 - [ ] Vector search UI — intent-based knowledge discovery across disciplines
+- [ ] After any `kms_upsert`: write `dashboard:{timestamp}` to `dist/.kms_seeds/.version` — release skill treats this as fresh and skips file-based reseed
 
 ### Phase 4 — Extraction (when needed)
 - [ ] `RemoteChromaKnowledgeRepository` — points to hosted ChromaDB instance

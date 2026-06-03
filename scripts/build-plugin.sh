@@ -180,6 +180,8 @@ LAUNCHER
         rm -rf "$cache_dir/chroma"
         cp -r "$out/chroma" "$cache_dir/chroma"
         echo "$tree_hash" > "$marker"
+        # Keep global .version in sync so release skill sees a fresh seed.
+        echo "git:$tree_hash" > "$SUBMODULE/dist/.kms_seeds/.version"
         echo "  kms          seeded → chroma/ (cache updated)"
       else
         echo "  kms          SKIP seed (chromadb not installed — run: pip install chromadb PyYAML)"

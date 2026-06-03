@@ -1,2 +1,5 @@
 dist/*
 !dist/plugins/
+!dist/.kms_seeds/
+dist/.kms_seeds/*
+!dist/.kms_seeds/.version

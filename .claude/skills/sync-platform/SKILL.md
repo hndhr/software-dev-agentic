@@ -59,6 +59,28 @@ Run:
 bash software-dev-agentic/scripts/update-ref-counts.sh lib/platforms/<platform>/reference/
 ```
 
+#### 3c — KMS Pattern Scan (optional)
+
+Ask the user: "Do you want to refresh `## Code Pattern` sections in `lib/core/knowledge/` from this repo? (yes / no)"
+
+If yes:
+
+**Read** `.claude/agents/agent-kms-scan-worker.md` to load the worker's full instructions.
+
+Spawn a `general-purpose` agent using those instructions as the prompt body, appended with:
+
+```
+## Inputs
+
+repo_path: <repo_path>
+platform: <platform>
+working_directory: <absolute path of current working directory>
+```
+
+Wait for completion. Validate that the response contains an `## Output` section.
+
+Store the output for Step 5 summary.
+
 ### 4 — Check Skill Contracts (All Platforms)
 
 After all platforms complete, run:
@@ -80,6 +102,7 @@ For each platform:
   Reference files updated: <count> (<list from worker ## Output>)
   Contract skills regenerated: <count> (<list from worker ## Output>)
   MISSING_PATTERN warnings: <list, or "none">
+  KMS patterns updated: <count, or "skipped"> (<list from KMS scan ## Output>)
 
 Contract check: <pass / violations listed>
 ```
