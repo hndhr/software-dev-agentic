@@ -141,12 +141,20 @@ MANIFEST
       # Copy kms/ Python package into plugin.
       cp -r "$SUBMODULE/kms" "$out/kms"
 
+      # Copy knowledge markdown files as fallback — agents read these when KMS MCP
+      # is offline, and kms-status reports their presence to confirm the build shipped them.
+      cp -r "$knowledge_dir" "$out/knowledge"
+      local knowledge_count
+      knowledge_count=$(find "$out/knowledge" -name "*.md" ! -name "index.md" | wc -l | tr -d ' ')
+      echo "  knowledge    $knowledge_count pattern files → knowledge/"
+
       # Launcher — uses ${CLAUDE_PLUGIN_ROOT} injected by Claude Code at runtime.
       # Falls back to dirname-based resolution for local --plugin-dir testing.
       cat > "$out/kms/server.sh" <<'LAUNCHER'
 #!/usr/bin/env bash
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 export KMS_DB_PATH="$PLUGIN_ROOT/chroma"
+export KMS_KNOWLEDGE_DIR="$PLUGIN_ROOT/knowledge"
 export PYTHONPATH="$PLUGIN_ROOT"
 
 # Auto-install deps on first run — no-op if already satisfied.

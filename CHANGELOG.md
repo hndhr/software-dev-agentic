@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [9.2.9] — 2026-06-03
+
+### Added
+- **`knowledge/` shipped in plugin** — `build-plugin.sh` now copies `lib/core/knowledge/` into the plugin as `knowledge/`; agents can fall back to reading pattern files directly when KMS MCP is offline, and `kms-status` can verify the directory is present
+- **`KMS_KNOWLEDGE_DIR` env var** — `server.sh` exports the knowledge directory path so `mcp_server.py` can expose it
+- **`kms_info()` MCP tool** — returns `db_path`, `db_exists`, `total_nodes`, `knowledge_dir`, `knowledge_exists`, `knowledge_files`; called by `kms-status` as the first diagnostic step
+- **`kms-status` knowledge dir reporting** — output now includes ChromaDB path and knowledge directory status with file count; flags missing directories as build issues
+
+---
+
 ## [9.2.8] — 2026-06-03
 
 ### Removed
