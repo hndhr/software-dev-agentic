@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [9.2.11] — 2026-06-03
+
+### Fixed
+- **Planner agents skipping KMS Step 0 in groom mode** — `developer-domain-planner`, `developer-data-planner`, `developer-pres-planner`, and `developer-app-planner` were silently skipping `kms_list` → `kms_fetch` when spawned by the groom-ticket skill with a `grooming-only` mode prompt; the custom prompt overrode the agent workflow so the model never reached Step 0; fixed by annotating each Step 0/1 label as `(always — run before any codebase search, regardless of mode)` so the constraint is self-enforcing in the agent body, not delegated to the orchestrator
+
+---
+
 ## [9.2.10] — 2026-06-03
 
 ### Fixed
