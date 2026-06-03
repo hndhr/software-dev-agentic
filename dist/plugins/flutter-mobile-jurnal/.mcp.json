@@ -2,7 +2,7 @@
   "mcpServers": {
     "kms": {
       "command": "bash",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/kms/server.sh"]
+      "args": ["-c", "exec \"$CLAUDE_PLUGIN_ROOT/kms/server.sh\""]
     }
   }
 }
