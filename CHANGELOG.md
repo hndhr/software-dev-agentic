@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [9.2.4] — 2026-06-03
+
+### Fixed
+- **KMS MCP server offline in downstream projects** — `install-plugin.sh` now writes a project-level `.mcp.json` with an absolute resolved path to `server.sh` after `claude plugin install`; Claude Code does not expand `${CLAUDE_PLUGIN_ROOT}` in `.mcp.json` args (passes it as a literal string to bash), so the plugin-level `.mcp.json` alone was insufficient to start the server
+- **Plugin `.mcp.json` template** — switched from `args: ["${CLAUDE_PLUGIN_ROOT}/kms/server.sh"]` to `args: ["-c", "exec \"$CLAUDE_PLUGIN_ROOT/kms/server.sh\""]`; `bash -c` evaluates the string as a shell command so `$CLAUDE_PLUGIN_ROOT` is expanded from the env if Claude Code sets it
+
+---
+
 ## [9.2.3] — 2026-06-03
 
 ### Fixed

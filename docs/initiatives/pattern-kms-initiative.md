@@ -46,6 +46,7 @@
 | Flutter base knowledge seeded as first collection | ✅ Done — 207 nodes seeded; `chromadb` + `PyYAML` installed |
 | Update agent + skill `knowledge_scope:` — simplify to `discipline + platform` scope only | ✅ Done |
 | Update agent Step 0 — primary: `kms_list` → reason → `kms_fetch`; fallback: `Read lib/core/knowledge/{platform}/engineering/{topic}/index.md` → Read pattern files | ✅ Done |
+| Fix MCP server startup — `install-plugin.sh` writes project-level `.mcp.json` with absolute path; plugin `.mcp.json` switched to `bash -c` so `$CLAUDE_PLUGIN_ROOT` expands from env | ✅ Done |
 
 ### Phase 2 — Scan Agent
 

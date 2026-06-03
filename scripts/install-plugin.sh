@@ -97,6 +97,38 @@ with open('$CLAUDE_MD', 'w') as f:
   fi
 fi
 
+# ── KMS MCP server — write project-level .mcp.json ──────────────────────────
+# The plugin's .mcp.json uses ${CLAUDE_PLUGIN_ROOT} which bash receives
+# as a literal unexpanded string. Write an absolute path here so Claude Code
+# can start the KMS server without relying on variable expansion.
+
+echo ""
+PLUGIN_CACHE="$HOME/.claude/plugins/cache/$MARKETPLACE/$PLUGIN_NAME"
+LATEST_VERSION="$(ls -v "$PLUGIN_CACHE" 2>/dev/null | tail -1)"
+KMS_SERVER="$PLUGIN_CACHE/$LATEST_VERSION/kms/server.sh"
+
+if [ -n "$LATEST_VERSION" ] && [ -f "$KMS_SERVER" ]; then
+  PROJECT_MCP="$PROJECT_ROOT/.mcp.json"
+  python3 - "$PROJECT_MCP" "$KMS_SERVER" <<'PYEOF'
+import json, sys, os
+mcp_path, server_path = sys.argv[1], sys.argv[2]
+data = {}
+if os.path.exists(mcp_path):
+    with open(mcp_path) as f:
+        data = json.load(f)
+data.setdefault("mcpServers", {})["kms"] = {
+    "command": "bash",
+    "args": [server_path]
+}
+with open(mcp_path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+print(f"patch .mcp.json (kms → {server_path})")
+PYEOF
+else
+  echo "skip  .mcp.json (KMS server not found at $PLUGIN_CACHE/$LATEST_VERSION — rebuild plugin or re-run after install)"
+fi
+
 # ── Done ──────────────────────────────────────────────────────────────────────
 
 echo ""
