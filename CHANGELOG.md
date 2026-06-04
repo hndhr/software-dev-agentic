@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.0.4] — 2026-06-04
+
+### Fixed
+- **`/kms-status`** — summary table now collapses all disciplines into one row per `platform+project`; non-engineering topics annotated with `[discipline]` tag (e.g. `mekari_pixel_catalog [design]`)
+
+---
+
 ## [10.0.3] — 2026-06-04
 
 ### Added
