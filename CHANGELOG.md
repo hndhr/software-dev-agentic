@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.5.1] — 2026-06-04
+
+### Fixed
+- **`sda-kms` bundled chroma** — excluded `kms/db/` from the Python package copy; chroma now only lives at `$PLUGIN_ROOT/chroma`
+- **`sda-kms` node count** — fresh reseed ensures 735 nodes including ios-talenta and mobile-talenta project-scoped nodes
+
+---
+
 ## [10.5.0] — 2026-06-04
 
 ### Added
