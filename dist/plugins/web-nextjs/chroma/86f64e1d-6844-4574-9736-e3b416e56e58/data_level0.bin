@@ -1,9 +1,4 @@
-Consolidated iOS Clean Architecture reference — covers all engineering layers, patterns, and cross-cutting concerns used across iOS projects. Source: lib/core/knowledge/ios-talenta/engineering/.
-
-# Domain
-
 ## Creation Order
-
 ### Theory
 
 When building a new feature's domain layer:
@@ -32,34 +27,31 @@ When building a new feature's domain layer, create files in this sequence:
 Never create a use case before the repository protocol it depends on.
 
 ## Dependency Rule
-
 ### Theory
 
-Domain is the innermost layer. It imports nothing from outer layers.
+Data depends on Domain only. It never imports from Presentation or UI.
 
 ```
-UI  →  Presentation  →  Data  →  Domain
+Domain  ←  Data
 ```
 
-Allowed imports: language primitives and pure functional utilities only.
-Forbidden: any framework, UI library, HTTP client, database driver, or data-layer type.
+Allowed imports: domain entities, repository interfaces, language primitives.
+Forbidden: any presentation type, UI framework, StateHolder, or view import.
 
 ---
 
 ### Dependency Rule
 
-Domain is the innermost layer — it imports nothing from outer layers.
+Data depends on Domain only. It never imports from Presentation or UI.
 
-**Allowed:** Swift standard library, `Foundation` primitives (`Date`, `UUID`, `Decimal`, `String`, `Int`, `Bool`).
+**Allowed:** `Foundation`, Moya, `MoyaProvider`, `JSONDecoder`, `UserDefaults`, `CoreData`, `NWPathMonitor`, any persistence or networking library.
 
 **Forbidden:**
-- `import UIKit` — any UIKit type signals a presentation leak into domain
-- `import RxSwift` / `import Combine` — reactive frameworks belong in data or presentation
-- `import Alamofire` / `import Moya` — networking belongs in data
-- Any type defined in a `*RepositoryImpl`, `*DataSource`, or `*Response` file
+- `import UIKit` — UI types must not appear in data layer files
+- Any `ViewModel`, `ViewController`, `Coordinator`, or `Navigator` type
+- Any presentation-layer import — data layer must not know how results are displayed
 
 ## Domain Enum
-
 ### Domain Enums
 
 ```swift
@@ -93,7 +85,6 @@ enum TimeOffMenuType {
 - Location: `Domain/enum/`
 
 ## Domain Error
-
 ### Theory
 
 A **Domain Error** is the unified error type returned from all repository and use case operations. It decouples the domain from transport-layer error types (HTTP status codes, network errors).
@@ -119,7 +110,6 @@ struct BaseErrorModel: Error {
 `BaseErrorModel` is the canonical error type for all UseCase and Repository completions (`Result<Model, BaseErrorModel>`). Repositories map `NetworkError` → `BaseErrorModel` before propagating upward. See the Error Handling section for full error flow and mapping patterns.
 
 ## Domain Service
-
 ### Theory
 
 A **Domain Service** contains pure business logic that spans multiple entities or is reused across multiple use cases.
@@ -378,7 +368,6 @@ ViewModels can call Services directly for pure business logic (no I/O).
 **Key Principle:** Services contain pure business logic. UseCases orchestrate I/O. ViewModels orchestrate UI.
 
 ## Entity
-
 ### Theory
 
 An **Entity** is a pure data structure representing a business concept.
@@ -465,7 +454,6 @@ extension RequestLiveAttendanceModel {
 - No business logic (pure data)
 
 ## Repository Interface
-
 ### Theory
 
 A **Repository** is a contract that defines data access operations — *what* is needed, not *how* it is done.
@@ -513,7 +501,6 @@ protocol LiveAttendanceRepository {
 - No implementation details (no Moya, no network code)
 
 ## Use Case
-
 ### Theory
 
 A **UseCase** encapsulates a single business operation: one class, one public method, one responsibility.
@@ -704,7 +691,6 @@ getCurrentUserUseCase.execute(params: ()) { [weak self] result in ... }
 # Data
 
 ## Data Source
-
 ### Theory
 
 A **DataSource** is an abstract interface for raw data access — remote (HTTP) or local (DB, cache).
@@ -778,34 +764,7 @@ class LiveAttendanceRemoteDataSourceImpl: LiveAttendanceRemoteDataSource {
 - Uses Moya for HTTP requests
 - Error handling: catch decode + network errors
 
-## Dependency Rule
-
-### Theory
-
-Data depends on Domain only. It never imports from Presentation or UI.
-
-```
-Domain  ←  Data
-```
-
-Allowed imports: domain entities, repository interfaces, language primitives.
-Forbidden: any presentation type, UI framework, StateHolder, or view import.
-
----
-
-### Dependency Rule
-
-Data depends on Domain only. It never imports from Presentation or UI.
-
-**Allowed:** `Foundation`, Moya, `MoyaProvider`, `JSONDecoder`, `UserDefaults`, `CoreData`, `NWPathMonitor`, any persistence or networking library.
-
-**Forbidden:**
-- `import UIKit` — UI types must not appear in data layer files
-- Any `ViewModel`, `ViewController`, `Coordinator`, or `Navigator` type
-- Any presentation-layer import — data layer must not know how results are displayed
-
-## DTO
-
+## Dto
 ### Theory
 
 A **DTO (Data Transfer Object)** mirrors the raw API or database shape exactly.
@@ -870,8 +829,7 @@ struct RequestLiveAttendanceResponseData: Decodable {
 - Response models never escape Data layer
 - Standard wrapper: `status`, `message`, `data` structure
 
-## HTTP Client
-
+## Http Client
 ### HTTP Client
 
 Uses **Moya** for type-safe networking.
@@ -935,7 +893,6 @@ extension TimeManagementAPI: TargetType {
 - MoyaProvider handles HTTP requests
 
 ## Mapper
-
 ### Theory
 
 A **Mapper** converts between a DTO and a domain entity — always defined as an interface with a concrete implementation.
@@ -1042,7 +999,6 @@ class EmployeeMapper: EmployeeMapping {
 - **No business logic** — only data transformation
 
 ## Repository Implementation
-
 ### Theory
 
 A **Repository Implementation** implements the domain repository interface using a DataSource and Mapper.
@@ -1202,7 +1158,6 @@ func getDashboardData(
 # Presentation
 
 ## Component
-
 ### Theory
 
 A **Component** (also called Sub-view, Widget, or View) is a reusable UI element smaller than a full screen.
@@ -1267,7 +1222,6 @@ Rules:
 - Mark class `final`
 
 ## Logging
-
 ### Logging
 
 Log format: `print("[DebugTest][ClassName.methodName] <event> — <value>")`.
@@ -1284,121 +1238,85 @@ Rules:
 - Never commit `[DebugTest]` logs
 
 ## Screen Structure
-
 ### Theory
 
-A **Screen** is a full-page view bound to a single StateHolder. It observes state and sends events — it contains no business logic.
+UI depends on Presentation only. It never imports from Domain or Data directly.
 
-**Invariants:**
-- Bound to exactly one StateHolder — instantiated via DI, never with direct `new` / `init`
-- Observes every State field declared in the StateHolder contract — no State field goes unhandled
-- Sends events to the StateHolder for every user interaction — never mutates state directly
-- Contains no business logic — conditionals exist only to decide what to render, not what to compute
-- No use case calls — all data flows through the StateHolder
+```
+Presentation  ←  UI
+```
 
-**When to create:** One screen per route/destination. Created after the StateHolder contract exists.
+Allowed imports: StateHolder contract types, State/Event/Action types, platform UI framework primitives.
+Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasources, or any domain/data type instantiated directly.
 
 ---
 
-### Screen Structure
+### Dependency Rule
 
-```swift
-// Presentation/View/CICOLocation/CICOLocationViewController.swift
-class CICOLocationViewController: BaseViewController {
+UI depends on Presentation only — never imports Domain or Data directly.
 
-    // MARK: - UI
-    private let mapView: MapView = {
-        return MapView()
-    }()
+Allowed imports: `ViewModel` protocol types, `State`/`Action` types, UIKit primitives.
+Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasources.
 
-    private let submitButton: Button = {
-        let button = Button()
-        button.setTitle("Submit", for: .normal)
-        return button
-    }()
+### Screen
 
-    // MARK: - ViewModel
-    private let viewModel: CICOLocationViewModel
+A **Screen** is a `UIViewController` bound to a single `ViewModel` (protocol). It observes state via RxSwift bindings and sends actions — it contains no business logic.
 
-    // MARK: - Init
-    init(viewModel: CICOLocationViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
+**Invariants:**
+- Bound to exactly one `ViewModel` protocol — injected via Coordinator, never `init`-ed directly
+- Observes every state field emitted by the ViewModel — no state goes unhandled
+- Sends user actions to the ViewModel for every user interaction — never mutates state directly
+- Contains no business logic — `if`/`switch` only decides what to render
+- No use case calls — all data flows through the ViewModel
 
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) not implemented")
-    }
+### Component / Sub-view
 
-    // MARK: - Lifecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUI()
-        bindViewModel()
-        viewModel.emitEvent(.viewDidLoad)
-    }
+A **Component** is a reusable `UIView` or self-contained view class smaller than a full screen.
 
-    // MARK: - Setup
-    private func setupUI() {
-        view.backgroundColor = .white
-        view.addSubview(mapView)
-        view.addSubview(submitButton)
-        submitButton.addTarget(self, action: #selector(submitButtonTapped), for: .touchUpInside)
-    }
+**Invariants:**
+- Stateless by default — configured via a `configure(with:)` method or `UIModel` struct
+- If stateful, driven by a scoped ViewModel
+- No use case calls — all data passed in from the parent ViewController or a scoped ViewModel
+- Reuse check required before creating — search shared component targets first
 
-    private func bindViewModel() {
-        viewModel.stateDriver
-            .drive(onNext: { [weak self] state in
-                self?.render(state: state)
-            })
-            .disposed(by: disposeBag)
+### Navigator / Coordinator
 
-        viewModel.actionDriver
-            .drive(onNext: { [weak self] action in
-                self?.handle(action: action)
-            })
-            .disposed(by: disposeBag)
-    }
+A **Coordinator** (inheriting `BaseCoordinator<T>`) owns all navigation logic for a feature or flow.
 
-    private func render(state: CICOLocationViewModelState) {
-        title = state.appBarTitle
-        submitButton.setTitle(state.submitButtonTitle, for: .normal)
-        submitButton.isEnabled = state.nextButtonIsEnable
-    }
+**Invariants:**
+- The ViewController delegates navigation intent to the Coordinator via the Navigator protocol
+- The ViewModel emits a navigation `Action` — the Coordinator decides the implementation
+- Navigator protocol defines all navigation methods — the ViewController holds only the protocol reference
+- One Coordinator per feature flow — not per ViewController
 
-    private func handle(action: CICOLocationViewModelAction) {
-        switch action {
-        case .showToast(let message):
-            showToast(message: message)
-        case .showLoading:
-            showLoading()
-        case .hideLoading:
-            hideLoading()
-        case .openCamera:
-            openCamera()
-        default:
-            break
-        }
-    }
+### Creation Order
 
-    // MARK: - Actions
-    @objc private func submitButtonTapped() {
-        viewModel.emitEvent(.submitButtonTapped)
-    }
-}
+```
+UIViewController → Coordinator (if navigation needed) → DIContainer factory method
 ```
 
-**ViewController Pattern:**
-- Inject ViewModel via constructor
-- Call `viewModel.emitEvent(.viewDidLoad)` in `viewDidLoad()`
-- Bind `stateDriver` → render UI
-- Bind `actionDriver` → handle actions
-- UI events call `viewModel.emitEvent(...)`
-- Pure UI logic stays in ViewController
-- Business logic stays in ViewModel
+The ViewModel protocol and its concrete implementation must exist before any UI layer file is written.
+
+### Layer Invariants
+
+- ViewController never mutates state directly — observes RxSwift streams only
+- ViewController never calls use cases directly — all interactions go through the ViewModel
+- ViewModel instantiated by the Coordinator via constructor injection
+- Navigation delegated to Coordinator — ViewController emits intent via Navigator protocol
+- No data layer knowledge — no DTOs, no datasources, no network types visible in UI files
+
+### Glob Patterns for Exploration
+
+- `**/Presentation/**/*ViewController.swift` — screen files
+- `**/Presentation/Common/Views/**/*.swift` — shared component files
+- `**/Presentation/Coordinator/**/*Coordinator.swift` — coordinator files
+- `**/Presentation/Coordinator/**/*Navigator.swift` — navigator protocol files
+
+---
+
+# Project Structure
 
 ## Shared Component Paths
-
 ### Shared Component Paths
 
 When running a Component Reuse Check, search these locations for existing reusable views:
@@ -1413,7 +1331,6 @@ When running a Component Reuse Check, search these locations for existing reusab
 **Search strategy:** Grep for the component concept (e.g. `"Card"`, `"Avatar"`, `"EmptyState"`, `"ListItem"`) across these paths before creating a new view. A `UIView` or `UIViewController` subclass found here is a reuse candidate.
 
 ## View Model
-
 ### Theory
 
 A **StateHolder** is the single source of truth for a screen's UI state. Platform names vary (ViewModel, BLoC, Presenter) but the contract is identical across platforms.
@@ -1679,8 +1596,7 @@ deinit {
 
 # Dependency Injection
 
-## DI Setup
-
+## Di Setup
 ### Theory
 
 Core rules regardless of DI framework:
@@ -1794,7 +1710,6 @@ final class FeatureDIContainer {
 | **ViewControllers** | Factory (new instance) | Coordinator |
 
 ## Registration Order
-
 ### Theory
 
 Dependencies must be registered before they are resolved. The correct registration order mirrors the dependency graph:
@@ -1843,8 +1758,7 @@ func makeCICOLocationViewModel(navigator: CICOLocationNavigator) -> CICOLocation
 
 **Never register a ViewModel as a `lazy var` singleton** — it holds mutable UI state that must reset when the screen is destroyed. Always use `make*()` factory methods.
 
-## Testing with DI
-
+## Testing With Di
 ### Theory
 
 - Swap real implementations for test doubles at registration time — the caller never changes
@@ -1909,7 +1823,6 @@ Configure the container for `.testing` environment, then inject mocks via constr
 # Navigation
 
 ## Coordinator
-
 ### Theory
 
 A **Navigator** / **Coordinator** is the single owner of navigation logic for a feature or flow.
@@ -2035,7 +1948,6 @@ func openAnotherFeature() {
 # Error Handling
 
 ## Error Flow
-
 ### Theory
 
 Errors travel inward-to-outward, mapped at each layer boundary:
@@ -2154,7 +2066,6 @@ viewModel.actionDriver
 # Testing
 
 ## Test Pyramid
-
 ### Theory
 
 ```
@@ -2239,7 +2150,6 @@ Examples:
 - `test_emitEvent_viewDidLoad_shouldUpdateState`
 
 ## Mapper Test
-
 ### Theory
 
 Mapper tests are pure input → output assertions — the simplest tests to write:
@@ -2299,7 +2209,6 @@ class EmployeeModelMapperTests: XCTestCase {
 **Never mock Mappers or Domain Services** — they are pure functions.
 
 ## Presenter Test
-
 ### Theory
 
 | Use a mock/stub when… | Use a real implementation when… |
@@ -2382,7 +2291,6 @@ class PostSubmitCICOUseCaseMock: UseCaseProtocol {
 ```
 
 ## Repository Test
-
 ### Theory
 
 Repository implementation tests verify the bridge between DataSource and Domain:
@@ -2439,7 +2347,6 @@ class EmployeeRepositoryImplTests: XCTestCase {
 ```
 
 ## Procedure
-
 ### Test File Naming
 
 Pattern: `<SourceFileName>Test.swift`
@@ -2564,7 +2471,6 @@ func test_<method>_<condition>() {
 # App
 
 ## Analytics Constants
-
 ### Theory
 
 **Analytics Constants** are feature-scoped files that declare the event names, screen names, or tracking identifiers reported to the analytics service.
@@ -2599,7 +2505,6 @@ struct FeatureFirebaseName {
 - Never use inline string literals in ViewModels — always reference these constants
 
 ## Deeplink Registration
-
 ### Theory
 
 **Deeplink Registration** is the act of mapping incoming URLs and notification taps to screens or flows within the app.
@@ -2664,7 +2569,6 @@ deeplinkStream?.deeplinkData
 - Never add a second deeplink dispatch path — all sources must write to the same shared stream
 
 ## Dependency Registration
-
 ### Theory
 
 **Dependency Registration** is the act of binding concrete implementations to their interfaces in the app's DI container.
@@ -2721,7 +2625,6 @@ final class FeatureComponent: Component<FeatureDependency> {
 - No service locators or singletons except `sharedInstance` on `*Impl` types
 
 ## Feature Flag Registration
-
 ### Theory
 
 **Feature Flag Registration** is the act of declaring a new feature-gating key in the app's centralized flag registry.
@@ -2759,7 +2662,6 @@ let isEnabled = flagProvider.getBoolValue(forFeature: FeatureIdentity.isEnableFe
 - Never use raw string literals for flag keys — always reference the enum
 
 ## Push Notification Registration
-
 ### Theory
 
 **Push Notification Registration** is the act of wiring the app to receive push notifications — fetching the device token, delivering it to the server, and removing it on logout.
@@ -2790,7 +2692,6 @@ Push notifications and deeplinks share the same delivery path — both ultimatel
 **When a new notification type must route to a new screen:** add a `DeeplinkPath` case and ensure the push payload includes the screen path with that case's rawValue.
 
 ## Route Registration
-
 ### Theory
 
 **Route Registration** is the act of declaring how the app navigates to a feature's screen.
@@ -2868,88 +2769,7 @@ extension DeeplinkComponent {
 
 # UI
 
-## Screen Structure
-
-### Theory
-
-UI depends on Presentation only. It never imports from Domain or Data directly.
-
-```
-Presentation  ←  UI
-```
-
-Allowed imports: StateHolder contract types, State/Event/Action types, platform UI framework primitives.
-Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasources, or any domain/data type instantiated directly.
-
----
-
-### Dependency Rule
-
-UI depends on Presentation only — never imports Domain or Data directly.
-
-Allowed imports: `ViewModel` protocol types, `State`/`Action` types, UIKit primitives.
-Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasources.
-
-### Screen
-
-A **Screen** is a `UIViewController` bound to a single `ViewModel` (protocol). It observes state via RxSwift bindings and sends actions — it contains no business logic.
-
-**Invariants:**
-- Bound to exactly one `ViewModel` protocol — injected via Coordinator, never `init`-ed directly
-- Observes every state field emitted by the ViewModel — no state goes unhandled
-- Sends user actions to the ViewModel for every user interaction — never mutates state directly
-- Contains no business logic — `if`/`switch` only decides what to render
-- No use case calls — all data flows through the ViewModel
-
-### Component / Sub-view
-
-A **Component** is a reusable `UIView` or self-contained view class smaller than a full screen.
-
-**Invariants:**
-- Stateless by default — configured via a `configure(with:)` method or `UIModel` struct
-- If stateful, driven by a scoped ViewModel
-- No use case calls — all data passed in from the parent ViewController or a scoped ViewModel
-- Reuse check required before creating — search shared component targets first
-
-### Navigator / Coordinator
-
-A **Coordinator** (inheriting `BaseCoordinator<T>`) owns all navigation logic for a feature or flow.
-
-**Invariants:**
-- The ViewController delegates navigation intent to the Coordinator via the Navigator protocol
-- The ViewModel emits a navigation `Action` — the Coordinator decides the implementation
-- Navigator protocol defines all navigation methods — the ViewController holds only the protocol reference
-- One Coordinator per feature flow — not per ViewController
-
-### Creation Order
-
-```
-UIViewController → Coordinator (if navigation needed) → DIContainer factory method
-```
-
-The ViewModel protocol and its concrete implementation must exist before any UI layer file is written.
-
-### Layer Invariants
-
-- ViewController never mutates state directly — observes RxSwift streams only
-- ViewController never calls use cases directly — all interactions go through the ViewModel
-- ViewModel instantiated by the Coordinator via constructor injection
-- Navigation delegated to Coordinator — ViewController emits intent via Navigator protocol
-- No data layer knowledge — no DTOs, no datasources, no network types visible in UI files
-
-### Glob Patterns for Exploration
-
-- `**/Presentation/**/*ViewController.swift` — screen files
-- `**/Presentation/Common/Views/**/*.swift` — shared component files
-- `**/Presentation/Coordinator/**/*Coordinator.swift` — coordinator files
-- `**/Presentation/Coordinator/**/*Navigator.swift` — navigator protocol files
-
----
-
-# Project Structure
-
 ## Project Structure
-
 ### Modular Architecture (Feature-Based)
 
 ```
@@ -3092,7 +2912,6 @@ App/Shared/
 # Syntax Conventions
 
 ## Conventions
-
 ### Theory
 
 **Rule:** Never use raw null-fallback operators (e.g. `??`, `?:`, `!`) directly in domain, data, or presentation code. Always delegate to a named extension method or utility function.
@@ -3162,7 +2981,6 @@ $0.dataState.data?.title.orEmpty()       // ❌ compile error
 # Utilities
 
 ## Date Service
-
 ### Theory
 
 **DateService** is a centralized abstraction for all date and time operations — formatting, parsing, comparison, and timezone handling.
@@ -3214,7 +3032,6 @@ extension DateService {
 ```
 
 ## Helper Extensions
-
 ### Theory
 
 **Helper Extensions** are stateless utility functions scoped to a specific type.
@@ -3247,7 +3064,6 @@ Extension files live in `Shared/Extension/`.
 | `Observable` | `Observable+Extensions.swift` | `.unwrap()`, `.mapToVoid()`, `.retryWithDelay(...)` |
 
 ## Logger
-
 ### Theory
 
 **Logger** is the centralized logging abstraction with severity levels.
@@ -3300,7 +3116,6 @@ enum Log {
 ```
 
 ## Null Safety Extensions
-
 ### Theory
 
 **Rule:** Never use raw null-fallback operators (e.g. `??`, `?:`, `!`) directly in domain, data, or presentation code. Always delegate to a named extension method or utility function.
@@ -3348,7 +3163,6 @@ let title = $0.dataState.data?.appBarTitle.orEmpty()       // ❌ compile error
 ```
 
 ## Storage Service
-
 ### Theory
 
 **StorageService** is an interface-based key-value store for persisting tokens, user preferences, and cached data across app sessions.
@@ -3445,26 +3259,72 @@ final class SecureStorageService: StorageService {
     func clearAll() { keychain.clearAll(); userDefaults.clearAll() }
     func contains(_ key: StorageKey) -> Bool { service(for: key).contains(key) }
 }
-```g` values only when needed for direct API mapping
-- No UI strings — display formatting belongs in presentation
+```, `selectedDate`, `dateRange`, `labelStyle`, `cellStyle`, `events`\n- **Figma:** https://www.figma.com/file/Lp6VSWJnP5wI4SdztB5H2f/Mobile-Kit-2.1?type=design&node-id=4095-30987&t=ARnxQ2jFK0WP3Ih7-4\n\n### MpMonthDatePickerBodyView\n- **Category:** `components/date_picker/body/month`\n- **Description:** Mekari Mobile Kit: Date Picker Month View <br/> This component will show all visible months in the following year <br/>\n- **Key params:** `date`, `firstDate`, `lastDate`, `selectedDate`, `dateRange`, `cellStyle`, `events`, `onDateSelected`\n- **Figma:** https://www.figma.com/file/Lp6VSWJnP5wI4SdztB5H2f/Mobile-Kit-2.1?type=design&node-id=4095-30987&t=ARnxQ2jFK0WP3Ih7-4\n\n### MpMonthDatePickerRangeBody\n- **Category:** `components/date_picker/body/month`\n- **Description:** Mekari Mobile Kit: Month Date Range Picker <br/> This component will show all visible months in the following year <br/> User able to select month range inside this view <br/>\n- **Key params:** `date`, `firstDate`, `lastDate`, `dateRange`, `labelStyle`, `cellStyle`, `events`, `onDateRangeSelected`\n- **Figma:** https://www.figma.com/file/Lp6VSWJnP5wI4SdztB5H2f/Mobile-Kit-2.1?type=design&node-id=4103-37846&t=m1pSRzXYXfjLCH2X-4\n\n### MpMonthDatePickerRangeSheet\n- **Category:** `components/date_picker/sheet`\n- **Description:** Mekari Mobile Kit: Date Range Picker - Month - Sheet <br/> This template will show all visible months in the following year in a sheet <br/> User able to select month range inside this sheet <br/>\n- **Key params:** `date`, `firstDate`, `lastDate`, `dateRange`, `menuStyle`, `cellStyle`, `events`, `titleLabel`\n- **Figma:** https://www.figma.com/file/Lp6VSWJnP5wI4SdztB5H2f/Mobile-Kit-2.1?type=design&node-id=4103-37846&t=m1pSRzXYXfjLCH2X-4\n\n### MpMonthDatePickerSheet\n- **Category:** `components/date_picker/sheet`\n- **Description:** Mekari Mobile Kit: Date Picker - Month - Sheet <br/> This template will show all visible months in the following year in a sheet <br/> User able to select month inside this sheet <br/>\n- **Key params:** `date`, `firstDate`, `lastDate`, `selectedDate`, `menuStyle`, `cellStyle`, `events`, `titleLabel`\n- **Figma:** https://www.figma.com/file/Lp6VSWJnP5wI4SdztB5H2f/Mobile-Kit-2.1?type=design&node-id=4095-30987&t=ARnxQ2jFK0WP3Ih7-4\n\n### MpMultiUpload\n- **Category:** `components/upload`\n- **Description:** ---------## Creation Order
+### Theory
+
+```
+Screen → Navigator/Coordinator (if navigation needed) → DI wiring
+```
+
+The StateHolder and its contract must exist before any UI layer file is written.
+
+---
+
+### Definition
+
+```
+Activity/Fragment (View contract) → NavigationImpl (if navigation needed) → module binding
+```
+
+The Presenter contract and View contract must exist before any UI layer file is written.
 
 ### Code Pattern
 
-```dart
-// domain/enums/leave_status.dart
-enum LeaveStatus {
-  pending,
-  approved,
-  rejected,
-  cancelled;
+```
+1. Define MVP Contract (View + Presenter interfaces)
+2. Implement Presenter (StateHolder)
+3. Write Activity/Fragment implementing View contract
+4. Create NavigationImpl if cross-screen navigation needed
+5. Wire DI module + ActivityBindingModule
+```
 
-  bool get isTerminal =>
-      this == approved || this == rejected || this == cancelled;
-}
+## Dependency Rule
+### Theory
+
+UI depends on Presentation only. It never imports from Domain or Data directly.
+
+```
+Presentation  ←  UI
+```
+
+Allowed imports: StateHolder contract types, State/Event/Action types, platform UI framework primitives.
+Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasources, or any domain/data type instantiated directly.
+
+---
+
+### Definition
+
+UI depends on Presentation only — never imports Domain or Data directly.
+
+Allowed imports: Presenter contract interfaces, View contract interfaces, Android framework primitives (`Activity`, `Fragment`, `View`).
+Forbidden: use case interfaces, repository interfaces, DTOs, mappers, datasources, or Retrofit types.
+
+### Code Pattern
+
+```kotlin
+// ✅ Allowed in UI layer
+import presentation.contract.TimeOffRequestContract
+import presentation.presenter.TimeOffRequestPresenter
+import android.os.Bundle
+import android.view.LayoutInflater
+
+// ❌ Never in UI layer
+// import domain.usecase.GetTimeOffRequestsUseCase
+// import data.response.TimeOffRequestResponse
+// import service.TimeOffApi
 ```
 
 ## Domain Error
-
 ### Theory
 
 A **Domain Error** is the unified error type returned from all repository and use case operations. It decouples the domain from transport-layer error types (HTTP status codes, network errors).
@@ -3476,52 +3336,28 @@ A **Domain Error** is the unified error type returned from all repository and us
 
 ---
 
-The unified error type returned from all repository and use case calls. All failures are typed variants of `Failure<T>` — no raw exceptions leak into domain or presentation.
+### Definition
+
+Typed exceptions thrown from the domain boundary. Repository implementations map transport errors to these before returning.
+
+Rules:
+- Sealed class — exhaustive `when` in presenter error handling
+- No transport types leak out — `ApiException`, `IOException` are mapped in `RepositoryImpl`
+- Presenters catch `DomainException` subtypes via `ErrorHandler`
 
 ### Code Pattern
 
-```dart
-// domain/errors/failure.dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'failure.freezed.dart';
-
-@freezed
-abstract class Failure<T> with _$Failure<T> {
-  /// API returned an error status.
-  factory Failure.serverFailure({
-    required String message,
-    required String developerMessage,
-    int? statusCode,
-    String? errorCode,
-  }) = ServerFailure;
-
-  /// API returned validation errors keyed by field.
-  factory Failure.validationFailure({
-    required String message,
-    T? errors,
-    int? statusCode,
-  }) = ValidationFailure<T>;
-
-  /// No internet connection or DNS failure.
-  factory Failure.networkFailure({
-    required String message,
-  }) = NetworkFailure;
-
-  /// Unexpected error (bug, null response, parse error).
-  factory Failure.unknownFailure({
-    required String message,
-  }) = UnknownFailure;
-
-  /// Local storage read/write failure.
-  factory Failure.localFailure({
-    required String message,
-  }) = LocalFailure;
+```kotlin
+// domain/exception/DomainException.kt
+sealed class DomainException(message: String) : Exception(message) {
+    class Unauthorized(message: String = "Unauthorized") : DomainException(message)
+    class NotFound(message: String = "Resource not found") : DomainException(message)
+    class NetworkError(message: String = "Network unavailable") : DomainException(message)
+    class Unknown(message: String = "Unknown error") : DomainException(message)
 }
 ```
 
 ## Domain Service
-
 ### Theory
 
 A **Domain Service** contains pure business logic that spans multiple entities or is reused across multiple use cases.
@@ -3545,45 +3381,27 @@ A **Domain Service** contains pure business logic that spans multiple entities o
 
 ---
 
-Pure synchronous functions — no I/O, no async, no side effects. Encapsulate domain logic that is too complex to inline in a use case or is reused by multiple use cases.
+### Definition
 
-**Rules:**
-- No `@injectable` unless dependencies need to be injected
-- Returns structured data — never formatted strings or display text
-- Presentation layer formats service output for display
+Domain services encapsulate business logic that spans multiple entities or does not naturally belong to a single use case. In Android MVP, these are plain Kotlin classes with no Android framework dependencies.
 
-**When to extract to a service:**
-
-| Scenario | Action |
-|---|---|
-| 1–3 line condition | Keep inline in use case |
-| Complex multi-step validation | Service |
-| Reused by ≥ 2 use cases | Service |
-| Needs unit testing in isolation | Service |
+Rules:
+- Pure Kotlin — no Android imports, no RxJava, no framework dependencies
+- Injected into use cases via `@Inject constructor`, never into presenters directly
+- Name: `[Domain][Concept]Service`
 
 ### Code Pattern
 
-```dart
-// domain/services/leave_balance_calculator.dart
-import '../entities/leave_entitlement_entity.dart';
-
-class LeaveBalanceCalculator {
-  int remainingDays(LeaveEntitlementEntity entitlement) {
-    final pendingDays = entitlement.pendingRequests
-        .where((r) => r.status == LeaveStatus.pending)
-        .fold(0, (sum, r) => sum + r.days);
-    final remaining =
-        entitlement.annualDays - entitlement.usedDays - pendingDays;
-    return remaining < 0 ? 0 : remaining;
-  }
-
-  bool isSufficient(LeaveEntitlementEntity entitlement, int requestedDays) =>
-      remainingDays(entitlement) >= requestedDays;
+```kotlin
+// domain/service/TimeOffEligibilityService.kt
+class TimeOffEligibilityService @Inject constructor() {
+    fun isEligible(employee: Employee, requestDays: Int): Boolean {
+        return employee.remainingLeave >= requestDays && !employee.isProbation
+    }
 }
 ```
 
 ## Entity
-
 ### Theory
 
 An **Entity** is a pure data structure representing a business concept.
@@ -3599,36 +3417,32 @@ An **Entity** is a pure data structure representing a business concept.
 
 ---
 
-Immutable business objects. `@freezed` is recommended for `copyWith` and pattern matching, but plain Dart classes are acceptable when the entity is simple and not pattern-matched in the UI.
+### Definition
 
-**Rules:**
-- `@freezed` recommended for immutability + `copyWith`; plain Dart class acceptable for simple entities
-- Only `.freezed.dart` part — never `.g.dart`
-- No `@JsonKey` annotations
-- No `fromJson` / `toJson` factories
-- Represent business concepts, not API shapes
+Pure Kotlin data classes — no JSON annotations, no Android framework imports.
+
+Rules:
+- Pure Kotlin data class — no `@SerializedName`, no `@Json`, no Android imports
+- All properties non-optional at the domain boundary (use sensible defaults in mapper)
+- Field names use domain terminology, not API field names
+- Immutable — use `val` for all properties
 
 ### Code Pattern
 
-```dart
-// domain/entities/employee_entity.dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part 'employee_entity.freezed.dart';
-
-@freezed
-class EmployeeEntity with _$EmployeeEntity {
-  const factory EmployeeEntity({
-    required String id,
-    required String name,
-    required String email,
-    DateTime? joinDate,
-  }) = _EmployeeEntity;
-}
+```kotlin
+// domain/entity/TimeOffRequest.kt
+data class TimeOffRequest(
+    val id: String,
+    val employeeId: String,
+    val startDate: String,
+    val endDate: String,
+    val reason: String,
+    val status: String,
+    val totalDays: Int
+)
 ```
 
 ## Repository Interface
-
 ### Theory
 
 A **Repository** is a contract that defines data access operations — *what* is needed, not *how* it is done.
@@ -3644,40 +3458,27 @@ A **Repository** is a contract that defines data access operations — *what* is
 
 ---
 
-Abstract contract that the data layer must implement. Domain defines the interface — it never knows how data is fetched.
+### Definition
 
-**Rules:**
-- `abstract class` (not `interface` or `mixin`)
-- Return `Either<Failure, T>` — never throw from a repository
-- Return domain entities, never DTOs
-- Method names follow REST: `get*`, `create*`, `update*`, `delete*`
-- Params are domain objects, not raw `Map<String, dynamic>`
+Defined in `domain/repository/` — platform-agnostic contracts only.
+
+Rules:
+- Interface only — no implementation in domain layer
+- Return `Single<T>` (RxJava 3) for all async operations
+- Params are domain types — never response/DTO types
+- Name: `[Module]Repository` (one interface per feature module)
 
 ### Code Pattern
 
-```dart
-// domain/repositories/employee_repository.dart
-import 'package:fpdart/fpdart.dart';
-import '../entities/employee_entity.dart';
-import '../errors/failure.dart';
-
-abstract class EmployeeRepository {
-  Future<Either<Failure, EmployeeEntity>> getEmployee(String id);
-  Future<Either<Failure, List<EmployeeEntity>>> getEmployees({
-    int page = 1,
-    int limit = 20,
-    String? departmentId,
-  });
-  Future<Either<Failure, EmployeeEntity>> updateEmployee(
-    String id,
-    UpdateEmployeeParams params,
-  );
-  Future<Either<Failure, void>> deleteEmployee(String id);
+```kotlin
+// domain/repository/TimeOffRepository.kt
+interface TimeOffRepository {
+    fun getTimeOffRequests(page: Int, limit: Int): Single<List<TimeOffRequest>>
+    fun submitTimeOffRequest(request: SubmitTimeOffRequest): Single<TimeOffRequest>
 }
 ```
 
 ## Use Case
-
 ### Theory
 
 A **UseCase** encapsulates a single business operation: one class, one public method, one responsibility.
@@ -3698,157 +3499,61 @@ Presentation → Repository              ❌  direct call is a CLEAN violation
 
 **When to create:** One use case per business operation (e.g. `GetEmployeeUseCase`, `SubmitLeaveRequestUseCase`, `ApproveLeaveRequestUseCase`). Even thin pass-through use cases are mandatory — they preserve a stable indirection point for future validation, caching, or logging without touching the presentation layer.
 
+**Naming:** `[Verb][Feature]UseCase` — verb names the business operation, not the HTTP method.
+
+**Params pattern by operation:**
+
+| Operation | Params structure |
+|-----------|-----------------|
+| GET (single) | `id` or typed identifier |
+| GET (list) | `{ page, limit, filters... }` |
+| POST | `{ payload: { fields... } }` |
+| PUT | `{ id, payload: { fields... } }` |
+| DELETE | `id` |
+| No input | platform `NoParams` / `Void` equivalent |
+
 ---
 
-Single-responsibility units of business logic. Each use case calls exactly one repository method. Registered with `@lazySingleton` via injectable.
+### Definition
 
-**Naming:** `[Verb][Feature]UseCase` — `GetEmployeeUseCase`, `UpdateAttendanceUseCase`, `SubmitLeaveRequestUseCase`
+Extend `SingleUseCase<Result, Params>` from `domain/usecase/base/`.
 
-**Params naming:**
-
-| HTTP | Params structure |
-|---|---|
-| GET (single) | Plain `String` or typed ID |
-| GET (list) | `XxxParams { page, limit, filters... }` |
-| POST | `XxxParams { field1, field2... }` (pure Dart) |
-| PUT | `XxxParams { id, field1... }` (pure Dart) |
-| DELETE | Plain `String` ID |
-| No input | `NoParams` |
+Rules:
+- Annotate with `@OpenForTesting` to allow mocking in tests
+- Use `@Inject constructor` — never instantiate directly
+- Inject `SchedulerTransformers` and `Logger` with nullable defaults (test-friendly)
+- `Params` is a nested data class inside the use case
+- Return type wraps the domain entity — never raw response types
+- Name: `[Action][Entity]UseCase` (e.g. `GetTimeOffRequestsUseCase`, `SubmitTimeOffUseCase`)
 
 ### Code Pattern
 
-```dart
-// domain/usecases/use_case.dart
-import 'package:fpdart/fpdart.dart';
-import '../errors/failure.dart';
+```kotlin
+// domain/usecase/GetTimeOffRequestsUseCase.kt
+@OpenForTesting
+class GetTimeOffRequestsUseCase @Inject constructor(
+    private val timeOffRepository: TimeOffRepository,
+    schedulerTransformer: SchedulerTransformers? = null,
+    logger: Logger? = null
+) : SingleUseCase<List<TimeOffRequest>, GetTimeOffRequestsUseCase.Params>(
+    schedulerTransformer?.applySingleIoSchedulers(),
+    logger
+) {
 
-abstract class UseCase<Type, Params> {
-  Future<Either<Failure, Type>> call(Params params);
-}
+    override fun build(params: Params?): Single<List<TimeOffRequest>> = params!!.run {
+        timeOffRepository.getTimeOffRequests(page, limit)
+    }
 
-class NoParams {
-  const NoParams();
-}
-```
-
-```dart
-// GET — single item
-// domain/usecases/employee/get_employee_usecase.dart
-@lazySingleton
-class GetEmployeeUseCase implements UseCase<EmployeeEntity, String> {
-  GetEmployeeUseCase({required this.repository});
-  final EmployeeRepository repository;
-
-  @override
-  Future<Either<Failure, EmployeeEntity>> call(String id) =>
-      repository.getEmployee(id);
-}
-```
-
-```dart
-// GET — list with params
-@lazySingleton
-class GetEmployeesUseCase
-    implements UseCase<List<EmployeeEntity>, GetEmployeesParams> {
-  GetEmployeesUseCase({required this.repository});
-  final EmployeeRepository repository;
-
-  @override
-  Future<Either<Failure, List<EmployeeEntity>>> call(
-    GetEmployeesParams params,
-  ) =>
-      repository.getEmployees(
-        page: params.page,
-        limit: params.limit,
-        departmentId: params.departmentId,
-      );
-}
-
-class GetEmployeesParams {
-  const GetEmployeesParams({this.page = 1, this.limit = 20, this.departmentId});
-  final int page;
-  final int limit;
-  final String? departmentId;
-}
-```
-
-```dart
-// POST/PUT — write with params
-@lazySingleton
-class UpdateEmployeeUseCase
-    implements UseCase<EmployeeEntity, UpdateEmployeeParams> {
-  UpdateEmployeeUseCase({required this.repository});
-  final EmployeeRepository repository;
-
-  @override
-  Future<Either<Failure, EmployeeEntity>> call(UpdateEmployeeParams params) =>
-      repository.updateEmployee(params.id, params);
-}
-
-class UpdateEmployeeParams {
-  const UpdateEmployeeParams({
-    required this.id,
-    required this.name,
-    required this.email,
-    this.departmentId,
-  });
-  final String id;
-  final String name;
-  final String email;
-  final String? departmentId;
-}
-```
-
-```dart
-// No-params use case
-@lazySingleton
-class GetCurrentUserUseCase implements UseCase<EmployeeEntity, NoParams> {
-  GetCurrentUserUseCase({required this.repository});
-  final AuthRepository repository;
-
-  @override
-  Future<Either<Failure, EmployeeEntity>> call(NoParams _) =>
-      repository.getCurrentUser();
+    data class Params(
+        val page: Int,
+        val limit: Int
+    )
 }
 ```
 
 # Data
 
-## Creation Order
-
-### Theory
-
-**Remote API feature:**
-
-```
-DTO → Mapper → DataSource interface → DataSource impl → Repository impl
-```
-
-**Local DB feature:**
-
-```
-DB Record → DB DataSource interface → DB DataSource impl → DB Mapper → Repository impl
-```
-
-Never create a repository implementation before the DataSource it depends on.
-
----
-
-When building a new feature's data layer, create files in this sequence. Never create a repository implementation before the data source it depends on.
-
-### Code Pattern
-
-```
-1. data/models/[feature]_model.dart                          ← DTO (@freezed, fromJson, .g.dart)
-   data/models/[feature]_payload.dart                        ← Write payload (if POST/PUT)
-2. data/mappers/[feature]_mapper.dart                        ← Mapper (BaseMapper subclass)
-3. data/datasources/[feature]_remote_data_source.dart        ← DataSource abstract class
-   data/datasources/[feature]_remote_data_source_impl.dart   ← DataSource implementation (Dio)
-4. data/repositories/[feature]_repository_impl.dart          ← Repository implementation
-```
-
 ## Data Source
-
 ### Theory
 
 A **DataSource** is an abstract interface for raw data access — remote (HTTP) or local (DB, cache).
@@ -3863,80 +3568,37 @@ A **DataSource** is an abstract interface for raw data access — remote (HTTP) 
 
 ---
 
-Separate remote and local data sources via abstract interface + implementation. DataSources only throw — they never return `Either`. The repository catches and converts.
+### Definition
+
+Android implements the DataSource contract as a **Retrofit interface** (`*Api` suffix, placed in `service/`). The interface is the abstraction; Retrofit generates the implementation at runtime via Dagger injection — no separate `*Impl` class needed.
+
+Rules:
+- Return `Single<Response>` for endpoints with response body; `Completable` for DELETE/void endpoints
+- Use `@Query` for URL params, `@Path` for path segments, `@Body` for request body
+- One interface per feature module
 
 ### Code Pattern
 
-```dart
-// data/datasources/employee_remote_data_source.dart
-abstract class EmployeeRemoteDataSource {
-  Future<EmployeeModel> getEmployee(String id);
-  Future<List<EmployeeModel>> getEmployees({int page = 1, int limit = 20, String? departmentId});
-  Future<EmployeeModel> updateEmployee(String id, UpdateEmployeePayload payload);
-  Future<void> deleteEmployee(String id);
+```kotlin
+// service/TimeOffApi.kt
+interface TimeOffApi {
+    @GET("v1/time-off/requests")
+    fun getTimeOffRequests(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int
+    ): Single<TimeOffRequestListResponse>
+
+    @POST("v1/time-off/requests")
+    fun submitTimeOffRequest(
+        @Body request: SubmitTimeOffRequest
+    ): Single<TimeOffRequestResponse>
+
+    @DELETE("v1/time-off/requests/{id}")
+    fun deleteTimeOffRequest(@Path("id") id: String): Completable
 }
 ```
 
-```dart
-// data/datasources/employee_remote_data_source_impl.dart
-@LazySingleton(as: EmployeeRemoteDataSource)
-class EmployeeRemoteDataSourceImpl implements EmployeeRemoteDataSource {
-  EmployeeRemoteDataSourceImpl({required this.dio});
-  final Dio dio;
-
-  @override
-  Future<EmployeeModel> getEmployee(String id) async {
-    final response = await dio.get('/api/v1/employees/$id');
-    final base = BaseResponse<EmployeeModel>.fromJson(
-      response.data as Map<String, dynamic>,
-      fromJsonT: EmployeeModel.fromJson,
-    );
-    return base.data!;
-  }
-
-  @override
-  Future<List<EmployeeModel>> getEmployees({int page = 1, int limit = 20, String? departmentId}) async {
-    final response = await dio.get(
-      '/api/v1/employees',
-      queryParameters: {
-        'page': page,
-        'limit': limit,
-        if (departmentId != null) 'department_id': departmentId,
-      },
-    );
-    final base = BaseResponse<List<dynamic>>.fromJson(
-      response.data as Map<String, dynamic>,
-      fromJsonT: (data) => data as List<dynamic>,
-    );
-    return (base.data ?? [])
-        .map((e) => EmployeeModel.fromJson(e as Map<String, dynamic>))
-        .toList();
-  }
-}
-```
-
-```dart
-// data/models/base_response.dart
-class BaseResponse<T> {
-  const BaseResponse({this.status, this.message, this.data});
-  final int? status;
-  final String? message;
-  final T? data;
-
-  factory BaseResponse.fromJson(
-    Map<String, dynamic> json, {
-    required T Function(dynamic) fromJsonT,
-  }) =>
-      BaseResponse<T>(
-        status: json['status'] as int?,
-        message: json['message'] as String?,
-        data: json['data'] != null ? fromJsonT(json['data']) : null,
-      );
-}
-```
-
-## DTO
-
+## Dto
 ### Theory
 
 A **DTO (Data Transfer Object)** mirrors the raw API or database shape exactly.
@@ -3952,174 +3614,66 @@ A **DTO (Data Transfer Object)** mirrors the raw API or database shape exactly.
 
 ---
 
-DTO classes for API responses. Always have `fromJson` — entities never do. All fields nullable — API data is untrusted.
+### Definition
 
-**Rules:**
-- Both `.freezed.dart` and `.g.dart` parts
-- `@JsonKey(name:)` for snake_case → camelCase mapping
-- No business logic
-- Never returned from repository — always mapped to entity first
+Android calls these **Response Models** (`*Response` suffix, placed in `data/response/`). Same contract as core — raw API shape, all fields nullable, `@SerializedName` for every field, no business logic. Never returned from repository — always mapped to an entity first.
+
+Rules:
+- All fields `val` and nullable (`?`) — server may omit any field
+- Use `@SerializedName` for every field
+- No business logic in response models
+- Class suffix is `*Response`; file lives in `data/response/`
 
 ### Code Pattern
 
-```dart
-// data/models/employee_model.dart
-import 'package:freezed_annotation/freezed_annotation.dart';
+```kotlin
+// data/response/TimeOffRequestListResponse.kt
+data class TimeOffRequestListResponse(
+    @SerializedName("data") val data: List<TimeOffRequestResponse>?,
+    @SerializedName("meta") val meta: MetaResponse?
+)
 
-part 'employee_model.freezed.dart';
-part 'employee_model.g.dart';
+data class TimeOffRequestResponse(
+    @SerializedName("id") val id: String?,
+    @SerializedName("employee_id") val employeeId: String?,
+    @SerializedName("start_date") val startDate: String?,
+    @SerializedName("end_date") val endDate: String?,
+    @SerializedName("reason") val reason: String?,
+    @SerializedName("status") val status: String?,
+    @SerializedName("total_days") val totalDays: Int?
+)
 
-@freezed
-class EmployeeModel with _$EmployeeModel {
-  const factory EmployeeModel({
-    @JsonKey(name: 'employee_id') String? id,
-    @JsonKey(name: 'full_name') String? name,
-    String? email,
-    @JsonKey(name: 'join_date') String? joinDate,
-    @JsonKey(name: 'department_id') String? departmentId,
-  }) = _EmployeeModel;
-
-  factory EmployeeModel.fromJson(Map<String, dynamic> json) =>
-      _$EmployeeModelFromJson(json);
-}
+data class MetaResponse(
+    @SerializedName("total") val total: Int?,
+    @SerializedName("page") val page: Int?,
+    @SerializedName("limit") val limit: Int?
+)
 ```
 
-## Exception
-
+## Layer Invariants
 ### Theory
 
-Typed exceptions thrown by DataSources. Converted to `Failure` in the repository via `toFailure()`. Never propagated to domain or presentation.
+- UI never mutates state directly — observes only
+- UI never calls use cases directly — all interactions go through the StateHolder
+- StateHolder instantiated via DI — never `new ViewModel()` / `MyViewModel()` inline
+- Navigation delegated to navigator/coordinator — UI emits intent, not destination
+- No data layer knowledge — no DTOs, no datasources, no HTTP types visible in UI files
+
+---
+
+### Definition
+
+Enforced constraints for all UI layer artifacts.
 
 ### Code Pattern
 
-```dart
-// data/exceptions/app_exception.dart
-sealed class AppException implements Exception {
-  const AppException(this.message);
-  final String message;
-
-  factory AppException.server({required String message, int? statusCode, String? errorCode}) = ServerException;
-  factory AppException.validation<T>({required String message, T? errors, int? statusCode}) = ValidationException<T>;
-  factory AppException.network({required String message}) = NetworkException;
-  factory AppException.unknown({required String message}) = UnknownAppException;
-}
-
-final class ServerException extends AppException {
-  const ServerException({required super.message, this.statusCode, this.errorCode});
-  final int? statusCode;
-  final String? errorCode;
-}
-
-final class ValidationException<T> extends AppException {
-  const ValidationException({required super.message, this.errors, this.statusCode});
-  final T? errors;
-  final int? statusCode;
-}
-
-final class NetworkException extends AppException {
-  const NetworkException({required super.message});
-}
-
-final class UnknownAppException extends AppException {
-  const UnknownAppException({required super.message});
-}
-
-extension AppExceptionX on AppException {
-  Failure toFailure() => switch (this) {
-        ServerException e => Failure.serverFailure(
-            message: e.message,
-            developerMessage: 'HTTP ${e.statusCode}',
-            statusCode: e.statusCode,
-            errorCode: e.errorCode,
-          ),
-        ValidationException e => Failure.validationFailure(
-            message: e.message,
-            errors: e.errors,
-            statusCode: e.statusCode,
-          ),
-        NetworkException e => Failure.networkFailure(message: e.message),
-        UnknownAppException e => Failure.unknownFailure(message: e.message),
-      };
-}
-```
-
-## HTTP Client
-
-### Theory
-
-`ErrorInterceptor` translates Dio errors → `AppException` before they reach the repository. Registered on Dio creation.
-
-### Code Pattern
-
-```dart
-// data/network/error_interceptor.dart
-class ErrorInterceptor extends Interceptor {
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    final exception = switch (err.type) {
-      DioExceptionType.connectionError ||
-      DioExceptionType.connectionTimeout ||
-      DioExceptionType.receiveTimeout =>
-        AppException.network(message: 'No internet connection'),
-      DioExceptionType.badResponse => _mapStatusCode(err),
-      _ => AppException.unknown(message: err.message ?? 'Unknown error'),
-    };
-    handler.reject(
-      DioException(requestOptions: err.requestOptions, error: exception),
-    );
-  }
-
-  AppException _mapStatusCode(DioException err) {
-    final statusCode = err.response?.statusCode ?? 0;
-    final message =
-        (err.response?.data as Map<String, dynamic>?)?['message'] as String? ??
-        err.message ??
-        'Server error';
-    return statusCode == 422
-        ? AppException.validation(message: message, statusCode: statusCode)
-        : AppException.server(message: message, statusCode: statusCode);
-  }
-}
-```
-
-## Local Data Source
-
-### Theory
-
-Cache-first pattern: try local cache first, fall back to remote, then cache the result.
-
-### Code Pattern
-
-```dart
-// data/datasources/employee_local_data_source.dart
-abstract class EmployeeLocalDataSource {
-  Future<EmployeeModel?> getCachedEmployee(String id);
-  Future<void> cacheEmployee(String id, EmployeeModel model);
-  Future<void> clearCache();
-}
-```
-
-```dart
-// Repository cache-first variant
-@override
-Future<Either<Failure, EmployeeEntity>> getEmployee(String id) async {
-  final cached = await localDataSource.getCachedEmployee(id);
-  if (cached != null) return Right(mapper.toEntity(cached));
-
-  try {
-    final model = await remoteDataSource.getEmployee(id);
-    await localDataSource.cacheEmployee(id, model);
-    return Right(mapper.toEntity(model));
-  } on AppException catch (e) {
-    return Left(e.toFailure());
-  } catch (e) {
-    return Left(Failure.unknownFailure(message: e.toString()));
-  }
-}
-```
+- Activity/Fragment never holds business logic — delegates everything to Presenter
+- Activity/Fragment never calls use cases directly — all interactions go through the Presenter
+- Presenter instantiated via Hilt/Dagger — never `MyPresenter()` inline in Activity
+- Navigation delegated to `NavigationImpl` via interface — Presenter calls interface, not `startActivity` directly
+- No data layer knowledge — no DTOs, no Retrofit types, no datasource references visible in UI files
 
 ## Mapper
-
 ### Theory
 
 A **Mapper** converts between a DTO and a domain entity — always defined as an interface with a concrete implementation.
@@ -4135,90 +3689,44 @@ A **Mapper** converts between a DTO and a domain entity — always defined as an
 
 ---
 
-Convert Models → Entities. One mapper per aggregate root. Handle nulls with explicit defaults.
+### Definition
 
-**Rules:**
-- One mapper per entity type
-- Handle nulls with explicit defaults — never assume API fields are present
-- Date strings → `DateTime` conversion happens in mapper, not entity
-- List mappers call `toEntity` per item: `models.map(mapper.toEntity).toList()`
+Extend `BaseMapper<Response, Entity>` — map every entity field, use null-safety extensions.
 
-### Code Pattern
-
-```dart
-// data/mappers/base_mapper.dart
-abstract class BaseMapper<Model, Entity> {
-  Entity toEntity(Model model);
-}
-```
-
-```dart
-// data/mappers/employee_mapper.dart
-@lazySingleton
-class EmployeeMapper extends BaseMapper<EmployeeModel, EmployeeEntity> {
-  @override
-  EmployeeEntity toEntity(EmployeeModel model) => EmployeeEntity(
-        id: model.id ?? '',
-        name: model.name ?? '',
-        email: model.email ?? '',
-        joinDate: model.joinDate != null
-            ? DateTime.tryParse(model.joinDate!)
-            : null,
-      );
-}
-```
-
-## Payload
-
-### Theory
-
-Separate class for write request bodies. Keeps read DTOs clean. Domain Params → Data Payload conversion happens in the repository impl.
-
-**Domain Params → Data Payload flow:**
-```
-Domain Params (pure Dart)
-      ↓
-Repository Impl converts
-      ↓
-Data Payload (@JsonKey, freezed, .toJson())
-      ↓
-DataSource sends to API
-```
-
-Simple conversions happen inline in the repository. Complex conversions warrant a `PayloadMapper`.
+Rules:
+- **Every entity field must appear in the mapper call** — no silent defaults
+- Use `.orEmpty()` for String/List, `.orZero()` for Int/Long/Double, `.orFalse()` or `.orTrue()` for Boolean
+- Never use `?: ""` or `?: 0` — always the extension function
+- Add `mapList(responses: List<Response>?)` helper for list mappings
+- For nested objects: create a nested mapper class
 
 ### Code Pattern
 
-```dart
-// data/models/update_employee_payload.dart
-@freezed
-class UpdateEmployeePayload with _$UpdateEmployeePayload {
-  const factory UpdateEmployeePayload({
-    @JsonKey(name: 'full_name') required String name,
-    required String email,
-    @JsonKey(name: 'department_id') String? departmentId,
-  }) = _UpdateEmployeePayload;
+```kotlin
+// data/mapper/TimeOffRequestMapper.kt
+import com.mekari.commons.extension.orEmpty
+import com.mekari.commons.extension.orZero
 
-  factory UpdateEmployeePayload.fromJson(Map<String, dynamic> json) =>
-      _$UpdateEmployeePayloadFromJson(json);
-}
-```
+class TimeOffRequestMapper : BaseMapper<TimeOffRequestResponse, TimeOffRequest> {
+    override fun map(input: TimeOffRequestResponse): TimeOffRequest {
+        return TimeOffRequest(
+            id = input.id.orEmpty(),
+            employeeId = input.employeeId.orEmpty(),
+            startDate = input.startDate.orEmpty(),
+            endDate = input.endDate.orEmpty(),
+            reason = input.reason.orEmpty(),
+            status = input.status.orEmpty(),
+            totalDays = input.totalDays.orZero()
+        )
+    }
 
-```dart
-// data/mappers/update_employee_payload_mapper.dart (complex case)
-@lazySingleton
-class UpdateEmployeePayloadMapper {
-  UpdateEmployeePayload fromParams(UpdateEmployeeParams params) =>
-      UpdateEmployeePayload(
-        name: params.name,
-        email: params.email,
-        departmentId: params.departmentId,
-      );
+    fun mapList(responses: List<TimeOffRequestResponse>?): List<TimeOffRequest> {
+        return responses?.map { map(it) } ?: emptyList()
+    }
 }
 ```
 
 ## Repository Implementation
-
 ### Theory
 
 A **Repository Implementation** implements the domain repository interface using a DataSource and Mapper.
@@ -4234,108 +3742,50 @@ A **Repository Implementation** implements the domain repository interface using
 
 ---
 
-Implements domain repository interface. Orchestrates datasource → mapper → Either. The `try/catch` boundary lives here — never in datasources.
+### Definition
 
-**Rules:**
-- Catch `AppException` first, then `catch (e)` for unexpected errors
-- Never let exceptions escape into domain or presentation layers
-- `*Model` instances never cross into domain — `mapper.toEntity()` is the boundary
-- Registered with `@LazySingleton(as: RepositoryInterface)`
+Implement domain repository interface — inject API and mapper via Dagger.
+
+Rules:
+- `@Inject constructor` — Dagger provides all dependencies
+- Use `mapper.mapList(response.data)` for list responses
+- Map `ApiException` to domain exceptions via `onErrorResumeNext`
+- Never expose response types outside the data layer
 
 ### Code Pattern
 
-```dart
-// data/repositories/employee_repository_impl.dart
-@LazySingleton(as: EmployeeRepository)
-class EmployeeRepositoryImpl implements EmployeeRepository {
-  EmployeeRepositoryImpl({required this.remoteDataSource, required this.mapper});
+```kotlin
+// data/repoimpl/TimeOffRepositoryImpl.kt
+class TimeOffRepositoryImpl @Inject constructor(
+    private val api: TimeOffApi,
+    private val mapper: TimeOffRequestMapper
+) : TimeOffRepository {
 
-  final EmployeeRemoteDataSource remoteDataSource;
-  final EmployeeMapper mapper;
-
-  @override
-  Future<Either<Failure, EmployeeEntity>> getEmployee(String id) async {
-    try {
-      final model = await remoteDataSource.getEmployee(id);
-      return Right(mapper.toEntity(model));
-    } on AppException catch (e) {
-      return Left(e.toFailure());
-    } catch (e) {
-      return Left(Failure.unknownFailure(message: e.toString()));
+    override fun getTimeOffRequests(page: Int, limit: Int): Single<List<TimeOffRequest>> {
+        return api.getTimeOffRequests(page, limit)
+            .map { response -> mapper.mapList(response.data) }
+            .onErrorResumeNext { throwable ->
+                when (throwable) {
+                    is ApiException -> when (throwable.code) {
+                        401 -> Single.error(UnauthorizedException())
+                        404 -> Single.error(NotFoundException())
+                        else -> Single.error(throwable)
+                    }
+                    is IOException -> Single.error(NetworkException())
+                    else -> Single.error(throwable)
+                }
+            }
     }
-  }
 
-  @override
-  Future<Either<Failure, EmployeeEntity>> updateEmployee(
-    String id,
-    UpdateEmployeeParams params,
-  ) async {
-    try {
-      final payload = UpdateEmployeePayload(
-        name: params.name,
-        email: params.email,
-        departmentId: params.departmentId,
-      );
-      final model = await remoteDataSource.updateEmployee(id, payload);
-      return Right(mapper.toEntity(model));
-    } on AppException catch (e) {
-      return Left(e.toFailure());
-    } catch (e) {
-      return Left(Failure.unknownFailure(message: e.toString()));
+    override fun deleteTimeOffRequest(id: String): Completable {
+        return api.deleteTimeOffRequest(id)
     }
-  }
 }
 ```
 
 # Presentation
 
-## BLoC Listener
-
-### Theory
-
-**Actions** (also called Output or SideEffects) represent one-time side effects the StateHolder emits after processing an event.
-
-**Invariants:**
-- One-shot — consumed once; not part of persistent state
-- Named after the outcome — `NavigateToDetail`, `ShowErrorToast`, `CloseScreen`
-- Navigation targets are abstract — the StateHolder says *what*, the UI/navigator decides *how*
-
-In Flutter, `BlocListener` is the mechanism for consuming Actions from a BLoC.
-
----
-
-`BlocListener` handles one-time side effects — navigation, toasts, dialogs — that are not reflected in the UI rebuild cycle.
-
-| Use | When |
-|---|---|
-| `BlocBuilder` | Rebuild widgets based on state |
-| `BlocListener` | Side effects: navigate, show toast, analytics |
-| `BlocConsumer` | Both in the same widget tree |
-
-### Code Pattern
-
-```dart
-BlocListener<EmployeeBloc, EmployeeState>(
-  listenWhen: (prev, curr) => prev.updateState != curr.updateState,
-  listener: (context, state) {
-    if (state.updateState.isLoaded) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Updated successfully')),
-      );
-      Navigator.of(context).pop();
-    }
-    if (state.updateState.hasError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.updateState.message ?? 'Failed')),
-      );
-    }
-  },
-  child: ...,
-)
-```
-
 ## Component
-
 ### Theory
 
 A **Component** (also called Sub-view, Widget, or View) is a reusable UI element smaller than a full screen.
@@ -4350,49 +3800,137 @@ A **Component** (also called Sub-view, Widget, or View) is a reusable UI element
 
 ---
 
-Reusable presentational widget — BLoC-unaware. Receives plain domain entities via constructor. Shared cross-feature widgets go in `lib/src/shared/core/`.
+### Definition
 
-**Rules:**
-- No `BlocProvider`, `BlocBuilder`, or `context.read` inside a component
-- `const` constructor — all fields `final`
+A **Component** is a custom `View` subclass or self-contained `Fragment` smaller than a full screen.
 
-**Component reuse search paths:**
+**Invariants:**
+- Stateless by default — configured via a setter or data binding; emits events via listener interfaces or callbacks
+- If stateful, driven by a scoped Presenter — never manages business state inline
+- No use case calls — all data passed in from the parent Activity/Fragment or a scoped Presenter
+- Reuse check required before creating — search `presentation/common/views/` and shared modules first
 
-| Scope | Path |
-|---|---|
-| Shared core (cross-feature) | `talenta/lib/src/shared/core/` |
-| Feature screens | `talenta/lib/src/features/*/presentation/screens/` |
-| Feature widgets | `talenta/lib/src/features/*/presentation/widgets/` |
+**When to create:** When a UI element appears in ≥2 screens, or when an Activity/Fragment section is complex enough to isolate for readability.
 
 ### Code Pattern
 
-```dart
-// presentation/widgets/employee_card.dart
-class EmployeeCard extends StatelessWidget {
-  const EmployeeCard({super.key, required this.employee});
-  final EmployeeEntity employee;
+```kotlin
+// Shared component search paths:
+// **/presentation/common/views/**/*.kt
+// **/presentation/common/**/*View.kt
+```
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(employee.name, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(employee.email),
-          ],
-        ),
-      ),
-    );
-  }
+## Logging
+### Theory
+
+**Logger** is the centralized logging abstraction with severity levels. All log output goes through this interface.
+
+---
+
+### Definition
+
+Log format: `Log.d("DebugTest", "[MethodName] <event> — <value>")`.
+
+Rules:
+- Use `"DebugTest"` tag on every log — filter in Logcat with tag `DebugTest`
+- Never log passwords or tokens — log `.length` instead
+- Never commit `[DebugTest]` logs
+
+### Code Pattern
+
+```kotlin
+Log.d("DebugTest", "[methodName] entry — param: $param")
+Log.d("DebugTest", "[methodName] state — before: $before, after: $after")
+Log.d("DebugTest", "[methodName] error — $error")
+```
+
+## Mvp Contract
+### Theory
+
+**Events** (also called Input or Intent) represent user intentions flowing into the StateHolder.
+**Actions** (also called Output or SideEffects) represent one-time side effects the StateHolder emits after processing an event.
+
+---
+
+### Definition
+
+Interface defining the View and Presenter contracts for a feature screen.
+
+Rules:
+- One Contract interface per screen
+- `View` extends `BaseMvpView`; `Presenter` extends `BaseMvpPresenter<View>`
+- View methods are UI commands: show/hide/navigate — no business logic
+- Presenter methods correspond to user interactions and lifecycle events
+- Name: `[Feature]Contract`
+
+### Code Pattern
+
+```kotlin
+// presentation/[feature]/TimeOffRequestContract.kt
+interface TimeOffRequestContract {
+
+    interface View : BaseMvpView {
+        fun showTimeOffRequests(requests: List<TimeOffRequest>)
+        fun showError(error: Throwable)
+        fun showEmptyState()
+    }
+
+    interface Presenter : BaseMvpPresenter<View> {
+        fun loadTimeOffRequests(id: String)
+        fun refreshData()
+    }
+}
+```
+
+## Presenter
+### Theory
+
+A **StateHolder** is the single source of truth for a screen's UI state. Use cases are injected via DI — never instantiated directly inside the StateHolder.
+
+---
+
+### Definition
+
+Extends `BasePresenter<View>` — injects use case and `ErrorHandler` via Dagger.
+Uses `doOnSubscribe`/`doFinally` for loading state, `addToDisposables()` for cleanup.
+
+Rules:
+- `@Inject constructor` — Dagger provides use cases, SchedulerTransformers, ErrorHandler
+- `doOnSubscribe { view?.showLoading() }` / `doFinally { view?.hideLoading() }` — loading state always managed this way
+- `errorHandler.proceed(error)` — delegates error display to the ErrorHandler; never call `view?.showError(error.message.orEmpty())` directly
+- `addToDisposables()` — disposes on `detachView()`; never call `dispose()` manually
+- `view?.` guard on all view calls — view may be null after `detachView()`
+- One presenter per screen
+
+### Code Pattern
+
+```kotlin
+// presentation/[feature]/TimeOffRequestPresenter.kt
+class TimeOffRequestPresenter @Inject constructor(
+    private val getTimeOffRequestsUseCase: GetTimeOffRequestsUseCase,
+    private val schedulerTransformers: SchedulerTransformers?,
+    private val errorHandler: ErrorHandler
+) : BasePresenter<TimeOffRequestContract.View>(), TimeOffRequestContract.Presenter {
+
+    override fun loadTimeOffRequests(id: String) {
+        val params = GetTimeOffRequestsUseCase.Params(id)
+        getTimeOffRequestsUseCase.execute(params)
+            .doOnSubscribe { view?.showLoading() }
+            .doFinally { view?.hideLoading() }
+            .subscribe(
+                { requests -> view?.showTimeOffRequests(requests) },
+                { error -> errorHandler.proceed(error) }
+            )
+            .addToDisposables()
+    }
+
+    override fun refreshData() {
+        // re-invoke loadTimeOffRequests
+    }
 }
 ```
 
 ## Screen Structure
-
 ### Theory
 
 A **Screen** is a full-page view bound to a single StateHolder. It observes state and sends events — it contains no business logic.
@@ -4404,61 +3942,67 @@ A **Screen** is a full-page view bound to a single StateHolder. It observes stat
 - Contains no business logic — conditionals exist only to decide what to render, not what to compute
 - No use case calls — all data flows through the StateHolder
 
-**When to create:** One screen per route/destination. Created after the StateHolder contract exists.
-
 ---
 
-Screens split into two widgets: outer `Screen` (owns `BlocProvider` + initial event) and inner `_View` (stateless, reads BLoC). Keeps provider wiring separate from rendering.
+### Definition
 
-**Rules:**
-- `BlocProvider` in the outer screen widget only
-- `getIt<XBloc>()` creates a fresh instance — never `getIt.get()` inside a `BlocBuilder`
-- `buildWhen` to limit rebuilds to relevant state slices
+Extends `BaseMvpVbActivity<Presenter, View, Binding>` — three type params in order: Presenter contract, View contract, ViewBinding. ViewBinding via `bindingInflater`, presenter injected via `@Inject`.
+
+Rules:
+- Extends `BaseMvpVbActivity<Presenter, View, Binding>` — type param order is `<Presenter, View, Binding>`; handles `attachView`/`detachView` lifecycle automatically
+- `@Inject override lateinit var presenter` — Dagger field injection for presenter
+- `bindingInflater` property provides the ViewBinding — no `setContentView` needed
+- Override `onViewCreated` (not `onCreate`) for setup logic
+- Use `companion object { fun newIntent(...) }` for activity launch — not direct `startActivity`
+- `BaseMvpVbFragment` for Fragment-based screens — same pattern
 
 ### Code Pattern
 
-```dart
-// presentation/screens/employee_screen.dart
-class EmployeeScreen extends StatelessWidget {
-  const EmployeeScreen({super.key, required this.employeeId});
-  final String employeeId;
+```kotlin
+// presentation/[feature]/TimeOffRequestActivity.kt
+class TimeOffRequestActivity :
+    BaseMvpVbActivity<TimeOffRequestPresenter, TimeOffRequestContract.View, ActivityTimeOffRequestBinding>(),
+    TimeOffRequestContract.View {
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<EmployeeBloc>()
-        ..add(EmployeeEvent.loadEmployee(employeeId: employeeId)),
-      child: const _EmployeeView(),
-    );
-  }
-}
+    @Inject
+    override lateinit var presenter: TimeOffRequestPresenter
 
-class _EmployeeView extends StatelessWidget {
-  const _EmployeeView();
+    override val bindingInflater: (LayoutInflater) -> ActivityTimeOffRequestBinding
+        get() = ActivityTimeOffRequestBinding::inflate
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Employee')),
-      body: BlocBuilder<EmployeeBloc, EmployeeState>(
-        buildWhen: (prev, curr) => prev.employeeState != curr.employeeState,
-        builder: (context, state) {
-          final s = state.employeeState;
-          if (s.isLoading || s.isInitial) return const Center(child: CircularProgressIndicator());
-          if (s.hasError) return Center(child: Text(s.message ?? 'Error'));
-          if (s.data == null) return const Center(child: Text('Not found'));
-          return EmployeeContent(employee: s.data!);
-        },
-      ),
-    );
-  }
+    override fun onViewCreated(savedInstanceState: Bundle?) {
+        val featureId = intent.getStringExtra(EXTRA_FEATURE_ID)
+        presenter.loadTimeOffRequests(featureId.orEmpty())
+
+        binding.swipeRefresh.setOnRefreshListener {
+            presenter.refreshData()
+        }
+    }
+
+    override fun showTimeOffRequests(requests: List<TimeOffRequest>) {
+        adapter.submitList(requests)
+    }
+
+    override fun showError(error: Throwable) {
+        showToast(error.message.orEmpty())
+    }
+
+    override fun showEmptyState() {
+        binding.emptyStateView.isVisible = true
+    }
+
+    companion object {
+        private const val EXTRA_FEATURE_ID = "extra_feature_id"
+
+        fun newIntent(context: Context, featureId: String) =
+            Intent(context, TimeOffRequestActivity::class.java).apply {
+                putExtra(EXTRA_FEATURE_ID, featureId)
+            }
+    }
 }
 ```
 
-# State Management
-
-## BLoC
-
+## State Holder
 ### Theory
 
 A **StateHolder** is the single source of truth for a screen's UI state. Platform names vary (ViewModel, BLoC, Presenter) but the contract is identical across platforms.
@@ -4470,532 +4014,163 @@ A **StateHolder** is the single source of truth for a screen's UI state. Platfor
 - Exposes state as a read-only stream or observable — UI observes, never mutates
 - One StateHolder per screen — never shared across screens unless explicitly scoped
 
-**State** is an immutable snapshot of what the UI should render. **Events** represent user intentions. **Actions** (Output) are one-shot side effects emitted after processing an event.
+**When to create:** One StateHolder per screen. Created before the screen that observes it.
 
 ---
 
-BLoC for event-driven state management. Widgets dispatch events, BLoC handles them via `on<Event>`, emits immutable states. Use cases are injected via constructor.
+### Definition
 
-**Rules:**
-- `@injectable` — created fresh per screen via DI, never `@lazySingleton`
-- `on<Event>(_handler)` for each event type
-- Each handler emits loading first, then result
-- Always use `result.fold()` — never `result.getOrElse()` alone
-- Never import from data layer — no DTOs, no `RepositoryImpl`
+In Android (MVP), the StateHolder is the **Presenter** extending `BasePresenter<View>`.
 
-**BLoC vs Cubit:**
-
-| Use BLoC | Use Cubit |
-|---|---|
-| Complex event-driven flows | Simple state toggles |
-| Multiple event handlers | 1-3 method calls |
-| Events with payloads | No input needed |
-| Needs event replay | Immediate state updates |
+Invariants:
+- Receives use cases via `@Inject constructor` — Dagger provides all dependencies; never instantiate use cases directly
+- Drives the View interface imperatively via `view?.show*` / `view?.hide*` calls — Activity/Fragment never mutates presenter state
+- Calls navigation via an injected `Navigation` interface — never starts Activities directly from the Presenter
+- One Presenter per screen — scoped to the Activity/Fragment lifecycle via `attachView`/`detachView`
 
 ### Code Pattern
 
-```dart
-// presentation/blocs/employee_event.dart
-@freezed
-sealed class EmployeeEvent with _$EmployeeEvent {
-  const factory EmployeeEvent.loadEmployee({required String employeeId}) = LoadEmployee;
-  const factory EmployeeEvent.refreshEmployee() = RefreshEmployee;
-  const factory EmployeeEvent.updateEmployee({required String name, required String email}) = UpdateEmployee;
+```kotlin
+// presentation/[feature]/TimeOffRequestPresenter.kt
+class TimeOffRequestPresenter @Inject constructor(
+    private val getTimeOffRequestsUseCase: GetTimeOffRequestsUseCase,
+    private val schedulerTransformers: SchedulerTransformers?,
+    private val errorHandler: ErrorHandler
+) : BasePresenter<TimeOffRequestContract.View>(), TimeOffRequestContract.Presenter {
+
+    override fun loadTimeOffRequests(id: String) {
+        val params = GetTimeOffRequestsUseCase.Params(id)
+        getTimeOffRequestsUseCase.execute(params)
+            .doOnSubscribe { view?.showLoading() }
+            .doFinally { view?.hideLoading() }
+            .subscribe(
+                { requests -> view?.showTimeOffRequests(requests) },
+                { error -> errorHandler.proceed(error) }
+            )
+            .addToDisposables()
+    }
+
+    override fun refreshData() {
+        // re-invoke loadTimeOffRequests
+    }
 }
 ```
 
-```dart
-// presentation/blocs/employee_state.dart
-@freezed
-class EmployeeState with _$EmployeeState {
-  const factory EmployeeState({
-    required ViewDataState<EmployeeEntity> employeeState,
-    required ViewDataState<void> updateState,
-  }) = _EmployeeState;
-
-  factory EmployeeState.initial() => EmployeeState(
-        employeeState: ViewDataState.initial(),
-        updateState: ViewDataState.initial(),
-      );
-}
-```
-
-```dart
-// presentation/blocs/employee_bloc.dart
-@injectable
-class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
-  EmployeeBloc({required this.getEmployeeUseCase, required this.updateEmployeeUseCase})
-      : super(EmployeeState.initial()) {
-    on<LoadEmployee>(_onLoadEmployee);
-    on<UpdateEmployee>(_onUpdateEmployee);
-  }
-
-  final GetEmployeeUseCase getEmployeeUseCase;
-  final UpdateEmployeeUseCase updateEmployeeUseCase;
-
-  Future<void> _onLoadEmployee(LoadEmployee event, Emitter<EmployeeState> emit) async {
-    emit(state.copyWith(employeeState: ViewDataState.loading()));
-    final result = await getEmployeeUseCase(event.employeeId);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        employeeState: ViewDataState.error(message: failure.message, failure: failure),
-      )),
-      (employee) => emit(state.copyWith(
-        employeeState: ViewDataState.loaded(data: employee),
-      )),
-    );
-  }
-}
-```
-
-```dart
-// presentation/states/view_data_state.dart
-enum ViewState { initial, loading, loaded, error, empty }
-
-class ViewDataState<T> extends Equatable {
-  const ViewDataState._({required this.status, this.data, this.message, this.failure});
-
-  final ViewState status;
-  final T? data;
-  final String? message;
-  final Failure? failure;
-
-  factory ViewDataState.initial() => const ViewDataState._(status: ViewState.initial);
-  factory ViewDataState.loading({String? message}) =>
-      ViewDataState._(status: ViewState.loading, message: message);
-  factory ViewDataState.loaded({T? data}) => ViewDataState._(status: ViewState.loaded, data: data);
-  factory ViewDataState.error({required String message, Failure? failure, T? data}) =>
-      ViewDataState._(status: ViewState.error, message: message, failure: failure, data: data);
-  factory ViewDataState.empty({String? message}) =>
-      ViewDataState._(status: ViewState.empty, message: message);
-
-  bool get isInitial => status == ViewState.initial;
-  bool get isLoading => status == ViewState.loading;
-  bool get isLoaded => status == ViewState.loaded;
-  bool get hasError => status == ViewState.error;
-  bool get isEmpty => status == ViewState.empty;
-
-  @override
-  List<Object?> get props => [status, data, message, failure];
-}
-```
-
-## Cubit
-
+## State Management
 ### Theory
 
-A **StateHolder** is the single source of truth for a screen's UI state — in Flutter, a Cubit is a simplified StateHolder with no events, only direct method calls.
+**State** is an immutable snapshot of what the UI should render at a given moment.
 
 **Invariants:**
-- Depends on use case interfaces only — never calls repositories or data sources directly
-- Exposes state as a stream — UI observes, never mutates
-- One StateHolder per screen — use `@lazySingleton` only for globally shared state (theme, locale)
+- Immutable — produced by the StateHolder, never mutated by the UI
+- Covers all render cases: loading, data (success), error
+- No view logic — no CSS classes, no display strings, no format calls; formatting happens in the UI layer
+- Typed — each field has a declared type; avoid untyped `any` or `Object`
+
+**Common shape:**
+
+```
+loading  →  no data yet; UI shows a spinner or skeleton
+data     →  domain entities or view-ready primitives ready to render
+error    →  domain error type; UI decides how to display it
+```
 
 ---
 
-Use Cubit when there are no events — only direct method calls. Simpler than BLoC for state toggles and shared global state.
+### Definition
 
-Use `@lazySingleton` for shared state (theme, locale). Use `@injectable` for per-screen state.
+Android MVP has no explicit state container. The **View interface** is the state surface — the Presenter drives it imperatively via `view?.show*` / `view?.hide*` calls. Loading, success, and error states are expressed as discrete View methods rather than a sealed state class.
+
+For screens that need richer state (e.g. multi-section loading), define a `ViewState` data class and expose it via a single `renderState(state: ViewState)` method on the View interface.
 
 ### Code Pattern
 
-```dart
-// presentation/cubits/theme_cubit.dart
-@lazySingleton
-class ThemeCubit extends Cubit<ThemeMode> {
-  ThemeCubit() : super(ThemeMode.light);
-
-  void setLight() => emit(ThemeMode.light);
-  void setDark() => emit(ThemeMode.dark);
-  void toggle() => emit(state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light);
+```kotlin
+interface TimeOffRequestContract {
+    interface View : BaseMvpView {
+        fun showLoading()        // loading state
+        fun hideLoading()        // loading cleared
+        fun showTimeOffRequests(requests: List<TimeOffRequest>)  // success state
+        fun showError(error: Throwable)   // error state
+        fun showEmptyState()              // empty state
+    }
 }
 ```
 
 # Dependency Injection
 
-## External Dependencies
-
+## Activity Binding
 ### Theory
 
-| Scope | Use for | Lifetime |
-|---|---|---|
-| Singleton | Shared infrastructure — HTTP client, token store, logger | App lifetime |
-| Feature-scoped | StateHolders and use cases for a single feature | Screen/route lifetime |
-| Transient | Stateless helpers, mappers, pure services | Per-resolution |
-
-**Never register a StateHolder as a singleton** — it holds mutable UI state that must be reset when the screen is destroyed.
+`@ContributesAndroidInjector` scopes injection to the Activity/Fragment lifetime.
 
 ---
 
-Third-party instances (Dio, SharedPreferences) registered via `@module` abstract class. `@preResolve` tells injectable to await async futures before resolving dependents.
+### Definition
+
+Activity binding module wires Dagger injection for an Activity and its associated feature module.
+
+Rules:
+- Register the activity module in the app-level `ActivityModule` or equivalent binding module
+- Presenter is injected by Dagger via `@Inject` — declare it as `@Inject lateinit var presenter` in the activity
+- Do not instantiate any injectable class with `MyClass()`; always let Dagger provide it
 
 ### Code Pattern
 
-```dart
-// di/app_module.dart
-import 'package:dio/dio.dart';
-import 'package:injectable/injectable.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+```kotlin
+// di/TimeOffActivityModule.kt
+@Module
+abstract class TimeOffActivityModule {
 
-@module
-abstract class AppModule {
-  @lazySingleton
-  Dio get dio => Dio(BaseOptions(
-        baseUrl: const String.fromEnvironment(
-          'API_BASE_URL',
-          defaultValue: 'https://api.example.com',
-        ),
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-      ))
-        ..interceptors.addAll([
-          ErrorInterceptor(),
-          LogInterceptor(logPrint: (obj) => debugPrint(obj.toString())),
-        ]);
-
-  @preResolve
-  Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
+    @ContributesAndroidInjector(modules = [TimeOffModule::class])
+    abstract fun contributeTimeOffRequestActivity(): TimeOffRequestActivity
 }
 ```
 
-```dart
-// Environment-based registration (prod vs dev)
-@module
-abstract class NetworkModule {
-  @lazySingleton
-  @prod
-  Dio get prodDio => Dio(BaseOptions(baseUrl: 'https://api.example.com'));
-
-  @lazySingleton
-  @dev
-  Dio get devDio => Dio(BaseOptions(baseUrl: 'https://api.staging.example.com'));
-}
-```
-
-```dart
-// main.dart — configure environment at startup
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await configureDependencies(
-    environment: const String.fromEnvironment('ENV', defaultValue: 'prod'),
-  );
-  runApp(const App());
-}
-```
-
-## get_it
-
+## Di Module
 ### Theory
 
-These rules apply regardless of framework (Next.js React Context, Swinject, get_it):
+Each feature owns its own registration unit (component, module, or file) — one file per feature.
+
+---
+
+### Definition
+
+Feature DI module containing all `@Provides` bindings for a feature.
+
+### Code Pattern
+
+```kotlin
+// di/TimeOffModule.kt
+@Module
+class TimeOffModule {
+
+    @Provides
+    fun provideTimeOffApi(retrofit: Retrofit): TimeOffApi {
+        return retrofit.create(TimeOffApi::class.java)
+    }
+
+    @Provides
+    fun provideTimeOffRequestMapper(): TimeOffRequestMapper {
+        return TimeOffRequestMapper()
+    }
+
+    @Provides
+    fun provideTimeOffRepository(
+        api: TimeOffApi,
+        mapper: TimeOffRequestMapper
+    ): TimeOffRepository {
+        return TimeOffRepositoryImpl(api, mapper)
+    }
+}
+```
+
+## Di Principles
+### Theory
+
+These rules apply regardless of framework:
 
 1. **Constructor injection** — dependencies are declared as constructor parameters, never fetched inside a class body
 2. **Depend on interfaces, not implementations** — callers reference abstract types; the container resolves the concrete class
 3. **No `new` inside business logic** — use cases, StateHolders, and repository implementations never instantiate their own dependencies
-4. **Container owns lifecycle** — the DI container decides whether a dependency is a singleton, feature-scoped, or transient; callers never manage this
-5. **One container per runtime boundary** — if your platform has multiple runtimes (e.g. server + client), each runtime gets its own container; never share a container across boundaries
-
----
-
-`get_it` service locator + `injectable` annotation-driven code generation. One DI module per feature.
-
-**Annotation lifecycle:**
-
-| Annotation | Lifecycle | Use For |
-|---|---|---|
-| `@lazySingleton` | Singleton, created on first access | Repositories, use cases, mappers, datasources |
-| `@singleton` | Singleton, created at startup | Core services (auth, analytics) |
-| `@injectable` | New instance per `getIt.get()` call | BLoCs, Cubits |
-| `@LazySingleton(as: Interface)` | Singleton bound to interface | Repository/datasource implementations |
-| `@module` | Abstract class providing external dependencies | Dio, SharedPreferences |
-
-**Never register a BLoC as `@lazySingleton`** — BLoC holds mutable state; every screen must get a fresh instance.
-
-### Code Pattern
-
-```dart
-// di/injection.dart
-final getIt = GetIt.instance;
-
-@InjectableInit()
-Future<void> configureDependencies() async => getIt.init();
-```
-
-```dart
-// di/app_module.dart — external dependencies
-@module
-abstract class AppModule {
-  @lazySingleton
-  Dio get dio => Dio(BaseOptions(
-        baseUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.example.com'),
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-      ))
-        ..interceptors.addAll([ErrorInterceptor(), LogInterceptor()]);
-
-  @preResolve
-  Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
-}
-```
-
-```dart
-// Registration order (leaf nodes first):
-// 1. External deps (@module)
-// 2. DataSources
-// 3. Mappers
-// 4. Repositories (@LazySingleton(as: Interface))
-// 5. Use Cases (@lazySingleton)
-// 6. BLoCs (@injectable)
-```
-
-```bash
-# Generate after adding/changing annotations
-dart run build_runner build --delete-conflicting-outputs
-```
-
-## Registration Order
-
-### Theory
-
-Dependencies must be registered before they are resolved. The correct registration order mirrors the dependency graph:
-
-```
-Infrastructure (HTTP client, DB driver)
-  → DataSources
-  → Mappers
-  → Repository Implementations
-  → Use Cases
-  → StateHolders
-```
-
-Register leaf nodes (no dependencies) first. Register consumers after their dependencies.
-
----
-
-`injectable` resolves registration order automatically via the dependency graph. Declare annotations in leaf-first order so the generated `injection.config.dart` registers correctly.
-
-| Layer | Lifecycle | Why |
-|---|---|---|
-| External deps (`@module`) | Before anything | No app dependencies |
-| DataSources | `@lazySingleton` | Depend on Dio/storage |
-| Mappers | `@lazySingleton` | Stateless, no dependencies |
-| Repositories | `@LazySingleton(as:)` | Depend on DataSource + Mapper |
-| Use Cases | `@lazySingleton` | Depend on Repository |
-| BLoCs | `@injectable` | Stateful — fresh instance per screen |
-
-**Never register a BLoC as `@lazySingleton`** — BLoC holds mutable state; every screen must get a fresh instance via `BlocProvider`.
-
-### Code Pattern
-
-```dart
-// 1. External dependencies (no app dependencies)
-@module abstract class AppModule {
-  @lazySingleton Dio get dio => ...;
-  @preResolve Future<SharedPreferences> get prefs => SharedPreferences.getInstance();
-}
-
-// 2. DataSources (depend on Dio)
-@LazySingleton(as: EmployeeRemoteDataSource)
-class EmployeeRemoteDataSourceImpl implements EmployeeRemoteDataSource { ... }
-
-// 3. Mappers (no dependencies)
-@lazySingleton class EmployeeMapper { ... }
-
-// 4. Repositories (depend on DataSource + Mapper)
-@LazySingleton(as: EmployeeRepository)
-class EmployeeRepositoryImpl implements EmployeeRepository { ... }
-
-// 5. Use Cases (depend on Repository)
-@lazySingleton class GetEmployeeUseCase { ... }
-
-// 6. BLoCs (depend on Use Cases) — @injectable, not singleton
-@injectable class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> { ... }
-```
-
-# Navigation
-
-## Deep Link
-
-### Theory
-
-**Deep Links** are external URLs or URIs that navigate directly to a specific in-app destination.
-
-**Invariants:**
-- URI schemes and host patterns declared in platform manifests/info.plist — not in application code
-- Deep link paths match route constant definitions exactly — no separate deep-link-only paths
-- Screen always has a fallback when extra/prefetched data is unavailable (e.g., fetch by ID from path parameter)
-- Auth guard applies to deep-linked routes — unauthenticated deep links redirect to login first
-
-**When to create:** When a feature destination must be reachable from a notification, email link, or external app. Added alongside the route constant for that destination.
-
----
-
-go_router handles deep links automatically when incoming URIs match declared route paths. Native intent-filter / URL scheme registration is required; no extra Dart configuration needed beyond route definitions.
-
-### Code Pattern
-
-```xml
-<!-- android/app/src/main/AndroidManifest.xml -->
-<intent-filter android:autoVerify="true">
-  <action android:name="android.intent.action.VIEW" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="https" android:host="example.com" />
-</intent-filter>
-```
-
-```xml
-<!-- ios/Runner/Info.plist -->
-<key>CFBundleURLTypes</key>
-<array>
-  <dict>
-    <key>CFBundleURLSchemes</key>
-    <array><string>https</string></array>
-  </dict>
-</array>
-```
-
-go_router routes that match the incoming URL are activated automatically. Ensure route paths align with the deep link URI paths:
-
-```dart
-GoRoute(
-  path: '/employees/:id',
-  builder: (context, state) => EmployeeScreen(
-    employeeId: state.pathParameters['id']!,
-  ),
-),
-```
-
-## go_router
-
-### Theory
-
-**Route Constants** are named, centralized identifiers for every navigation destination in the app.
-
-**Invariants:**
-- All destination identifiers defined in a single constants file per feature or app — never hard-coded at the call site
-- String paths (web/Flutter) or typed class references (Android/iOS) — platform dictates the form, the principle is the same
-- Parameterised routes expose a typed helper function/method — callers never construct path strings inline
-- Route constants exported from the feature or navigation module — consumers import the constant, not a string literal
-
-**When to create:** Before any screen that navigates to a destination. Constants file created once per feature; entries added as destinations are added.
-
----
-
-`go_router` is the standard Flutter navigation solution — declarative, deep-link ready. Define all route paths as constants. Never hard-code path strings.
-
-### Code Pattern
-
-```dart
-// presentation/navigation/routes.dart
-abstract class Routes {
-  Routes._();
-  static const String login = '/login';
-  static const String employees = '/employees';
-  static const String employeeDetail = '/employees/:id';
-  static String employeeDetailPath(String id) => '/employees/$id';
-}
-```
-
-```dart
-// presentation/navigation/app_router.dart
-@singleton
-class AppRouter {
-  AppRouter({required this.authCubit});
-  final AuthCubit authCubit;
-
-  late final router = GoRouter(
-    initialLocation: Routes.employees,
-    redirect: _guard,
-    routes: [
-      GoRoute(path: Routes.login, builder: (_, __) => const LoginScreen()),
-      GoRoute(
-        path: Routes.employees,
-        builder: (_, __) => const EmployeeListScreen(),
-        routes: [
-          GoRoute(
-            path: ':id',
-            builder: (_, state) => EmployeeDetailScreen(
-              employeeId: state.pathParameters['id']!,
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-
-  String? _guard(BuildContext context, GoRouterState state) {
-    final isAuthenticated = authCubit.state.isAuthenticated;
-    final isOnLoginPage = state.matchedLocation == Routes.login;
-    if (!isAuthenticated && !isOnLoginPage) return Routes.login;
-    if (isAuthenticated && isOnLoginPage) return Routes.employees;
-    return null;
-  }
-}
-```
-
-```dart
-// app.dart
-MaterialApp.router(routerConfig: getIt<AppRouter>().router)
-```
-
-## Navigate From BLoC
-
-### Theory
-
-A **Navigation Action** is the signal emitted by a StateHolder to request navigation without the StateHolder knowing the destination implementation.
-
-**Invariants:**
-- Expressed as a typed value in the StateHolder's output (state field, Observable result, or action callback)
-- Consumed by the UI layer (BlocListener, Coordinator subscribe, ViewModel hook) — never handled inside the StateHolder
-- Cleared after consumption — the UI layer resets the navigation action field so it is not re-triggered on recomposition/re-render
-- Carries only the data needed to resolve the destination (IDs, flags) — not the destination itself
-
-**When to create:** Whenever a StateHolder needs to trigger navigation as a result of business logic (e.g., after a successful form submission or a delete confirmation).
-
----
-
-BLoC never calls `Navigator` directly. It emits a typed `navAction` in state. `BlocListener` in the widget reads it and calls `context.go/push`. Clear the action after handling.
-
-### Code Pattern
-
-```dart
-// In BLoC state — add a navigation action field
-@freezed
-class EmployeeState with _$EmployeeState {
-  const factory EmployeeState({
-    required ViewDataState<EmployeeEntity> employeeState,
-    @Default(null) EmployeeNavAction? navAction,
-  }) = _EmployeeState;
-}
-
-sealed class EmployeeNavAction {
-  const factory EmployeeNavAction.goToEdit(String employeeId) = GoToEditAction;
-  const factory EmployeeNavAction.popAfterDelete() = PopAfterDeleteAction;
-}
-```
-
-```dart
-// In Screen
-BlocListener<EmployeeBloc, EmployeeState>(
-  listenWhen: (prev, curr) => prev.navAction != curr.navAction,
-  listener: (context, state) {
-    final action = state.navAction;
-    if (action == null) return;
-    switch (action) {
-      case GoToEditAction(:final employeeId):
-        context.push(Routes.employeeEditPath(employeeId));
-      case PopAfterDeleteAction():
-        context.pop();
-    }
-    context.read<EmployeeBloc>().add(const EmployeeEvent.clearNavAction());
-  },
-  child: ...,
-)
-```
-
-## Nested Navigation
-
-### Theory
-
-**Nested Navigation** preserves a persi
+4. **Container owns lifecycle** — the DI container decides whether a dependency {"tags":"[]","pattern":"ios_standard_architecture","platform":"ios","scope":"platform","project":"null","schema_version":"1","chroma:document":"## Creation Order\n### Theory\n\nWhen building a new feature's domain layer:\n\n```\nEntity → Repository Interface → Use Case(s) → Domain Service (only if needed)\n```\n\nNever create a use case before the repository interface it depends on.\n\n---\n\n### Creation Order\n\nWhen building a new feature's domain layer, create files in this sequence:\n\n```\n1. Domain/Entities/[Feature]Model.swift          ← Entity (pure struct)\n2. Domain/Repository/[Feature]Repository.swift   ← Repository protocol\n3. Domain/UseCase/[Feature]/Get[Feature]UseCase.swift\n   Domain/UseCase/[Feature]/Post[Feature]UseCase.swift\n   ...                                            ← Use Case(s)\n4. Domain/Services/[Feature]Service.swift        ← Domain Service (only if needed)\n```\n\nNever create a use case before the repository protocol it depends on.\n\n## Dependency Rule\n### Theory\n\nData depends on Domain only. It never imports from Presentation or UI.\n\n```\nDomain  ←  Data\n```\n\nAllowed imports: domain entities, repository interfaces, language primitives.\nForbidden: any presentation type, UI framework, StateHolder, or view import.\n\n---\n\n### Dependency Rule\n\nData depends on Domain only. It never imports from Presentation or UI.\n\n**Allowed:** `Foundation`, Moya, `MoyaProvider`, `JSONDecoder`, `UserDefaults`, `CoreData`, `NWPathMonitor`, any persistence or networking library.\n\n**Forbidden:**\n- `import UIKit` — UI types must not appear in data layer files\n- Any `ViewModel`, `ViewController`, `Coordinator`, or `Navigator` type\n- Any presentation-layer import — data layer must not know how results are displayed\n\n## Domain Enum\n### Domain Enums\n\n```swift\n// Domain/enum/CICOType.swift\nenum CICOType {\n    case clockIn\n    case clockOut\n    case breakStart\n    case breakEnd\n}\n\n// Domain/enum/IPAddressStatus.swift\nenum IPAddressStatus: String {\n    case valid = \"valid\"\n    case invalid = \"invalid\"\n    case unknown = \"unknown\"\n}\n\n// Domain/enum/TimeOffMenuType.swift\nenum TimeOffMenuType {\n    case request\n    case history\n    case balance\n}\n```\n\n**Enum Rules:**\n- Define business-level constants and states\n- Use meaningful names tied to business domain\n- Prefer `String` raw values for API interop when needed\n- Location: `Domain/enum/`\n\n## Domain Error\n### Theory\n\nA **Domain Error** is the unified error type returned from all repository and use case operations. It decouples the domain from transport-layer error types (HTTP status codes, network errors).\n\n**Invariants:**\n- Domain operations return a Result/Either typed with the domain error — they never propagate raw network errors upward\n- Repositories map transport errors to domain errors before returning\n- Error codes are business-meaningful (`notFound`, `validationFailed`, `unauthorized`) — not HTTP status codes\n\n---\n\n### Domain Errors\n\n```swift\n// Shared/Domain/Entities/BaseErrorModel.swift\nstruct BaseErrorModel: Error {\n    let status: Int?\n    let message: String\n    let errors: [String: [String]]?\n}\n```\n\n`BaseErrorModel` is the canonical error type for all UseCase and Repository completions (`Result<Model, BaseErrorModel>`). Repositories map `NetworkError` → `BaseErrorModel` before propagating upward. See the Error Handling section for full error flow and mapping patterns.\n\n## Domain Service\n### Theory\n\nA **Domain Service** contains pure business logic that spans multiple entities or is reused across multiple use cases.\n\n**Invariants:**\n- No I/O — no async, no network, no database, no file system\n- No side effects — pure functions; same input always produces the same output\n- No framework imports\n- Returns structured data — never formatted strings, CSS classes, or display labels (presentation formats output)\n\n**When to extract to a service:**\n\n| Scenario | Decision |\n|----------|----------|\n| 1–3 line condition | Keep inline in use case |\n| Complex multi-step validation | Extract to service |\n| Logic reused across ≥ 2 use cases | Extract to service |\n| Needs independent unit testing | Extract to service |\n\n**Naming:** `[Feature][Noun]` — e.g. `LeaveBalanceCalculator`, `AttendanceScheduleResolver`\n\n---\n\n### Domain Services\n\nPure business decisions — no I/O, no side effects, no async. Can be called by both UseCases and ViewModels.\n\n### Service Patterns\n\nTwo service patterns are used depending on complexity:\n\n| Pattern | When to Use | Example |\n|---------|-------------|---------|\n| **Struct-based** | Simple, stateless calculations | `LeaveBalanceCalculator` |\n| **Protocol + Class** | Complex logic, needs mocking, shared state | `InboxApproveAllService` |\n\n### Pattern 1: Simple Struct-Based Service\n\nFor straightforward calculations and validations:\n\n```swift\n// Domain/Services/LeaveBalanceCalculator.swift\nstruct LeaveBalanceCalculator {\n    func remainingBalance(for entitlement: LeaveEntitlement) -> Int {\n        let pendingDays = entitlement.pendingRequests\n            .filter { $0.status == .pending }\n            .reduce(0) { $0 + $1.days }\n\n        let remaining = entitlement.annualDays - entitlement.usedDays - pendingDays\n        return max(0, remaining)\n    }\n\n    func isSufficient(entitlement: LeaveEntitlement, requestedDays: Int) -> Bool {\n        remainingBalance(for: entitlement) >= requestedDays\n    }\n}\n```\n\n**Struct Service Rules:**\n- Stateless, value-type semantics\n- Simple calculations and validations\n- Default parameter injection for composition\n- No shared state or dependencies\n\n### Pattern 2: Protocol + Class Service (Recommended for Complex Logic)\n\nFor complex business logic that needs mocking, dependency injection, or shared infrastructure:\n\n```swift\n// Domain/Services/InboxApproveAllService.swift\n\n/// Protocol defining the service contract\nprotocol InboxApproveAllService {\n    func shouldShowApproveAllButton(\n        inboxType: InboxType,\n        selectedStatus: Int,\n        isInProgress: Bool\n    ) -> Bool\n\n    func validateApproveAllEligibility(\n        inboxType: InboxType,\n        selectedStatus: Int,\n        isInProgress: Bool\n    ) -> InboxApproveAllEligibilityResult\n\n    func calculateDisplayProgress(\n        serverCurrent: Int,\n        serverMax: Int,\n        storedTotal: Int\n    ) -> InboxProgressDisplayValues\n\n    func isProcessComplete(\n        serverCurrent: Int,\n        serverMax: Int\n    ) -> Bool\n\n    func pollingInterval(for inboxType: InboxType) -> TimeInterval\n    func shouldStopPolling(errorCount: Int) -> Bool\n\n    func buildApproveAllParameters(\n        inboxType: InboxType,\n        excludedIds: [Int]\n    ) -> [String: Any]\n}\n\n/// Implementation with Singleton pattern\nfinal class InboxApproveAllServiceImpl: InboxApproveAllService {\n\n    // MARK: - Singleton\n    private static var _sharedInstance: InboxApproveAllServiceImpl?\n    static var sharedInstance: InboxApproveAllServiceImpl {\n        if _sharedInstance == nil {\n            _sharedInstance = InboxApproveAllServiceImpl()\n        }\n        return _sharedInstance!\n    }\n\n    // MARK: - Dependencies\n    private let toggleViewModel: ToggleModel\n    private let inboxHelper: InboxHelperProtocol\n\n    // MARK: - Configuration\n    private let standardPollingInterval: TimeInterval = 5.0\n    private let maxConsecutiveErrors: Int = 3\n\n    // MARK: - Init\n    init(\n        toggleViewModel: ToggleModel = ToggleViewModel(),\n        inboxHelper: InboxHelperProtocol = InboxHelper()\n    ) {\n        self.toggleViewModel = toggleViewModel\n        self.inboxHelper = inboxHelper\n    }\n\n    func calculateDisplayProgress(\n        serverCurrent: Int,\n        serverMax: Int,\n        storedTotal: Int\n    ) -> InboxProgressDisplayValues {\n        let displayTotal = serverMax > 0 ? serverMax : storedTotal\n        let displayCurrent = min(serverCurrent, displayTotal)\n        let percentage = displayTotal > 0 ? Double(displayCurrent) / Double(displayTotal) : 0.0\n\n        return InboxProgressDisplayValues(\n            currentCount: displayCurrent,\n            totalCount: displayTotal,\n            percentage: percentage,\n            isServerInitialized: serverMax > 0\n        )\n    }\n}\n\n// MARK: - Result Types\n\nenum InboxApproveAllEligibilityResult: Equatable {\n    case eligible\n    case alreadyInProgress\n    case featureDisabled\n    case requiresPendingStatus\n\n    var isEligible: Bool { self == .eligible }\n}\n\nstruct InboxProgressDisplayValues {\n    let currentCount: Int\n    let totalCount: Int\n    let percentage: Double\n    let isServerInitialized: Bool\n}\n```\n\n**Protocol-Based Service Rules:**\n- Protocol for contract, Class for implementation\n- Singleton pattern with `sharedInstance`\n- Dependency injection via init with defaults\n- Result types (enums/structs) for complex return values\n- Testable via protocol mocking\n- Naming: `[Feature]Service` (protocol) + `[Feature]ServiceImpl` (class)\n\n### Services Called from UseCases\n\n```swift\n// Domain/UseCases/Leave/SubmitLeaveRequestUseCase.swift\nfinal class SubmitLeaveRequestUseCase: UseCaseProtocol {\n    struct Params {\n        let entitlement: LeaveEntitlement\n        let leaveTypeId: String\n        let days: Int\n        let startDate: Date\n    }\n\n    private let repository: LeaveRepository\n    private let balanceCalculator: LeaveBalanceCalculator\n\n    init(\n        repository: LeaveRepository = LeaveRepositoryImpl.sharedInstance,\n        balanceCalculator: LeaveBalanceCalculator = LeaveBalanceCalculator()\n    ) {\n        self.repository = repository\n        self.balanceCalculator = balanceCalculator\n    }\n\n    func execute(params: Params, completion: @escaping (Result<LeaveModel, BaseErrorModel>) -> Void) {\n        guard balanceCalculator.isSufficient(\n            entitlement: params.entitlement,\n            requestedDays: params.days\n        ) else {\n            completion(.failure(BaseErrorModel(message: \"Insufficient balance\")))\n            return\n        }\n\n        repository.submitLeaveRequest(\n            leaveTypeId: params.leaveTypeId,\n            startDate: params.startDate,\n            days: params.days,\n            completion: completion\n        )\n    }\n}\n```\n\n### Services Called from ViewModels\n\nViewModels can call Services directly for pure business logic (no I/O).\n\n**ViewModel → Service Pattern:**\n- Call Services for pure logic (eligibility, validation, calculations)\n- Call UseCases for I/O operations (API calls, storage)\n- Services help ViewModels stay focused on orchestration\n- Services never do I/O (that's UseCase territory)\n\n### When to Use Services\n\n| Scenario | Approach |\n|----------|----------|\n| Simple condition (1-3 lines) | Keep inline in UseCase/ViewModel |\n| Complex multi-step validation | Extract to Service |\n| Reused across multiple UseCases/ViewModels | Extract to Service |\n| Needs independent unit testing | Extract to Service |\n| Pure calculation/decision logic | Extract to Service |\n| Shared configuration/policies | Extract to Service |\n\n### Service Pattern Decision Matrix\n\n| Requirement | Use Struct | Use Protocol + Class |\n|-------------|------------|----------------------|\n| Simple calculations | Yes | No — over-engineering |\n| Needs mocking for tests | No | Yes |\n| Has dependencies (toggles, helpers) | No | Yes |\n| Multiple implementations possible | No | Yes |\n| Shared state or configuration | No | Yes |\n| Complex multi-responsibility logic | No | Yes |\n\n**Naming:** `[Feature][Verb/Noun]Service` — e.g., `InboxApproveAllService`, `LeaveBalanceCalculator`, `AttendanceScheduleResolver`\n\n**Key Principle:** Services contain pure business logic. UseCases orchestrate I/O. ViewModels orchestrate UI.\n\n## Entity\n### Theory\n\nAn **Entity** is a pure data structure representing a business concept.\n\n**Invariants:**\n- No framework imports — value types or pure classes only\n- No business logic — entities hold data; use cases execute logic\n- No serialization annotations — no `@JsonKey`, no `Codable`, no `fromJson`\n- Immutable — all properties are read-only; mutation produces a new instance (`copyWith`)\n- Represent domain concepts, not API shapes — field names match the business domain, not the JSON payload\n\n**When to create:** When the domain needs a named, typed concept with identified fields (e.g. `Employee`, `LeaveRequest`, `AttendanceRecord`).\n\n---\n\n### Entities\n\n```swift\n// Domain/Entities/CICO/RequestLiveAttendanceModel.swift\nstruct RequestLiveAttendanceModel {\n    let actualBreakStart: String\n    let isBreakStart: Bool\n    let isBreakEnd: Bool\n    let currentShiftDate: String\n    let currentShiftName: String\n    let actualCheckIn: String\n    let actualCheckOut: String\n    let faceRecogAccuracy: Double\n    let serverTime: String\n    let processedAsync: Bool\n    let ipAddressStatus: Bool\n\n    init(\n        actualBreakStart: String = \"\",\n        isBreakStart: Bool = false,\n        isBreakEnd: Bool = false,\n        currentShiftDate: String = \"\",\n        currentShiftName: String = \"\",\n        actualCheckIn: String = \"\",\n        actualCheckOut: String = \"\",\n        faceRecogAccuracy: Double = 0.0,\n        serverTime: String = \"\",\n        processedAsync: Bool = false,\n        ipAddressStatus: Bool = false\n    ) {\n        self.actualBreakStart = actualBreakStart\n        self.isBreakStart = isBreakStart\n        self.isBreakEnd = isBreakEnd\n        self.currentShiftDate = currentShiftDate\n        self.currentShiftName = currentShiftName\n        self.actualCheckIn = actualCheckIn\n        self.actualCheckOut = actualCheckOut\n        self.faceRecogAccuracy = faceRecogAccuracy\n        self.serverTime = serverTime\n        self.processedAsync = processedAsync\n        self.ipAddressStatus = ipAddressStatus\n    }\n}\n\n// copyWith for immutable updates\nextension RequestLiveAttendanceModel {\n    func copyWith(\n        actualBreakStart: String? = nil,\n        isBreakStart: Bool? = nil,\n        serverTime: String? = nil\n        // ... other parameters\n    ) -> RequestLiveAttendanceModel {\n        return RequestLiveAttendanceModel(\n            actualBreakStart: actualBreakStart ?? self.actualBreakStart,\n            isBreakStart: isBreakStart ?? self.isBreakStart,\n            serverTime: serverTime ?? self.serverTime\n            // ... other fields\n        )\n    }\n}\n```\n\n**Entity Rules:**\n- Structs (value types) preferred\n- Default initializers with default values\n- `copyWith` extension for immutable updates\n- Equatable conformance for diffing/testing\n- No `import UIKit` or heavy framework dependencies\n- No business logic (pure data)\n\n## Repository Interface\n### Theory\n\nA **Repository** is a contract that defines data access operations — *what* is needed, not *how* it is done.\n\n**Invariants:**\n- Lives in Domain as an interface/protocol/abstract class only — implementation lives in Data\n- Returns domain Entities — never raw DTOs, API response types, or database records\n- Method names follow the operation's intent: `get*`, `create*`, `update*`, `delete*`, `submit*`\n- Parameters are domain objects — not raw dictionaries, JSON maps, or HTTP types\n- Error type is the domain error type — never a networking or transport error\n\n**When to create:** One repository per aggregate root or feature domain. Created before use cases — use cases depend on the repository interface.\n\n---\n\n### Repository Interfaces\n\n```swift\n// Domain/Repository/LiveAttendanceRepository.swift\nprotocol LiveAttendanceRepository {\n    func postSubmitCico(\n        params: PostSubmitCICOQueryParam,\n        companyId: LiveAttendanceCICOPathParam,\n        expected: @escaping (Result<RequestLiveAttendanceModel, BaseErrorModel>) -> Void\n    )\n\n    func getServerTime(\n        params: GetServerTimeQueryParam,\n        expected: @escaping (Result<LiveAttendanceServerTimeModel, BaseErrorModel>) -> Void\n    )\n\n    func postCicoValidateLocation(\n        params: PostCICOValidateLocationQueryParam,\n        companyId: LiveAttendanceCICOPathParam,\n        expected: @escaping (Result<CICOLocationValidationModel, BaseErrorModel>) -> Void\n    )\n}\n```\n\n**Repository Protocol Rules:**\n- Always use `Result<Model, BaseErrorModel>` in completions\n- Return domain entities (Models), never DTOs (Responses)\n- Method names follow REST convention: `post*`, `get*`, `put*`, `delete*`\n- Params are domain Param objects, not raw dictionaries\n- No implementation details (no Moya, no network code)\n\n## Use Case\n### Theory\n\nA **UseCase** encapsulates a single business operation: one class, one public method, one responsibility.\n\n**Invariants:**\n- One business operation per class — never combine unrelated operations\n- Depends only on repository interfaces — never on repository implementations or data-layer types\n- No framework dependencies — no HTTP clients, no UI types\n- Accepts typed input (Params/Request struct) — never raw dictionaries or loose primitives\n- Returns domain entities or primitives — never DTOs or view models\n- All I/O goes through the repository — use cases never call APIs or databases directly\n\n**Mandatory call flow — no exceptions:**\n```\nPresentation → UseCase → Repository    ✅\nPresentation → Repository              ❌  direct call is a CLEAN violation\n```\n\n**When to create:** One use case per business operation (e.g. `GetEmployeeUseCase`, `SubmitLeaveRequestUseCase`, `ApproveLeaveRequestUseCase`). Even thin pass-through use cases are mandatory — they preserve a stable indirection point for future validation, caching, or logging without touching the presentation layer.\n\n---\n\n### Use Cases\n\n### Modern UseCase Protocol\n\n```swift\n// Shared/Domain/UseCaseType.swift\n\n/// Base protocol for all UseCases.\n/// Each UseCase defines its own nested Params struct.\n/// For use cases without parameters, use `typealias Params = Void`\nprotocol UseCaseProtocol {\n    associatedtype Params\n    associatedtype Model\n\n    func execute(\n        params: Params,\n        completion: @escaping (Result<Model, BaseErrorModel>) -> Void\n    )\n}\n```\n\n**Key Benefits:**\n- Single protocol — no confusion between multiple protocol types\n- No naming conflicts — `UseCaseProtocol` avoids clashes\n- No param collisions — `GetEmployeeUseCase.Params` vs `UpdateEmployeeUseCase.Params`\n- Discoverable — autocomplete shows params right from the UseCase type\n- Colocated — params definition lives next to the code that uses it\n- Self-documenting — all inputs clearly defined in one place\n- Consistent API — all use cases have the same `execute(params:completion:)` signature\n\n### UseCase Implementation Patterns\n\n#### Pattern 1: GET with Single ID\n\n```swift\n// Domain/UseCase/Employee/GetEmployeeUseCase.swift\n\nfinal class GetEmployeeUseCase: UseCaseProtocol {\n    // MARK: - Params (Nested inside UseCase)\n    struct Params {\n        let employeeId: String\n    }\n\n    // MARK: - Singleton\n    private static var _sharedInstance: GetEmployeeUseCase?\n    static var sharedInstance: GetEmployeeUseCase {\n        if _sharedInstance == nil {\n            _sharedInstance = GetEmployeeUseCase()\n        }\n        return _sharedInstance!\n    }\n\n    // MARK: - Dependencies\n    private let repository: EmployeeRepository\n\n    // MARK: - Init\n    init(repository: EmployeeRepository = EmployeeRepositoryImpl.sharedInstance) {\n        self.repository = repository\n    }\n\n    // MARK: - Execute\n    func execute(\n        params: Params,\n        completion: @escaping (Result<EmployeeModel, BaseErrorModel>) -> Void\n    ) {\n        repository.getEmployee(id: params.employeeId, completion: completion)\n    }\n}\n```\n\n#### Pattern 2: GET with Multiple Query Para
