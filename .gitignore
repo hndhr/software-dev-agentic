@@ -5,3 +5,5 @@ dist/.kms_seeds/*
 !dist/.kms_seeds/.version
 __pycache__/
 *.pyc
+chroma/
+kms/db/
