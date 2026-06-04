@@ -58,8 +58,7 @@ echo "  hash: $current_hash"
 mkdir -p "$(dirname "$SHARED_CHROMA")"
 rm -rf "$SHARED_CHROMA"
 
-PYTHONPATH="$REPO_ROOT" python3 -m kms.scripts.seed_kms \
-  --knowledge-dir "$KNOWLEDGE_DIR" \
+PYTHONPATH="$REPO_ROOT" KMS_DB_PATH="$SHARED_CHROMA" python3 -m kms.scripts.seed_kms \
   --db-path "$SHARED_CHROMA" 2>&1 | sed 's/^/  /'
 
 # ── Distribute to per-platform caches ─────────────────────────────────────────
