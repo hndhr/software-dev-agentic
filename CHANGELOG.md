@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.4.0] — 2026-06-04
+
+### Fixed
+- **`kms/db` is now the canonical ChromaDB** — `mcp_server.py` default, `build-plugin.sh` source, and `kms-seed-orchestrator` db_path all point to `kms/db`; previously seed wrote to `kms/db`, MCP server read from `chroma/`, and build bundled from `dist/.kms_seeds/.shared/chroma` — three different locations
+
+---
+
 ## [10.3.0] — 2026-06-04
 
 ### Fixed
