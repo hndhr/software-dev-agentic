@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.0.3] — 2026-06-04
+
+### Added
+- **`seed_kms.py --force`** — bypass content-hash check and re-upsert all nodes; useful when ChromaDB has nodes with empty content
+
+### Fixed
+- **`UpsertKnowledge`** — when owned section filtering produces empty content (e.g. project docs with `## Features` heading not in `owns`), fall back to storing full content instead of silently writing an empty node
+- **`/kms-status` Step 7** — project summary now uses the first two topics returned from the load probe instead of hardcoded topic names
+
+---
+
 ## [10.0.2] — 2026-06-04
 
 ### Added
