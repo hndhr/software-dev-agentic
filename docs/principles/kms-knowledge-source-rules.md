@@ -27,10 +27,13 @@ This means **heading names are the retrieval keys**. Name them as you would name
 |---|---|---|
 | `{platform}-{topic-slug}.md` | `ios-standard-architecture.md` | `platform=ios, scope=platform` |
 | `{topic-slug}.md` | `sprint-retrospective-guide.md` | `platform=None, scope=universal` |
+| `_template.md` | `qa/_template.md` | `platform=None, scope=universal, content_type=stub` |
+| `{platform}-_template.md` | `engineering/flutter-_template.md` | `platform=flutter, scope=platform, content_type=stub` |
 
 - `{discipline}` — subdirectory must match a value in `DISCIPLINE_VALUES` (`engineering`, `design`, `qa`, etc.)
 - `{platform}` prefix — one of `flutter`, `ios`, `android`, `web` exactly
 - `{topic-slug}` — kebab-case, describes the file's subject area
+- Template files (`_template.md`, `{platform}-_template.md`) are the discipline's schema contract — one per discipline (or per discipline+platform for `engineering`)
 
 ### Project knowledge — `kms/knowledge-sources/projects/{project-name}/`
 
@@ -114,18 +117,18 @@ A `##` section over ~4,000 characters likely contains multiple concepts. Split i
 
 ## Discipline-Specific Heading Templates
 
-Each discipline has a natural unit of knowledge — one `##` heading per unit. Use the table below when authoring files for a specific discipline.
+Each discipline has a canonical `##` heading vocabulary defined in its `_template.md` file. When authoring a new content file, open the discipline's template first — it tells you what headings to use and what `###` subsections go under each.
 
-| Discipline | Natural `##` unit | Example headings |
+| Discipline | Template file | Natural `##` unit |
 |---|---|---|
-| `engineering` | One pattern or concept within a layer | `## Entity`, `## Use Case`, `## DI Setup`, `## Screen Structure` |
-| `design` | One component or design token | `## MkTextField`, `## MkButton`, `## Color Tokens` |
-| `qa` | One checklist type or test template | `## Regression Checklist`, `## API Contract Test`, `## Smoke Test` |
-| `agile` | One ceremony or ritual | `## Sprint Retrospective`, `## Refinement`, `## Daily Standup` |
-| `architecture` | One ADR or architectural decision | `## ADR-001 Monorepo Structure`, `## ADR-002 BFF Pattern` |
-| `devops` | One runbook or operational process | `## Deploy to Staging`, `## Rollback Procedure`, `## Alert Triage` |
-| `security` | One threat class or control | `## SQL Injection`, `## JWT Expiry`, `## Secret Rotation` |
-| `product` | One feature or product requirement | `## Leave Request`, `## Payroll Run`, `## Reimbursement` |
+| `engineering` | `engineering/{platform}-_template.md` | One pattern or concept within a layer |
+| `design` | `design/_template.md`, `design/{platform}-_template.md` | One component or design token |
+| `qa` | `qa/_template.md` | One checklist type or test template |
+| `agile` | `agile/_template.md` | One ceremony or ritual |
+| `architecture` | `architecture/_template.md` | One ADR or architectural decision |
+| `devops` | `devops/_template.md` | One runbook or operational process |
+| `security` | `security/_template.md` | One threat class or control |
+| `product` | `product/_template.md` | One feature or product requirement |
 
 **Naming rule:** heading text = the canonical name for that unit — the name engineers, designers, or PMs use day-to-day. This becomes the retrieval key in ChromaDB. Avoid generic names like `## Overview` or `## General` (violates R3).
 
@@ -134,8 +137,8 @@ Each discipline has a natural unit of knowledge — one `##` heading per unit. U
 Examples:
 
 ```
-engineering/flutter-standard-architecture.md   → ## Entity, ## Use Case, ## Bloc ...
-design/flutter-mekari-pixel-catalog.md         → ## MkTextField, ## MkButton ...
+engineering/flutter-standard-architecture.md   → ## Entity, ## Use Case, ## BLoC ...
+design/flutter-mekari-pixel-catalog.md         → ## Atoms, ## Components ...
 qa/mobile-regression-checklist.md             → ## Auth Flow, ## Payment Flow ...
 agile/sprint-ceremonies.md                    → ## Sprint Planning, ## Retrospective ...
 architecture/flutter-adr.md                   → ## ADR-001 Clean Architecture Adoption ...
@@ -154,6 +157,42 @@ Project docs live in `kms/knowledge-sources/projects/{project-name}/` and are ge
 | `shared-components.md` | One `##` per component — `## MkTextField` |
 | `deviations.md` | One `##` per deviation — `## Custom DI Pattern` |
 | `third-party-integrations.md` | One `##` per integration — `## Firebase` |
+
+---
+
+## Template Files (`_template.md`)
+
+Template files define the canonical `##` heading vocabulary for a discipline. They serve two purposes:
+
+1. **Authoring contract** — tells engineers exactly which `##` headings to use when writing content files for that discipline
+2. **Schema seeding** — each `##` heading seeds one stub node in ChromaDB, so agents can discover what topics exist before any real content is written
+
+### Naming and placement
+
+| File | Covers |
+|---|---|
+| `{discipline}/_template.md` | All universal/platform-agnostic patterns for that discipline |
+| `{discipline}/{platform}-_template.md` | Platform-specific patterns (e.g. `engineering/flutter-_template.md`) |
+
+One template per discipline, or one per discipline+platform when the heading vocabulary differs by platform (as it does for `engineering`).
+
+### Content rules
+
+- Every `##` heading must follow R2–R4 (one concept, precise name, no duplicates)
+- Section body should describe *what goes here* — 1–2 stub lines are enough
+- Use `### Theory`, `### Definition`, `### Code Pattern` subsections (or discipline-appropriate equivalents) so authors know the expected `###` structure too
+- Do not add real content to a template — it will be overwritten when the real file is seeded
+
+### One-way seeding rule
+
+`UpsertKnowledge` enforces: **stubs never overwrite real nodes**.
+
+- Template seeded first → stub node in ChromaDB
+- Real file seeded → stub overwritten with real content ✓
+- Template re-seeded after real content exists → skipped silently ✓
+- Real file seeded, then template re-seeded → no change ✓
+
+This means re-running `/kms-seed` on a fully populated DB is always safe.
 
 ---
 

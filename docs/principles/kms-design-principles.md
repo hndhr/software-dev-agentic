@@ -66,9 +66,18 @@ If a source path or URL is inaccessible at seed time, that source is skipped wit
 
 Raw documents live here — any format (`.md`, `.txt`), any origin. Engineers drop files in the right location; the seed runner derives all metadata from the path automatically. No frontmatter, no manual structuring.
 
-Two path conventions:
+**Discipline templates — schema-first seeding:**
 
-**Platform / universal knowledge — `{discipline}/{filename}.md`:**
+Each discipline folder contains a `_template.md` (universal) and/or `{platform}-_template.md` (platform-specific) that defines the canonical `##` heading vocabulary for that discipline. These are seeded as `content_type: stub` nodes — they populate the TOC so agents can discover what topics exist even before real content is written. When real content is seeded, it overwrites the stub. The rule is one-way: **stubs never overwrite real content**.
+
+| Template file | Scope | Example |
+|---|---|---|
+| `{discipline}/_template.md` | universal or discipline-wide | `qa/_template.md`, `agile/_template.md` |
+| `{discipline}/{platform}-_template.md` | platform | `engineering/flutter-_template.md` |
+
+Three path conventions:
+
+**1. Platform / universal knowledge — `{discipline}/{filename}.md`:**
 ```
 engineering/flutter-standard-architecture.md  → platform=flutter, discipline=engineering, scope=platform
 agile/sprint-retrospective-guide.md           → platform=None, discipline=agile, scope=universal
@@ -78,7 +87,18 @@ agile/sprint-retrospective-guide.md           → platform=None, discipline=agil
 - `platform` → filename prefix (`flutter-*`, `ios-*`, `android-*`, `web-*`) — absent means universal
 - `scope` → `platform` if prefix found, `universal` otherwise
 
-**Project-specific knowledge — `projects/{project-name}/{filename}.md`:**
+**2. Discipline templates — `{discipline}/_template.md` or `{discipline}/{platform}-_template.md`:**
+```
+engineering/flutter-_template.md  → platform=flutter, discipline=engineering, content_type=stub
+qa/_template.md                   → platform=None, discipline=qa, content_type=stub
+```
+
+- Same path derivation rules as platform/universal knowledge above
+- Seeded as `content_type: stub` — populate the TOC before real content exists
+- Each `##` heading in the template seeds one stub node
+- `UpsertKnowledge` skips upsert if an incoming stub would overwrite an existing real node
+
+**3. Project-specific knowledge — `projects/{project-name}/{filename}.md`:**
 ```
 projects/flutter-mobile-talenta/feature-inventory.md  → project=flutter-mobile-talenta, scope=project
 projects/flutter-mobile-talenta/api-endpoints.md      → project=flutter-mobile-talenta, scope=project
@@ -151,6 +171,7 @@ Additional sources (codebase scans, Confluence) are registered as separate entri
 | `source_file` | ⬜ | absolute path to source file |
 | `updated_at` | ⬜ | ISO date string |
 | `content_hash` | ⬜ | SHA hash of document body — used for incremental seed detection |
+| `content_type` | ⬜ | `"real"` (default) \| `"stub"` — stubs seed schema; never overwrite real nodes |
 
 **`pattern` is a neutral term** — it means code pattern in engineering, checklist type in QA, ceremony template in agile. Convention, not a type constraint.
 
