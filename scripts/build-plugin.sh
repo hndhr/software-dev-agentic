@@ -134,7 +134,7 @@ MANIFEST
 
   # ── KMS — copy package, copy pre-seeded chroma, wire MCP ────────────────────
   # Seeding is done separately via /kms-seed — build just packages the result.
-  local shared_chroma="$SUBMODULE/dist/.kms_seeds/.shared/chroma"
+  local shared_chroma="$SUBMODULE/kms/db"
 
   if [ -d "$SUBMODULE/kms" ]; then
     # Copy kms/ Python package into plugin.
@@ -161,7 +161,7 @@ LAUNCHER
     # Copy pre-seeded ChromaDB — run /kms-seed first if missing.
     if [ -d "$shared_chroma" ]; then
       cp -r "$shared_chroma" "$out/chroma"
-      echo "  kms          chroma bundled from dist/.kms_seeds/.shared/"
+      echo "  kms          chroma bundled from kms/db"
     else
       echo "  kms          ⚠ no chroma found — run: /kms-seed"
     fi

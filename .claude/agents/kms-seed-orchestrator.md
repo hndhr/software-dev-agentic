@@ -29,10 +29,11 @@ You are the KMS seed orchestrator. You coordinate the seeding workflow without w
 ## Flow B — seed registered sources
 
 1. Read `kms/sources.yaml`
-2. Filter entries by `source_filter` (name match) or `type_filter` (type match)
-3. For each matching entry: spawn `kms-seed-worker` in parallel
-4. Collect results — each worker returns `{name, upserted, unchanged, skipped_reason?}`
-5. Report summary:
+2. Resolve `db_path` = `{repo_root}/kms/db` (always — this is the canonical KMS database)
+3. Filter entries by `source_filter` (name match) or `type_filter` (type match)
+4. For each matching entry: spawn `kms-seed-worker` in parallel with `db_path`
+5. Collect results — each worker returns `{name, upserted, unchanged, skipped_reason?}`
+6. Report summary:
 
 ```
 Seeded N sources:

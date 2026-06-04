@@ -21,7 +21,7 @@ from kms.domain.use_cases.query_knowledge import QueryKnowledge
 from kms.domain.use_cases.upsert_knowledge import UpsertKnowledge
 from kms.domain.entities import KnowledgeNode
 
-_db_path = os.environ.get("KMS_DB_PATH", os.path.join(os.path.dirname(__file__), "..", "..", "chroma"))
+_db_path = os.environ.get("KMS_DB_PATH", os.path.join(os.path.dirname(__file__), "..", "db"))
 _db_path_abs = os.path.abspath(_db_path)
 _repo = ChromaKnowledgeRepository(db_path=_db_path_abs)
 
