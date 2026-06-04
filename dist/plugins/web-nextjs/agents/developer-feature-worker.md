@@ -61,6 +61,11 @@ Primary — KMS MCP:
 2. From the TOC, select patterns under `topic: syntax_conventions`, `utilities`, and `error_handling`
 3. `kms_fetch(platform, project, discipline="engineering", topic="{topic}", pattern="{pattern}")` for each selected pattern
 
+**Design system — optional, non-blocking:**
+4. `kms_list(platform="{platform}", discipline="design")` — check if a component catalog exists for this platform
+5. If results found: `kms_fetch(platform="{platform}", discipline="design", topic="design-system", pattern="component-catalog")` and keep it available for StateHolder and App layer artifact steps
+6. If no results (iOS, Android, or any platform not yet catalogued): log `[design system] no catalog for {platform} — skipping` and continue. Do not block or error.
+
 Fallback — if `kms_list` tool unavailable (NEVER read from `.claude/reference/code-architecture/` — those files are deleted):
 ```
 software-dev-agentic/lib/core/knowledge/{platform}/engineering/syntax_conventions/conventions.md
