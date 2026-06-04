@@ -17,6 +17,33 @@ Confirm the KMS MCP server is reachable and show what knowledge is available in 
 5. For each platform+project pair, list distinct topics covered.
 6. Output the ONLINE block below. Do not add any text, suggestions, or next steps beyond the block.
 
+## Step 6 — Scoped load probe
+
+After the summary table, run the same queries agents fire during pre-flight to verify load logic works end-to-end.
+
+Derive context:
+- `project` = `basename $(pwd)` (same rule all agents use)
+- `platform` = infer from project name prefix (`flutter-*` → `flutter`, `ios-*` → `ios`, `android-*` → `android`, `web-*` → `web`); if ambiguous, run probes for all four platforms
+
+For each `(platform, project)` pair:
+
+```
+kms_list(platform="{platform}", project="{project}", discipline="engineering")
+kms_list(platform="{platform}", discipline="design")
+```
+
+Report results inline:
+
+```
+Load probe — project: {project}  platform: {platform}
+────────────────────────────────────────────────────
+engineering  [platform={platform}, project={project}]   {N nodes}  topics: {list}
+design       [platform={platform}]                      {N nodes | ⚠ no catalog — skip}
+```
+
+`⚠ no catalog` on design is not an error — it means iOS/Android/web hasn't been catalogued yet and agents will skip gracefully.
+`⚠ 0 nodes` on engineering IS a problem — agents would load nothing.
+
 ## Output — OFFLINE
 
 ```

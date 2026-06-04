@@ -32,7 +32,27 @@ If type was not provided, ask:
 
 Increment the appropriate segment. Ask for a brief description of what changed if the user hasn't provided one.
 
-### 3 — Update files
+### 3 — Commit pending working-tree changes
+
+Before touching VERSION or CHANGELOG, flush any uncommitted work:
+
+```bash
+git status --short
+```
+
+If there are staged or unstaged changes:
+1. `git diff --name-only HEAD` — list all modified tracked files
+2. Group them into logical chunks by area (e.g. agents, skills, docs, kms, scripts). One commit per group.
+3. For each group:
+   ```bash
+   git add <files in group>
+   git commit -m "<conventional-commit prefix>(<area>): <short description>"
+   ```
+4. Untracked files that belong to the release (new agents, new knowledge sources, new skills): stage and commit in the relevant group.
+
+Skip this step if `git status --short` is clean.
+
+### 4 — Update files
 
 **`VERSION`** — overwrite with the new version (single line, no `v` prefix).
 
@@ -56,7 +76,7 @@ Increment the appropriate segment. Ask for a brief description of what changed i
 
 Only include sections that have entries. Use today's date from system context.
 
-### 4 — Commit, tag, and push
+### 5 — Commit, tag, and push
 
 ```bash
 git add VERSION CHANGELOG.md
@@ -67,7 +87,7 @@ for remote in $(git remote); do
 done
 ```
 
-### 5 — Check KMS seed freshness
+### 6 — Check KMS seed freshness
 
 ```bash
 stored=$(cat dist/.kms_seeds/.version 2>/dev/null || echo "")
@@ -88,7 +108,7 @@ If `.version` doesn't match the tree hash, or if `.shared/chroma` is missing: re
   - `yes` → run `bash scripts/seed-kms.sh` before continuing
   - `skip` → continue (plugin will bundle no chroma or an outdated one)
 
-### 6 — Rebuild and commit all plugins
+### 7 — Rebuild and commit all plugins
 
 ```bash
 bash scripts/build-plugin.sh --platform=all
