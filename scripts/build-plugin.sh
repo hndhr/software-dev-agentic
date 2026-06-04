@@ -130,60 +130,8 @@ MANIFEST
     echo "               see: https://code.claude.com/docs/en/plugins-reference#hooks"
   fi
 
+  echo "  kms          served by sda-kms plugin (install separately)"
   echo "  → test: claude --plugin-dir $out"
-
-  # ── KMS — copy package, copy pre-seeded chroma, wire MCP ────────────────────
-  # Seeding is done separately via /kms-seed — build just packages the result.
-  local shared_chroma="$SUBMODULE/kms/db"
-
-  if [ -d "$SUBMODULE/kms" ]; then
-    # Copy kms/ Python package into plugin.
-    cp -r "$SUBMODULE/kms" "$out/kms"
-
-    # Launcher — uses ${CLAUDE_PLUGIN_ROOT} injected by Claude Code at runtime.
-    cat > "$out/kms/server.sh" <<'LAUNCHER'
-#!/usr/bin/env bash
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
-export KMS_DB_PATH="$PLUGIN_ROOT/chroma"
-export PYTHONPATH="$PLUGIN_ROOT"
-
-# Auto-install deps on first run — no-op if already satisfied.
-if ! python3 -c "import chromadb, yaml, mcp" 2>/dev/null; then
-  echo "[kms] Installing dependencies (one-time)..." >&2
-  pip3 install -q -r "$PLUGIN_ROOT/kms/requirements.txt" >&2 \
-    || { echo "[kms] ERROR: pip install failed. Run: pip install chromadb PyYAML mcp" >&2; exit 1; }
-fi
-
-exec python3 -m kms.application.mcp_server
-LAUNCHER
-    chmod +x "$out/kms/server.sh"
-
-    # Copy pre-seeded ChromaDB — run /kms-seed first if missing.
-    if [ -d "$shared_chroma" ]; then
-      cp -r "$shared_chroma" "$out/chroma"
-      echo "  kms          chroma bundled from kms/db"
-    else
-      echo "  kms          ⚠ no chroma found — run: /kms-seed"
-    fi
-
-    # Project setup template — copy to downstream project root as .mcp.json
-    cat > "$out/kms/project-mcp-template.json" <<MCP_TEMPLATE
-{
-  "mcpServers": {
-    "kms": {
-      "command": "bash",
-      "args": [
-        "-c",
-        "latest=\$(ls -v \"\$HOME/.claude/plugins/cache/sda/sda-${platform}\" 2>/dev/null | tail -1) && exec bash \"\$HOME/.claude/plugins/cache/sda/sda-${platform}/\$latest/kms/server.sh\""
-      ]
-    }
-  }
-}
-MCP_TEMPLATE
-    echo "  kms          project-mcp-template.json written"
-  else
-    echo "  kms          SKIP (kms/ package not found)"
-  fi
 
   # ── Upsert marketplace.json entry ────────────────────────────────────────────
   local marketplace="$SUBMODULE/.claude-plugin/marketplace.json"
@@ -216,12 +164,108 @@ print(f"  marketplace   {'updated' if existing else 'added'} entry: {plugin_name
 PYEOF
 }
 
+# ── KMS plugin ───────────────────────────────────────────────────────────────
+
+build_kms() {
+  local out="$SUBMODULE/dist/plugins/kms"
+  echo ""
+  echo "Building plugin: kms → dist/plugins/kms"
+
+  rm -rf "$out"
+  mkdir -p "$out/.claude-plugin"
+
+  # Manifest
+  cat > "$out/.claude-plugin/plugin.json" <<MANIFEST
+{
+  "name": "sda-kms",
+  "description": "software-dev-agentic KMS — knowledge MCP server for Clean Architecture projects",
+  "version": "${VERSION}",
+  "author": {
+    "name": "Jurnal Engineering"
+  }
+}
+MANIFEST
+  echo "  manifest     sda-kms@${VERSION}"
+
+  # KMS Python package + launcher
+  cp -r "$SUBMODULE/kms" "$out/kms"
+  cat > "$out/kms/server.sh" <<'LAUNCHER'
+#!/usr/bin/env bash
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+export KMS_DB_PATH="$PLUGIN_ROOT/chroma"
+export PYTHONPATH="$PLUGIN_ROOT"
+
+if ! python3 -c "import chromadb, yaml, mcp" 2>/dev/null; then
+  echo "[kms] Installing dependencies (one-time)..." >&2
+  pip3 install -q -r "$PLUGIN_ROOT/kms/requirements.txt" >&2 \
+    || { echo "[kms] ERROR: pip install failed. Run: pip install chromadb PyYAML mcp" >&2; exit 1; }
+fi
+
+exec python3 -m kms.application.mcp_server
+LAUNCHER
+  chmod +x "$out/kms/server.sh"
+
+  # ChromaDB
+  if [ -d "$SUBMODULE/kms/db" ]; then
+    cp -r "$SUBMODULE/kms/db" "$out/chroma"
+    echo "  chroma       bundled from kms/db"
+  else
+    echo "  chroma       ⚠ missing — run: /kms-seed"
+  fi
+
+  # MCP template — same for all platforms, points to sda-kms
+  cat > "$out/kms/project-mcp-template.json" <<'MCP_TEMPLATE'
+{
+  "mcpServers": {
+    "kms": {
+      "command": "bash",
+      "args": [
+        "-c",
+        "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-kms\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-kms/$latest/kms/server.sh\""
+      ]
+    }
+  }
+}
+MCP_TEMPLATE
+  echo "  mcp-template project-mcp-template.json written"
+
+  # Marketplace entry
+  local marketplace="$SUBMODULE/.claude-plugin/marketplace.json"
+  python3 - "$marketplace" "$VERSION" <<'PYEOF'
+import json, sys
+marketplace_path, version = sys.argv[1], sys.argv[2]
+with open(marketplace_path) as f:
+    m = json.load(f)
+plugins = m.setdefault("plugins", [])
+existing = next((p for p in plugins if p["name"] == "sda-kms"), None)
+if existing:
+    existing["source"] = "./dist/plugins/kms"
+    existing["version"] = version
+else:
+    plugins.append({
+        "name": "sda-kms",
+        "source": "./dist/plugins/kms",
+        "description": "KMS knowledge MCP server for Clean Architecture projects",
+        "category": "development-workflows",
+        "version": version,
+    })
+with open(marketplace_path, "w") as f:
+    json.dump(m, f, indent=2)
+print(f"  marketplace   {'updated' if existing else 'added'} entry: sda-kms@{version}")
+PYEOF
+
+  echo "  → test: claude --plugin-dir $out"
+}
+
 # ── Entry ────────────────────────────────────────────────────────────────────
 
 if [ "$PLATFORM" = "all" ]; then
+  build_kms
   for p in "$SUBMODULE/lib/platforms"/*/; do
     build_platform "$(basename "$p")"
   done
+elif [ "$PLATFORM" = "kms" ]; then
+  build_kms
 else
   build_platform "$PLATFORM"
 fi

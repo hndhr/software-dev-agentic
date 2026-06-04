@@ -1,6 +1,6 @@
 # software-dev-agentic
 
-> Claude Code toolkit for Clean Architecture projects — v10.0.0
+> Claude Code toolkit for Clean Architecture projects — v10.4.0
 
 A multi-platform agentic toolkit — agents, skills, hooks, and architecture reference docs for Clean Architecture projects. Distributed as a **Claude Code plugin**.
 
@@ -28,12 +28,15 @@ curl -fsSL https://raw.githubusercontent.com/hndhr/software-dev-agentic/main/scr
 
 Replace `flutter` with your platform. Available platforms:
 
-| Plugin | Platform |
+| Plugin | Purpose |
 |---|---|
-| `sda-flutter` | Flutter / Dart / BLoC |
-| `sda-ios-swift` | iOS / Swift / UIKit |
-| `sda-android-kotlin` | Android / Kotlin |
-| `sda-web-nextjs` | Web / Next.js 15 |
+| `sda-flutter` | Flutter / Dart / BLoC — agents, skills, hooks |
+| `sda-ios-swift` | iOS / Swift / UIKit — agents, skills, hooks |
+| `sda-android-kotlin` | Android / Kotlin — agents, skills, hooks |
+| `sda-web-nextjs` | Web / Next.js 15 — agents, skills, hooks |
+| `sda-kms` | KMS MCP server — knowledge store shared by all platforms |
+
+> Install both a platform plugin and `sda-kms`. The platform plugin provides agents and skills; `sda-kms` serves the knowledge queries those agents rely on.
 
 The script installs at **project scope** — active only in this repo. Then run `/reload-plugins` in Claude Code to activate.
 
@@ -51,60 +54,24 @@ Commit two files — teammates get the full setup automatically on first session
     }
   },
   "enabledPlugins": {
-    "sda-flutter@sda": true
+    "sda-flutter@sda": true,
+    "sda-kms@sda": true
   }
 }
 ```
 
-Replace `sda-flutter` with the plugin matching your platform.
+Replace `sda-flutter` with the plugin matching your platform. `sda-kms` is the same for all platforms.
 
 #### Step 2 — `.mcp.json` (KMS)
 
-Wires the KMS MCP server so agents can query the knowledge store.
+Wires the KMS MCP server. The same config works for all platforms — it always points to `sda-kms`.
 
-**Flutter:**
 ```json
 {
   "mcpServers": {
     "kms": {
       "command": "bash",
-      "args": ["-c", "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-flutter\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-flutter/$latest/kms/server.sh\""]
-    }
-  }
-}
-```
-
-**iOS Swift:**
-```json
-{
-  "mcpServers": {
-    "kms": {
-      "command": "bash",
-      "args": ["-c", "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-ios-swift\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-ios-swift/$latest/kms/server.sh\""]
-    }
-  }
-}
-```
-
-**Android Kotlin:**
-```json
-{
-  "mcpServers": {
-    "kms": {
-      "command": "bash",
-      "args": ["-c", "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-android-kotlin\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-android-kotlin/$latest/kms/server.sh\""]
-    }
-  }
-}
-```
-
-**Web Next.js:**
-```json
-{
-  "mcpServers": {
-    "kms": {
-      "command": "bash",
-      "args": ["-c", "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-web-nextjs\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-web-nextjs/$latest/kms/server.sh\""]
+      "args": ["-c", "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-kms\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-kms/$latest/kms/server.sh\""]
     }
   }
 }
