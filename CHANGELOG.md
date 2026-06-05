@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.6.0] — 2026-06-05
+
+### Added
+- **KMS chunk strategy principle** — Principle 10 in `kms-design-principles.md` documents the `##` heading → one ChromaDB node rule and the authoring requirement that distinct topics must have their own `##` heading to be exactly fetchable via `kms_fetch`
+
+### Changed
+- **`android-standard-architecture.md`** — promoted `### Conventions and Naming` from a buried sub-section of `## Project Structure` to a standalone `## Naming Convention` node; topic `naming_convention` is now reachable by exact metadata fetch
+- **`android-_template.md`** — added `## Naming Convention` stub to the canonical Android vocabulary
+
+---
+
 ## [10.5.2] — 2026-06-04
 
 ### Fixed
