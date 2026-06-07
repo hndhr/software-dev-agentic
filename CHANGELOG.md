@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.9.0] — 2026-06-08
+
+### Added
+- **Magic Constants convention** — `kms/knowledge-sources/engineering/{flutter,ios,android}-conventions.md` now document the no-magic-string/number rule: promote shared, domain-meaningful literals to a scoped `Constants` directory/namespace, co-locate file-local ones as `static const`/`private static let`/`companion object const val` (platform-idiomatic), with an exemption list for trivial sentinel values (`0`/`1`/`-1`, bools, empty-string guard checks)
+
+---
+
 ## [10.8.1] — 2026-06-08
 
 ### Fixed
