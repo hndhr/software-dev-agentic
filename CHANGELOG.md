@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.8.0] — 2026-06-08
+
+### Added
+- **Per-platform code convention docs** — `kms/knowledge-sources/engineering/{flutter,ios,android}-conventions.md` documenting null-safety/optional-handling extensions (`.orEmpty()`, `.orZero()`, `.orFalse()`, etc.) and helper extensions, derived from the actual downstream codebases
+- **Universal engineering template** — `engineering/_template.md` stubs the common Clean Architecture `#` sections (Domain, Data, Presentation, DI, Navigation, Error Handling, Testing, Utilities) shared across all platforms
+- **Retrieval Protocol section in `kms-design-principles.md`** — documents when agents should use `kms_list` (TOC discovery), `kms_fetch` (deterministic exact-match for uniform cross-platform topics), or `kms_query` (semantic search)
+
+### Changed
+- **`developer-feature-worker`** — pre-flight now combines `kms_list` + `kms_fetch` + `kms_query`; deterministically fetches the `null_safety_extensions` convention by exact topic instead of relying on `kms_query` ranking it against ~15 competing convention sections. Declared `mcp__kms__kms_list` and `mcp__kms__kms_fetch` in the tool list (kms_list was already being called undeclared)
+- **`ios-standard-architecture.md`** — moved `Null Safety Extensions` and `Helper Extensions` sections (plus a duplicate `Conventions` block) out into `ios-conventions.md`
+
+### Removed
+- **`engineering/{flutter,ios,android}-_template.md`** — redundant with fully populated `{platform}-standard-architecture.md` docs; replaced by the single universal `_template.md`
+
+---
+
 ## [10.7.0] — 2026-06-05
 
 ### Added
