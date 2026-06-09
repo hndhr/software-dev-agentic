@@ -195,6 +195,8 @@ MANIFEST
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 export KMS_DB_PATH="$PLUGIN_ROOT/chroma"
 export PYTHONPATH="$PLUGIN_ROOT"
+export KMS_ENABLE_LOGGING="${KMS_ENABLE_LOGGING:-false}"
+export KMS_LOG_MAX_MB="${KMS_LOG_MAX_MB:-10}"
 
 if ! python3 -c "import chromadb, yaml, mcp" 2>/dev/null; then
   echo "[kms] Installing dependencies (one-time)..." >&2
@@ -223,7 +225,11 @@ LAUNCHER
       "args": [
         "-c",
         "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-kms\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-kms/$latest/kms/server.sh\""
-      ]
+      ],
+      "env": {
+        "KMS_ENABLE_LOGGING": "false",
+        "KMS_LOG_MAX_MB": "10"
+      }
     }
   }
 }

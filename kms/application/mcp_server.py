@@ -3,10 +3,18 @@ KMS MCP server — exposes kms_list, kms_fetch, kms_query, kms_upsert.
 
 Run:
   KMS_DB_PATH=/path/to/chroma python -m kms.application.mcp_server
+
+Logging (opt-in):
+  KMS_ENABLE_LOGGING=true   enable JSONL usage log
+  KMS_LOG_PATH=<path>       log file path (default: <db_parent>/logs/kms-usage.jsonl)
+  KMS_LOG_MAX_MB=<n>        rotate when log exceeds this size in MB (default: 10)
 """
 from __future__ import annotations
+import json
 import os
 import sys
+import time
+from datetime import datetime, timezone
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
@@ -24,6 +32,36 @@ from kms.domain.entities import KnowledgeNode
 _db_path = os.environ.get("KMS_DB_PATH", os.path.join(os.path.dirname(__file__), "..", "db"))
 _db_path_abs = os.path.abspath(_db_path)
 _repo = ChromaKnowledgeRepository(db_path=_db_path_abs)
+
+# --- Usage logger ---
+_enable_logging = os.environ.get("KMS_ENABLE_LOGGING", "false").lower() == "true"
+_log_max_bytes = float(os.environ.get("KMS_LOG_MAX_MB", "10")) * 1024 * 1024
+_log_path = os.path.abspath(
+    os.environ.get(
+        "KMS_LOG_PATH",
+        os.path.join(os.path.dirname(_db_path_abs), "logs", "kms-usage.jsonl"),
+    )
+)
+
+
+def _log(tool: str, inputs: dict, result_count: int, latency_ms: float) -> None:
+    if not _enable_logging:
+        return
+    try:
+        os.makedirs(os.path.dirname(_log_path), exist_ok=True)
+        if os.path.isfile(_log_path) and os.path.getsize(_log_path) > _log_max_bytes:
+            os.replace(_log_path, _log_path + ".old")
+        entry = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "tool": tool,
+            "inputs": inputs,
+            "result_count": result_count,
+            "latency_ms": round(latency_ms, 2),
+        }
+        with open(_log_path, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except Exception:
+        pass
 
 _list_uc = ListKnowledge(_repo)
 _fetch_uc = FetchKnowledge(_repo)
@@ -82,7 +120,9 @@ def kms_list(
     when (discipline, topic, pattern) collides.
     Use this as Step 0 before kms_fetch — reason over the TOC to decide what to fetch.
     """
+    t0 = time.monotonic()
     nodes = _list_uc.execute(platform=platform, project=project, discipline=discipline, topic=topic)
+    _log("kms_list", {"platform": platform, "project": project, "discipline": discipline, "topic": topic}, len(nodes), (time.monotonic() - t0) * 1000)
     return [
         {
             "id":         n.id,
@@ -111,6 +151,7 @@ def kms_fetch(
     Applies cascade resolution: project-specific → platform-base → universal.
     Returns None if no node matches anywhere in the cascade.
     """
+    t0 = time.monotonic()
     node = _fetch_uc.execute(
         discipline=discipline,
         topic=topic,
@@ -118,6 +159,7 @@ def kms_fetch(
         platform=platform,
         project=project,
     )
+    _log("kms_fetch", {"discipline": discipline, "topic": topic, "pattern": pattern, "platform": platform, "project": project}, 1 if node else 0, (time.monotonic() - t0) * 1000)
     if node is None:
         return None
     return {
@@ -154,7 +196,9 @@ def kms_query(
     if discipline:
         where["discipline"] = discipline
 
+    t0 = time.monotonic()
     nodes = _query_uc.execute(text=text, where=where or None, n_results=n_results)
+    _log("kms_query", {"text": text, "platform": platform, "discipline": discipline, "n_results": n_results}, len(nodes), (time.monotonic() - t0) * 1000)
     return [
         {
             "id":         n.id,
@@ -199,7 +243,9 @@ def kms_upsert(
         source_file=source_file,
         updated_at=updated_at or date.today().isoformat(),
     )
+    t0 = time.monotonic()
     _upsert_uc.execute(node)
+    _log("kms_upsert", {"platform": platform, "project": project, "discipline": discipline, "topic": topic, "pattern": pattern}, 1, (time.monotonic() - t0) * 1000)
     return {"id": node.id, "status": "ok"}
 
 
