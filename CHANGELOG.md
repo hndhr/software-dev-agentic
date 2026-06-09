@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.11.2] — 2026-06-10
+
+### Fixed
+- **KMS stale server processes** — `server.sh` now kills any running `kms.application.mcp_server` processes that don't belong to the current plugin version on startup. Prevents zombie processes from older versions accumulating across Claude Code restarts and serving stale (pre-logging) code.
+
+---
+
 ## [10.11.1] — 2026-06-10
 
 ### Fixed
