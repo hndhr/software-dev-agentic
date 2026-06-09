@@ -282,9 +282,11 @@ else
   build_platform "$PLATFORM"
 fi
 
+git -C "$SUBMODULE" add "$SUBMODULE/.claude-plugin/marketplace.json" 2>/dev/null || true
+
 echo ""
 echo "Done. Version: $VERSION"
 echo ""
 echo "Next steps:"
 echo "  Test locally:  claude --plugin-dir dist/plugins/<platform>"
-echo "  Distribute:    git add dist/plugins/ && git commit -m 'chore(plugin): build $VERSION'"
+echo "  Distribute:    git add dist/plugins/ .claude-plugin/marketplace.json && git commit -m 'chore(plugin): build $VERSION'"
