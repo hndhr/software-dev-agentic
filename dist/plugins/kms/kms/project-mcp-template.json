@@ -5,7 +5,11 @@
       "args": [
         "-c",
         "latest=$(ls -v \"$HOME/.claude/plugins/cache/sda/sda-kms\" 2>/dev/null | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-kms/$latest/kms/server.sh\""
-      ]
+      ],
+      "env": {
+        "KMS_ENABLE_LOGGING": "false",
+        "KMS_LOG_MAX_MB": "10"
+      }
     }
   }
 }
