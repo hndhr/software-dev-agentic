@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [10.10.0] — 2026-06-09
+
+### Changed
+- **Tracker persona merged into developer** — `tracker-issue-worker`, `tracker-jira-ticket-worker`, and skills `tracker-{issue,jira-ticket,adjust-ticket}` renamed to `developer-{issue-worker,jira-ticket-worker}` and `developer-{issue,jira-ticket,adjust-ticket}`. All cross-references updated. Tracker had no independent domain — issue lifecycle, Jira ticket creation, and session adjustment are all bookends of the developer workflow.
+
+### Added
+- **`## Bugs` section in `developer-adjust-ticket`** — optional checklist section in Session Adjustment for bugs found during a session
+
+---
+
 ## [10.9.0] — 2026-06-08
 
 ### Added
