@@ -1,6 +1,6 @@
 # software-dev-agentic
 
-> Claude Code toolkit for Clean Architecture projects — v10.4.0
+> Claude Code toolkit for Clean Architecture projects — v10.12.0
 
 A multi-platform agentic toolkit — agents, skills, hooks, and architecture reference docs for Clean Architecture projects. Distributed as a **Claude Code plugin**.
 
@@ -38,48 +38,13 @@ Replace `flutter` with your platform. Available platforms:
 
 > Install both a platform plugin and `sda-kms`. The platform plugin provides agents and skills; `sda-kms` serves the knowledge queries those agents rely on.
 
-### Personal setup (no commits required)
+### Configure
 
-The recommended approach — everything lives in gitignored or user-level files.
+Two files are required.
 
-#### Step 1 — Platform plugin in `.claude/settings.local.json`
+#### `~/.claude/settings.json` (user scope, once)
 
-`.claude/settings.local.json` is gitignored by convention — add `enabledPlugins` here so the platform plugin activates only in this project without touching any committed file.
-
-```json
-{
-  "enabledPlugins": {
-    "sda-flutter@sda": true
-  }
-}
-```
-
-Replace `sda-flutter` with the plugin matching your platform.
-
-#### Step 2 — `sda-kms` at user scope (once, machine-wide)
-
-`sda-kms` is shared across all platforms — install it once at user scope and it's available in every project:
-
-```bash
-claude plugin enable sda-kms@sda --scope user
-```
-
-#### Step 3 — KMS MCP at user scope (once, machine-wide)
-
-Register the KMS MCP server once and it applies globally:
-
-```bash
-claude mcp add kms --scope user bash -- -c \
-  'latest=$(ls "$HOME/.claude/plugins/cache/sda/sda-kms" 2>/dev/null | sort -t. -k1,1n -k2,2n -k3,3n | tail -1) && exec bash "$HOME/.claude/plugins/cache/sda/sda-kms/$latest/kms/server.sh"'
-```
-
-Restart Claude Code to activate. Verify with `/kms-status`.
-
-### Auto-install for teammates
-
-Commit two files — teammates get the full setup automatically on first session.
-
-#### Step 1 — `.claude/settings.json`
+Register the marketplace and `sda-kms` once — applies to every project on this machine:
 
 ```json
 {
@@ -89,16 +54,12 @@ Commit two files — teammates get the full setup automatically on first session
     }
   },
   "enabledPlugins": {
-    "sda-flutter@sda": true
+    "sda-kms@sda": true
   }
 }
 ```
 
-Replace `sda-flutter` with the plugin matching your platform. `sda-kms` is installed at user scope (not per-project) — see the Personal setup section above.
-
-#### Step 2 — `.mcp.json` (KMS)
-
-Wires the KMS MCP server. The same config works for all platforms — it always points to `sda-kms`.
+Then register the KMS MCP server at user scope (`~/.claude/.mcp.json`) so it applies globally:
 
 ```json
 {
@@ -111,7 +72,21 @@ Wires the KMS MCP server. The same config works for all platforms — it always 
 }
 ```
 
-Commit `.mcp.json` so teammates get the KMS wiring automatically. Verify with `/kms-status` after Claude Code restarts.
+#### `.claude/settings.json` or `.claude/settings.local.json` (project scope)
+
+Enable the platform plugin per project. Use `.claude/settings.json` to share with the team, or `.claude/settings.local.json` (gitignored) for personal-only:
+
+```json
+{
+  "enabledPlugins": {
+    "sda-flutter@sda": true
+  }
+}
+```
+
+Replace `sda-flutter` with the plugin matching your platform.
+
+Restart Claude Code to activate. Verify with `/kms-status`.
 
 ### Seed project knowledge
 
