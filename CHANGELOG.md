@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [11.0.1] — 2026-06-10
+
+### Added
+- `sda.json` projects now have `kms_id` (matching `kms/knowledge-sources/projects/` directory names) and optional `platform` hint
+- `sda-status` reports active KMS MCP server version vs latest cached on disk; flags `⚠ stale session` if they differ
+
+### Changed
+- `install-plugin.sh` resolves project `kms_id` from `sda.json` and writes it to `SDA_PROJECT` in `settings.local.json`
+
+---
+
 ## [11.0.0] — 2026-06-10
 
 ### Added
