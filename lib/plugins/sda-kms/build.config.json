@@ -1,0 +1,7 @@
+{
+  "name": "sda-kms",
+  "description": "KMS knowledge MCP server for Clean Architecture projects",
+  "include": {
+    "kms": ["kms/"]
+  }
+}
