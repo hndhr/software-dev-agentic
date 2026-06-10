@@ -34,6 +34,17 @@ claude plugin list 2>/dev/null | grep sda || true
 
 Check for `sda-core` and `sda-kms` in the output. Note versions.
 
+Also detect the active KMS server path and its version:
+
+```bash
+# Resolve which sda-kms version the MCP server is actually running from
+cat .mcp.json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('mcpServers',{}).get('kms',{}).get('args',[''])[1])" 2>/dev/null || true
+# Find the latest cached version on disk
+ls ~/.claude/plugins/cache/sda/sda-kms/ 2>/dev/null | sort -t. -k1,1n -k2,2n -k3,3n | tail -1
+```
+
+The MCP server may be running a different version than what `claude plugin list` reports if the session was not restarted after an update. Flag a mismatch.
+
 ## Step 3 — KMS connectivity
 
 Call `kms_info()`. If the tool is unavailable or the call fails → KMS is OFFLINE.
@@ -77,6 +88,9 @@ Plugins
 ───────────────────────────────────────────────────────
 sda-core   {version | ✗ not installed}
 sda-kms    {version | ✗ not installed}
+  MCP server  running from: ~/.claude/plugins/cache/sda/sda-kms/{active-version}/
+              latest on disk: {latest-version}
+              ⚠ stale session: MCP is {active-version} but latest is {latest-version} — restart Claude Code  ← only if mismatch
 
 KMS: {ONLINE | OFFLINE}
 ───────────────────────────────────────────────────────
@@ -102,6 +116,7 @@ Project snapshot — {PROJECT}
 **Flags:**
 - `⚠ conflict` — env var and CLAUDE.md disagree; env var takes precedence
 - `⚠ not installed` — plugin missing; run `install-plugin.sh`
+- `⚠ stale session` — MCP server is running an older sda-kms version; restart Claude Code to pick up the latest
 - `⚠ 0 nodes` on project-scoped probe — run `/kms-seed`
 - `⚠ empty body` — node seeded but no content; rebuild plugin
 
