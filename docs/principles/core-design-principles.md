@@ -474,7 +474,7 @@ Requirements:
 - Agents within the group relate to and can depend on each other
 - Requires a `.pkg` file for selective installation
 
-Shared to all downstream projects via symlink. Current personas: `developer`, `debugger`, `tracker`, `auditor`, `installer`.
+Shared to all downstream projects via symlink. Current personas: `developer`, `debugger`, `tracker`, `auditor`.
 
 **Persona → SDLC role mapping:**
 

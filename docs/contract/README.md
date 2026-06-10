@@ -10,7 +10,6 @@ Contracts that define the base spec for platform resources. Each file specifies 
 | `builder-skill-contract.md` | Builder | Required contract skills for `feature-worker` and `test-worker` |
 | `detective-skill-contract.md` | Detective | Required contract skills for `debug-log-worker` |
 | `auditor-skill-contract.md` | Auditor | Required contract skills for `arch-review-worker` |
-| `installer-skill-contract.md` | Installer | Required contract skills for `setup-worker` |
 
 ---
 

@@ -1,50 +1,52 @@
 # software-dev-agentic
 
-> Claude Code toolkit for Clean Architecture projects — v10.12.0
+> Claude Code toolkit for Clean Architecture projects
 
-A multi-platform agentic toolkit — agents, skills, hooks, and architecture reference docs for Clean Architecture projects. Distributed as a **Claude Code plugin**.
+A multi-platform agentic toolkit — agents, skills, and architecture knowledge for Clean Architecture projects. Distributed as **Claude Code plugins**.
 
-**Platforms:** Flutter · iOS (Swift/UIKit) · Android (Kotlin) · Web (Next.js 15)
+**Platforms:** Flutter · iOS (Swift/UIKit) · Android (Kotlin) · Web (Next.js)
 
 ---
 
 ## How it works
 
-Agents are organized into **personas** — coherent workflow groups (developer, debugger, tracker, auditor, installer, qa). All personas ship to every platform plugin.
+Agents are organized into **personas** — coherent workflow groups (developer, debugger, tracker, auditor, qa). All personas ship in a single `sda-core` plugin.
 
-Knowledge is served by the **KMS** (ChromaDB-backed) — agents query `kms_list` → reason → `kms_fetch` at runtime. Project-specific context (feature inventory, deviations, API endpoints) is seeded per project via `/kms-seed`. Platform pattern knowledge (layers, conventions, patterns) ships pre-seeded inside the plugin.
+Platform-specific knowledge lives in the **KMS** (ChromaDB-backed MCP server, `sda-kms`). Agents query `kms_list` → `kms_query` at runtime, scoped to the project's platform. Project-specific context (feature inventory, deviations, API endpoints) is seeded per project via `/kms-seed`.
+
+Platform is declared once in `settings.local.json` (`SDA_PLATFORM`) and cross-checked against `CLAUDE.md`. Agents resolve it automatically — no per-platform plugin needed.
 
 ---
 
-## Setup — Plugin
+## Setup
 
-### Install
+### 1. Install
 
 From inside the downstream project directory:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/hndhr/software-dev-agentic/main/scripts/install-plugin.sh | bash -s -- --platform=flutter
+curl -fsSL https://raw.githubusercontent.com/hndhr/software-dev-agentic/main/scripts/install-plugin.sh | bash -s -- --platform=<id>
 ```
 
-Replace `flutter` with your platform. Available platforms:
+Available platforms:
 
-| Plugin | Purpose |
-|---|---|
-| `sda-flutter` | Flutter / Dart / BLoC — agents, skills, hooks |
-| `sda-ios-swift` | iOS / Swift / UIKit — agents, skills, hooks |
-| `sda-android-kotlin` | Android / Kotlin — agents, skills, hooks |
-| `sda-web-nextjs` | Web / Next.js 15 — agents, skills, hooks |
-| `sda-kms` | KMS MCP server — knowledge store shared by all platforms |
+| `--platform` | KMS id | Stack |
+|---|---|---|
+| `flutter` | `flutter` | Flutter / Dart / BLoC |
+| `ios-swift` | `ios` | iOS / Swift / UIKit |
+| `android-kotlin` | `android` | Android / Kotlin |
+| `web-nextjs` | `web` | Web / Next.js |
 
-> Install both a platform plugin and `sda-kms`. The platform plugin provides agents and skills; `sda-kms` serves the knowledge queries those agents rely on.
+The installer:
+- Adds the `sda` marketplace and installs `sda-core` + `sda-kms` at project scope
+- Writes `SDA_PLATFORM=<kms_id>` to `.claude/settings.local.json` (gitignored)
+- Writes `**Platform:** <id>` to the managed section of `CLAUDE.md`
+- Patches `.mcp.json` with the KMS server entry
+- Adds `.claude/agentic-state/` to `.gitignore`
 
-### Configure
+### 2. Register marketplace at user scope (once per machine)
 
-Two files are required.
-
-#### `~/.claude/settings.json` (user scope, once)
-
-Register the marketplace and `sda-kms` once — applies to every project on this machine:
+In `~/.claude/settings.json`:
 
 ```json
 {
@@ -52,45 +54,17 @@ Register the marketplace and `sda-kms` once — applies to every project on this
     "sda": {
       "source": { "source": "github", "repo": "hndhr/software-dev-agentic" }
     }
-  },
-  "enabledPlugins": {
-    "sda-kms@sda": true
   }
 }
 ```
 
-Then register the KMS MCP server at user scope (`~/.claude/.mcp.json`) so it applies globally:
+### 3. Activate
 
-```json
-{
-  "mcpServers": {
-    "kms": {
-      "command": "bash",
-      "args": ["-c", "latest=$(ls \"$HOME/.claude/plugins/cache/sda/sda-kms\" 2>/dev/null | sort -t. -k1,1n -k2,2n -k3,3n | tail -1) && exec bash \"$HOME/.claude/plugins/cache/sda/sda-kms/$latest/kms/server.sh\""]
-    }
-  }
-}
-```
+Run `/reload-plugins` in Claude Code, then verify with `/sda-status`.
 
-#### `.claude/settings.json` or `.claude/settings.local.json` (project scope)
+### 4. Seed project knowledge
 
-Enable the platform plugin per project. Use `.claude/settings.json` to share with the team, or `.claude/settings.local.json` (gitignored) for personal-only:
-
-```json
-{
-  "enabledPlugins": {
-    "sda-flutter@sda": true
-  }
-}
-```
-
-Replace `sda-flutter` with the plugin matching your platform.
-
-Restart Claude Code to activate. Verify with `/kms-status`.
-
-### Seed project knowledge
-
-The plugin ships with platform-level patterns pre-seeded. To add your project's specific knowledge (feature inventory, API endpoints, deviations):
+The plugin ships with platform-level patterns pre-seeded. Add your project's specific knowledge:
 
 ```bash
 /kms-seed
@@ -118,9 +92,9 @@ Or extract directly from the codebase:
 
 | Agent | Purpose |
 |---|---|
-| `developer-feature-strategist` | Brain of the developer persona — decides which layer planners to spawn, synthesizes plan.md + context.md. Never spawns agents or writes files directly. |
+| `developer-feature-strategist` | Brain of the developer persona — decides which layer planners to spawn, synthesizes plan.md + context.md |
 | `developer-feature-worker` | Execute an approved feature plan layer by layer |
-| `developer-backend-worker` | Build Domain + Data layers directly — entities, use cases, mappers, datasources, repository impls |
+| `developer-backend-worker` | Build Domain + Data layers directly |
 | `developer-ui-worker` | Create or update screens and components bound to an existing StateHolder |
 | `developer-test-worker` | Route test generation to the correct layer procedure |
 | `developer-domain-planner` | Discover Domain layer — entities, use cases, repository interfaces. Read-only. |
@@ -159,12 +133,6 @@ Or extract directly from the codebase:
 | `qa-testcase-worker` | Generate mobile UI test cases from Jira tickets, PRDs, or Figma designs |
 | `qa-automation-worker` | Translate test case CSVs into Maestro YAML automation scripts |
 
-**installer** — project setup
-
-| Agent | Purpose |
-|---|---|
-| `installer-setup-worker` | Detect platform, scaffold the project, guide initial onboarding |
-
 ---
 
 ### Skills — by persona
@@ -175,7 +143,7 @@ Or extract directly from the codebase:
 |---|---|
 | `/developer-build-feature` | Build or resume a feature — plan-first or build-directly |
 | `/developer-plan-feature` | Run convergence planning loop, show approval, then execute |
-| `/developer-build-from-ticket` | One-shot build from a Jira ticket — non-interactive, designed for CI |
+| `/developer-build-from-ticket` | One-shot build from a Jira ticket — non-interactive |
 | `/developer-backend` | Build Domain + Data layers only |
 | `/developer-rfc` | Write RFC + breakdown from a Jira epic |
 | `/developer-groom-ticket` | Groom a locally fetched Jira ticket against the codebase |
@@ -208,20 +176,12 @@ Or extract directly from the codebase:
 | `/qa-generate-testcase` | Generate mobile UI test cases from Jira, Confluence, or Figma |
 | `/qa-generate-automation` | Generate Maestro YAML automation scripts from test case CSVs |
 
-**installer**
-
-| Skill | Purpose |
-|---|---|
-| `/installer-setup` | Set up or reconfigure a project to use this toolkit |
-| `/installer-doctor` | Audit the toolkit setup — plugin, KMS, CLAUDE.md, settings, gh auth |
-| `/installer-sync` | Pull the latest updates and re-link agents and skills |
-| `/installer-update` | Sync to latest then verify the full installation end-to-end |
-
 **utility**
 
 | Skill | Purpose |
 |---|---|
-| `/kms-status` | Check KMS server health, ChromaDB node count, and knowledge coverage |
+| `/installer-doctor` | Audit the plugin setup — plugin, KMS, CLAUDE.md, settings, gh auth |
+| `/sda-status` | Full SDA health check — platform, project, plugin versions, KMS connectivity, knowledge coverage |
 | `/kms-seed` | Seed ChromaDB from registered knowledge sources |
 | `/kms-extract-codebase` | Scan a local project repo and extract project-reality docs into KMS |
 | `/agentic-perf-review` | Score a Claude session on D1–D7 dimensions, write a report |
@@ -248,11 +208,7 @@ prd_source: https://yourcompany.atlassian.net/wiki/spaces/ENG/pages/123456789/Fe
 breakdown:
 - [ADR] [UI+API] Show location marker on map: 2 days
 - [iOS] [UI+API] Show location marker on map: 2 days
-- [ADR] [UI] Show location accuracy perimeter: 1 day
-- [iOS] [UI] Show location accuracy perimeter: 1 day
 ```
-
-The worker parses the breakdown, fetches the PRD, generates structured Jira descriptions, shows a preview table, and creates all tickets under the epic.
 
 #### 1b — Update Ticket Progress
 
@@ -261,9 +217,6 @@ Session update:
 
 Work items completed:
 - Migrated GetLocationListUseCase to new datasource pattern
-
-Decisions:
-- Replaced old caching layer entirely
 
 /tracker-adjust-ticket path/to/TICKET-123.md
 ```
@@ -281,7 +234,6 @@ We have some things to address:
 
 1. Cache mechanism in Connection.swift — keep, improve, or replace?
 2. Some APIs still use the old pattern — need migration
-3. Force call bypassing TTL — pass force: Bool from presentation to data layer
 
 /developer-groom-ticket path/to/TICKET-123.md
 ```
@@ -295,8 +247,6 @@ Let's work on the work items in this ticket.
 
 /developer-plan-feature path/to/TICKET-123.md
 ```
-
-Claude reads the groomed ticket, runs the convergence planning loop, presents a plan for approval, then executes layer by layer — Domain → Data → Presentation → UI.
 
 **Step 5 — Update ticket progress**
 
@@ -325,15 +275,34 @@ Presentation  →  Domain  ←  Data
 | Android | Kotlin | Presenter |
 | Web | TypeScript | Custom hooks |
 
-Platform pattern knowledge lives in `lib/core/knowledge/` (fallback) and ChromaDB (primary via KMS MCP).
+Platform pattern knowledge lives in ChromaDB (primary via KMS MCP). Agents always query with `platform=$SDA_PLATFORM`.
+
+---
+
+## Repo structure
+
+```
+lib/
+  core/
+    agents/       ← all persona agents (flat in plugin)
+    skills/       ← all skills (flat in plugin)
+  plugins/
+    sda-core/     ← build.config.json + build.sh
+    sda-kms/      ← build.config.json + build.sh
+kms/              ← ChromaDB MCP server source
+scripts/
+  build-plugin.sh      ← discovers lib/plugins/*/build.sh and runs them
+  install-plugin.sh    ← downstream project setup
+  plugin-lib.sh        ← shared build helpers
+sda.json         ← canonical platform registry (id → kms_id + detection markers)
+```
 
 ---
 
 ## Design docs
 
-- [`docs/principles/core-design-principles.md`](docs/principles/core-design-principles.md) — full architecture, taxonomy, decision rules
+- [`docs/principles/core-design-principles.md`](docs/principles/core-design-principles.md) — architecture, taxonomy, decision rules
 - [`docs/principles/kms-design-principles.md`](docs/principles/kms-design-principles.md) — KMS design, metadata schema, cascade resolution
-- [`docs/principles/submodule-repo-structure.md`](docs/principles/submodule-repo-structure.md) — repo structure and distribution model
 
 ---
 
@@ -341,4 +310,5 @@ Platform pattern knowledge lives in `lib/core/knowledge/` (fallback) and ChromaD
 
 ```gitignore
 .claude/agentic-state/
+.claude/settings.local.json
 ```
