@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [11.0.2] — 2026-06-10
+
+### Fixed
+- `sda-status` project snapshot no longer false-positives `⚠ empty body` on `##`-chunked file-header stub nodes; skips nodes under 100 chars and surfaces real content nodes instead
+
+---
+
 ## [11.0.1] — 2026-06-10
 
 ### Added
