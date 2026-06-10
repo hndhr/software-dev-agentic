@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.0.1] — 2026-06-10
+
+### Changed
+- `KMS_ENABLE_LOGGING` → `CP8_ENABLE_LOGGING`, `KMS_LOG_MAX_MB` → `CP8_LOG_MAX_MB`
+
+### Fixed
+- README: `/cipherpol-status` description still referenced "Full SDA health check"
+
+---
+
 ## [12.0.0] — 2026-06-10
 
 ### Changed
