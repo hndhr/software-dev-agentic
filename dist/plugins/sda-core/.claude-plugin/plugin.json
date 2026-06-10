@@ -1,0 +1,8 @@
+{
+  "name": "sda-core",
+  "description": "developer, debugger, tracker, auditor personas for Clean Architecture projects",
+  "version": "11.0.0",
+  "author": {
+    "name": "Jurnal Engineering"
+  }
+}
