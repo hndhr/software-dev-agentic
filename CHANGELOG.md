@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.0.0] — 2026-06-10
+
+### Changed
+- Rebranded from **software-dev-agentic** to **CipherPol**
+- Marketplace: `sda` → `cipherpol`
+- Plugins: `sda-core` → `cipherpol-aegis` (CP0/Aegis), `sda-kms` → `cipherpol-8` (CP8)
+- Env vars: `SDA_PLATFORM` → `CIPHERPOL_PLATFORM`, `SDA_PROJECT` → `CIPHERPOL_PROJECT`
+- Skill: `sda-status` → `cipherpol-status`
+- Platform registry: `sda.json` → `cipherpol.json`
+
+---
+
 ## [11.0.2] — 2026-06-10
 
 ### Fixed
