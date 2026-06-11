@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.3.3] — 2026-06-12
+
+### Fixed
+- `saturn-descend` skill: ticket ID slug now preserves original casing (`PROJ-123` not `proj-123`)
+
+---
+
 ## [12.3.2] — 2026-06-12
 
 ### Changed
