@@ -21,14 +21,14 @@ If `$ARGUMENTS` contains a `.md` file path → use it directly.
 Otherwise, glob for the feature by name:
 
 ```
-.claude/reference/feature-docs/<name>.md
-.claude/reference/feature-docs/**/<name>.md
+docs/feature-docs/<name>.md
+docs/feature-docs/**/<name>.md
 ```
 
 If not found, glob for all available docs and show the list:
 
 ```
-.claude/reference/feature-docs/**/*.md
+docs/feature-docs/**/*.md
 ```
 
 Ask the user which feature they meant via `AskUserQuestion`.
@@ -58,5 +58,5 @@ Present explanation directly in the conversation. End with a one-line reminder o
 /librarian-explain time-off
 /librarian-explain time-off --aspect=data-flow
 /librarian-explain live-attendance/clock-in-out --for=non-engineer
-/librarian-explain .claude/reference/feature-docs/overtime.md --aspect=gotchas
+/librarian-explain docs/feature-docs/overtime.md --aspect=gotchas
 ```

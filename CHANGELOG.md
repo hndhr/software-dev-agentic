@@ -7,6 +7,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.2.0] — 2026-06-11
+
+### Added
+- `saturn-calamity` persona — opusplan-style plan/build hand-off: `/saturn-calamity` skill routes to `lucci-planner` (opus, explores and writes `plan.md`) for review/approval, then `kaku-worker` (sonnet) executes unattended
+- `lib/core/reference/saturn-calamity/plan-format.md` — `plan.md` schema and section contracts shared by lucci-planner, kaku-worker, and the saturn-calamity skill
+
+### Changed
+- Feature Docs relocated from `lib/core/reference/feature-docs/` to `docs/feature-docs/` — internal-only for now, no longer shipped downstream via submodule; updated `librarian-feature-strategist`, `librarian-explain`, `librarian-generate`, `librarian-merge`, `librarian-scan`, `feature-doc-principles.md`, `kms-design-principles.md`, and `lib/core/reference/README.md` to reference the new path
+
+### Removed
+- 6 stale `docs/initiatives/*.md` docs superseded by current principles docs (app-planner, contract-schema-improvement-backlog, kms-initiative, knowledge-management-example-timeoff, knowledge-management-initiative, worktree-isolation-initiative)
+- Old Feature Doc copies at `lib/core/reference/feature-docs/{overtime,timeoff}.md` (moved to `docs/feature-docs/`)
+
+---
+
 ## [12.1.0] — 2026-06-11
 
 ### Added

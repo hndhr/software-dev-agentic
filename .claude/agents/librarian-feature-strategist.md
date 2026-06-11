@@ -77,7 +77,7 @@ Entry point for `librarian-scan`. Called with: feature name, project root, and r
 
 **Step 1 — Locate existing Feature Doc**
 
-Glob for `<project_root>/.claude/reference/feature-docs/<feature-name>.md` and variants (group subfolder, kebab-case). If found, read it.
+Glob for `<project_root>/docs/feature-docs/<feature-name>.md` and variants (group subfolder, kebab-case). If found, read it.
 
 **Step 2 — Detect pending platforms**
 

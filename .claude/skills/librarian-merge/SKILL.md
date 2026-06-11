@@ -8,7 +8,7 @@ tools: Read, Glob, Bash, AskUserQuestion, Agent
 
 ## Arguments
 
-`$ARGUMENTS` — two or more Feature Doc paths under `.claude/reference/feature-docs/`, space-separated.
+`$ARGUMENTS` — two or more Feature Doc paths under `docs/feature-docs/`, space-separated.
 
 ## Steps
 
@@ -16,7 +16,7 @@ tools: Read, Glob, Bash, AskUserQuestion, Agent
 
 Parse paths from `$ARGUMENTS`. For each path:
 - If the path exists: read it.
-- If not found by exact path, glob under `.claude/reference/feature-docs/` and show matches via `AskUserQuestion`.
+- If not found by exact path, glob under `docs/feature-docs/` and show matches via `AskUserQuestion`.
 
 Require at least 2 docs. If fewer than 2 resolved, stop and tell the user.
 
@@ -24,7 +24,7 @@ Require at least 2 docs. If fewer than 2 resolved, stop and tell the user.
 
 Ask the user:
 - What should the merged Feature Doc be named? (default: suggest the primary feature name)
-- Output path (default: `.claude/reference/feature-docs/<merged-name>.md`)
+- Output path (default: `docs/feature-docs/<merged-name>.md`)
 - What to do with originals after merge: keep in `_archived/` subfolder, or delete.
 
 If the output path already exists, warn and ask: overwrite or pick a new name.
@@ -83,7 +83,7 @@ Write merged draft to the confirmed output path.
 ### 7 — Handle originals
 
 Based on user choice in Step 2:
-- **Archive**: move originals to `.claude/reference/feature-docs/_archived/` (use `Bash` to `mv`).
+- **Archive**: move originals to `docs/feature-docs/_archived/` (use `Bash` to `mv`).
 - **Delete**: delete originals (use `Bash` to `rm`). Confirm before deleting.
 
 Confirm: "Merged Feature Doc written to `<path>`. Originals archived/deleted."

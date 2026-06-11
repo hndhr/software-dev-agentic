@@ -9,7 +9,7 @@ Source of truth: `docs/initiatives/knowledge-management-initiative.md`.
 
 ## What is a Feature Doc
 
-A Feature Doc is a structured Markdown file describing a single sub-feature — its API contracts, data model, architecture, data flow, per-platform artifacts, and known constraints. Feature Docs live at `lib/core/reference/feature-docs/` in the `software-dev-agentic` submodule and ship downstream to all projects via submodule.
+A Feature Doc is a structured Markdown file describing a single sub-feature — its API contracts, data model, architecture, data flow, per-platform artifacts, and known constraints. Feature Docs live at `docs/feature-docs/` in the `software-dev-agentic` repo — internal-only for now, not shipped downstream via submodule.
 
 They are consumed by:
 - `librarian-audit-worker` — validates on every write
@@ -22,11 +22,11 @@ They are consumed by:
 
 | Case | Path |
 |---|---|
-| Standalone sub-feature | `lib/core/reference/feature-docs/<feature-name>.md` |
-| Sub-feature within a group | `lib/core/reference/feature-docs/<group>/<sub-feature>.md` |
-| Feature group article | `lib/core/reference/feature-docs/<group>/_group.md` |
-| Shared screen or component | `lib/core/reference/feature-docs/_shared/<name>.md` |
-| Archived original after merge | `lib/core/reference/feature-docs/_archived/<name>.md` |
+| Standalone sub-feature | `docs/feature-docs/<feature-name>.md` |
+| Sub-feature within a group | `docs/feature-docs/<group>/<sub-feature>.md` |
+| Feature group article | `docs/feature-docs/<group>/_group.md` |
+| Shared screen or component | `docs/feature-docs/_shared/<name>.md` |
+| Archived original after merge | `docs/feature-docs/_archived/<name>.md` |
 
 Filenames use kebab-case. Match the Jira epic/story title where possible (e.g. `time-off.md`, `clock-in-out.md`).
 

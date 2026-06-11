@@ -297,6 +297,6 @@ Three MCP tools serve different retrieval needs. Agents should combine them, not
 
 ## What Does Not Belong Here
 
-- **Feature knowledge** (API contracts, data models, HLD) → Feature KMS (`librarian` persona, `.claude/reference/feature-docs/`)
+- **Feature knowledge** (API contracts, data models, HLD) → Feature KMS (`librarian` persona, `docs/feature-docs/`)
 - **Agent/skill conventions** → `core-design-principles.md`
 - **Raw knowledge documents** (the actual content) → `kms/knowledge-sources/`

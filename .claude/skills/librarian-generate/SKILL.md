@@ -1,6 +1,6 @@
 ---
 name: librarian-generate
-description: Generate a new Feature Doc from a PRD, Confluence URL, or Jira ticket ID. Synthesizes, audits, and writes to .claude/reference/feature-docs/ on approval.
+description: Generate a new Feature Doc from a PRD, Confluence URL, or Jira ticket ID. Synthesizes, audits, and writes to docs/feature-docs/ on approval.
 user-invocable: true
 disable-model-invocation: true
 tools: Read, Glob, Bash, AskUserQuestion, Agent
@@ -29,7 +29,7 @@ mmpa is a personal tool — always fall back gracefully if unavailable. Prompt t
 
 Ask the user to confirm:
 - Feature name (default: derived from PRD title or Jira ticket)
-- Output path (default: `.claude/reference/feature-docs/<kebab-case-name>.md`)
+- Output path (default: `docs/feature-docs/<kebab-case-name>.md`)
 
 If the target path already exists, warn the user and ask: overwrite, or abort.
 
