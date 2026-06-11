@@ -39,9 +39,15 @@ options     : <one option per found plan.md, label = first line of "## Goal" sec
 
 ## Step 1 — New Plan
 
-1. Generate a slug from the user's task description:
+1. Generate a slug — prefer ticket ID from the current branch, fall back to task description:
    ```bash
-   slug=$(echo "<task>" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//;s/-*$//' | cut -c1-50)
+   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+   ticket=$(echo "$branch" | grep -oE '[A-Z]+-[0-9]+' | head -1 | tr '[:upper:]' '[:lower:]')
+   if [ -n "$ticket" ]; then
+     slug="$ticket"
+   else
+     slug=$(echo "<task>" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//;s/-*$//' | cut -c1-50)
+   fi
    run_dir="$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/saturn-descend/$slug"
    mkdir -p "$run_dir"
    ```
