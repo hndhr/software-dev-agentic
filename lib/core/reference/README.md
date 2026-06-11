@@ -45,8 +45,8 @@ lib/core/reference/
     layer-contracts.md   ← artifact types, creation order, invariants per layer
     di-containers.md     ← DI registration patterns (language-agnostic)
     domain-purity.md     ← what must never enter the domain layer
-  saturn-calamity/
-    plan-format.md       ← plan.md schema and section contracts (lucci-planner / kaku-worker / saturn-calamity)
+  saturn-descend/
+    plan-format.md       ← plan.md schema and section contracts (lucci-planner / kaku-worker / saturn-descend)
 
 lib/platforms/<platform>/reference/
   domain.md              ← platform-specific entity/use case patterns
