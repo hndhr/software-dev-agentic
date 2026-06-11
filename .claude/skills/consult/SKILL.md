@@ -2,6 +2,7 @@
 name: consult
 description: Consult on a persona, agent, or skill structure — for adjustments, refactors, goal changes, or design confusion. Invokes agent-consult-worker which reads current state, asks about intent, and delivers a concrete recommendation with a handoff to the right tool.
 user-invocable: true
+disable-model-invocation: true
 tools: Agent
 ---
 

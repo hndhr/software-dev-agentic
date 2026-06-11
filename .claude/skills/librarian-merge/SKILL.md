@@ -2,6 +2,7 @@
 name: librarian-merge
 description: Consolidate two or more Feature Docs into one. Applies section merge strategies, runs audit, presents diff, and writes on approval. Archives originals on request.
 user-invocable: true
+disable-model-invocation: true
 tools: Read, Glob, Bash, AskUserQuestion, Agent
 ---
 

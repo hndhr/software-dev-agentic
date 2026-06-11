@@ -2,6 +2,7 @@
 name: librarian-generate
 description: Generate a new Feature Doc from a PRD, Confluence URL, or Jira ticket ID. Synthesizes, audits, and writes to .claude/reference/feature-docs/ on approval.
 user-invocable: true
+disable-model-invocation: true
 tools: Read, Glob, Bash, AskUserQuestion, Agent
 ---
 

@@ -2,6 +2,7 @@
 name: release
 description: Cut a new release of software-dev-agentic — bumps VERSION, prepends a CHANGELOG entry, commits, tags, rebuilds all plugins, and pushes.
 user-invocable: true
+disable-model-invocation: true
 tools: Read, Edit, Bash
 ---
 

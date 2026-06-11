@@ -2,6 +2,7 @@
 name: generate-platform
 description: Onboard a brand-new platform into the toolkit — scans a downstream repo, generates platform reference impl files, and derives contract skills.
 user-invocable: true
+disable-model-invocation: true
 tools: Agent, Bash
 ---
 

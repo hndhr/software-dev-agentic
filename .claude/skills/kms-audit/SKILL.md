@@ -2,6 +2,7 @@
 name: kms-audit
 description: Audit all files in kms/knowledge-sources/ against kms-knowledge-source-rules.md — validates heading structure, naming conventions, duplicate slugs, and section size before seeding. Reports errors (block seeding) and warnings (degrade retrieval).
 user-invocable: true
+disable-model-invocation: true
 ---
 
 ## What This Does

@@ -2,6 +2,7 @@
 name: sync-platform
 description: Sync one or more existing platform reference impl files and contract skills against a real downstream codebase — diffs sections, gets user approval, then regenerates.
 user-invocable: true
+disable-model-invocation: true
 tools: Agent, Bash
 ---
 

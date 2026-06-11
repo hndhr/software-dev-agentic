@@ -2,6 +2,7 @@
 name: kms-seed
 description: Seed the KMS ChromaDB from one or more knowledge sources. Supports seeding all available sources, a single source, a type filter, or adding and registering a new source in one step.
 user-invocable: true
+disable-model-invocation: true
 allowed-tools: Agent
 ---
 

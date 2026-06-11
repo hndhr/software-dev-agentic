@@ -2,6 +2,7 @@
 name: audit
 description: Audit structural integrity and convention compliance of a persona, agent, or skill. Runs agent-audit-worker and arch-review-worker in parallel, then compiles results.
 user-invocable: true
+disable-model-invocation: true
 tools: Agent, AskUserQuestion
 ---
 

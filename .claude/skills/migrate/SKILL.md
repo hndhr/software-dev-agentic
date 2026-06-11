@@ -2,6 +2,7 @@
 name: migrate
 description: Migrate an existing agent or skill file to comply with software-dev-agentic conventions. Runs agent-migrate-worker then verifies the fix with arch-review-worker.
 user-invocable: true
+disable-model-invocation: true
 tools: Agent
 ---
 

@@ -2,6 +2,7 @@
 name: kms-extract-codebase
 description: Scan a local project codebase and extract project-reality knowledge into kms/knowledge-sources/projects/{repo-name}/. Produces feature inventory, API endpoints, shared components, deviations, and third-party integrations docs.
 user-invocable: true
+disable-model-invocation: true
 allowed-tools: Agent
 ---
 

@@ -2,6 +2,7 @@
 name: sync-principles
 description: Sync internal agents and skills after core-design-principles.md is updated — diffs the principles doc, collects internal files, and spawns principles-sync-worker to apply targeted updates.
 user-invocable: true
+disable-model-invocation: true
 tools: Bash, Glob, Agent
 ---
 
