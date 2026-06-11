@@ -14,6 +14,8 @@ This skill is a pure router. Its only permitted direct operations:
 - `AskUserQuestion` — resume routing and the approval gate
 - `Agent` — spawning `lucci-planner` and `kaku-worker`
 
+**`lucci-planner` and `kaku-worker` are agents — always spawn via the `Agent` tool. Never use the `Skill` tool for them.**
+
 Never explore the codebase, read source files, or write code directly — all of that is delegated to `lucci-planner` / `kaku-worker`.
 
 ## Preflight — Detect Existing Runs
@@ -59,7 +61,7 @@ options     : <one option per found plan.md, label = first line of "## Goal" sec
 
 1. `Read` `<run_dir>/plan.md` and show its full content to the user.
 
-2. **If `## Open Questions` is present** — the planner couldn't proceed confidently on its own. Ask the user about each item directly (conversationally, or `AskUserQuestion` if they're discrete choices) before offering the approval gate. Once answered, spawn `lucci-planner`:
+2. **If `## Open Questions` is present** — the planner couldn't proceed confidently on its own. **Do NOT resolve open questions yourself by reading source files or making assumptions — that violates the routing contract.** Ask the user about each item directly (conversationally, or `AskUserQuestion` if they're discrete choices) before offering the approval gate. Once answered, spawn `lucci-planner`:
    ```
    mode: revise
    run_dir: <run_dir>
@@ -92,6 +94,8 @@ options     : <one option per found plan.md, label = first line of "## Goal" sec
    - **Cancel** → tell the user the plan is saved at `<run_dir>/plan.md` and can be resumed by re-running `/saturn-descend`. Stop.
 
 ## Step 3 — Build
+
+**NEVER spawn `kaku-worker` without an explicit `Approve` selection from the user via `AskUserQuestion` in Step 2. Resolving open questions yourself is not approval.**
 
 Spawn `kaku-worker`:
 
