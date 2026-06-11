@@ -7,6 +7,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.3.1] — 2026-06-12
+
+### Fixed
+- `saturn-descend` skill: model was invoking `lucci-planner` via `Skill` tool instead of `Agent` — added explicit guard in Routing Contract
+- `saturn-descend` skill: model was self-resolving open questions by reading source files, then skipping the approval gate and spawning `kaku-worker` directly — added prohibition on self-resolution and hard `NEVER` gate before Step 3
+
+---
+
 ## [12.3.0] — 2026-06-12
 
 ### Changed
