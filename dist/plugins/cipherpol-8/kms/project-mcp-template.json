@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "kms": {
+    "cp8": {
       "command": "bash",
       "args": [
         "-c",
