@@ -28,7 +28,7 @@ Five building blocks compose every agentic workflow. Each has one defined job �
 | Component | Role | One-line rule |
 |---|---|---|
 | **Reference** | The Knowledge | Persistent facts — patterns, contracts, conventions. Loaded via KMS tools (`kms_list` → `kms_query`). Agents fall back to minimal codebase exploration when KMS is unavailable. Never embedded in agents or skills. |
-| **Skill** | The Hands | Procedural instructions that run in the caller's session. Type O owns the entry workflow; Type P is a thin create-step called by agents. |
+| **Skill** | The Hands | Procedural instructions that run in the caller's session. Type O (Orchestrator) is the user-facing entry tier of the agentic stack; Type P (Procedure) is the action tier called by agents. |
 | **Agent** | The Brain | Isolated reasoning in its own context window. Handles ambiguity, makes decisions, returns structured output to the caller. |
 | **MCP** | The Reach | Structured tool calls into external systems — Jira, Figma, IDE, build tools. Agents call MCP tools directly; no copy-paste relay. |
 | **Hooks** | The Automation | Shell commands that fire on lifecycle events with no model involvement. For logic that must always run regardless of agent decisions. |
@@ -244,7 +244,7 @@ Extension files contain only the delta — not a full copy. Updates to the submo
 
 Reference docs are override-only (no extension mechanism). Pattern knowledge lives in `kms/knowledge-sources/` — agents load it via `kms_list` → `kms_query`; the structure is the contract, not grep offsets.
 
-> Naming conventions, component types, and orchestrator design checklist: see [agentic-conventions.md](agentic-conventions.md).
+> Agentic stack model, component types, naming conventions, and orchestrator design checklist: see [agentic-conventions.md](agentic-conventions.md).
 
 ---
 

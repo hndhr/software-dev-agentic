@@ -5,6 +5,37 @@ Component types, naming conventions, authoring rules, and decision rules for con
 
 ---
 
+## The Agentic Stack
+
+The agentic stack is the governing execution model for every persona in this system.
+
+```
+User
+ │
+ ▼
+Orchestrator Skill (Type O)   ← user-facing entry; routes, pre-loads context, spawns agents
+ │
+ ▼
+Agent(s)                      ← reasoning layer; strategist / planner / worker
+ │
+ ▼
+Procedure Skill(s) (Type P)   ← implementation unit; called by agents, never by users
+```
+
+| Tier | Component | Role |
+|---|---|---|
+| **Entry** | Orchestrator Skill (Type O) | User-facing. Routes (resume vs new), pre-loads context, spawns agents, owns convergence loop and approval gate. |
+| **Execution** | Agent (strategist / planner / worker) | Reasoning layer. Decides what to do; calls Procedure Skills for platform-specific artifact creation. |
+| **Action** | Procedure Skill (Type P) | Implementation unit. One artifact type per skill. Called by agents only; contains no routing or decision logic. |
+
+Both ends of the stack are Skills. The agent is the reasoning layer sandwiched between them — it cannot be invoked by a user and has no implementation logic of its own.
+
+Not every persona uses all three tiers. Simple workflows may have only an Orchestrator Skill and a worker with no Procedure Skills. The stack scales down; it does not impose layers that don't serve the workflow.
+
+The sections below define each component in detail.
+
+---
+
 ## Component Types
 
 ### Persona
