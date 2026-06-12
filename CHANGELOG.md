@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.7.0] — 2026-06-12
+
+### Changed
+- `agentic-taxonomy.md` merged into `agentic-conventions.md` — component types (Persona, Agent, Skill, Reference Doc) now live as the opening section of conventions; taxonomy file removed
+- `kms-design-principles.md` split into three focused docs: `kms-design-principles.md` (goals + core principles + architecture), `kms-conventions.md` (path conventions, chunk strategy, metadata schema, discipline vocab, retrieval protocol), `kms-seeding.md` (source registration, incremental hash, skip-on-unavailable, seeding architecture, agentic workflow)
+- All agent and skill `§Retrieval Protocol` references updated to point to `kms-conventions.md`
+
+---
+
 ## [12.6.2] — 2026-06-12
 
 ### Changed
