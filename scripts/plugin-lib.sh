@@ -23,11 +23,15 @@ for p in d.get('include', {}).get('$1', []):
 # ── Standard include processors ───────────────────────────────────────────────
 
 # Copy all .md files matching include.agents patterns — flattened into out/agents/
+# Patterns may contain shell globs (e.g. lib/core/*/agents) — unquoted expansion handles them.
 copy_agents() {
   mkdir -p "$out/agents"
   while IFS= read -r pattern; do
-    find "$SUBMODULE/$pattern" -name "*.md" -type f 2>/dev/null | while read -r src; do
-      cp "$src" "$out/agents/$(basename "$src")"
+    for dir in $SUBMODULE/$pattern; do
+      [ -d "$dir" ] || continue
+      find "$dir" -name "*.md" -type f 2>/dev/null | while read -r src; do
+        cp "$src" "$out/agents/$(basename "$src")"
+      done
     done
   done < <(config_include "agents")
   local count
