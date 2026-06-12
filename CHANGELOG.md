@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.5.1] — 2026-06-12
+
+### Fixed
+- `saturn-jaygarcia`: removed `disable-model-invocation` from skill frontmatter
+
+---
+
 ## [12.5.0] — 2026-06-12
 
 ### Changed
