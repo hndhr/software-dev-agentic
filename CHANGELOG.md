@@ -7,6 +7,20 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.8.0] — 2026-06-13
+
+### Changed
+- `lib/core/` restructured to persona-first layout: `lib/core/<persona>/{agents,skills,reference}/` replaces the old flat `lib/core/{agents,skills,reference}/` top-level dirs
+- Cross-cutting agents (kaku-worker, lucci-planner, perf-worker) and skills (cipherpol-status, detect-platform, release-project, saturn-jaygarcia, agentic-perf-review) moved to `lib/core/shared/`
+- `plugin-lib.sh` `copy_agents()` updated to support shell glob patterns (unquoted expansion); `build.config.json` updated to `lib/core/*/agents` and `lib/core/*/skills/*/`
+- All path references updated across internal tooling agents, skills, reference docs, and principles docs
+
+### Removed
+- Internal skills `generate-platform`, `sync-platform`, `sync-principles` (stale)
+- `docs/principles/agentic/agentic-feature-doc-principles.md` (stale)
+
+---
+
 ## [12.7.0] — 2026-06-12
 
 ### Changed
