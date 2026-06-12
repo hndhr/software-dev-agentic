@@ -13,7 +13,7 @@ Create domain tests following the {platform} standard architecture, loaded from 
    - `kms_list(discipline="engineering", artifact="standard-architecture", topic="testing", platform={platform})` — scan the testing TOC for the use-case-test pattern slug (e.g. `use_case_test`).
    - `kms_fetch(discipline="engineering", artifact="standard-architecture", topic="testing", pattern="<use-case-test slug from list>", platform={platform})` — full content: naming, path convention, code pattern.
    - If the TOC has no use-case-test pattern, STOP and report a KMS seed gap for `{platform}/engineering/standard-architecture` (testing topic) — do not guess.
-2. **Read** the use case / service implementation completely
+2. **Grep** for the use case / service class name → get line number → **Read** `offset=<line-5> limit=60` to capture the method signature and primary logic
 3. **Identify** all code paths and edge cases to cover
 4. **Locate** path per the impl doc's test directory convention
 5. **Create** the test file following the impl doc pattern

@@ -13,7 +13,7 @@ Create data layer tests following the {platform} standard architecture, loaded f
    - `kms_list(discipline="engineering", artifact="standard-architecture", topic="testing", platform={platform})` — scan the testing TOC for the repository-test pattern slug (e.g. `repository_test`).
    - `kms_fetch(discipline="engineering", artifact="standard-architecture", topic="testing", pattern="<repository-test slug from list>", platform={platform})` — full content: naming, path convention, code pattern.
    - If the TOC has no repository-test pattern, STOP and report a KMS seed gap for `{platform}/engineering/standard-architecture` (testing topic) — do not guess.
-2. **Read** the repository impl and mapper implementations completely
+2. **Grep** for the repository impl and mapper class names → get line numbers → **Read** `offset=<line-5> limit=60` around each to capture method signatures and mapping logic
 3. **Identify** all code paths: data source success, data source error, mapping edge cases
 4. **Locate** path per the impl doc's test directory convention
 5. **Create** test file(s) following the impl doc pattern
