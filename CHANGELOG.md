@@ -7,6 +7,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.8.2] — 2026-06-13
+
+### Changed
+- Consolidated `.claude/reference/agent-conventions.md` into `docs/principles/agentic/agentic-conventions.md` as the single source of truth — added Choosing a Component Type, Frontmatter — Required Fields, Model Selection, and Required Sections by Role sections, plus an Orchestrator subtypes table and expanded platform-agnosticism callout
+- `agentic-migrate-worker`, `agentic-scaffold-worker`, and `agentic-consult-worker` repointed to the merged conventions doc
+- Documented a new "User Confirmation Gates" convention: agents with `AskUserQuestion` in `tools` must call it directly at confirm/decision gates, never end the turn with the question as plain text — applied to `agentic-migrate-worker`, `agentic-consult-worker`, `kms-extract-orchestrator`, and `kms-source-detect-worker`
+- `developer-build-from-ticket` and `developer-rfc` skills now handle `Decision: synthesized` from the feature strategist
+- `developer-test-create-data/domain/presentation` skills use Grep-then-bounded-Read instead of full file reads
+- `developer-jira-ticket-worker` gains a Search Protocol table and standard `## Input`/`## Output` section names
+
+### Fixed
+- `developer-pres-create-screen` and `developer-pres-create-stateholder` now write/read `stateholder-contract.md` from `.claude/agentic-state/runs/<feature>/` (was `.claude/runs/<feature>/`)
+
+### Removed
+- `.claude/reference/agent-conventions.md` (merged into `docs/principles/agentic/agentic-conventions.md`)
+
+---
+
 ## [12.8.1] — 2026-06-13
 
 ### Changed
