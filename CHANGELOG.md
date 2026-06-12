@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.5.0] — 2026-06-12
+
+### Changed
+- Removed symlinks distribution path — plugin-only distribution model
+- Updated `CLAUDE.md`, `submodule-repo-structure.md`, `core-design-principles.md` to reflect plugin-only setup
+- `installer-doctor`: removed stale symlinks check (check #3), renumbered remaining checks
+- `statusline-command.sh`: fixed ANSI escape codes using `$'...'` syntax; token counts now read from JSON stdin
+
+---
+
 ## [12.4.0] — 2026-06-12
 
 ### Changed
