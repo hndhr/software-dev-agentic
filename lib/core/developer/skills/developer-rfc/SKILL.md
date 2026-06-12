@@ -128,7 +128,7 @@ Spawn `developer-feature-strategist` with mode `process-findings`:
 > <all_findings content>
 
 - **`Decision: spawn-planners`** → increment `round`, go to 6a
-- **`Decision: converged`** → proceed to Step 7
+- **`Decision: synthesized`** → plan.md and context.md are already written; extract `run_dir`, skip Step 7, proceed directly to Step 8
 - **`Decision: blocked`** → call `AskUserQuestion` with the strategist's question and options, send the answer back as a follow-up `process-findings` call, re-evaluate
 
 **Max rounds guard:** If `round` reaches 4 without convergence, surface to the user:
@@ -136,18 +136,9 @@ Spawn `developer-feature-strategist` with mode `process-findings`:
 
 Stop.
 
-## Step 7 — Synthesize Plan
+## Step 7 — Synthesize Plan (fallback only)
 
-Spawn `developer-feature-strategist` with mode `synthesize`:
-
-> **Mode: synthesize**
->
-> Non-interactive — auto-approve after writing plan.md and context.md.
->
-> **All Accumulated Findings:**
-> <all_findings content>
-
-Wait for the strategist to write `plan.md` + `context.md` and return the plan summary.
+> **When reached:** This step is not reached in the normal convergence path — `Decision: synthesized` from 6b means plan.md and context.md are already on disk and synthesis happened inline within the strategist.
 
 ## Step 8 — Write RFC and Breakdown
 
@@ -157,7 +148,7 @@ Create the output directory:
 mkdir -p "$(git rev-parse --show-toplevel)/.claude/agentic-state/rfc"
 ```
 
-Read `plan.md` and `context.md` from the run directory. Then spawn `developer-rfc-writer`:
+Read `plan.md` and `context.md` from `run_dir` (extracted in Step 6b). Then spawn `developer-rfc-writer`:
 
 > **Epic key:** <epic-key>
 > **Epic slug:** <feature>

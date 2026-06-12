@@ -123,7 +123,7 @@ Spawn `developer-feature-strategist` with mode `process-findings`:
 > <all_findings content>
 
 - `Decision: spawn-planners` → increment `round`, go to 6a
-- `Decision: converged` → proceed to Step 7
+- `Decision: synthesized` → plan.md and context.md are already written; extract `run_dir`, skip Step 7, proceed directly to Step 8
 - `Decision: blocked` → write `error.md` with the blocked question and stop:
 
 ```
@@ -142,24 +142,15 @@ Resolve the ambiguity in the Jira ticket and retry.
 Planning could not converge after 3 rounds. Add more detail to the Jira ticket and retry.
 ```
 
-## Step 7 — Synthesize Plan
+## Step 7 — Synthesize Plan (fallback only)
 
-Spawn `developer-feature-strategist` with mode `synthesize`:
-
-> **Mode: synthesize**
->
-> Non-interactive — auto-approve after writing plan.md and context.md.
->
-> **All Accumulated Findings:**
-> <all_findings content>
-
-Wait for the strategist to write plan.md + context.md and return the plan summary.
+> **When reached:** This step is not reached in the normal convergence path — `Decision: synthesized` from 6b means plan.md and context.md are already on disk and synthesis happened inline within the strategist.
 
 ## Step 8 — Execute
 
 Update `status` in `plan.md` frontmatter from `pending` to `approved`.
 
-Read `plan.md` and `context.md` from the run directory written in Step 7. Then spawn `developer-feature-worker`:
+Read `plan.md` and `context.md` from `run_dir` (extracted in Step 6b). Then spawn `developer-feature-worker`:
 
 > Approved plan ready. Pre-loaded context below — do not re-read plan.md, context.md, or state.json.
 >

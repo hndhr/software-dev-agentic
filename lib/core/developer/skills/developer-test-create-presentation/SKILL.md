@@ -13,7 +13,7 @@ Create presentation tests following the {platform} standard architecture, loaded
    - `kms_list(discipline="engineering", artifact="standard-architecture", topic="testing", platform={platform})` — scan the testing TOC for the presenter/stateholder-test pattern slug (e.g. `presenter_test`).
    - `kms_fetch(discipline="engineering", artifact="standard-architecture", topic="testing", pattern="<presenter-test slug from list>", platform={platform})` — full content: naming, path convention, code pattern.
    - If the TOC has no presenter-test pattern, STOP and report a KMS seed gap for `{platform}/engineering/standard-architecture` (testing topic) — do not guess.
-2. **Read** the StateHolder implementation and stateholder-contract.md completely
+2. **Grep** for the StateHolder class name → get line number → **Read** `offset=<line-5> limit=80` to capture state fields, event/action cases, and constructor params. **Read** stateholder-contract.md completely
 3. **Identify** all events/methods and resulting state transitions to cover
 4. **Locate** path per the impl doc's test directory convention
 5. **Create** the test file following the impl doc pattern
