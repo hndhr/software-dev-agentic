@@ -45,6 +45,7 @@ copy_skills() {
   while IFS= read -r pattern; do
     for skill_dir in $SUBMODULE/$pattern; do
       [ -d "$skill_dir" ] || continue
+      [ -f "$skill_dir/SKILL.md" ] || continue  # skip grouping dirs (orchestrators/, procedures/)
       local name
       name="$(basename "$skill_dir")"
       [ -d "$out/skills/$name" ] && continue  # first match wins
