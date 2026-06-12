@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.9.0] — 2026-06-13
+
+### Added
+- `lib/core/developer/reference/findings-format.md` — shared Input Contract, Search Protocol, and Output Contract (Impact Recommendations + Findings Written format) for the four layer planners (`developer-domain/data/pres/app-planner`)
+- `lib/core/developer/reference/plan-format.md` — shared `plan.md`/`context.md` schema, written by `developer-feature-strategist` and read by `developer-feature-worker`/`developer-ui-worker`
+- `lib/core/developer/reference/screen-system-design-format.md` — shared Screen System Design schema, written by `developer-sysdesign-extract-worker` and read by `developer-sysdesign-consolidate-worker`
+- `lib/core/developer/reference/flow-system-design-format.md` — shared Flow System Design schema, written by `developer-sysdesign-consolidate-worker`
+
+### Changed
+- Extracted duplicated inline templates from the developer persona's planner, strategist, worker, and sysdesign agents into the new reference docs above — agents now point to `$CLAUDE_PLUGIN_ROOT/reference/developer/<file>.md` instead of embedding the templates inline
+- `docs/principles/agentic/agentic-conventions.md` — persona reference docs (`lib/core/<persona>/reference/`) are now flat with no topic subfolders, distinct from shared reference (`lib/core/shared/reference/<topic>/`) which stays topic-grouped; updated catalog-file path references accordingly
+
 ## [12.8.3] — 2026-06-13
 
 ### Fixed
