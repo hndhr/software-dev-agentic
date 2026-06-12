@@ -36,17 +36,16 @@ Keep in skills if:
 
 ---
 
-## Directory Structure <!-- 26 -->
+## Directory Structure <!-- 27 -->
 
 ```
-lib/core/reference/
+lib/core/shared/reference/
   README.md              ← this file — taxonomy and placement rules
-  builder/
-    layer-contracts.md   ← artifact types, creation order, invariants per layer
-    di-containers.md     ← DI registration patterns (language-agnostic)
-    domain-purity.md     ← what must never enter the domain layer
   saturn-jaygarcia/
     plan-format.md       ← plan.md schema and section contracts (lucci-planner / kaku-worker / saturn-jaygarcia)
+
+lib/core/<persona>/reference/
+  <topic>.md             ← persona-scoped reference docs (language-agnostic)
 
 lib/platforms/<platform>/reference/
   domain.md              ← platform-specific entity/use case patterns
@@ -57,7 +56,7 @@ lib/platforms/<platform>/reference/
   index.md               ← index of all reference files for this platform
 ```
 
-`lib/core/reference/` docs are language-agnostic — no code syntax, no framework names as rules.
+`lib/core/shared/reference/` and `lib/core/<persona>/reference/` docs are language-agnostic — no code syntax, no framework names as rules.
 `lib/platforms/<platform>/reference/` docs contain code examples and are linked only to that platform.
 
 ---
