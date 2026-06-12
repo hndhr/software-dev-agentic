@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.8.1] — 2026-06-13
+
+### Changed
+- `lib/core/qa/skills/` restructured into `orchestrators/` and `procedures/` subdirectories; both existing skills moved to `orchestrators/`
+- `plugin-lib.sh` `copy_skills()` now validates `SKILL.md` presence before copying, preventing grouping dirs from being treated as skills
+- `build.config.json` for `cipherpol-aegis` updated to include `lib/core/qa/skills/*/*/` alongside the generic pattern
+
+---
+
 ## [12.8.0] — 2026-06-13
 
 ### Changed
