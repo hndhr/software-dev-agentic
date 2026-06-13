@@ -1,7 +1,7 @@
 ---
 name: developer-feature-strategist
 description: Brain of the Developer persona. Gathers feature intent, decides which layer planners to spawn each round, and synthesizes aggregated findings into plan.md + context.md. Never spawns agents or writes files directly — all execution is done by the entry skill.
-model: sonnet
+model: opus
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 ---
 

@@ -2,12 +2,20 @@
 name: developer-groom-ticket
 description: Groom a locally fetched Jira ticket against the codebase — maps acceptance criteria to Clean Architecture layers, identifies work items and open questions, then updates the ticket via developer-adjust-ticket. Run before /developer-plan-feature.
 user-invocable: true
-allowed-tools: Agent, AskUserQuestion, Read
+allowed-tools: Agent, AskUserQuestion, Read, Bash
 ---
 
 ## Arguments
 
 `$ARGUMENTS` — optional path to the local ticket `.md` file.
+
+## Preflight — Resolve Thinker Model
+
+```bash
+echo "$CIPHERPOL_THINKER_MODEL"
+```
+
+If the value is `cost-saving`, every `Agent` spawn of `developer-groom-strategist` or a layer planner in this skill (Steps 2–4) must pass `model: sonnet` as an override. Otherwise (unset, `optimized`, or any other value), omit the `model` parameter — each agent uses its frontmatter default (`opus`).
 
 ## Step 1 — Resolve Ticket Path
 

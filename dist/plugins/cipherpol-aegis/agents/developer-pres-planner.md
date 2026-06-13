@@ -1,7 +1,7 @@
 ---
 name: developer-pres-planner
 description: Explore the Presentation and UI layers for a given feature — discovers existing StateHolders, screens, and components. Returns structured findings for feature-planner to synthesize. Writes findings to run_dir only — no codebase writes.
-model: sonnet
+model: opus
 tools: Glob, Grep, Read, Bash, Write, mcp__cp8__kms_list, mcp__cp8__kms_fetch, mcp__cp8__kms_query
 ---
 
@@ -18,7 +18,7 @@ Required — return `MISSING INPUT: <param>` immediately if absent:
 | `module-path` | Root path of the feature's module in the project |
 | `run_dir` | Absolute path to the run directory — write findings here |
 | `scope` | *(optional)* Comma-separated artifact types to search: `stateholder`, `screen`, `component`, `navigator`. Omit to search all. |
-| `figma_groups` | *(optional)* Verified screen groupings from the entry skill — `[{ screen, states: [{ state, file, layout_file, screenshot }] }]`. Already confirmed by the user. |
+| `figma_groups` | *(optional)* Verified screen groupings from the entry skill — `[{ screen, type, parent_screen, uistack_file, states: [{ state, file, layout_file, screenshot }] }]`. Already confirmed by the user. |
 | `open_questions` | *(optional, update path only)* List of specific issues or changes the user stated. Focus analysis on artifacts relevant to these questions. |
 | `completed_artifacts` | *(optional, update path only)* Artifact names already built. Report these as `exists` + locked — do not propose recreating them. |
 
@@ -42,23 +42,22 @@ Combine KMS knowledge (theory + definitions) with codebase evidence (live patter
 
 `figma_groups` is pre-verified by the user — do not re-question the grouping. Field schema: `$CLAUDE_PLUGIN_ROOT/reference/developer/figma-artifact-format.md`.
 
-For each group `{ screen, states }` where each state has `{ state, file, layout_file, screenshot }`:
-1. For each entry in `states`: `Grep` for `^## ` in `state.file` to confirm available sections — do not read the whole file.
-2. For each state entry: `Read` `state.file` with `offset` + `limit` targeting that section only. Extract:
-   - `Components` — UI elements present in this state
-   - `State` — the named state this frame represents
-   - `Interactions` — user-initiated actions (tap, pull-to-refresh, swipe, FAB, etc.)
-   - `Annotations` — designer notes relevant to implementation
-3. Aggregate per screen: full state list, all unique components across states, all interactions.
+For each group `{ screen, type, parent_screen, uistack_file, states }`:
+1. `Read` `uistack_file` in full — this is the merged, per-screen (or per-overlay) reference. Extract:
+   - `### State Model` — named states and what differs between them
+   - `### Component Hierarchy` — merged component tree, including conditional branches and `← see figma-uistack-*.md` overlay links
+   - `### User Interactions` — user-initiated actions across all states
+   - `### Design Tokens` — for downstream UI work
+2. For overlay groups (`type: overlay`), note `parent_screen` — these become separate Component artifacts invoked from the parent screen, not separate screens.
 
 Build `figma_context`:
 ```
-{ "<screen>" → { states: [...], components: [...], interactions: [...], per_state: { "<state>" → { components, interactions, annotations } } } }
+{ "<screen>" → { type, parent_screen, uistack_file, states: [...], hierarchy: <Component Hierarchy text>, interactions: [...], overlays: [<overlay screen names>] } }
 ```
 
 Use `figma_context` in Steps 1–3:
-- **Step 1**: each screen in `figma_context` with no matching source file → status `create`; matching existing file → status `exists`.
-- **Step 3**: for new StateHolders — derive `state_fields` to cover all named states; derive `event_cases` from all interactions across states. For new Screens/Components — note per-state component differences as implementation hints.
+- **Step 1**: each `type: screen` entry in `figma_context` with no matching source file → status `create`; matching existing file → status `exists`. `type: overlay` entries map to Component artifacts (dialogs, filters, sheets) — classify and status the same way.
+- **Step 3**: for new StateHolders — derive `state_fields` to cover all named states from `### State Model`; derive `event_cases` from `### User Interactions`. For new Screens/Components — use the `Component Hierarchy` tree directly as the structural blueprint, including where overlay components are mounted.
 
 Do not carry raw Figma content into the findings output — only the alignment table and derived hints below.
 
@@ -134,9 +133,9 @@ File content — exactly this structure, no prose:
 ### Figma Alignment
 (omit section entirely if no Figma inputs were provided)
 
-| Screen (parent_frame) | Artifact | Figma Files | States | Key Interactions |
-|---|---|---|---|---|
-| <screen name from figma_groups> | <ArtifactClassName> | <comma-separated abs paths to figma-*.md files for this screen> | empty, loading, content, error | pull-to-refresh, FAB opens bottom sheet |
+| Screen (parent_frame) | Artifact | UI Stack | Figma Files | States | Key Interactions |
+|---|---|---|---|---|---|
+| <screen name from figma_groups> | <ArtifactClassName> | <abs path to figma-uistack-*.md for this screen/overlay> | <comma-separated abs paths to figma-*.md files for this screen> | empty, loading, content, error | pull-to-refresh, FAB opens bottom sheet |
 
 ### Impact Recommendations
 This layer typically impacts `domain` (new screen needs a use case) and `app` (route registration).
