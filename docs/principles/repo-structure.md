@@ -114,14 +114,17 @@ Three tiers in `kms/knowledge-sources/`:
 ```
 universal/              → general principles (SOLID, Clean Architecture, SDLC-wide)
   └─ {discipline}/
-       └─ {artifact}/
+       └─ {area}/       → core | design-system
+            └─ {artifact}.md
 platform/               → platform implementation conventions
   └─ {platform}/        → flutter | ios | android | web
        └─ {discipline}/
-            └─ {artifact}/
+            └─ {area}/  → core | design-system
+                 └─ {artifact}.md
 projects/               → project-specific deviations only
   └─ {project-name}/
-       └─ {artifact}/
+       └─ {area}/       → core | design-system
+            └─ {artifact}.md
 ```
 
 Agents always query with explicit `platform` and `project` filters. The cascade resolves `project → platform → universal` — agents always get the most specific matching knowledge.

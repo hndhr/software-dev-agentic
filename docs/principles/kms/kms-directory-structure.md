@@ -32,7 +32,7 @@ kms/
 
 ## `kms/knowledge-sources/` — Knowledge Path Structure
 
-Three top-level buckets mirror the cascade tiers (`scope`); each then nests `{discipline}/{area}/{artifact}/{file}.md` (or `{platform}/{discipline}/{area}/{artifact}/{file}.md` under `platform/`):
+Three top-level buckets mirror the cascade tiers (`scope`); each then nests `{discipline}/{area}/{artifact}.md` (or `{platform}/{discipline}/{area}/{artifact}.md` under `platform/`):
 
 ```
 kms/knowledge-sources/
@@ -45,25 +45,25 @@ kms/knowledge-sources/
 │   ├── product/
 │   ├── qa/
 │   └── security/
-│       └── {area}/{artifact}/{file}.md
+│       └── {area}/{artifact}.md
 ├── platform/               → scope=platform — implemented for a specific platform
 │   ├── android/
 │   ├── flutter/
 │   └── ios/
-│       └── {discipline}/{area}/{artifact}/{file}.md
+│       └── {discipline}/{area}/{artifact}.md
 └── projects/               → scope=project — deviations for a specific project
     ├── flex-mobile/
     ├── mobile-talenta/
     ├── talenta-ios/
     └── talenta-mobile-android/
-        └── {area}/{artifact}/{file}.md   (+ repo.yaml)
+        └── {area}/{artifact}.md   (+ repo.yaml)
 ```
 
 `{area}` is a fixed-vocabulary path segment between `discipline` (or the project dir, for `projects/`) and `artifact`:
 - `core` — default for platform-/project-owned internal docs (conventions, standard-architecture, feature-inventory, api-endpoints, deviations, shared-components, third-party-integrations, etc.)
 - `design-system` — design-system catalog artifacts; here `artifact` is the specific design system name (e.g. `mekari-pixel`), allowing multiple design systems per platform (e.g. a future `legacy-kit`) to coexist without collision
 
-Each `{file}.md` is then chunked by heading: `#` → `topic`, `##` → `subtopic`, `###` → `pattern` (depth-aware — `##` is also `pattern` when it has no `###` children). See [kms-conventions.md — Path Conventions](kms-conventions.md#kmsknowledge-sources--path-conventions) and [Chunk Strategy](kms-conventions.md#chunk-strategy--heading-hierarchy) for the full rules, and [kms-glossary.md](kms-glossary.md) for term definitions (`scope`, `discipline`, `area`, `artifact`, `topic`, `subtopic`, `pattern`, Knowledge Path, Knowledge Path Structure).
+Each `{artifact}.md` is then chunked by heading: `#` → `topic`, `##` → `subtopic`, `###` → `pattern` (depth-aware — `##` is also `pattern` when it has no `###` children). See [kms-conventions.md — Path Conventions](kms-conventions.md#kmsknowledge-sources--path-conventions) and [Chunk Strategy](kms-conventions.md#chunk-strategy--heading-hierarchy) for the full rules, and [kms-glossary.md](kms-glossary.md) for term definitions (`scope`, `discipline`, `area`, `artifact`, `topic`, `subtopic`, `pattern`, Knowledge Path, Knowledge Path Structure).
 
 ---
 
