@@ -113,7 +113,3 @@ This layer typically impacts `data` (new entity → DTO + mapper) and `app` (new
 Write `none detected` for any naming convention that cannot be inferred.
 
 Then follow the shared `## Findings Written` return format from `$CLAUDE_PLUGIN_ROOT/reference/developer/findings-format.md`, with `<layer>` = `domain`.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-domain-planner.md` — if it exists, read and follow its additional instructions.

@@ -42,7 +42,3 @@ Read the `debugger-remove-logs` skill (preloaded) and follow its procedure exact
 - Never add logs outside the locations specified in the brief (mode=add)
 - Never remove non-debug lines (mode=remove)
 - If a specified method is not found, report it — do not guess an alternative location
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/debugger-log-worker.md` — if it exists, read and follow its additional instructions.

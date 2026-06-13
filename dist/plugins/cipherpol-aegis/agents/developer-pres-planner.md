@@ -144,7 +144,3 @@ This layer typically impacts `domain` (new screen needs a use case) and `app` (r
 Write `none detected` for any naming convention that cannot be inferred. Omit `mark_sections` if the platform doesn't use MARK comments.
 
 Then follow the shared `## Findings Written` return format from `$CLAUDE_PLUGIN_ROOT/reference/developer/findings-format.md`, with `<layer>` = `pres`.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-pres-planner.md` — if it exists, read and follow its additional instructions.

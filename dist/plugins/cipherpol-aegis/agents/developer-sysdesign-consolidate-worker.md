@@ -87,7 +87,3 @@ ls -la "$root/.claude/agentic-state/developer/sysdesign/flows/<filename>"
 - Shared API endpoints: <count>
 - Shared domain entities: <count>
 ```
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-sysdesign-consolidate-worker.md` — if it exists, read and follow its additional instructions.

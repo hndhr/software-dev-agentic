@@ -114,7 +114,3 @@ This layer typically impacts `domain` (repository interface contract) and `app` 
 Write `none detected` for any naming convention that cannot be inferred.
 
 Then follow the shared `## Findings Written` return format from `$CLAUDE_PLUGIN_ROOT/reference/developer/findings-format.md`, with `<layer>` = `data`.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-data-planner.md` — if it exists, read and follow its additional instructions.

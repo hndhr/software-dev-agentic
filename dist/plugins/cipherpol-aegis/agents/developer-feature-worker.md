@@ -269,7 +269,3 @@ Do not delete the run directory (`runs/<feature>/`). Cleanup is the calling skil
 ```
 
 Do not suggest next steps — the calling skill spawns `developer-ui-worker` immediately after receiving this signal.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-feature-worker.md` — if it exists, read and follow its additional instructions.

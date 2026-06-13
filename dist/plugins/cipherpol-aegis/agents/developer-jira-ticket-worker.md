@@ -252,7 +252,3 @@ Run /developer-groom-ticket on each ticket to map implementation to the codebase
 ```
 
 ---
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/developer-jira-ticket-worker.md` — if it exists, read and follow its additional instructions.

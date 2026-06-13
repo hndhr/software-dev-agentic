@@ -160,7 +160,3 @@ Return the full grooming summary block. The calling skill (`developer-groom-tick
 - Never spawn `developer-feature-worker` or any builder agent
 - Grooming summary must be compact — no prose analysis, no implementation detail
 - Planners run in grooming-only mode — their `### Impact Recommendations` section is irrelevant here and should be ignored
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/developer-groom-strategist.md` — if it exists, read and follow its additional instructions.

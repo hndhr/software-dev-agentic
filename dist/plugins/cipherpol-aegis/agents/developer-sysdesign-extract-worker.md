@@ -137,7 +137,3 @@ ls -la "$root/.claude/agentic-state/developer/sysdesign/screens/<filename>"
 - UseCases traced: <count>
 - API endpoints found: <count>
 ```
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-sysdesign-extract-worker.md` — if it exists, read and follow its additional instructions.

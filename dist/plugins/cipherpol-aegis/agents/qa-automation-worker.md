@@ -166,7 +166,3 @@ Total: N test flows across N feature areas
 - **Untranslatable step:** Add comment `# MANUAL: <step>` and continue — do not skip the test case.
 - **Missing element identifiers:** Use expected result text as fallback selector; note it may need a `testID` attribute added to the widget.
 - **Platform-specific tests (Platform tag):** Add a comment noting Android vs iOS differences.
-
-## Extension Point
-
-Check `.claude/agents.local/extensions/qa-automation-worker.md` for project-specific Maestro config overrides before running.

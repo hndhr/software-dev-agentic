@@ -147,7 +147,3 @@ generated: <YYYY-MM-DD>
 ## Output
 
 Return the absolute paths of both written files.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/developer-rfc-writer.md` — if it exists, read and follow its additional instructions.

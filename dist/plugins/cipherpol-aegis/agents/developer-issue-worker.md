@@ -108,7 +108,3 @@ Add a row to `issues/000-backlog.md`. If there is a phase table that fits, add t
 | GitHub issue data | `Bash` (`gh issue view`) |
 
 **Read-once rule:** Read the backlog file once. Form the full edit from that single read — never re-read.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/developer-issue-worker.md` — if it exists, read and follow its additional instructions.

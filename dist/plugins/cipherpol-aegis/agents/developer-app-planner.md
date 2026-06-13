@@ -144,7 +144,3 @@ This layer typically impacts `domain` (feature flag → domain toggle use case) 
 Write `none detected` for any convention that cannot be inferred. Write `N/A` for steps that do not apply to the platform.
 
 Then follow the shared `## Findings Written` return format from `$CLAUDE_PLUGIN_ROOT/reference/developer/findings-format.md`, with `<layer>` = `app`.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-app-planner.md` — if it exists, read and follow its additional instructions.

@@ -60,7 +60,3 @@ Then return exactly:
 ## Plan Written
 file: <run_dir>/plan.md
 ```
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/lucci-planner.md` — if it exists, read and follow its additional instructions.
