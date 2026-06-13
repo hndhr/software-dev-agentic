@@ -7,6 +7,7 @@ from chromadb.config import Settings
 
 from ..domain.entities import KnowledgeNode
 from ..domain.repository import KnowledgeRepository, NULL_SENTINEL
+from ..domain.schema import SCHEMA_VERSION
 
 _COLLECTION = "knowledge"
 _NULL = "null"  # ChromaDB metadata can't store None; sentinel string used instead.
@@ -18,6 +19,7 @@ def _to_meta(node: KnowledgeNode) -> dict:
         "platform":       node.platform or _NULL,
         "project":        node.project or _NULL,
         "discipline":     node.discipline,
+        "area":           node.area,
         "artifact":       node.artifact or _NULL,
         "topic":          node.topic,
         "subtopic":       node.subtopic or node.pattern,
@@ -28,7 +30,7 @@ def _to_meta(node: KnowledgeNode) -> dict:
         "updated_at":     node.updated_at or "",
         "content_hash":   node.content_hash or "",
         "content_type":   node.content_type,
-        "schema_version": "1",
+        "schema_version": SCHEMA_VERSION,
     }
 
 
@@ -46,6 +48,7 @@ def _from_meta(meta: dict, content: Optional[str] = None) -> KnowledgeNode:
         platform=None if meta.get("platform") == _NULL else meta.get("platform"),
         project=None if meta.get("project") == _NULL else meta.get("project"),
         discipline=meta["discipline"],
+        area=meta["area"],
         artifact=None if meta.get("artifact") == _NULL else meta.get("artifact"),
         topic=meta["topic"],
         subtopic=meta.get("subtopic") or meta.get("pattern", ""),
@@ -75,6 +78,7 @@ class ChromaKnowledgeRepository(KnowledgeRepository):
         platform: Optional[str] = None,
         project: Optional[str] = None,
         discipline: Optional[str] = None,
+        area: Optional[str] = None,
         artifact: Optional[str] = None,
         topic: Optional[str] = None,
         subtopic: Optional[str] = None,
@@ -93,6 +97,8 @@ class ChromaKnowledgeRepository(KnowledgeRepository):
             where["project"] = pj
         if discipline is not None:
             where["discipline"] = discipline
+        if area is not None:
+            where["area"] = area
         if artifact is not None:
             where["artifact"] = artifact
         if topic is not None:
@@ -112,6 +118,7 @@ class ChromaKnowledgeRepository(KnowledgeRepository):
         platform: Optional[str],
         project: Optional[str],
         discipline: str,
+        area: str,
         artifact: Optional[str],
         topic: str,
         subtopic: str,
@@ -121,6 +128,7 @@ class ChromaKnowledgeRepository(KnowledgeRepository):
             "platform":   platform or _NULL,
             "project":    project or _NULL,
             "discipline": discipline,
+            "area":       area,
             "artifact":   artifact or _NULL,
             "topic":      topic,
             "subtopic":   subtopic or pattern,

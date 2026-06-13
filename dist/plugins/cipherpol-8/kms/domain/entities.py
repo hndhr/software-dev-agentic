@@ -7,6 +7,7 @@ from typing import Optional
 class KnowledgeNode:
     scope: str                 # universal | platform | project — see schema.SCOPE_VALUES
     discipline: str            # see schema.DISCIPLINE_VALUES
+    area: str                  # see schema.AREA_VALUES
     topic: str
     pattern: str
     subtopic: str = ""               # ## heading slug — equals pattern when no ### children exist
@@ -27,7 +28,7 @@ class KnowledgeNode:
         pr = self.project or "null"
         a = self.artifact or "null"
         st = self.subtopic or self.pattern
-        return f"{p}:{pr}:{self.discipline}:{a}:{self.topic}:{st}:{self.pattern}"
+        return f"{p}:{pr}:{self.discipline}:{self.area}:{a}:{self.topic}:{st}:{self.pattern}"
 
     @property
     def specificity(self) -> int:
