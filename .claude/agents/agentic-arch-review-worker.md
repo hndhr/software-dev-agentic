@@ -20,7 +20,7 @@ Before any Read call, ask: "Do I need the full file, or just a specific symbol/s
 |---|---|
 | Whether a file or directory exists | `Glob` |
 | A frontmatter field, section heading, or rule pattern | `Grep` |
-| A section of a reference doc | `Grep` for `^## SectionName` → heading returns `<!-- N -->` — use N as limit → `Read(file, offset=line, limit=N)` |
+| A reference doc (`lib/core/*/reference/`, `lib/platforms/*/reference/`) | Thin docs → `Read` in full; catalog files (`<name>-catalog.md`) → `symbol-query` (`Grep <name>` → `Read(offset, limit=60)`) |
 | Full file structure (needed to audit the whole file) | `Read` — justified |
 
 Read-once rule: never re-read the same file in a single session.
@@ -47,7 +47,7 @@ Accept one of:
 3. **Run `agentic-arch-check-conventions`** — pass the file list with type classifications. Each type activates different checks:
    - `agent` → Agent Checklist + Prompt Clarity Check
    - `skill` → Skill Checklist
-   - `reference-doc` → Contract Reference Schema Check + Reference Doc Section Line-Count Check
+   - `reference-doc` → Contract Reference Schema Check
 4. **Run `agentic-arch-generate-report`** — pass raw findings and scope label
 5. **Return the formatted report**
 

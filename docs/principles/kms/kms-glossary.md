@@ -158,6 +158,7 @@ See [kms-knowledge-source-rules.md](../../../kms/docs/kms-knowledge-source-rules
 | [kms-conventions.md](kms-conventions.md) | Path conventions, chunk strategy, full metadata schema, retrieval protocol |
 | [kms-seeding.md](kms-seeding.md) | How knowledge gets into the DB — sources, change detection, agentic workflow |
 | [kms-knowledge-source-rules.md](../../../kms/docs/kms-knowledge-source-rules.md) | Authoring rules for files under `kms/knowledge-sources/` — heading structure, naming, audit |
+| [agentic-design-principles.md](../agentic/agentic-design-principles.md#reference-vs-knowledge) | Reference vs Knowledge — how KMS-managed Knowledge differs from file-addressable Reference docs in `lib/core/*/reference/` |
 
 ---
 

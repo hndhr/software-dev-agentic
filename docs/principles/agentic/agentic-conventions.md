@@ -162,12 +162,19 @@ Not all combinations are meaningful. Use this as the decision gate when adding a
 
 ### Reference Docs
 
-#### By Scope
+> See [Reference vs Knowledge](agentic-design-principles.md#reference-vs-knowledge) for the distinction between KMS-managed Knowledge and file-addressable Reference docs.
+
+#### Knowledge (KMS)
 
 | Scope | Location | Ships downstream? |
 |---|---|---|
 | **Platform-base knowledge** | `kms/knowledge-sources/engineering/{platform}-*.md` | Yes — via pre-seeded ChromaDB bundled in plugin. Theory + definition + code pattern per node. Shared across all projects on that platform. |
 | **Project knowledge** | `kms/knowledge-sources/projects/{name}/` | Yes — via pre-seeded ChromaDB. Project-specific deviations only — created only when real divergence exists. |
+
+#### Reference (lib/core)
+
+| Scope | Location | Ships downstream? |
+|---|---|---|
 | **Shared reference** | `lib/core/shared/reference/<topic>/` | Yes — all personas, all platforms. Cross-cutting facts/contracts shared by multiple agents (e.g. `saturn-jaygarcia/plan-format.md`). Topic-grouped. Bundled to `reference/shared/<topic>/` in the plugin. |
 | **Persona reference** | `lib/core/<persona>/reference/` | Yes — all platforms. Flat — no topic subfolders. Contains `<name>-catalog.md` (queryable symbol/component inventory — agents `symbol-query` these, never load in full) and cross-agent schema/contract docs (e.g. `plan-format.md`, `findings-format.md`). Bundled flat to `reference/<persona>/` in the plugin. |
 | **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides for project-specific conventions not in KMS. |
@@ -397,6 +404,8 @@ Any agent with `AskUserQuestion` in its `tools` that reaches a confirm/decision 
 ---
 
 ## Reference Authoring Rules
+
+> See [Reference vs Knowledge](agentic-design-principles.md#reference-vs-knowledge) — these rules govern Reference (`lib/core/*/reference/`), not KMS-managed Knowledge.
 
 **Three-tier structure:**
 

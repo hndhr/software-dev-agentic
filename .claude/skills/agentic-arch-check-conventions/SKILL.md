@@ -25,8 +25,8 @@ For each `.md` agent file:
 **Workers** (files without `agents:` frontmatter field)
 - [ ] `## Search Rules` section present with Grep-before-Read rule
 - [ ] `## Extension Point` section present at end of file
-- [ ] No reference doc reads that say "Read ... completely"
-- [ ] All `Reference:` lines use Grep-first pattern
+- [ ] Catalog file (`<name>-catalog.md`) reads use `symbol-query` — no "Read ... completely"
+- [ ] Thin reference docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full at a fixed path
 - [ ] Any `Reference:` line that lists multiple files also mentions `reference/index.md` as the discovery fallback (Fix F)
 
 **Core agents** (files under `lib/core/*/agents/`) — Platform-Agnosticism
@@ -63,8 +63,8 @@ For each `SKILL.md` skill file:
 - [ ] `user-invocable: false` present (or omitted only for user-facing skills)
 
 **Reference doc reads**
-- [ ] No step says `Read .claude/reference/... completely`
-- [ ] Any step reading a reference doc uses `Grep` for section keyword first
+- [ ] Catalog file (`<name>-catalog.md`) reads use `symbol-query` — `Grep` for the symbol first, never "Read ... completely"
+- [ ] Thin reference docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full at a fixed path
 - [ ] All referenced file paths match actual filenames in `lib/platforms/<platform>/reference/` or `lib/core/*/reference/`
 
 **Templates** (any `template.md` file inside a skill directory)
@@ -96,16 +96,6 @@ For each `lib/platforms/<platform>/reference/contract/` directory being audited,
 
 Severity: **Critical** — a missing required keyword means core agents cannot reliably Grep for that concept on this platform, breaking cross-platform portability.
 
-## Reference Doc Section Line-Count Check
-
-For each reference doc file being audited (`lib/platforms/<platform>/reference/**/*.md`, `lib/core/*/reference/**/*.md`), verify every `##` section heading carries a valid integer line-count comment.
-
-**How to check:** `Grep` for `^## ` in the file. For each match, verify the heading line matches the pattern `^## .+ <!-- \d+ -->`. A heading that matches `^## .+ <!-- [^0-9] -->` or has no `<!--` at all is a violation.
-
-**Why:** Agents use the Grep-first pattern to read exactly one section: grep the heading → extract `<!-- N -->` → `Read(file, offset=heading_line, limit=N)`. A missing or non-integer `<!-- N -->` forces the agent to read the entire file, burning tokens and violating the Search Protocol.
-
-Severity: **Warning** — the section is readable but forces a full-file Read instead of a targeted section Read.
-
 ## Prompt Clarity Check
 
 For each agent file, flag instructions that are likely to cause bad decisions at runtime:
@@ -123,7 +113,7 @@ Severity: Warning for any prompt clarity finding.
 
 ## Severity Levels
 
-- **Critical** — missing required frontmatter field, broken reference path, "Read completely" violation, platform-specific content in a `lib/core/*/agents/` file
+- **Critical** — missing required frontmatter field, broken reference path, "Read completely" violation on catalog files, platform-specific content in a `lib/core/*/agents/` file
 - **Warning** — wrong model for worker type, missing Search Rules, missing Extension Point, missing `reference/index.md` discovery hint on multi-file Reference lines, explanatory comments in template files, missing `## Input` or `## Output` body section
 - **Info** — naming convention deviation, description could be more specific, missing Knowledge or Reasoning body section slot
 

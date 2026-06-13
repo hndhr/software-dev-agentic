@@ -200,16 +200,16 @@ CipherPol enforces its own conventions through an automated internal review syst
 |---|---|---|
 | Frontmatter | `name`, `description`, `model`, `tools` required; `model: sonnet` for all workers (haiku only for truly mechanical leaf tasks) | 🔴 Critical / 🟡 Warning |
 | Strategists | `agents:` lists only spawned workers; body passes only file paths between phases; writes state file after each phase; no Phase 2 codebase reads; no direct Edit or Write — file changes always through workers; explicit output validation after each spawn — STOP if `## Output` missing or paths don't exist | 🔴 Critical |
-| Workers | `## Input` section with required params table and `MISSING INPUT` STOP condition; `## Scope Boundary` section with owned-layer declaration and delegation table; `## Task Assessment` section — skill vs direct edit gate; `## Skill Execution` section — platform path resolution, Read SKILL.md, follow; `## Search Protocol` with decision gate table; `## Output` section with Glob + Grep verification before listing paths; `## Extension Point` at end; no "Read ... completely" on reference docs | 🔴 Critical / 🟡 Warning |
+| Workers | `## Input` section with required params table and `MISSING INPUT` STOP condition; `## Scope Boundary` section with owned-layer declaration and delegation table; `## Task Assessment` section — skill vs direct edit gate; `## Skill Execution` section — platform path resolution, Read SKILL.md, follow; `## Search Protocol` with decision gate table; `## Output` section with Glob + Grep verification before listing paths; `## Extension Point` at end; no "Read ... completely" on catalog files (`<name>-catalog.md`) — use `symbol-query` | 🔴 Critical / 🟡 Warning |
 | Core agent platform-agnosticism | No hardcoded platform paths (`src/domain/`, `Talenta/Module/`, `lib/`, `app/`); no platform framework references as rules (`React`, `Next.js`, `RxSwift`, `UIKit`, `BLoC`, `axios`); no platform language syntax as rules (`'use client'`, `readonly`, `BehaviorRelay`); platform knowledge delegated to KMS | 🔴 Critical |
 | Skill frontmatter | `name`, `description`, `user-invocable: false` present | 🔴 Critical |
-| Reference reads in skills | Grep-first; no "Read completely"; all referenced paths match actual filenames | 🔴 Critical |
+| Reference reads in skills | Catalog files (`<name>-catalog.md`) use `symbol-query` — Grep-first, no "Read completely"; thin format/contract docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full; all referenced paths match actual filenames | 🔴 Critical |
 | Fix G | Template files contain only code generation hints — no explanatory/instructional comments | 🟡 Warning |
 | Naming | `-strategist.md` / `-worker.md`; skill dirs follow `<layer>-<action>-<target>`; persona assignment correct | 🟢 Info |
 | Prompt Clarity | No ambiguous scope; no instructions spanning two CLEAN layers without a stop condition; no contradicting rules; failure paths specified | 🟡 Warning |
 
 **Severity levels:**
-- 🔴 Critical — missing required frontmatter, broken reference path, "Read completely" violation, platform-specific content in a `lib/core/*/agents/` file
+- 🔴 Critical — missing required frontmatter, broken reference path, "Read completely" violation on catalog files, platform-specific content in a `lib/core/*/agents/` file
 - 🟡 Warning — wrong model, missing Search Protocol/Output/Extension Point, prompt clarity issues
 - 🟢 Info — naming deviation, description could be more specific
 

@@ -27,7 +27,7 @@ Five building blocks compose every agentic workflow. Each has one defined job �
 
 | Component | Role | One-line rule |
 |---|---|---|
-| **Reference** | The Knowledge | Persistent facts — patterns, contracts, conventions. Loaded via KMS tools (`kms_list` → `kms_fetch`/`kms_query`). Agents fall back to minimal codebase exploration when KMS is unavailable. Never embedded in agents or skills. |
+| **Reference** | The Contract | Extracted formats, patterns, and templates reused across agents/skills — keeps their bodies lean. File-addressable: `Read` in full for thin docs, `symbol-query` for catalogs. Never embedded in agents or skills. Platform-agnostic. See [Reference vs Knowledge](#reference-vs-knowledge). |
 | **Skill** | The Hands | Procedural instructions that run in the caller's session. Type O (Orchestrator) is the user-facing entry tier of the agentic stack; Type P (Procedure) is the action tier called by agents. |
 | **Agent** | The Brain | Isolated reasoning in its own context window. Handles ambiguity, makes decisions, returns structured output to the caller. |
 | **MCP** | The Reach | Structured tool calls into external systems — Jira, Figma, IDE, build tools. Agents call MCP tools directly; no copy-paste relay. |
@@ -46,10 +46,28 @@ Five building blocks compose every agentic workflow. Each has one defined job �
 | Spawns agents | — | ✓ | ✓ | — | — |
 | Calls skills | — | ✓ | ✓ | — | — |
 | Bridges external systems | — | — | — | ✓ | — |
-| Grep-addressable knowledge | ✓ | — | — | — | — |
+| File-addressable reference | ✓ | — | — | — | — |
 | Shell execution (no model) | — | — | — | — | ✓ |
 
 Skills and Agents share tool access and file writes. What sets Agent apart is LLM reasoning and context isolation. Hooks and MCP are orthogonal — neither reasons nor reads files; they reach outward (MCP to external systems, Hooks to the local shell).
+
+### Reference vs Knowledge
+
+Both terms describe persistent facts an agent loads — but via different mechanisms, with different scope. Don't conflate them:
+
+| | **Reference** | **Knowledge** |
+|---|---|---|
+| What | Extracted format, contract, or template reused across agents/skills | Documentation, theory, patterns, project/platform context |
+| Lives in | `lib/core/<persona>/reference/` (flat) or `lib/core/shared/reference/<topic>/` (topic-grouped) | `kms/knowledge-sources/{universal,platform,projects}/` |
+| Loaded via | `Read` in full (thin docs) or `symbol-query` (catalogs) | `kms_list` → `kms_fetch`/`kms_query` |
+| Ships as | Plugin-bundled files at `reference/<persona-or-shared>/...` | Pre-seeded ChromaDB |
+| Platform/project scope | Always agnostic | `scope=universal` is agnostic; `scope=platform`/`scope=project` are explicitly scoped |
+
+**Corollary:** agents and skills under `lib/core/` are platform- and project-agnostic by default (see [agentic-repo-structure.md](agentic-repo-structure.md)). Anything platform- or project-specific that an agent needs is **Knowledge** and belongs in KMS — never folded into `lib/core/*/reference/`, which stays a pure format/contract layer.
+
+> **Catalog files** (`<name>-catalog.md`) are the one overlap: the catalog *format/schema* is Reference (shared, queryable structure), but its *populated content* is project-instance data — neither shared format nor KMS-managed theory.
+
+See [kms-conventions.md](../kms/kms-conventions.md) for the full Knowledge metadata schema and retrieval protocol, and the Reference Docs tables in [agentic-conventions.md](agentic-conventions.md#reference-docs) for the Reference tier directory layout.
 
 ---
 
@@ -103,7 +121,7 @@ Every agent is built from the same five parts. Together they make agent behavior
 | Part | What it is | Why it matters |
 |---|---|---|
 | **Input** | Declared parameters the agent requires to start — mode, feature name, platform, file paths. Missing input → `MISSING INPUT: <param>` immediately. | Explicit inputs make agents predictable and debuggable. |
-| **Knowledge** | Patterns always loaded in two steps: `kms_list` → `kms_query` for theory and documented conventions; codebase explore (grep for the most complete existing implementation) for live code patterns. Both are mandatory. | Specialization is a loading decision — change what an agent loads, change what it knows. |
+| **Knowledge** | Patterns always loaded in two steps: `kms_list` → `kms_query` for theory and documented conventions; codebase explore (grep for the most complete existing implementation) for live code patterns. Both are mandatory. See [Reference vs Knowledge](#reference-vs-knowledge) — this is KMS-managed Knowledge, distinct from file-addressable Reference docs. | Specialization is a loading decision — change what an agent loads, change what it knows. |
 | **Reasoning** | The LLM applies thinking, deciding, and branching to inputs and loaded knowledge. Handles ambiguity and edge cases that no fixed script can anticipate. | The part no deterministic tool can replace today — but the slot can be swapped in the future. |
 | **Output** | Declared and structured: `Decision:` blocks, `## Findings`, `## Output` with Glob+Grep-verified paths. The calling skill routes on it without ambiguity. | Structured output makes the calling skill's routing deterministic. |
 | **Modes** | An agent can be invoked in different modes. Each mode loads only the instruction lines relevant to that invocation — the rest are never read. | One agent body, multiple contexts of use, minimal per-invocation cost. |
@@ -317,7 +335,7 @@ The agentic system enforces its own conventions through automated review — the
 |---|---|
 | Token efficiency | Isolated context; Search Protocol decision gate; disk-first inter-agent communication — findings written to disk, paths not content passed between phases, Orchestrator context stays clean across rounds |
 | Modular knowledge | Skills preloaded, not embedded |
-| Single source of truth | `reference/` Grep-accessed, never duplicated |
+| Single source of truth | `reference/` file-addressed (`Read` or `symbol-query`), never duplicated |
 | Safe destructive operations | Use hooks in `settings.json` for automated bash execution without model involvement |
 | Reusability | Same skill preloaded into multiple workers |
 | Maintainability | Update one skill → all workers get the update |
