@@ -18,11 +18,13 @@ DISCIPLINE_VALUES = [
     "agile",
 ]
 
-MANDATORY_FIELDS = ["scope", "discipline", "artifact", "topic", "subtopic", "pattern", "schema_version"]
+AREA_VALUES = ["core", "design-system"]
+
+MANDATORY_FIELDS = ["scope", "discipline", "area", "artifact", "topic", "subtopic", "pattern", "schema_version"]
 
 OPTIONAL_FIELDS = ["platform", "project", "tags", "source_file", "updated_at", "content_hash"]
 
-SCHEMA_VERSION = "1"
+SCHEMA_VERSION = "2"
 
 # Default section ownership per source type — enforced by UpsertKnowledge use case.
 SOURCE_TYPE_OWNS: dict[str, list[str]] = {

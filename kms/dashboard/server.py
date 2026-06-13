@@ -89,11 +89,11 @@ class _Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/list":
             nodes = _list_uc.execute(
                 platform=q("platform"), project=q("project"),
-                discipline=q("discipline"), topic=q("topic"),
+                discipline=q("discipline"), area=q("area"), topic=q("topic"),
             )
             self._json([{
                 "id": n.id, "platform": n.platform, "project": n.project,
-                "discipline": n.discipline, "topic": n.topic, "pattern": n.pattern,
+                "discipline": n.discipline, "area": n.area, "topic": n.topic, "pattern": n.pattern,
                 "summary": n.summary, "tags": n.tags,
             } for n in nodes])
             return
@@ -101,6 +101,7 @@ class _Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/fetch":
             node = _fetch_uc.execute(
                 discipline=q("discipline") or "",
+                area=q("area") or "",
                 topic=q("topic") or "",
                 pattern=q("pattern") or "",
                 platform=q("platform"),
@@ -111,7 +112,7 @@ class _Handler(BaseHTTPRequestHandler):
             else:
                 self._json({
                     "id": node.id, "platform": node.platform, "project": node.project,
-                    "discipline": node.discipline, "topic": node.topic, "pattern": node.pattern,
+                    "discipline": node.discipline, "area": node.area, "topic": node.topic, "pattern": node.pattern,
                     "summary": node.summary, "tags": node.tags,
                     "source_file": node.source_file, "updated_at": node.updated_at,
                     "content": node.content,
@@ -131,11 +132,13 @@ class _Handler(BaseHTTPRequestHandler):
                 where["platform"] = body["platform"]
             if body.get("discipline"):
                 where["discipline"] = body["discipline"]
+            if body.get("area"):
+                where["area"] = body["area"]
             n_results = int(body.get("n_results", 8))
             nodes = _query_uc.execute(text=text, where=where or None, n_results=n_results)
             self._json([{
                 "id": n.id, "platform": n.platform, "project": n.project,
-                "discipline": n.discipline, "topic": n.topic, "pattern": n.pattern,
+                "discipline": n.discipline, "area": n.area, "topic": n.topic, "pattern": n.pattern,
                 "summary": n.summary, "content": n.content,
             } for n in nodes])
             return
@@ -146,6 +149,7 @@ class _Handler(BaseHTTPRequestHandler):
                     platform=body.get("platform") or None,
                     project=body.get("project") or None,
                     discipline=body["discipline"],
+                    area=body["area"],
                     topic=body["topic"],
                     pattern=body["pattern"],
                     content=body.get("content", ""),
