@@ -7,6 +7,17 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.18.1] — 2026-06-14
+
+### Changed
+- `kms/knowledge-sources/platform/flutter/engineering/core/standard-architecture.md` — merged `# State Management` (BLoC, Cubit) into `# Presentation`; all presentation-layer patterns now under a single topic, enabling a single `kms_list(topic="presentation")` call
+- `lib/core/developer/agents/developer-feature-worker.md`, `developer-backend-worker.md`, `developer-ui-worker.md` — added project-tier KMS retrieval step (`discipline="engineering", project="{project}"`) for deviations, api-endpoints, and shared-components
+- `lib/core/developer/agents/developer-domain-planner.md` — added project-tier retrieval for `deviations` and `feature-inventory` artifacts; added `project` derivation
+- `lib/core/developer/agents/developer-data-planner.md` — added project-tier retrieval for `api-endpoints` and `third-party-integrations` artifacts; added `project` derivation
+- `lib/core/developer/agents/developer-pres-planner.md` — added project-tier retrieval for `shared-components` and `deviations`; narrowed platform-tier `kms_list` to `topic="presentation"`; added `project` derivation
+- `lib/core/developer/agents/developer-app-planner.md` — added project-tier retrieval for `deviations`; added `project` derivation
+- `lib/core/developer/agents/developer-ui-worker.md` — updated KMS fetch guidance to include StateHolder wiring patterns (BlocProvider, BlocBuilder, BlocListener) alongside screen/component patterns
+
 ## [12.18.0] — 2026-06-14
 
 ### Changed
