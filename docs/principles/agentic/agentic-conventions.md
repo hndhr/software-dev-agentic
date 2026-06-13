@@ -102,7 +102,6 @@ Sub-planners are all leaf agents: they explore, report, and return. No further s
 |---|---|---|
 | **Persona agent** | `lib/core/<persona>/agents/` | Yes — all platforms |
 | **Platform agent** | `lib/platforms/<platform>/agents/` | Yes — matching platform only |
-| **Project agent** | `.claude/agents.local/` | No — project-owned, not in this repo |
 
 > Persona agents must be platform-agnostic (Critical per P6). The body must not contain:
 > - Hardcoded platform paths: `src/domain/`, `src/data/`, `Talenta/Module/`, `lib/`, `app/`
@@ -141,7 +140,6 @@ Sub-planners are all leaf agents: they explore, report, and return. No further s
 | **Toolkit skill** | `lib/core/<persona>/skills/{orchestrators,procedures}/` | Yes — all platforms. Platform-agnostic, intended for use in downstream projects. |
 | **Platform-contract skill** | `lib/platforms/<platform>/skills/contract/` | Yes — matching platform. Same name across all platforms; each implements for its syntax — called by persona workers. Bundled flat as `<name>/SKILL.md` in the plugin. |
 | **Platform-only skill** | `lib/platforms/<platform>/skills/` (flat) | Yes — matching platform only. Called by platform agents. |
-| **Project skill** | `.claude/skills.local/` | No — project-owned, not in this repo. |
 | **Repo skill** | `.claude/skills/` | No — internal tooling only. Used by this repo's internal agents; never bundled into downstream plugins. |
 
 > "Core-dependency skill" refers to platform-contract skills — skills all platforms must implement under the same name (`developer-domain-create-entity`, `developer-data-create-mapper`, etc.).
@@ -179,9 +177,8 @@ Not all combinations are meaningful. Use this as the decision gate when adding a
 |---|---|---|
 | **Shared reference** | `lib/core/shared/reference/<topic>/` | Yes — all personas, all platforms. Cross-cutting facts/contracts shared by multiple agents (e.g. `saturn-jaygarcia/plan-format.md`). Topic-grouped. Bundled to `reference/shared/<topic>/` in the plugin. |
 | **Persona reference** | `lib/core/<persona>/reference/` | Yes — all platforms. Flat — no topic subfolders. Contains `<name>-catalog.md` (queryable symbol/component inventory — agents `symbol-query` these, never load in full) and cross-agent schema/contract docs (e.g. `plan-format.md`, `findings-format.md`). Bundled flat to `reference/<persona>/` in the plugin. |
-| **Project reference** | `.claude/reference.local/` | No — project-owned, not in this repo. Overrides for project-specific conventions not in KMS. |
 
-> **Runtime path from agent body:** `copy_reference` (in `scripts/plugin-lib.sh`) bundles `lib/core/<persona>/reference/**` (including `lib/core/shared/reference/`) into `dist/plugins/<name>/reference/<persona-or-shared>/**` at build time, preserving whatever structure exists under each `reference/` dir — flat for persona reference, topic-grouped for shared reference. Agents must reference these docs as `$CLAUDE_PLUGIN_ROOT/reference/<persona-or-shared>/<path>` — never `.claude/reference/...` (that path is project-owned via `.claude/reference.local/`, not plugin-shipped, and resolves against the downstream project root, not the plugin cache).
+> **Runtime path from agent body:** `copy_reference` (in `scripts/plugin-lib.sh`) bundles `lib/core/<persona>/reference/**` (including `lib/core/shared/reference/`) into `dist/plugins/<name>/reference/<persona-or-shared>/**` at build time, preserving whatever structure exists under each `reference/` dir — flat for persona reference, topic-grouped for shared reference. Agents must reference these docs as `$CLAUDE_PLUGIN_ROOT/reference/<persona-or-shared>/<path>` — never `.claude/reference/...` (that path resolves against the downstream project root, not the plugin cache).
 
 ---
 
@@ -329,7 +326,6 @@ Decision tree — apply in order when deciding what to add:
 | Section | Purpose |
 |---|---|
 | `## Search Rules` | Grep-before-Read decision gate table |
-| `## Extension Point` | Hook at end: check `agents.local/extensions/<name>.md` |
 
 Workers must also:
 - Validate preconditions before writing (`create-*` → target must NOT exist; `update-*` → target MUST exist)
@@ -342,13 +338,8 @@ Workers must also:
 | Phase sections (`## Phase N`) | One per coordination phase |
 | State file write | After each phase: `.claude/agentic-state/runs/<feature>/state.json` |
 | Output validation | Glob each worker output path — STOP if missing |
-| `## Extension Point` | Hook at end |
 
 Strategists never use Edit, Write, or file-writing Bash — zero inline work.
-
-**Extension Point — standard hook.** Every agent body must end with a `## Extension Point` heading reading: "After completing, check for `agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions."
-
-For repo agents (`.claude/agents/`), the path is `.claude/agents.local/extensions/<name>.md`.
 
 ---
 

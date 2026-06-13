@@ -24,7 +24,6 @@ For each `.md` agent file:
 
 **Workers** (files without `agents:` frontmatter field)
 - [ ] `## Search Rules` section present with Grep-before-Read rule
-- [ ] `## Extension Point` section present at end of file
 - [ ] Catalog file (`<name>-catalog.md`) reads use `symbol-query` — no "Read ... completely"
 - [ ] Thin reference docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full at a fixed path
 - [ ] Any `Reference:` line that lists multiple files also mentions `reference/index.md` as the discovery fallback (Fix F)
@@ -114,7 +113,7 @@ Severity: Warning for any prompt clarity finding.
 ## Severity Levels
 
 - **Critical** — missing required frontmatter field, broken reference path, "Read completely" violation on catalog files, platform-specific content in a `lib/core/*/agents/` file
-- **Warning** — wrong model for worker type, missing Search Rules, missing Extension Point, missing `reference/index.md` discovery hint on multi-file Reference lines, explanatory comments in template files, missing `## Input` or `## Output` body section
+- **Warning** — wrong model for worker type, missing Search Rules, missing `reference/index.md` discovery hint on multi-file Reference lines, explanatory comments in template files, missing `## Input` or `## Output` body section
 - **Info** — naming convention deviation, description could be more specific, missing Knowledge or Reasoning body section slot
 
 ## Output Format

@@ -168,7 +168,3 @@ Contract skills written:
 
 Warnings:
 - MISSING_PATTERN: <layer> — <reason>
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/agentic-generate-platform-worker.md` — if it exists, read and follow its additional instructions.

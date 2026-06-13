@@ -101,7 +101,3 @@ If no issues found: `PASS: <scope> — all structural references resolved.`
 
 - If scope resolves to zero files: report `SCOPE EMPTY: <scope> — no files found` and stop
 - If a `.pkg` file is missing for a named persona: report `PKG MISSING: packages/<persona>.pkg` and continue with directory check only
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/agentic-audit-worker.md` — if it exists, read and follow its additional instructions.

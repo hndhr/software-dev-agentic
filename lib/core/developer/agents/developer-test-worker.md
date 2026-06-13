@@ -61,7 +61,3 @@ Process multiple targets sequentially — complete each before starting the next
 - <path/to/test/file>
 - <path/to/mock/file-if-created>
 ```
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/developer-test-worker.md` — if it exists, read and follow its additional instructions.

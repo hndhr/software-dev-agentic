@@ -138,7 +138,3 @@ After the user reproduces and shares logs, interpret them and update the report 
 ## Cleanup
 
 After the issue is resolved, spawn `debugger-log-worker` with `MODE=remove` to strip instrumentation before committing.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/debugger-worker.md` — if it exists, read and follow its additional instructions.

@@ -190,7 +190,6 @@ When a worker reads reference docs, scans existing files, and writes code — no
 | Platform-specific agents (descriptions) | ~3–5 lines each in main session | Agent tool definition |
 | Preloaded skills | Loaded at worker startup only | `skills` field |
 | Knowledge patterns | `kms_list` → `kms_fetch`/`kms_query` (theory + conventions) + codebase explore (live code) — always both | `knowledge_scope` in agent frontmatter |
-| `agents.local/extensions/` | 1 Read call (conditional) | Extension hook in shared agent |
 | Dead weight (unselected groups) | Zero | Persona groups not linked if not selected |
 | Strategist context accumulation | Minimal — disk-based hand-offs | Agents write findings to disk; skill passes paths not content; state file prevents re-reads |
 
@@ -248,19 +247,11 @@ There is no universal line limit. The constraint is not length — it is scope. 
 
 Agents load their procedure skills at startup via the `skills` field — full skill content is injected at startup. This gives agents full procedural knowledge without embedding it in their body. Same procedures are reusable across multiple agents. One definition, updated once.
 
-**Three consumer modes:**
+**Consuming shared agents, skills, and reference docs:**
 
-Downstream projects interact with shared agents, skills, and reference docs in one of three modes:
+Downstream projects consume agents, skills, and reference docs as plugin-bundled files — they work as-is via the standard workflow.
 
-| Mode | Applies to | Mechanism | When to use |
-|---|---|---|---|
-| **Use** | agents, skills, reference | Plugin-bundled file | Works as-is — standard workflow |
-| **Extend** | agents only | Shared symlink + `agents.local/extensions/<name>.md` | Add behavior without losing submodule updates |
-| **Override** | agents, skills, reference | Real file in `*.local/` | Fundamentally different behavior needed |
-
-Extension files contain only the delta — not a full copy. Updates to the submodule are inherited automatically.
-
-Reference docs are override-only (no extension mechanism). Pattern knowledge lives in `kms/knowledge-sources/` — agents load it via `kms_list` → `kms_query`; the structure is the contract, not grep offsets.
+Pattern knowledge lives in `kms/knowledge-sources/` — agents load it via `kms_list` → `kms_query`; the structure is the contract, not grep offsets.
 
 > Agentic stack model, component types, naming conventions, and orchestrator design checklist: see [agentic-conventions.md](agentic-conventions.md).
 

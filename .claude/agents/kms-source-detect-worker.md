@@ -72,7 +72,3 @@ If a source with the same name already exists: update `path`/`url` only, do not 
 ## Return
 
 Return the confirmed entry so the orchestrator can pass it to `kms-seed-worker`.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/kms-source-detect-worker.md` — if it exists, read and follow its additional instructions.

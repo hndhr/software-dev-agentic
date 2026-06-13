@@ -33,11 +33,3 @@ debugger-strategist  ← debug entry point
 ```
 
 Workers are resolved by name at runtime from `.claude/agents/`. The correct platform implementation is wired by `setup-symlinks.sh --platform=<platform>` at project setup time.
-
----
-
-## Extension
-
-Add project-specific logic without touching shared files:
-- Create `.claude/agents.local/extensions/<agent-name>.md` (delta only)
-- Each agent ends with an extension hook that reads this file if present

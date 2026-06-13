@@ -55,7 +55,3 @@ Accept one of:
 
 - If scope resolves to zero files, report it and stop — do not proceed
 - If a referenced file path in a skill can't be resolved, flag as Critical broken reference
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/agentic-arch-review-worker.md` — if it exists, read and follow its additional instructions.

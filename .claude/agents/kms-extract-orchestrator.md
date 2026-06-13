@@ -118,7 +118,3 @@ Run /kms-seed to load into ChromaDB.
 - Never write to repo.yaml directly — delegate all repo.yaml mutations to kms-extract-worker
 - If local_path is inaccessible after user provides it: abort with a clear error
 - Workers run in parallel — do not serialize unless one depends on another's output
-
-## Extension Point
-
-Check `.claude/agents.local/extensions/kms-extract-orchestrator.md` — if it exists, read it and follow its additional instructions before completing.

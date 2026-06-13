@@ -231,7 +231,3 @@ Post-write checklist:
 - Negative cases exist for every happy path
 - Smoke tests cover only core happy paths
 - Every feature area has at least one Smoke test
-
-## Extension Point
-
-Check `.claude/agents.local/extensions/qa-testcase-worker.md` for project-specific overrides before running.

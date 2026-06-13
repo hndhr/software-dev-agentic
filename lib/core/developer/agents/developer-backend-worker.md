@@ -130,7 +130,3 @@ After all artifacts are complete, run the project's type checker **once**:
 ```
 
 Suggest next step: run `/developer-plan-feature` to build the Presentation and UI layers.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-backend-strategist.md` — if it exists, read and follow its additional instructions.

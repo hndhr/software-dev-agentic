@@ -158,29 +158,6 @@ Adding a new platform or project: add an entry to `cipherpol.json`. No script ch
 
 ---
 
-### 6. Three Modes: Use, Extend, Override
-
-> For the principle, see [agentic-design-principles.md — P3](agentic/agentic-design-principles.md#3-skills--hands-thin-procedures).
-
-Downstream projects interact with shipped agents and skills in one of three modes:
-
-**Extend** — add behavior without touching the plugin. Every shared agent ends with:
-```
-After completing, check for `.claude/agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions.
-```
-Extension files contain only the delta. Plugin updates are inherited automatically.
-
-**Override** — create a real file in `agents.local/` or `skills.local/` with the same name. The plugin's version is ignored for that file.
-
-**Local directories:**
-
-| Directory | Override | Extend | Notes |
-|---|---|---|---|
-| `agents.local/` | ✓ | ✓ via `extensions/` | Workers check `extensions/<name>.md` at the end of their run |
-| `skills.local/` | ✓ | — | Replaces the whole skill dir |
-
----
-
 ## Convention Compliance System
 
 CipherPol enforces its own conventions through an automated internal review system. This is separate from the downstream code reviewer (`lib/core/auditor/agents/auditor-arch-review-worker.md`) — the internal system reviews *agent and skill files in this repo*, not *application code in downstream projects*.
@@ -200,7 +177,7 @@ CipherPol enforces its own conventions through an automated internal review syst
 |---|---|---|
 | Frontmatter | `name`, `description`, `model`, `tools` required; `model: sonnet` for all workers (haiku only for truly mechanical leaf tasks) | 🔴 Critical / 🟡 Warning |
 | Strategists | `agents:` lists only spawned workers; body passes only file paths between phases; writes state file after each phase; no Phase 2 codebase reads; no direct Edit or Write — file changes always through workers; explicit output validation after each spawn — STOP if `## Output` missing or paths don't exist | 🔴 Critical |
-| Workers | `## Input` section with required params table and `MISSING INPUT` STOP condition; `## Scope Boundary` section with owned-layer declaration and delegation table; `## Task Assessment` section — skill vs direct edit gate; `## Skill Execution` section — platform path resolution, Read SKILL.md, follow; `## Search Protocol` with decision gate table; `## Output` section with Glob + Grep verification before listing paths; `## Extension Point` at end; no "Read ... completely" on catalog files (`<name>-catalog.md`) — use `symbol-query` | 🔴 Critical / 🟡 Warning |
+| Workers | `## Input` section with required params table and `MISSING INPUT` STOP condition; `## Scope Boundary` section with owned-layer declaration and delegation table; `## Task Assessment` section — skill vs direct edit gate; `## Skill Execution` section — platform path resolution, Read SKILL.md, follow; `## Search Protocol` with decision gate table; `## Output` section with Glob + Grep verification before listing paths; no "Read ... completely" on catalog files (`<name>-catalog.md`) — use `symbol-query` | 🔴 Critical / 🟡 Warning |
 | Core agent platform-agnosticism | No hardcoded platform paths (`src/domain/`, `Talenta/Module/`, `lib/`, `app/`); no platform framework references as rules (`React`, `Next.js`, `RxSwift`, `UIKit`, `BLoC`, `axios`); no platform language syntax as rules (`'use client'`, `readonly`, `BehaviorRelay`); platform knowledge delegated to KMS | 🔴 Critical |
 | Skill frontmatter | `name`, `description`, `user-invocable: false` present | 🔴 Critical |
 | Reference reads in skills | Catalog files (`<name>-catalog.md`) use `symbol-query` — Grep-first, no "Read completely"; thin format/contract docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full; all referenced paths match actual filenames | 🔴 Critical |
@@ -210,7 +187,7 @@ CipherPol enforces its own conventions through an automated internal review syst
 
 **Severity levels:**
 - 🔴 Critical — missing required frontmatter, broken reference path, "Read completely" violation on catalog files, platform-specific content in a `lib/core/*/agents/` file
-- 🟡 Warning — wrong model, missing Search Protocol/Output/Extension Point, prompt clarity issues
+- 🟡 Warning — wrong model, missing Search Protocol/Output, prompt clarity issues
 - 🟢 Info — naming deviation, description could be more specific
 
 ---
@@ -227,8 +204,6 @@ CipherPol enforces its own conventions through an automated internal review syst
 | Internal tooling skills (not shipped) | `.claude/skills/<skill-name>/` |
 | Architecture + SDLC knowledge | `kms/knowledge-sources/{universal,platform,projects}/` |
 | Plugin definitions | `lib/plugins/<plugin-name>/` |
-| Project-specific agents | `.claude/agents.local/` |
-| Agent behavior extensions | `.claude/agents.local/extensions/<name>.md` |
 | `CLAUDE.md` | downstream project root |
 | `settings.json` | downstream `.claude/` |
 

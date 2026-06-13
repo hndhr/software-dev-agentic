@@ -80,8 +80,6 @@ Templates for adapting this toolkit's conventions to other AI coding assistants.
 
 Not shipped to downstream plugins — see [repo-structure.md — `.claude/` boundary](../repo-structure.md#repository-structure).
 
-**Downstream-only directories** (exist in projects that install these plugins, not in this repo): `.claude/agents.local/`, `.claude/skills.local/`, `.claude/reference.local/` — override/extend points, see [Three Modes: Use, Extend, Override](../repo-structure.md#6-three-modes-use-extend-override).
-
 ---
 
 ## Changelog

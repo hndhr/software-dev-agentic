@@ -214,7 +214,3 @@ Rules are governed by `kms/docs/kms-knowledge-source-rules.md`. The non-negotiab
 - Keep content concise — paths relative to `local_path`
 - Do not include code snippets — paths and names only
 - Write to `output_path` using the Write tool
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/kms-extract-worker.md` — if it exists, read and follow its additional instructions.

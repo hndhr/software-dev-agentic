@@ -113,7 +113,3 @@ Total expected chunks: {N}
 ```
 
 Return only the report — no prose before or after.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/kms-source-audit-worker.md` — if it exists, read and follow its additional instructions.

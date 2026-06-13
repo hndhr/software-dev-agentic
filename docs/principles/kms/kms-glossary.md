@@ -24,6 +24,7 @@ A quick-reference list of KMS vocabulary terms with one-line definitions — for
 | **Rosetta Stone** | The term-to-storage-path-to-metadata-field mapping table in [kms-conventions.md](kms-conventions.md) — the canonical reference when a term's meaning is unclear. |
 | **Cascade resolution** | The fallback order KMS uses when fetching a node: `project → platform → universal` — most specific match wins. |
 | **Scoping funnel** | The narrowing order for `kms_list` calls: `platform`/`project` → `discipline` → `artifact` → `topic` → `pattern` (output, never a filter). |
+| **Retrieval Protocol** | The decision table for which KMS MCP tool (`kms_list`/`kms_fetch`/`kms_query`) to use for a given retrieval need. Defined in [kms-conventions.md](kms-conventions.md#retrieval-protocol). |
 | **kms_list** | MCP tool — returns a TOC (metadata only) for a given filter combination; narrows one term at a time. |
 | **kms_fetch** | MCP tool — exact, cascade-resolved retrieval once `discipline`/`artifact`/`topic`/`pattern` are known. |
 | **kms_query** | MCP tool — semantic search bypass when the exact `pattern` isn't known yet; ranks by similarity. |

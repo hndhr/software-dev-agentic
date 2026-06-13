@@ -77,7 +77,3 @@ MOST LIKELY CAUSE
 ```
 
 Then hand off to the user — do not decide next steps unilaterally.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/debugger-strategist.md` — if it exists, read and follow its additional instructions.

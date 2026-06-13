@@ -413,7 +413,3 @@ Never embed `$(...)` in a `file_path` argument. Always resolve the project root 
 | Anything in production source files | **Never read directly — planners handle this** |
 
 **Read-once rule:** Once you have read a file, do not read it again. Note all relevant content from that single read.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/developer-feature-strategist.md` — if it exists, read and follow its additional instructions.

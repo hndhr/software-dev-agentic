@@ -69,7 +69,3 @@ Total: 47 upserted, 3 unchanged, 1 source unavailable
 - Never write files directly — delegate all file I/O to workers
 - A skipped source never blocks others — continue after logging the warning
 - Report all outcomes including skips
-
-## Extension Point
-
-Check `.claude/agents.local/extensions/kms-seed-orchestrator.md` — if it exists, read and follow its additional instructions before reporting.

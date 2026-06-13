@@ -93,7 +93,3 @@ Fix: [specific, actionable fix]
 ### Compliant
 - [passing files or checks]
 ```
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/auditor-arch-review-worker.md` — if it exists, read and follow its additional instructions.

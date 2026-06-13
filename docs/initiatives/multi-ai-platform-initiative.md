@@ -28,11 +28,7 @@ Each platform is split: **Official** = primitive provided by the platform itself
 | Project-level instructions | `CLAUDE.md` | — | `GEMINI.md` | — | `.github/copilot-instructions.md` | — |
 | Path-specific instructions | Per-directory `CLAUDE.md` | — | Per-directory `GEMINI.md` | — | `.github/instructions/*.instructions.md` with glob patterns | — |
 | Reference doc imports | `@path` syntax | — | `@path` native syntax | Import submodule reference docs via `@` in `GEMINI.md` template | None — path hints only | List reference paths as hints in instructions file |
-| Override an agent | — | Real file in `agents.local/` shadows symlink | — | None — no agent system | — | Same convention — real file in `.github/agents/<name>.agent.md` shadows symlink |
-| Extend an agent | — | `agents.local/extensions/<name>.md` delta file | — | None | — | None — full override only |
 | Override a command | — | None — no command system | — | Same convention — real `.gemini/commands/<name>.toml` shadows symlink | — | None — no command system |
-| Override a skill | — | Real dir in `skills.local/` shadows symlink | — | Same convention — real dir in `.agents/skills/<name>/` shadows symlink | — | None — no skill system |
-| Override a reference doc | — | Real file in `reference.local/` shadows platform/core | — | Same convention — `@import` resolves at file system level; real file at the same path shadows the symlink | — | None |
 
 ### 2. Skills (Procedures)
 
@@ -42,7 +38,6 @@ Each platform is split: **Official** = primitive provided by the platform itself
 | Agent-invocable procedure | `skills:` frontmatter field | Type A taxonomy | `.agents/skills/<name>/SKILL.md` — auto-discovered by AI from `description`; not explicitly invoked | Symlink submodule platform skills into `.agents/skills/` via `setup-ai.sh` | None | Workaround — `.github/instructions/<skill-name>.instructions.md` with `applyTo:` glob; injected automatically when working on matching files. Risk: context pollution — instructions always present for matching paths, not on-demand |
 
 | Skill preloading | `skills:` field — content injected at agent startup | — | None | None | None | None — each agent is standalone; no preloading across agents |
-| Override a skill | — | Same-name real dir in `skills.local/` shadows symlink | — | Same convention — real dir in `.agents/skills/<name>/` shadows symlink | — | Same convention — real file in `.github/agents/<name>.agent.md` shadows symlink |
 
 #### Skill Frontmatter Fields
 
@@ -128,7 +123,6 @@ Content below frontmatter is injected as context whenever a matching file is in 
 | Principle | Claude Code Official | Claude Code Convention | Gemini CLI Official | Gemini CLI Convention | Copilot Official | Copilot Convention |
 |---|---|---|---|---|---|---|
 | Shared knowledge docs | — | Reference docs live at `.claude/reference/` in the downstream project — e.g. `reference/code-architecture/domain.md` (what a UseCase IS), `reference/contract/builder/domain.md` (how it looks in platform syntax), `reference/use-response-model.md` (iOS DTO structure). Multiple agents read the same doc via Grep-first — none embed the knowledge in their own body. Update one doc → all agents that reference it pick it up | — | Reference docs can be read by Gemini agents via Bash/shell. No Grep-first offset+limit discipline — agents read files in full or use `grep` via shell. Knowledge organization is portable as a file structure; on-demand precision reading is not | — | No structured access mechanism — agent `prompt` would need to inline the knowledge, which violates the principle. Path hints can point agents at files but there is no Grep-first or offset+limit reading discipline |
-| Override at project level | — | `reference.local/` real file shadows the symlink — project-specific conventions override platform/core docs without touching the submodule | — | Portable as a file convention — place a real file at the same path; Gemini agents read it via the same path. No symlink resolution mechanism; override works at the filesystem level | — | None — no structured override mechanism; agent prompts are static |
 | Lean — pointer not embed | — | Convention: agent bodies reference doc paths only, never inline content. Knowledge lives in reference docs, agents Grep on demand | `@import` (live include into session) | `@import` in `GEMINI.md` pulls reference docs into the main session upfront — not on-demand per agent. Lean is harder to maintain as the imported set grows | Path hints only | Agent `prompt` must inline knowledge — no pointer-only mechanism exists. Lean principle is not portable |
 
 ### Summary
@@ -138,9 +132,6 @@ Content below frontmatter is injected as context whenever a matching file is in 
 | Project conventions | Official | Official | Official |
 | Path-specific instructions | Official | Official | Official |
 | Reference doc imports | Official | Official | None (path hints only) |
-| Extension/override (agent) | Convention only | None | None |
-| Extension/override (skill) | Convention only | Same convention — real dir shadows symlink in `.agents/skills/` | None |
-| Extension/override (reference) | Convention only | Same convention — `@import` picks up real file override at same path | None |
 | User-invocable skills | Official + Convention | Partial — Custom Commands (TOML) for explicit invocation; `.agents/skills/` for auto-discovery | Workaround — via `.github/agents/*.agent.md`, invoked via `/agent <name>` |
 | Agent-auto-discovered skills | Official + Convention | Official primitive (`.agents/skills/`) — Convention for wiring submodule skills | Workaround — `.github/instructions/<name>.instructions.md` with `applyTo:` glob (context pollution risk) |
 | Agent-invocable skills | Official + Convention | None | None |

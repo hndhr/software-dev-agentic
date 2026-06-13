@@ -113,7 +113,3 @@ When the engineer is ready to act, name the exact tool or command:
 | Simple targeted edit (clear, localized) | name the file and the specific change |
 
 Do not execute the handoff yourself — the engineer invokes it.
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/agentic-consult-worker.md` — if it exists, read and follow its additional instructions.

@@ -23,7 +23,6 @@ A single, alphabetical index of every term coined — or given a project-specifi
 | Decision block | [Agentic](agentic/agentic-glossary.md) | Structured strategist output — `Decision: spawn-planners`, `converged`, `spawn-worker`, `blocked`. |
 | Discipline | [KMS](kms/kms-glossary.md) | Role/work-area a knowledge artifact serves — `engineering`, `qa`, `design`, etc. |
 | Disk-First Inter-Agent Communication | [Agentic](agentic/agentic-glossary.md) | Agents hand off via files on disk (`plan.md`, `context.md`, `state.json`) — never inline content between rounds. |
-| Extension Point | [Agentic](agentic/agentic-glossary.md) | Standard end-of-agent hook: check `agents.local/extensions/<name>.md`. |
 | kaku-worker | [Agentic](agentic/agentic-glossary.md#named-agents) | Generic executor that implements an approved `plan.md` end-to-end. |
 | KMS | [KMS](kms/kms-glossary.md) | Knowledge Management System — ChromaDB-backed knowledge store, queried via `cp8` MCP. |
 | kms_fetch / kms_list / kms_query / kms_upsert | [KMS](kms/kms-glossary.md) | The four MCP tools for exact retrieval, TOC browsing, semantic search, and manual seeding. |
@@ -44,6 +43,7 @@ A single, alphabetical index of every term coined — or given a project-specifi
 | Procedure Skill (Type P) | [Agentic](agentic/agentic-glossary.md) | Thin (~10–30 line), agent-only, create-only skill — no routing or decision logic. |
 | Project | [KMS](kms/kms-glossary.md) | Specific downstream codebase a knowledge node is a deviation/inventory for. |
 | Reference | [Agentic](agentic/agentic-glossary.md) | Extracted formats/contracts/templates reused across agents/skills — file-addressable, platform-agnostic. |
+| Retrieval Protocol | [KMS](kms/kms-conventions.md#retrieval-protocol) | Decision table for which KMS MCP tool (`kms_list`/`kms_fetch`/`kms_query`) to use for a given retrieval need. |
 | Rosetta Stone | [KMS](kms/kms-conventions.md) | The full term-to-path-to-metadata mapping table in `kms-conventions.md`. |
 | saturn-jaygarcia | [Agentic](agentic/agentic-glossary.md#named-agents) | Type O skill pairing `lucci-planner` + `kaku-worker` into a plan-then-build flow. |
 | Scope | [KMS](kms/kms-glossary.md) | Cascade tier of a knowledge node — `universal`, `platform`, or `project`. |
@@ -55,7 +55,6 @@ A single, alphabetical index of every term coined — or given a project-specifi
 | Topic | [KMS](kms/kms-glossary.md) | A `#` heading inside an artifact file — thematic grouping of related concepts. |
 | Trigger Skill | [Agentic](agentic/agentic-glossary.md) | The Type O skill that is a persona's only supported entry path. |
 | Ubiquitous language (pattern keys) | [Agentic](agentic/agentic-glossary.md) | One KMS concept = one `pattern` key, identical across all platforms. |
-| Use / Extend / Override | [Agentic](agentic/agentic-glossary.md) | The three modes a downstream project can consume a shipped agent/skill in. |
 | Worker | [Agentic](agentic/agentic-glossary.md) | Any agent that executes a plan and writes source files, regardless of role label. |
 
 ---

@@ -195,10 +195,6 @@ Return this block as the final section of your response. One path per line, no p
 
 ## Output
 - <path/to/created/or/updated/file>
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions.
 ```
 
 ---
@@ -253,11 +249,6 @@ You produce zero file changes directly. No Edit, Write, or file-writing Bash cal
 
 - Pass only file path lists between phases — never file contents
 - Workers own their own context reads — do not pre-read files on their behalf
-
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/<name>.md` — if it exists, read and follow its additional instructions.
 ```
 
 ---
@@ -333,7 +324,3 @@ Next steps:
   - <If new persona: run setup-symlinks.sh --platform=<platform> in downstream projects to pick it up>
   - Run arch-review-strategist to validate conventions
 ```
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/agentic-scaffold-worker.md` — if it exists, read and follow its additional instructions.

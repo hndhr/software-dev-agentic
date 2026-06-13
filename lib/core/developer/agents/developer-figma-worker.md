@@ -159,7 +159,3 @@ Write `<run_dir>/inputs/figma-uistack-<screen-slug>.md` per `$CLAUDE_PLUGIN_ROOT
 **Step 5 — Return output**
 
 Return exactly one `## Figma Groups` block per `$CLAUDE_PLUGIN_ROOT/reference/developer/figma-artifact-format.md` (`## Worker Output Blocks` → Group-Frames Mode), with `screen`/`type`/`parent_screen`/`uistack_file`/`states` derived from Steps 3–4c.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/developer-figma-worker.md` — if it exists, read and follow its additional instructions.

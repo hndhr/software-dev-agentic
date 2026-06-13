@@ -57,7 +57,7 @@ If no violations: `PASS: <path> — no convention violations found.` Stop here.
 
 Severity guide (Grep `docs/principles/agentic/agentic-conventions.md` for the relevant section to confirm):
 - **Critical** — missing required frontmatter field, missing required section, platform-specific content in a core agent
-- **Warning** — wrong model, Search Rules or Extension Point missing, naming deviation
+- **Warning** — wrong model, Search Rules missing, naming deviation
 - **Info** — description could be more specific
 
 ## Step 4 — Confirm Fix Plan
@@ -73,7 +73,7 @@ Call `AskUserQuestion` directly — do not end your turn with this question as p
 Apply all confirmed fixes in a single Edit pass per file. Fix order:
 
 1. Frontmatter additions (missing fields)
-2. Section additions (`## Search Rules`, `## Extension Point`)
+2. Section additions (`## Search Rules`)
 3. Section corrections (wrong model, naming)
 4. Platform-agnosticism violations (remove embedded platform content — flag to user if the fix requires delegating to a skill, as that is out of scope for this worker)
 
@@ -101,7 +101,3 @@ Skipped (<n>):
 Out of scope (<n>):
   - <violation — manual action needed>
 ```
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/agentic-migrate-worker.md` — if it exists, read and follow its additional instructions.

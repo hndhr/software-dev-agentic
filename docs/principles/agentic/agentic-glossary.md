@@ -31,13 +31,11 @@ Short, one-line definitions for terms coined — or given a project-specific mea
 | **Convergence loop** | The skill-owned loop: spawn agents → collect Decision block → spawn again — until the strategist signals `converged`. |
 | **Disk-First Inter-Agent Communication** | Agents hand off via files on disk (`plan.md`, `context.md`, `state.json`) — the calling skill relays paths, never inlines content between rounds. |
 | **Skill-First Entry** | The principle that trigger skills are the only supported entry path into a persona — direct agent invocation is unsupported. |
-| **Extension Point** | The standard hook every agent body ends with: check `agents.local/extensions/<name>.md` and follow any additional instructions found there. |
 | **symbol-query** | The canonical lookup pattern for a class/function/type in source: `Grep <SymbolName>` → `Read(offset=line-5, limit=60)`. |
 | **Catalog file** | A `<name>-catalog.md` reference doc — a queryable symbol/component inventory. Always `symbol-query`'d, never read in full. |
 | **Search Protocol** | The decision-gate table dictating which tool (KMS, Grep, Read, Glob) to use for a given kind of lookup. |
 | **plan.md / context.md / state.json** | The three state files passed between phases of a persona run — per-artifact instructions, key symbols/conventions, and phase-completion pointer, respectively. |
 | **Build-directly** | A deliberate opt-out: a worker makes layer-assignment decisions inline with no plan, no human gate, no tool restriction. Only reachable for brand-new features with no prior run. |
-| **Use / Extend / Override** | The three modes a downstream project can use to consume a shipped agent or skill — as-is, with an additive delta file, or with a full local replacement. |
 | **Mode** (agent mode) | A named section of an agent body, loaded only when the calling skill passes a matching `mode:` — keeps one agent body serving multiple invocation contexts. |
 | **Ubiquitous language** (pattern keys) | The rule that one KMS concept = one `pattern` key, used identically across every platform. |
 

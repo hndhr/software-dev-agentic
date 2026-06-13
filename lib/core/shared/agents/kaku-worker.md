@@ -51,7 +51,3 @@ Return exactly:
 ```
 
 Only list files in `## Files Changed` that passed verification.
-
-## Extension Point
-
-Check for `.claude/agents.local/extensions/kaku-worker.md` — if it exists, read and follow its additional instructions.

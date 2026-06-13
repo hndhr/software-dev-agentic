@@ -49,7 +49,7 @@ Unfamiliar term (`Persona`, `Strategist`, `Decision block`, `pattern`, etc.)? Ch
 
 ## Conventions
 
-**Agents** — `name`, `description`, `model`, `tools` required in frontmatter. Orchestrators list sub-agents in `agents:` and never write files directly. Workers end with `## Extension Point` (check `.claude/agents.local/extensions/<name>.md`).
+**Agents** — `name`, `description`, `model`, `tools` required in frontmatter. Orchestrators list sub-agents in `agents:` and never write files directly.
 
 **Skills** — `name`, `description`, `user-invocable: false` required. Single task only, under 30 lines. User-facing skills omit `user-invocable` or set it to `true`.
 

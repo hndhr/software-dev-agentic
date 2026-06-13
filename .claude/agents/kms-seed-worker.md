@@ -77,7 +77,3 @@ Return:
 ```
 
 Parse upserted/unchanged counts from seed_kms.py stdout (`"N upserted, N unchanged"`).
-
-## Extension Point
-
-After completing, check for `.claude/agents.local/extensions/kms-seed-worker.md` — if it exists, read and follow its additional instructions.
