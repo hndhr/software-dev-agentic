@@ -7,6 +7,15 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.13.0] — 2026-06-13
+
+### Changed
+- `lib/core/<persona>/skills/` — split every persona's skills (developer, debugger, auditor, installer, shared) into `orchestrators/` (Type O) and `procedures/` (Type P) subdirectories, mirroring the existing `qa` layout. Classification: `user-invocable: true`/absent → orchestrators, `false` → procedures
+- `lib/plugins/cipherpol-aegis/build.config.json` — `include.skills` simplified to a single `lib/core/*/skills/*/*/` pattern, replacing the old qa-specific special case
+- `docs/principles/agentic/agentic-directory-structure.md`, `docs/principles/agentic/agentic-conventions.md`, `docs/principles/repo-structure.md` — updated persona anatomy, shared skills tree, and "What Goes Where" table for the new `skills/{orchestrators,procedures}/<skill-name>/` layout
+- `.claude/agents/agentic-audit-worker.md` — `related_skills` resolve glob updated to `lib/core/*/skills/*/<name>/SKILL.md`
+- `.claude/agents/agentic-scaffold-worker.md` — skill templates and new-persona steps now target `skills/orchestrators/` or `skills/procedures/` explicitly
+
 ## [12.12.3] — 2026-06-13
 
 ### Added
