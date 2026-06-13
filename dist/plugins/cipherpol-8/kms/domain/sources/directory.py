@@ -10,7 +10,7 @@ from typing import Iterator, Optional
 import yaml
 
 from ..entities import KnowledgeNode
-from ..schema import AREA_VALUES, DISCIPLINE_VALUES, PLATFORM_VALUES, SEED_EXCLUDE_PATTERNS
+from ..schema import AREA_VALUES, DISCIPLINE_VALUES, PLATFORM_VALUES, PROJECT_VALUES, SEED_EXCLUDE_PATTERNS
 from .base import KnowledgeSource
 
 _SUPPORTED_SUFFIXES = {".md", ".txt"}
@@ -335,62 +335,69 @@ class DirectorySource(KnowledgeSource):
 
             repo = _load_repo_meta(project_dir)
 
-            for area_dir in sorted(project_dir.iterdir()):
-                if not area_dir.is_dir():
+            for discipline_dir in sorted(project_dir.iterdir()):
+                if not discipline_dir.is_dir():
                     continue
-                if area_dir.name not in AREA_VALUES:
+                if discipline_dir.name not in DISCIPLINE_VALUES:
                     continue
-                area = area_dir.name
+                discipline = discipline_dir.name
 
-                for path in sorted(area_dir.iterdir()):
-                    if path.is_dir():
+                for area_dir in sorted(discipline_dir.iterdir()):
+                    if not area_dir.is_dir():
                         continue
-                    if path.name in ("README.md", _REPO_YAML):
+                    if area_dir.name not in AREA_VALUES:
                         continue
-                    if path.suffix not in _SUPPORTED_SUFFIXES:
-                        continue
-                    if any(fnmatch.fnmatch(path.name, pat) for pat in SEED_EXCLUDE_PATTERNS):
-                        print(f"  skip (excluded): {path.name}")
-                        continue
+                    area = area_dir.name
 
-                    artifact = path.stem.replace("-", "_")
-                    stem = artifact
-                    raw = path.read_text(encoding="utf-8").strip()
-                    content = _strip_frontmatter(raw)
-                    chunks = _chunk_by_sections(content)
+                    for path in sorted(area_dir.iterdir()):
+                        if path.is_dir():
+                            continue
+                        if path.name in ("README.md", _REPO_YAML):
+                            continue
+                        if path.suffix not in _SUPPORTED_SUFFIXES:
+                            continue
+                        if any(fnmatch.fnmatch(path.name, pat) for pat in SEED_EXCLUDE_PATTERNS):
+                            print(f"  skip (excluded): {path.name}")
+                            continue
 
-                    if chunks:
-                        for topic_slug, subtopic_slug, pattern_slug, section_content in chunks:
+                        artifact = path.stem.replace("-", "_")
+                        stem = artifact
+                        raw = path.read_text(encoding="utf-8").strip()
+                        content = _strip_frontmatter(raw)
+                        chunks = _chunk_by_sections(content)
+
+                        if chunks:
+                            for topic_slug, subtopic_slug, pattern_slug, section_content in chunks:
+                                yield KnowledgeNode(
+                                    scope="project",
+                                    platform=repo.platform,
+                                    project=repo.name,
+                                    discipline=discipline,
+                                    area=area,
+                                    artifact=artifact,
+                                    topic=topic_slug if topic_slug else stem,
+                                    subtopic=subtopic_slug,
+                                    pattern=pattern_slug,
+                                    summary=_extract_summary(section_content),
+                                    source_file=str(path),
+                                    updated_at=date.today().isoformat(),
+                                    content_hash=hashlib.sha256(section_content.encode()).hexdigest(),
+                                    content=section_content,
+                                )
+                        else:
                             yield KnowledgeNode(
                                 scope="project",
                                 platform=repo.platform,
                                 project=repo.name,
-                                discipline="engineering",
+                                discipline=discipline,
                                 area=area,
                                 artifact=artifact,
-                                topic=topic_slug if topic_slug else stem,
-                                subtopic=subtopic_slug,
-                                pattern=pattern_slug,
-                                summary=_extract_summary(section_content),
+                                topic=stem,
+                                subtopic=stem,
+                                pattern=stem,
+                                summary=_extract_summary(content),
                                 source_file=str(path),
                                 updated_at=date.today().isoformat(),
-                                content_hash=hashlib.sha256(section_content.encode()).hexdigest(),
-                                content=section_content,
+                                content_hash=hashlib.sha256(content.encode()).hexdigest(),
+                                content=content,
                             )
-                    else:
-                        yield KnowledgeNode(
-                            scope="project",
-                            platform=repo.platform,
-                            project=repo.name,
-                            discipline="engineering",
-                            area=area,
-                            artifact=artifact,
-                            topic=stem,
-                            subtopic=stem,
-                            pattern=stem,
-                            summary=_extract_summary(content),
-                            source_file=str(path),
-                            updated_at=date.today().isoformat(),
-                            content_hash=hashlib.sha256(content.encode()).hexdigest(),
-                            content=content,
-                        )
