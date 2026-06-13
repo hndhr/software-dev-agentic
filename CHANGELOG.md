@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.12.3] — 2026-06-13
+
+### Added
+- `docs/principles/README.md` — classification framework for `docs/principles/` docs: Glossarium, Core Design, Convention, Directory Structure, and an optional Process category, with a per-module classification table
+
+### Changed
+- `docs/principles/kms/kms-conventions.md` — merged in the Rosetta Stone content from the old `kms-glossary.md` (worked examples, subtopic/pattern clarification, scoping-funnel walkthrough, `kms_upsert` manual mapping, known inconsistencies)
+- `docs/principles/kms/kms-glossary-lite.md` → renamed to `docs/principles/kms/kms-glossary.md` — now the sole KMS glossary (pure term definitions); all cross-references in `docs/principles/`, `docs/initiatives/`, and `kms/docs/` updated
+
+### Removed
+- `docs/principles/kms/kms-glossary.md` (old Rosetta Stone version) — content merged into `kms-conventions.md`
+
 ## [12.12.2] — 2026-06-13
 
 ### Added
