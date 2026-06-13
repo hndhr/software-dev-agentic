@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.12.2] — 2026-06-13
+
+### Added
+- `docs/principles/agentic/agentic-glossary.md` — new terms "Module", "Plugin", "Marketplace" (repo-level concepts), mirrored in `docs/principles/glossary.md`
+- `docs/principles/kms/kms-directory-structure.md` — "what is where" map for `kms/` (top-level layout + `knowledge-sources/` Knowledge Path Structure tree)
+- `docs/principles/agentic/agentic-directory-structure.md` — "what is where" map for `lib/` and the agentic side of `.claude/` (persona anatomy, shared, plugins, ai-platforms)
+
+### Changed
+- `docs/principles/agentic/agentic-repo-structure.md` → `docs/principles/repo-structure.md` — moved up one level since it covers both `kms/` and `lib/`, not just agentic; all relative links fixed
+- `docs/principles/kms/kms-conventions.md`, `docs/principles/agentic/agentic-conventions.md` — directory trees replaced with pointers to the new directory-structure docs, keeping these docs focused on rules
+- `CLAUDE.md` and all affected docs — `Related:` links updated for the moved/new files
+
 ## [12.12.1] — 2026-06-13
 
 ### Added
