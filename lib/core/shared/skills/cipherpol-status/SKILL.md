@@ -11,6 +11,7 @@ Run every step in order. Collect all results, then print a single combined repor
 ```bash
 echo "$CIPHERPOL_PLATFORM"
 echo "$CIPHERPOL_PROJECT"
+echo "$CIPHERPOL_THINKER_MODEL"
 ```
 
 Also grep CLAUDE.md for the managed section:
@@ -22,6 +23,7 @@ grep -E "^\*\*(Platform|Project):\*\*" CLAUDE.md 2>/dev/null
 Determine:
 - `PLATFORM` — from `$CIPHERPOL_PLATFORM`; fallback to CLAUDE.md `**Platform:**`
 - `PROJECT` — from `$CIPHERPOL_PROJECT`; fallback to CLAUDE.md `**Project:**`; fallback to `basename $(pwd)`
+- `THINKER_MODEL` — from `$CIPHERPOL_THINKER_MODEL`; if unset or any value other than `cost-saving`, treat as `optimized` (default)
 
 Cross-check: if `$CIPHERPOL_PLATFORM` and CLAUDE.md `**Platform:**` both exist but disagree — flag `⚠ conflict`.
 Same for project.
@@ -83,8 +85,9 @@ CipherPol Status
 
 Context
 ───────────────────────────────────────────────────────
-Platform   {PLATFORM} (kms_id)   source: {env | CLAUDE.md | inferred}
-Project    {PROJECT}              source: {env | CLAUDE.md | dirname}
+Platform       {PLATFORM} (kms_id)   source: {env | CLAUDE.md | inferred}
+Project        {PROJECT}              source: {env | CLAUDE.md | dirname}
+Thinker model  {THINKER_MODEL}        (opus planners/strategists | sonnet if cost-saving)
 ⚠ conflict: CIPHERPOL_PLATFORM=flutter but CLAUDE.md says ios  ← only if mismatch
 
 Plugins

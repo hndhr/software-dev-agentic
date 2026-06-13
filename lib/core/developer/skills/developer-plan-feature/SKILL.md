@@ -28,6 +28,14 @@ find "$(git rev-parse --show-toplevel)/.claude/agentic-state/runs/developer" -ma
 
 Collect results as `found_plans` and `found_figma`. **Do not route yet.** Pass them to Step 1 so the strategist sees the user's intent alongside any existing runs before making a routing decision.
 
+## Preflight — Resolve Thinker Model
+
+```bash
+echo "$CIPHERPOL_THINKER_MODEL"
+```
+
+If the value is `cost-saving`, every `Agent` spawn of `developer-feature-strategist` or a layer planner (`developer-domain-planner`, `developer-data-planner`, `developer-pres-planner`, `developer-app-planner`) anywhere in this skill must pass `model: sonnet` as an override. Otherwise (unset, `optimized`, or any other value), omit the `model` parameter — each agent uses its frontmatter default (`opus`). This does not apply to `developer-figma-worker`, `developer-feature-worker`, or `developer-ui-worker`.
+
 ## Step 0 — Classify Inputs
 
 Parse only the formal arguments passed on the invocation line. The skill only fetches things that require its network tools — local files and directories go to the strategist as raw paths.
@@ -140,8 +148,10 @@ Wait for the `## Figma Groups` output block. Extract `groups` as `figma_groups` 
 
 Build the grouping summary:
 ```
-<for each group:>
-• <screen> — states: <comma-separated state names>
+<for each group with type: screen:>
+• <screen> — states: <comma-separated state names><if overlays present:>, overlays: <comma-separated overlay screen names>
+<for each group with type: overlay:>
+• <screen> (overlay of <parent_screen>) — states: <comma-separated state names>
 <if review present:>
 
 Needs your eye:
@@ -171,6 +181,9 @@ options     :
 [
   {
     screen: "<parent_frame>",
+    type: "screen" | "overlay",
+    parent_screen: "<screen name>",      // only present when type: overlay
+    uistack_file: "<abs-path-to-figma-uistack-*.md>",
     states: [
       { state: "<state>", file: "<abs-path-to-.md>", layout_file: "<abs-path-to--layout.jsx>", screenshot: "<url>" },
       ...
@@ -367,10 +380,10 @@ Extract `stateholder_contract` path from state.json. Re-read `plan.md` and `cont
 >
 > \<if ## Figma Alignment section is present in context.md, include — otherwise omit\>
 > **Figma Instruction:** For every Screen and Component artifact, before writing any code:
-> 1. Look up the artifact in the `## Figma Alignment` table in context.md above to get its Figma Files list
-> 2. `Read` each `.md` file — extract components, states, interactions, tokens, annotations
-> 3. `Read` each `layout_file` JSX — full file, no truncation
-> 4. `Read` each `screenshot` `.png` — mandatory, not optional; visual inspection required before implementing
+> 1. Look up the artifact in the `## Figma Alignment` table in context.md above to get its `UI Stack` and `Figma Files`
+> 2. `Read` the `UI Stack` file (`figma-uistack-*.md`) first — this is the merged Component Hierarchy, State Model, and User Interactions for this artifact (and any overlay components it mounts). Use this as the structural blueprint
+> 3. For each state referenced in the UI Stack's `states` frontmatter: `Read` its `.md`, `layout_file` JSX (full file, no truncation), and `screenshot` `.png` (mandatory — visual inspection required before implementing)
+> 4. For any overlay referenced (`← see figma-uistack-*.md`), repeat steps 2–3 for that overlay's UI Stack when implementing the overlay's Component artifact
 >
 > Proceed directly to the first pending UI artifact.
 

@@ -1,7 +1,7 @@
 ---
 name: developer-groom-strategist
 description: Grooms a Jira ticket against the codebase before planning begins. Detects which layers are in scope from acceptance criteria, returns a Decision block for the skill to spawn only the relevant planners, aggregates findings into a compact grooming summary, and returns it to the calling skill. Does not produce plan.md. Invoked only by the /developer-groom-ticket skill — not directly.
-model: sonnet
+model: opus
 tools: Read, Glob, Grep, Bash, AskUserQuestion
 ---
 
