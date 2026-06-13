@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.12.0] — 2026-06-13
+
+### Changed
+- `kms/knowledge-sources/platform/flutter/design/mekari-pixel-catalog/` → `platform/flutter/design/design-system/mekari-pixel-design-system.md` — renamed artifact to `design-system` so `kms_list(discipline=design, platform=flutter)` surfaces the Flutter design system directly
+- Restructured the design-system catalog's heading hierarchy: dropped redundant frontmatter and the file-level `#` heading (was duplicating `artifact`), promoted widget categories (Atoms/Components/Pages/Templates) to `#` topics and each of the 228 widgets to its own `##` pattern node — individually retrievable via `kms_fetch`
+- `kms/docs/kms-knowledge-source-rules.md` — updated the design-system worked example to match the new path and heading structure
+
 ## [12.11.0] — 2026-06-13
 
 ### Added
