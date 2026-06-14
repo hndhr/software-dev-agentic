@@ -1,6 +1,6 @@
 ---
-name: shared-kms-retrieve
-description: Execute one KMS list+fetch pass for a given discipline and artifact. Covers platform-tier TOC scan, selective fetch, optional project-tier lookup, and codebase explore. Call once per knowledge domain; call twice for two domains.
+name: shared-kms-load
+description: Load knowledge for a domain scope — given discipline + artifact + topic coordinates, scans the TOC, selectively fetches matching nodes, optionally checks the project tier, and explores the codebase. Call once per knowledge domain; call twice for two domains.
 user-invocable: false
 allowed-tools: Grep, Read, mcp__cp8__kms_list, mcp__cp8__kms_fetch, mcp__cp8__kms_query
 ---
