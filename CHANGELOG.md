@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.24.0] — 2026-06-15
+
+### Added
+- `shared-kms-lookup` — new shared procedure skill for resolving free-text names (e.g. Figma component names) against KMS vocabulary: one `kms_list` scan builds a slug map, exact match is tried first, `kms_query` handles ambiguous or non-canonical names; returns resolved content inline + unresolved flags
+- `mekari-pixel.md` category overview nodes — `## Atoms — Overview`, `## Components — Overview`, `## Pages — Overview`, `## Templates — Overview` added as retrievable ChromaDB nodes so category context is available alongside widget queries
+
+### Changed
+- `mekari-pixel.md` — full re-extraction with richer per-widget format: description, **When to use** (inferred from color token semantics), variant semantics, key param behavioral notes, usage example, and Figma link; coverage expanded to 77 widgets across 4 categories
+- `shared-kms-retrieve` renamed to `shared-kms-load` — name now reflects its role (load knowledge for a domain scope via structured coordinates); all 13 agent references updated
+- `developer-uistack-align-worker` — Step 2 replaced: now calls `shared-kms-lookup` with the full component batch instead of `shared-kms-load` + manual TOC slug reasoning; Step 3 reduced to codebase grep fallback for unresolved names only
+- `developer-fetch-figma` — reads `CIPHERPOL_PLATFORM` env var as platform fallback before prompting the user
+- KMS dashboard — UI improvements
+
+### Fixed
+- `chroma_repository.py` — `meta["area"]` → `meta.get("area", "")` to handle nodes with missing area field
+
 ## [12.23.0] — 2026-06-14
 
 ### Added
