@@ -82,6 +82,14 @@ Not shipped to downstream plugins — see [repo-structure.md — `.claude/` boun
 
 ---
 
+---
+
+## Runtime State (Downstream Projects Only)
+
+Not part of this repo. See [agentic-runtime-structure.md](agentic-runtime-structure.md) for what lands on disk in a downstream project when a persona runs (`.claude/agentic-state/`, run directories, `state.json`, etc.).
+
+---
+
 ## Changelog
 
 See git history for this file.

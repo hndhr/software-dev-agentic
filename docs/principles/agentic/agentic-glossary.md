@@ -35,6 +35,8 @@ Short, one-line definitions for terms coined — or given a project-specific mea
 | **Catalog file** | A `<name>-catalog.md` reference doc — a queryable symbol/component inventory. Always `symbol-query`'d, never read in full. |
 | **Search Protocol** | The decision-gate table dictating which tool (KMS, Grep, Read, Glob) to use for a given kind of lookup. |
 | **plan.md / context.md / state.json** | The three state files passed between phases of a persona run — per-artifact instructions, key symbols/conventions, and phase-completion pointer, respectively. |
+| **agentic-state** | The runtime scratch directory created in a downstream project at `.claude/agentic-state/` — holds run directories, session ID, and RFC outputs. Never part of this repo; typically gitignored. See [agentic-runtime-structure.md](agentic-runtime-structure.md). |
+| **Run Directory** | The per-feature folder at `.claude/agentic-state/runs/<persona>/<feature>/` — contains `plan.md`, `context.md`, `state.json`, `figma-groups.json`, `findings/`, and update-mode archives. Created by the entry skill and passed as `run_dir` to every agent in the run. |
 | **Build-directly** | A deliberate opt-out: a worker makes layer-assignment decisions inline with no plan, no human gate, no tool restriction. Only reachable for brand-new features with no prior run. |
 | **Mode** (agent mode) | A named section of an agent body, loaded only when the calling skill passes a matching `mode:` — keeps one agent body serving multiple invocation contexts. |
 | **Ubiquitous language** (pattern keys) | The rule that one KMS concept = one `pattern` key, used identically across every platform. |

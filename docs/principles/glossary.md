@@ -11,6 +11,7 @@ A single, alphabetical index of every term coined — or given a project-specifi
 
 | Term | Module | Definition |
 |---|---|---|
+| agentic-state | [Agentic](agentic/agentic-glossary.md) | Runtime scratch directory in a downstream project at `.claude/agentic-state/` — holds run directories, session ID, and RFC outputs. Never part of this repo. |
 | Agentic Stack | [Agentic](agentic/agentic-glossary.md) | The three-tier execution model: Orchestrator Skill (Type O) → Agent(s) → Procedure Skill(s) (Type P). |
 | Area | [KMS](kms/kms-glossary.md) | Fixed-vocabulary path segment between `discipline` and `artifact` — `core` (default) or `design-system`. |
 | Artifact | [KMS](kms/kms-glossary.md) | Named body of knowledge within a discipline — filename stem (kebab-case, snake_cased for storage), e.g. `conventions`, `standard-architecture`. |
@@ -44,6 +45,7 @@ A single, alphabetical index of every term coined — or given a project-specifi
 | Procedure Skill (Type P) | [Agentic](agentic/agentic-glossary.md) | Thin (~10–30 line), agent-only, create-only skill — no routing or decision logic. |
 | Project | [KMS](kms/kms-glossary.md) | Specific downstream codebase a knowledge node is a deviation/inventory for. |
 | Reference | [Agentic](agentic/agentic-glossary.md) | Extracted formats/contracts/templates reused across agents/skills — file-addressable, platform-agnostic. |
+| Run Directory | [Agentic](agentic/agentic-glossary.md) | Per-feature folder at `.claude/agentic-state/runs/<persona>/<feature>/` — contains `plan.md`, `context.md`, `state.json`, findings, and Figma assets for one persona run. |
 | Retrieval Protocol | [KMS](kms/kms-conventions.md#retrieval-protocol) | Decision table for which KMS MCP tool (`kms_list`/`kms_fetch`/`kms_query`) to use for a given retrieval need. |
 | Rosetta Stone | [KMS](kms/kms-conventions.md) | The full term-to-path-to-metadata mapping table in `kms-conventions.md`. |
 | saturn-jaygarcia | [Agentic](agentic/agentic-glossary.md#named-agents) | Type O skill pairing `lucci-planner` + `kaku-worker` into a plan-then-build flow. |
