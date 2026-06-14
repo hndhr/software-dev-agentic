@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.24.1] — 2026-06-15
+
+### Fixed
+- KMS re-seeded clean after mekari-pixel catalog rewrite — 1259 nodes fresh in ChromaDB
+
 ## [12.24.0] — 2026-06-15
 
 ### Added
