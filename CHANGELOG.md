@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.26.1] — 2026-06-15
+
+### Fixed
+- `developer-figma-validate-worker` — wrapper/presentation `FRAME` nodes (frames that contain child `FRAME` nodes) are now expanded into their children instead of being treated as single leaf frames; fixes flow containers, screen-group artboards, and multi-screen presentation frames being fetched as one node
+
 ## [12.26.0] — 2026-06-15
 
 ### Added
