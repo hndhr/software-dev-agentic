@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.26.7] — 2026-06-15
+
+### Fixed
+- `developer-figma-validate-worker` — `get_metadata` returns XML, not JSON; all previous `children[*].type` checks were JSON syntax that silently failed against XML; replaced with XML-aware instructions (`type="FRAME"` attribute check on immediate child elements)
+
 ## [12.26.6] — 2026-06-15
 
 ### Fixed
