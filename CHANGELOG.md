@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.26.4] — 2026-06-15
+
+### Removed
+- `developer-fetch-figma` — removed Step 0b (proactive resume detection); orchestrator no longer reads `last-fetch-dir.txt` or asks the user if they want to resume a previous fetch; resume is opt-in — user passes the existing directory path as an argument
+- `developer-figma-validate-worker` — removed `last-fetch-dir.txt` write; nothing reads it anymore
+
 ## [12.26.3] — 2026-06-15
 
 ### Fixed
