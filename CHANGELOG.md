@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.26.3] — 2026-06-15
+
+### Fixed
+- `developer-figma-validate-worker` — replaced lookup table for `FRAME` classification with an explicit sequential decision tree; model now MUST scan `children[*].type` for every `FRAME` node before deciding leaf vs. wrapper — fixes haiku skipping the wrapper check by pattern-matching the table row and stopping early
+
 ## [12.26.2] — 2026-06-15
 
 ### Changed
