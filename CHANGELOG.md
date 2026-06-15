@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.26.2] — 2026-06-15
+
+### Changed
+- `developer-figma-fetch-worker` — model downgraded from `sonnet` to `haiku`; JSX extraction and markdown structuring is mechanical work haiku handles well, ~20× cheaper per frame — critical for large fetches (50+ frames)
+
 ## [12.26.1] — 2026-06-15
 
 ### Fixed
