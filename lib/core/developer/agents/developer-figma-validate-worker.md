@@ -28,20 +28,31 @@ echo "$figma_fetch_dir" > "$(git rev-parse --show-toplevel)/.claude/agentic-stat
 
 **Step 2 — Classify each URL**
 
-For each URL in `figma_urls`, extract `fileKey` and `nodeId`. Call `mcp__Figma_MCP__get_metadata` with `fileKey` and `nodeId`.
+For each URL in `figma_urls`:
 
-Classify by response:
+1. Extract `fileKey` and `nodeId` from the URL.
+2. Call `mcp__Figma_MCP__get_metadata` with `fileKey` and `nodeId`.
+3. If the call errors or returns empty → add to `invalid`: `{ url, reason: "not found" }`. Stop processing this URL.
+4. Read the node `type` from the response.
+5. Apply the decision below **in order** — stop at the first match:
 
-| Response | Action |
-|---|---|
-| Error / not found / empty | Add to `invalid`: `{ url, reason }` |
-| Node type `FRAME` with direct `FRAME` children | Treat as wrapper/presentation frame — expand direct `FRAME` children as individual entries (do **not** add the parent) |
-| Node type `FRAME` with no direct `FRAME` children | Add to `pending` as single entry (leaf frame) |
-| Node type `COMPONENT` | Add to `pending` as single entry |
-| Node type `SECTION`, `GROUP`, `CANVAS`, or `PAGE` | Extract all direct child `FRAME` nodes → add each as individual entry |
-| URL has no `node-id` | Call `get_metadata` without `nodeId` to get page list → expand all `FRAME` children of the first page |
+**If type is `FRAME`:**
 
-> **Wrapper detection:** A `FRAME` node is a wrapper when its direct children include one or more `FRAME` nodes. This covers Figma "presentation" frames, flow containers, and screen-group artboards that hold individual screens. Check `children[*].type` from the metadata response — if any child has `type: FRAME`, expand children instead of adding the parent.
+- Scan the response for a `children` array. Look for any entry where `type == "FRAME"`.
+- **If one or more `FRAME` children exist** → this is a wrapper frame (flow container, artboard group, presentation frame). Do **not** add the parent. Add each child with `type == "FRAME"` as an individual `pending` entry using the child's `id` and `name`.
+- **If no `FRAME` children exist** → this is a leaf frame. Add it as a single `pending` entry.
+
+**If type is `COMPONENT`:**
+
+- Add as a single `pending` entry.
+
+**If type is `SECTION`, `GROUP`, `CANVAS`, or `PAGE`:**
+
+- Extract all direct children with `type == "FRAME"` → add each as an individual `pending` entry.
+
+**If the URL has no `node-id`:**
+
+- Call `get_metadata` without `nodeId` to get the file's page list → expand all `FRAME` children of the first page.
 
 For each pending frame record:
 - `url` — `https://www.figma.com/design/<fileKey>/file?node-id=<nodeId-with-dashes>`
