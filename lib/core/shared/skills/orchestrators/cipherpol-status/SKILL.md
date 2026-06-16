@@ -40,7 +40,7 @@ Also detect the active KMS server path and its version:
 
 ```bash
 # Resolve which cipherpol-8 version the MCP server is actually running from
-cat .mcp.json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('mcpServers',{}).get('kms',{}).get('args',[''])[1])" 2>/dev/null || true
+cat ~/.claude/settings.json 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('mcpServers',{}).get('kms',{}).get('args',[''])[1])" 2>/dev/null || true
 # Find the latest cached version on disk
 ls ~/.claude/plugins/cache/cipherpol/cipherpol-8/ 2>/dev/null | sort -t. -k1,1n -k2,2n -k3,3n | tail -1
 ```
@@ -129,5 +129,5 @@ Project snapshot — {PROJECT}
 **KMS OFFLINE block:**
 ```
 KMS: OFFLINE
-  kms_info tool unavailable. Ensure .mcp.json exists and restart Claude Code.
+  kms_info tool unavailable. Ensure mcpServers.kms is configured in ~/.claude/settings.json and restart Claude Code.
 ```
