@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.27.0] — 2026-06-16
+
+### Added
+- `developer-plan-feature` — explicit `run_dir` argument support in Step 0; passing a run directory bypasses gather-intent and routes via inline checkpoint detection
+- `developer-plan-feature` — batch execution plan: strategist writes ordered `batches` to `plan.md` frontmatter (threshold 5 per layer); orchestrator iterates one worker call per batch
+- `developer-plan-feature` — `state.json` planning section: orchestrator records planner rounds with `spawned` status before dispatch; strategist validates findings and marks each layer `done`/`failed` during `process-findings`
+- `developer-plan-feature` — strategist G1c checkpoint detection now reads `state.json` `planning.rounds` to restore visited layers and resume mid-planning runs
+
+### Changed
+- `developer-plan-feature` — `plan.md` and `context.md` are now living documents: append-only, never replaced or archived; re-evaluate extends existing rows and appends new batches
+- `developer-plan-feature` — `Decision: resume-as-is` renamed to `Decision: resume-execution`
+- `developer-plan-feature` — "Start from beginning" option renamed to "Re-evaluate"; synthesize `update_mode` extends in-place instead of archiving to `plan-v*.md`
+- `developer-plan-feature` — strategist owns findings validation and `done`/`failed` marking in `state.json`; orchestrator only records `spawned` status
+- `developer-breakdown-prd` — run directory moved from `agentic-state/developer/runs/` to `agentic-state/developer/breakdown/`
+- `cipherpol-status` (shared + aegis dist) — MCP server config resolved from `~/.claude/settings.json` instead of `.mcp.json`; offline message updated to match
+
 ## [12.26.8] — 2026-06-15
 
 ### Fixed
