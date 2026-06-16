@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.28.3] — 2026-06-17
+
+### Fixed
+- `developer-plan-feature` — convergence loop round counter no longer leaks from state.json's cumulative round history; explicit_run_dir checkpoint routing now resets `round = 1` (was `last_round + 1`), and the gather-intent spawn-planners branch explicitly ignores the `round:` value in the strategist's Decision block
+
 ## [12.28.2] — 2026-06-17
 
 ### Fixed
