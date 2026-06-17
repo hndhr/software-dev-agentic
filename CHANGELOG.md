@@ -7,6 +7,12 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.33.0] — 2026-06-17
+
+### Added
+- `developer-breakdown-requirement` SKILL — Step 0c: optional Figma prompt; if no `figma_fetch_dir` is provided, asks whether to include Figma designs; redirects user to run `/developer-fetch-figma` first and pass the resulting path back
+- `developer-plan-feature` SKILL — Step 1.2: optional Figma prompt between intent gather and Step 1.5 fetch pipeline; fires only when `pending_figma_urls` is empty and `figma_fetch_dir` is unset; redirects user to run `/developer-fetch-figma` first and pass the resulting path back
+
 ## [12.32.0] — 2026-06-17
 
 ### Added
