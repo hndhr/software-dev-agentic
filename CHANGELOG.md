@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.31.0] — 2026-06-17
+
+### Added
+- `developer-figma-group-worker` — Step 3b: dedup rule collapses same-state duplicate frames to one representative (prefer screenshot-available); visually distinct duplicates get qualifying suffixes; state names within a cluster are now enforced unique
+- `developer-figma-group-worker` — shared overlay rule: overlays invoked from multiple screens emit `parent_screen` (primary invoker) + `also_shown_from` for remaining screens
+- `developer-figma-group-worker` — repeating item rule: structurally identical content-state siblings collapse to one node annotated `(repeating)` with a data field signature (e.g. `{schoolName} · {degree} · {yearRange}`)
+- `developer-figma-group-worker` — `### Design Tokens` split into Colors / Typography / Spacing+Layout sub-sections; layout properties (axis, gap, padding) sourced from auto-layout data and hierarchy brackets
+- `developer-figma-group-worker` — `### Localizations` section with two sub-tables (Static Text, Value/Placeholder Text); each row has Key, Value, Context, and Component (dot-path) columns; text node values now preserved verbatim through hierarchy merge
+- `figma-group-format.md` — `also_shown_from` field in UIStack frontmatter and Groups block schema for shared overlays
+- `ticket-format.md` — `## Breakdown Levels` table; `breakdown_level` field in Breakdown Proposal; two `TICKET-NNN.md` schemas (Schema A — Story/Task with `## System Design`; Schema B — Sub-task with `## System Context`)
+- `developer-prd-breakdown-worker` — Phase 0: breakdown level detection (`epic_to_tickets` vs `ticket_to_subtasks`); system design synthesis for Story/Task tickets (Feature Context, API Design, Data Model, Architecture, Data Flows); system context synthesis for Sub-task tickets (parent pointer, scoped use cases and flows)
+- `developer-ticket-write-worker` — `breakdown_level` parameter; selects Schema A or B to format each ticket file
+
+### Changed
+- `developer-breakdown-requirement` SKILL — Step 5 now extracts and forwards `breakdown_level` to all write worker invocations
+
 ## [12.30.0] — 2026-06-17
 
 ### Added
