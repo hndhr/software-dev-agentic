@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.34.0] — 2026-06-18
+
+### Added
+- Web/Next.js platform knowledge sources — `kms/knowledge-sources/platform/web/engineering/core/conventions.md` and `standard-architecture.md` covering Clean Architecture conventions for Next.js 15 projects: TypeScript null-safety utilities, magic constants, strict tsconfig rules, import barrel rules, domain layer (entities, repository interfaces, use cases, domain services, `neverthrow` Result type), data layer (Zod DTOs, mappers, datasources, Axios error interceptor, repository implementations), presentation layer (TanStack Query + Zustand state holders, Server/Client Component split, App Router navigation), `tsyringe` DI container, error handling, testing patterns, and utility service interfaces (DateService, Logger, StorageService)
+
 ## [12.33.1] — 2026-06-17
 
 ### Added
