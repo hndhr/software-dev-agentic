@@ -1,6 +1,6 @@
 ---
 name: kms-extract-codebase
-description: Scan a local project codebase and extract project-reality knowledge into kms/knowledge-sources/projects/{repo-name}/. Produces feature inventory, API endpoints, shared components, deviations, and third-party integrations docs.
+description: Scan a local project codebase and extract project-reality knowledge into cipherpol-8-kms/knowledge-sources/projects/{repo-name}/. Produces feature inventory, API endpoints, shared components, deviations, and third-party integrations docs.
 user-invocable: true
 disable-model-invocation: true
 allowed-tools: Agent
@@ -9,19 +9,19 @@ allowed-tools: Agent
 ## Arguments
 
 `$ARGUMENTS` — optional:
-- `--project <name>` — project directory name under `kms/knowledge-sources/projects/`
-- _(none)_ — list available projects from `kms/knowledge-sources/projects/` and ask which to scan
+- `--project <name>` — project directory name under `cipherpol-8-kms/knowledge-sources/projects/`
+- _(none)_ — list available projects from `cipherpol-8-kms/knowledge-sources/projects/` and ask which to scan
 
 ## Steps
 
 ### 1 — Resolve project
 
 **If `--project` provided:**
-- Look for `kms/knowledge-sources/projects/{name}/repo.yaml`
+- Look for `cipherpol-8-kms/knowledge-sources/projects/{name}/repo.yaml`
 - If not found: treat as a new project — go to **Bootstrap** below
 
 **If not provided:**
-- List all directories under `kms/knowledge-sources/projects/` that contain a `repo.yaml`
+- List all directories under `cipherpol-8-kms/knowledge-sources/projects/` that contain a `repo.yaml`
 - If any exist: ask the user which to scan, or offer "new project" as an option
 - If none exist: go to **Bootstrap** below
 
@@ -32,7 +32,7 @@ Ask the user:
 2. Platform: `flutter` | `ios` | `android` | `web`
 3. Absolute local path to the repo clone
 
-Create `kms/knowledge-sources/projects/{name}/` and write `repo.yaml`:
+Create `cipherpol-8-kms/knowledge-sources/projects/{name}/` and write `repo.yaml`:
 ```yaml
 name: {name}
 platform: {platform}
@@ -45,7 +45,7 @@ Then proceed — no existing docs, so step 2 check is skipped.
 
 ### 2 — Check for existing docs
 
-Check which doc files already exist in `kms/knowledge-sources/projects/{name}/`:
+Check which doc files already exist in `cipherpol-8-kms/knowledge-sources/projects/{name}/`:
 
 ```
 feature-inventory.md  api-endpoints.md  shared-components.md
@@ -69,14 +69,14 @@ If no docs exist: proceed without asking.
 Spawn `kms-extract-orchestrator` with:
 
 ```
-project_dir:  kms/knowledge-sources/projects/{name}
-repo_yaml:    kms/knowledge-sources/projects/{name}/repo.yaml
+project_dir:  cipherpol-8-kms/knowledge-sources/projects/{name}
+repo_yaml:    cipherpol-8-kms/knowledge-sources/projects/{name}/repo.yaml
 doc_types:    {selected doc types from step 2}
 ```
 
 ### 4 — Audit
 
-Run `/kms-audit projects/{name}/` to validate the extracted docs against `kms/docs/kms-knowledge-source-rules.md`.
+Run `/kms-audit projects/{name}/` to validate the extracted docs against `cipherpol-8-kms/docs/kms-knowledge-source-rules.md`.
 
 If any **Error**-severity findings are reported: surface them to the user and stop.
 

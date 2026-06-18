@@ -9,7 +9,7 @@ allowed-tools: Agent
 ## Arguments
 
 `$ARGUMENTS` — optional flags:
-- _(none)_ — seed all available sources in `kms/sources.yaml`
+- _(none)_ — seed all available sources in `cipherpol-8-kms/sources.yaml`
 - `--source <name>` — seed one registered source by name
 - `--type <type>` — seed all sources of a type (`markdown` | `codebase` | `confluence`)
 - `--add <path|url>` — detect, register, and seed a new source in one step

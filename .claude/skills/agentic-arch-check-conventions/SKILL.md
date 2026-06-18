@@ -28,7 +28,7 @@ For each `.md` agent file:
 - [ ] Thin reference docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full at a fixed path
 - [ ] Any `Reference:` line that lists multiple files also mentions `reference/index.md` as the discovery fallback (Fix F)
 
-**Core agents** (files under `lib/core/*/agents/`) — Platform-Agnosticism
+**Core agents** (files under `cipherpol-aegis/lib/*/agents/`) — Platform-Agnosticism
 - [ ] Body contains no hardcoded platform-specific file paths — no `src/domain/`, `src/data/`, `src/presentation/`, `Talenta/Module/`, `lib/`, `app/`
 - [ ] Body contains no platform framework references used as rules — no `React`, `Next.js`, `RxSwift`, `UIKit`, `BLoC`, `axios`, `next-safe-action`
 - [ ] Body contains no platform language-specific syntax used as rules — no `'use client'`, `'use server'`, `readonly` (TypeScript), `BehaviorRelay`
@@ -36,7 +36,7 @@ For each `.md` agent file:
 
 How to check: `Grep` the file for any of the above patterns. A match in the body (outside of a `related_skills` reference or a comment acknowledging the skill) is a Critical violation.
 
-> **Why:** `lib/core/` agents are consumed by all platforms via symlink. Platform-specific rules embedded in a core worker silently mislead workers on other platforms (iOS, Flutter) that call the same agent.
+> **Why:** `cipherpol-aegis/lib/` agents are consumed by all platforms via symlink. Platform-specific rules embedded in a core worker silently mislead workers on other platforms (iOS, Flutter) that call the same agent.
 
 **Body structure (all agents)**
 - [ ] `## Input` section present — declares required parameters with a `MISSING INPUT:` guard
@@ -64,7 +64,7 @@ For each `SKILL.md` skill file:
 **Reference doc reads**
 - [ ] Catalog file (`<name>-catalog.md`) reads use `symbol-query` — `Grep` for the symbol first, never "Read ... completely"
 - [ ] Thin reference docs (`plan-format.md`, `findings-format.md`, etc.) may be `Read` in full at a fixed path
-- [ ] All referenced file paths match actual filenames in `lib/platforms/<platform>/reference/` or `lib/core/*/reference/`
+- [ ] All referenced file paths match actual filenames in `cipherpol-aegis/ai-platforms/<platform>/reference/` or `cipherpol-aegis/lib/*/reference/`
 
 **Templates** (any `template.md` file inside a skill directory)
 - [ ] No explanatory/instructional comments that duplicate what `SKILL.md` already says (Fix G)
@@ -78,7 +78,7 @@ How to check: `Read` the template file; flag any comment that explains the skill
 
 ## Contract Reference Schema Check
 
-For each `lib/platforms/<platform>/reference/contract/` directory being audited, verify all 8 files contain their required canonical heading keywords. Required keywords are defined in `docs/contract/builder-auditor-schema.md`.
+For each `cipherpol-aegis/ai-platforms/<platform>/reference/contract/` directory being audited, verify all 8 files contain their required canonical heading keywords. Required keywords are defined in `docs/contract/builder-auditor-schema.md`.
 
 **How to check:** For each file, `Grep` for pattern `^## .*<keyword>` within that file. A keyword must appear as a substring of a `##` heading — `###` or deeper does not satisfy the requirement.
 
@@ -112,7 +112,7 @@ Severity: Warning for any prompt clarity finding.
 
 ## Severity Levels
 
-- **Critical** — missing required frontmatter field, broken reference path, "Read completely" violation on catalog files, platform-specific content in a `lib/core/*/agents/` file
+- **Critical** — missing required frontmatter field, broken reference path, "Read completely" violation on catalog files, platform-specific content in a `cipherpol-aegis/lib/*/agents/` file
 - **Warning** — wrong model for worker type, missing Search Rules, missing `reference/index.md` discovery hint on multi-file Reference lines, explanatory comments in template files, missing `## Input` or `## Output` body section
 - **Info** — naming convention deviation, description could be more specific, missing Knowledge or Reasoning body section slot
 

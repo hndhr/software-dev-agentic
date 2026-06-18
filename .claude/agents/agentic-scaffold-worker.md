@@ -129,7 +129,7 @@ Before writing any file:
 1. `Glob` for the target filename — stop and report if it already exists
 2. Confirm target directory exists — create it if scaffolding a new persona
 3. For new persona: confirm `packages/<persona>.pkg` does not exist
-4. For platform scope: confirm `lib/platforms/<platform>/` exists
+4. For platform scope: confirm `cipherpol-aegis/ai-platforms/<platform>/` exists
 
 ## Step 6 — Scaffold
 
@@ -255,7 +255,7 @@ You produce zero file changes directly. No Edit, Write, or file-writing Bash cal
 
 ### Skill templates
 
-**Type P (Procedure)** — write to `lib/core/<persona>/skills/procedures/<name>/SKILL.md`:
+**Type P (Procedure)** — write to `cipherpol-aegis/lib/<persona>/skills/procedures/<name>/SKILL.md`:
 ```
 ---
 name: <name>
@@ -267,7 +267,7 @@ tools: <tools>
 <procedure — one focused task, under 30 lines, no branching>
 ```
 
-**Type O (Orchestrator)** — write to `lib/core/<persona>/skills/orchestrators/<name>/SKILL.md`:
+**Type O (Orchestrator)** — write to `cipherpol-aegis/lib/<persona>/skills/orchestrators/<name>/SKILL.md`:
 ```
 ---
 name: <name>
@@ -291,7 +291,7 @@ tools: <tools — include Agent if the workflow delegates to agents>
 
 ### New Persona
 
-1. Create `lib/core/<persona>/agents/` directory (also `lib/core/<persona>/skills/{orchestrators,procedures}/` and optionally `lib/core/<persona>/reference/`)
+1. Create `cipherpol-aegis/lib/<persona>/agents/` directory (also `cipherpol-aegis/lib/<persona>/skills/{orchestrators,procedures}/` and optionally `cipherpol-aegis/lib/<persona>/reference/`)
 2. Create `packages/<persona>.pkg`:
 ```
 name=<persona>

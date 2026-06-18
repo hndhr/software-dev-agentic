@@ -315,16 +315,17 @@ Platform pattern knowledge lives in ChromaDB (primary via KMS MCP). Agents alway
 ## Repo structure
 
 ```
-lib/
+cipherpol-aegis/
   core/
     agents/       ← all persona agents (flat in plugin)
     skills/       ← all skills (flat in plugin)
-  plugins/
-    cipherpol-aegis/     ← build.config.json + build.sh
-    cipherpol-8/      ← build.config.json + build.sh
-kms/              ← ChromaDB MCP server source
+  plugin/
+    build.config.json + build.sh
+cipherpol-8-kms/  ← ChromaDB MCP server source
+  plugin/
+    build.config.json + build.sh
 scripts/
-  build-plugin.sh      ← discovers lib/plugins/*/build.sh and runs them
+  build-plugin.sh      ← discovers */plugin/build.sh and runs them
   install-plugin.sh    ← downstream project setup
   plugin-lib.sh        ← shared build helpers
 cipherpol.json   ← canonical platform registry (id → kms_id + detection markers)

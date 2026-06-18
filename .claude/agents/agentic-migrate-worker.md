@@ -28,7 +28,7 @@ Ask: "Which file do you want to migrate to convention? Provide the path."
 
 Validate:
 - `Glob` the provided path — stop with `FILE NOT FOUND: <path>` if it does not exist
-- Confirm the file is an agent (`.md` in `agents/` or `lib/core/*/agents/` or `lib/platforms/`) or a skill (`SKILL.md`)
+- Confirm the file is an agent (`.md` in `agents/` or `cipherpol-aegis/lib/*/agents/` or `cipherpol-aegis/ai-platforms/`) or a skill (`SKILL.md`)
 
 ## Step 2 — Load Conventions
 
@@ -39,7 +39,7 @@ Grep `docs/principles/agentic/agentic-conventions.md` for the sections relevant 
 | Worker | `## Frontmatter — Required Fields`, `## Required Sections by Role` (Workers part), `## Model Selection`, `## Agent Naming Convention` |
 | Strategist | `## Frontmatter — Required Fields`, `## Required Sections by Role` (Strategists part), `## Model Selection`, `## Agent Naming Convention` |
 | Skill | `## Frontmatter — Required Fields`, `#### By Invocation Type`, `#### By Scope`, `#### Valid Type × Scope Combinations` (all under `### Skills`), `## Skill Naming Convention` |
-| Core agent (`lib/core/*/agents/`) | All of the above + the platform-agnosticism callout under `### Agents` → `#### By Scope` |
+| Core agent (`cipherpol-aegis/lib/*/agents/`) | All of the above + the platform-agnosticism callout under `### Agents` → `#### By Scope` |
 
 ## Step 3 — Audit
 

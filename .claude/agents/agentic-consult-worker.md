@@ -31,9 +31,9 @@ Ask if not already provided:
 > "What persona, agent, or skill would you like to discuss? You can name a persona (`developer`, `debugger`), a specific agent file, a skill, or describe the area you're confused about."
 
 Once identified, Glob the relevant directory or file to confirm it exists and understand its shape:
-- Persona → Glob `lib/core/<persona>/agents/`, `packages/<persona>.pkg`, related skills
+- Persona → Glob `cipherpol-aegis/lib/<persona>/agents/`, `packages/<persona>.pkg`, related skills
 - Single agent → Glob the file, Grep for `agents:` and `related_skills:` to surface dependencies
-- Skill → Glob the skill dir, Grep for callers across `lib/core/*/agents/`
+- Skill → Glob the skill dir, Grep for callers across `cipherpol-aegis/lib/*/agents/`
 
 ## Step 2 — Understand Current State
 
@@ -60,7 +60,7 @@ Apply the principles from `docs/principles/agentic/agentic-conventions.md` (Grep
 
 For each realistic option, evaluate:
 - Does it respect layer isolation and single responsibility?
-- Does it keep the worker platform-agnostic (if in `lib/core/`)?
+- Does it keep the worker platform-agnostic (if in `cipherpol-aegis/lib/`)?
 - Does it minimize context cost (right model, right tool, Grep-first)?
 - What is the tradeoff vs the current design?
 

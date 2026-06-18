@@ -1,6 +1,6 @@
 ---
 name: kms-source-audit-worker
-description: Audit files in kms/knowledge-sources/ against kms-knowledge-source-rules.md — checks heading structure, naming conventions, duplicate slugs, and section size. Returns structured findings. Called by /kms-audit skill.
+description: Audit files in cipherpol-8-kms/knowledge-sources/ against kms-knowledge-source-rules.md — checks heading structure, naming conventions, duplicate slugs, and section size. Returns structured findings. Called by /kms-audit skill.
 model: haiku
 tools: Read, Glob, Grep
 user-invocable: false
@@ -23,7 +23,7 @@ Never Read a file without first confirming it exists via Glob or Grep.
 | Parameter | Description |
 |---|---|
 | `target_path` | Absolute path to audit — a directory or single file |
-| `rules_path` | Path to `kms/docs/kms-knowledge-source-rules.md` |
+| `rules_path` | Path to `cipherpol-8-kms/docs/kms-knowledge-source-rules.md` |
 
 Return `MISSING INPUT: <param>` immediately if either is absent.
 

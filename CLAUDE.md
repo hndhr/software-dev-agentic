@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 **CipherPol** — Multi-platform Claude Code toolkit for Clean Architecture projects.
-Consumed as a git submodule at `software-dev-agentic/` (project root) in downstream projects. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
+Distributed as Claude Code plugins via the marketplace. No app to run — this repo is agents, skills, hooks, and architecture reference docs.
 
 Platforms: **web** (Next.js 15) · **ios** (Swift/UIKit) · **flutter** (Dart/BLoC)
 
@@ -26,7 +26,7 @@ No build, lint, or test commands — all files are Markdown and Bash.
 
 ## Structure
 
-`lib/` — ships downstream · `.claude/` — internal tooling (agents, skills, reference) · `docs/` — design docs, observations, perf reports · `scripts/` — setup and sync scripts
+`cipherpol-aegis/` — agentic personas and skills · `cipherpol-8-kms/` — KMS knowledge server · `.claude/` — internal tooling (agents, skills, reference) · `docs/` — design docs, observations, perf reports · `scripts/` — setup and sync scripts
 
 See `docs/principles/agentic/agentic-design-principles.md` and `docs/principles/repo-structure.md` for the full structure and decision rules.
 
@@ -39,7 +39,7 @@ developer-issue "add X"   → create GH issue + branch + backlog row
 developer-issue 42        → pick up existing GH issue + branch + backlog row
 ```
 
-Then work directly on the relevant files in `lib/core/` or `lib/platforms/<platform>/`.
+Then work directly on the relevant files in `cipherpol-aegis/lib/`.
 
 ## Agent Architecture
 

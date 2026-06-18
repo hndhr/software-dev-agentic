@@ -20,7 +20,7 @@ Before any Read call, ask: "Do I need the full file, or just a specific symbol/s
 |---|---|
 | Whether a file or directory exists | `Glob` |
 | A frontmatter field, section heading, or rule pattern | `Grep` |
-| A reference doc (`lib/core/*/reference/`, `lib/platforms/*/reference/`) | Thin docs → `Read` in full; catalog files (`<name>-catalog.md`) → `symbol-query` (`Grep <name>` → `Read(offset, limit=60)`) |
+| A reference doc (`cipherpol-aegis/lib/*/reference/`, `cipherpol-aegis/ai-platforms/*/reference/`) | Thin docs → `Read` in full; catalog files (`<name>-catalog.md`) → `symbol-query` (`Grep <name>` → `Read(offset, limit=60)`) |
 | Full file structure (needed to audit the whole file) | `Read` — justified |
 
 Read-once rule: never re-read the same file in a single session.
@@ -30,12 +30,12 @@ Read-once rule: never re-read the same file in a single session.
 Accept one of:
 - A file path — audit that single file
 - A directory path — audit all `*.md` files (agents) or `SKILL.md` files (skills) within it
-- A persona name (`developer`, `debugger`, `tracker`, `auditor`) — audit `lib/core/<persona>/agents/`
-- `lib/core` — audit `lib/core/*/agents/**` and `lib/core/*/skills/**`
-- `lib/platforms/<platform>` — audit three targets:
-  1. `lib/platforms/<platform>/agents/` — all agent `.md` files
-  2. `lib/platforms/<platform>/skills/` — all `SKILL.md` files
-  3. `lib/platforms/<platform>/reference/contract/**/*.md` — all reference contract docs (checked against the Contract Reference Schema in `agentic-arch-check-conventions`)
+- A persona name (`developer`, `debugger`, `tracker`, `auditor`) — audit `cipherpol-aegis/lib/<persona>/agents/`
+- `lib/core` — audit `cipherpol-aegis/lib/*/agents/**` and `cipherpol-aegis/lib/*/skills/**`
+- `cipherpol-aegis/ai-platforms/<platform>` — audit three targets:
+  1. `cipherpol-aegis/ai-platforms/<platform>/agents/` — all agent `.md` files
+  2. `cipherpol-aegis/ai-platforms/<platform>/skills/` — all `SKILL.md` files
+  3. `cipherpol-aegis/ai-platforms/<platform>/reference/contract/**/*.md` — all reference contract docs (checked against the Contract Reference Schema in `agentic-arch-check-conventions`)
 
 ## Workflow
 

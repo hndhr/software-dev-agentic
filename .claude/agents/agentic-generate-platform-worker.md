@@ -10,7 +10,7 @@ You are the platform generation specialist. You scan a downstream repo to infer 
 
 ## Platform Generation Rules — Never Violate
 
-- Never write to `lib/core/` — all output goes under `lib/platforms/<platform>/`
+- Never write to `cipherpol-aegis/lib/` — all output goes under `cipherpol-aegis/ai-platforms/<platform>/`
 - Contract skills are derived output — always written/overwritten, never diffed with the user
 - Reference impl files in sync mode require user approval per section before writing
 - For any layer where no code was found: emit `MISSING_PATTERN` warning and write a stub section rather than skipping the file
@@ -33,8 +33,8 @@ Read-once rule: form your complete edit plan from a single read — never re-rea
 
 ## Preconditions — Fail Fast
 
-- `generate` mode: `Glob lib/platforms/<platform>/` — if directory exists, STOP: "Platform already exists. Use sync-platform instead."
-- `sync` mode: `Glob lib/platforms/<platform>/reference/` — if not found, STOP: "No existing platform found. Use generate-platform instead."
+- `generate` mode: `Glob cipherpol-aegis/ai-platforms/<platform>/` — if directory exists, STOP: "Platform already exists. Use sync-platform instead."
+- `sync` mode: `Glob cipherpol-aegis/ai-platforms/<platform>/reference/` — if not found, STOP: "No existing platform found. Use generate-platform instead."
 
 ## Inputs
 
@@ -79,7 +79,7 @@ If `arch_docs` was provided: Read each listed file for additional context.
 
 ## Pass 2 — Generate / Sync Reference Files
 
-Target directory: `lib/platforms/<platform>/reference/code-architecture/`
+Target directory: `cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/`
 
 Files to write (one per layer):
 - `domain-impl.md`
@@ -127,12 +127,12 @@ For impl files that do not yet exist in sync mode: write directly (new addition,
 
 ## Pass 3 — Generate Contract Skills
 
-Target: `lib/platforms/<platform>/skills/contract/<skill-name>/SKILL.md`
+Target: `cipherpol-aegis/ai-platforms/<platform>/skills/contract/<skill-name>/SKILL.md`
 
 1. Grep `docs/contract/*-skill-contract.md` for `| Yes` lines to determine required skill names
 2. Study existing contract skill examples:
-   - `lib/platforms/flutter/skills/contract/`
-   - `lib/platforms/ios-swift/skills/contract/` (if present)
+   - `cipherpol-aegis/ai-platforms/flutter/skills/contract/`
+   - `cipherpol-aegis/ai-platforms/ios-swift/skills/contract/` (if present)
 3. `developer-pres-create-component` — only generate if Pass 1 observed a reusable component abstraction (e.g. widget base class, component protocol, shared UI primitive)
 4. Each `SKILL.md` is a Type P procedure skill that references the impl files written in Pass 2
 5. Always write/overwrite — no diff or approval gate (derived output)
@@ -153,17 +153,17 @@ Return this block as the final section of your response. One path per line, no p
 ## Output
 
 Reference files written:
-- lib/platforms/<platform>/reference/code-architecture/domain-impl.md
-- lib/platforms/<platform>/reference/code-architecture/data-impl.md
-- lib/platforms/<platform>/reference/code-architecture/presentation-impl.md
-- lib/platforms/<platform>/reference/code-architecture/navigation-impl.md
-- lib/platforms/<platform>/reference/code-architecture/di-impl.md
-- lib/platforms/<platform>/reference/code-architecture/testing-impl.md
-- lib/platforms/<platform>/reference/code-architecture/error-handling-impl.md
-- lib/platforms/<platform>/reference/code-architecture/utilities-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/domain-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/data-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/presentation-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/navigation-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/di-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/testing-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/error-handling-impl.md
+- cipherpol-aegis/ai-platforms/<platform>/reference/code-architecture/utilities-impl.md
 
 Contract skills written:
-- lib/platforms/<platform>/skills/contract/<skill-name>/SKILL.md
+- cipherpol-aegis/ai-platforms/<platform>/skills/contract/<skill-name>/SKILL.md
 - ...
 
 Warnings:

@@ -26,7 +26,7 @@ Read-once rule: never Read a file when Grep can extract the value. Never re-read
 Accept one of:
 - `<persona>` (e.g. `developer`, `debugger`) — audit the full persona: pkg, directory, agents, skills, hooks
 - `<file path>` — audit that single agent or skill file's cross-references only
-- `full` — audit all personas in `packages/` and all agents in `lib/core/*/agents/` and `agents/`
+- `full` — audit all personas in `packages/` and all agents in `cipherpol-aegis/lib/*/agents/` and `agents/`
 
 If scope is not provided, ask:
 > "What scope to audit? Options: a persona name (`developer`, `debugger`, `tracker`, `auditor`, `installer`), a specific file path, or `full`."
@@ -39,9 +39,9 @@ If scope is not provided, ask:
 
 For each `packages/<persona>.pkg`:
 
-1. **Directory exists** — `Glob lib/core/<persona>/agents/` — BROKEN if missing
+1. **Directory exists** — `Glob cipherpol-aegis/lib/<persona>/agents/` — BROKEN if missing
 2. **Agent files exist** — for each name in `agents=` field:
-   - Glob `lib/core/<persona>/agents/<name>.md` — BROKEN if missing
+   - Glob `cipherpol-aegis/lib/<persona>/agents/<name>.md` — BROKEN if missing
 3. **Hook scripts exist** — for each name in `hooks=` field:
    - Glob `scripts/hooks/<hook-name>` or `scripts/<hook-name>.sh` — BROKEN if neither exists
 
@@ -50,8 +50,8 @@ For each `packages/<persona>.pkg`:
 For each worker `.md` file in scope:
 
 4. **related_skills resolve** — Grep the file for `related_skills:` block; for each skill name listed:
-   - Glob `lib/platforms/*/skills/contract/<name>/SKILL.md` — at least one platform must have it
-   - Glob `lib/core/*/skills/*/<name>/SKILL.md` — fallback for toolkit skills (orchestrators/procedures)
+   - Glob `cipherpol-aegis/ai-platforms/*/skills/contract/<name>/SKILL.md` — at least one platform must have it
+   - Glob `cipherpol-aegis/lib/*/skills/*/<name>/SKILL.md` — fallback for toolkit skills (orchestrators/procedures)
    - Glob `skills/<name>/SKILL.md` — fallback for repo skills
    - BROKEN if none found; WARNING if only one platform has it (expected: all platforms)
 
@@ -60,7 +60,7 @@ For each worker `.md` file in scope:
 For each strategist `.md` file (has `agents:` frontmatter field) in scope:
 
 5. **Spawned agents exist** — Grep the file for `agents:` block; for each agent name listed:
-   - Glob `lib/core/*/agents/<name>.md`
+   - Glob `cipherpol-aegis/lib/*/agents/<name>.md`
    - Glob `agents/<name>.md` (internal tooling fallback)
    - BROKEN if neither found
 
@@ -73,10 +73,10 @@ For each `SKILL.md` file in scope:
 
 ### Platform skill parity (when scope is a platform directory)
 
-7. **Contract skill parity** — when scope is `lib/platforms/<platform>/` or a platform's `skills/contract/` dir:
-   - `Glob lib/platforms/ios-swift/skills/contract/*/SKILL.md` → extract skill names from paths
-   - `Glob lib/platforms/web-nextjs/skills/contract/*/SKILL.md` → extract skill names from paths
-   - `Glob lib/platforms/flutter/skills/contract/*/SKILL.md` → extract skill names from paths
+7. **Contract skill parity** — when scope is `cipherpol-aegis/ai-platforms/<platform>/` or a platform's `skills/contract/` dir:
+   - `Glob cipherpol-aegis/ai-platforms/ios-swift/skills/contract/*/SKILL.md` → extract skill names from paths
+   - `Glob cipherpol-aegis/ai-platforms/web-nextjs/skills/contract/*/SKILL.md` → extract skill names from paths
+   - `Glob cipherpol-aegis/ai-platforms/flutter/skills/contract/*/SKILL.md` → extract skill names from paths
    - For each skill present on **both** other platforms but absent on the target: BROKEN
    - For each skill present on only one other platform: WARNING (may be intentionally platform-specific)
    - **Do not report any skill as missing unless it is confirmed absent via Glob on the target platform** — the presence check is always Glob-first, never name-guessing

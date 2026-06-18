@@ -1,0 +1,7 @@
+{
+  "name": "cipherpol-8",
+  "description": "KMS knowledge MCP server for Clean Architecture projects",
+  "include": {
+    "kms": ["cipherpol-8-kms/"]
+  }
+}

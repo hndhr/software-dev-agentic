@@ -1,6 +1,6 @@
 ---
 name: kms-extract-worker
-description: Scans a local project codebase and writes one project-reality doc to kms/knowledge-sources/projects/{name}/. Platform-aware — knows where to look for Flutter, iOS, Android, and web codebases. Called by kms-extract-orchestrator.
+description: Scans a local project codebase and writes one project-reality doc to cipherpol-8-kms/knowledge-sources/projects/{name}/. Platform-aware — knows where to look for Flutter, iOS, Android, and web codebases. Called by kms-extract-orchestrator.
 model: sonnet
 user-invocable: false
 tools: Read, Write, Glob, Grep
@@ -203,7 +203,7 @@ Write a single `.md` file to `output_path` using the Write tool. The exact forma
 
 ## Writing Rules
 
-Rules are governed by `kms/docs/kms-knowledge-source-rules.md`. The non-negotiable constraints for this worker:
+Rules are governed by `cipherpol-8-kms/docs/kms-knowledge-source-rules.md`. The non-negotiable constraints for this worker:
 
 - **Every doc must use `##` headings** (R1) — one `##` per entity (feature, endpoint group, component, integration, deviation). Files without `##` headings seed as a single unsearchable blob.
 - **One concept per `##`** (R2) — do not bundle multiple features or components under one heading.

@@ -24,7 +24,7 @@ Never call `Read` on a file without first confirming it exists via `Glob` or `Gr
 
 | Field | Description |
 |---|---|
-| `project_dir` | Path to `kms/knowledge-sources/projects/{name}/` |
+| `project_dir` | Path to `cipherpol-8-kms/knowledge-sources/projects/{name}/` |
 | `repo_yaml` | Path to `repo.yaml` in that directory |
 | `doc_types` | *(optional)* Comma-separated subset of doc types to run. Omit to run all five. |
 
@@ -71,7 +71,7 @@ Each worker receives: `local_path`, `platform`, `project_name`, `doc_type`, `out
 
 ### 4 — Validate output
 
-After all workers complete, verify each output file has at least one `##` heading — per R1 in `kms/docs/kms-knowledge-source-rules.md`. A file with no `##` headings will seed as a blob and must be regenerated before seeding.
+After all workers complete, verify each output file has at least one `##` heading — per R1 in `cipherpol-8-kms/docs/kms-knowledge-source-rules.md`. A file with no `##` headings will seed as a blob and must be regenerated before seeding.
 
 If any file fails: report the violation and do not proceed to step 5. Use the `AskUserQuestion` tool directly — do not end the turn with this as plain text — to ask whether to re-run the failing worker or skip it.
 
@@ -97,7 +97,7 @@ Extraction complete — {project_name} ({platform})
   ✅ deviations.md               — N deviations noted
   ✅ third-party-integrations.md — N integrations found
 
-Output: kms/knowledge-sources/projects/{project_name}/
+Output: cipherpol-8-kms/knowledge-sources/projects/{project_name}/
 Run /kms-seed to load into ChromaDB.
 ```
 
@@ -105,12 +105,12 @@ Run /kms-seed to load into ChromaDB.
 
 | File | Location |
 |---|---|
-| `feature-inventory.md` | `kms/knowledge-sources/projects/{project_name}/` |
-| `api-endpoints.md` | `kms/knowledge-sources/projects/{project_name}/` |
-| `shared-components.md` | `kms/knowledge-sources/projects/{project_name}/` |
-| `deviations.md` | `kms/knowledge-sources/projects/{project_name}/` |
-| `third-party-integrations.md` | `kms/knowledge-sources/projects/{project_name}/` |
-| `repo.yaml` (metadata fields) | `kms/knowledge-sources/projects/{project_name}/` |
+| `feature-inventory.md` | `cipherpol-8-kms/knowledge-sources/projects/{project_name}/` |
+| `api-endpoints.md` | `cipherpol-8-kms/knowledge-sources/projects/{project_name}/` |
+| `shared-components.md` | `cipherpol-8-kms/knowledge-sources/projects/{project_name}/` |
+| `deviations.md` | `cipherpol-8-kms/knowledge-sources/projects/{project_name}/` |
+| `third-party-integrations.md` | `cipherpol-8-kms/knowledge-sources/projects/{project_name}/` |
+| `repo.yaml` (metadata fields) | `cipherpol-8-kms/knowledge-sources/projects/{project_name}/` |
 
 ## Rules
 

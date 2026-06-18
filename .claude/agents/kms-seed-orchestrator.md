@@ -1,6 +1,6 @@
 ---
 name: kms-seed-orchestrator
-description: Orchestrates the KMS seeding workflow — reads kms/sources.yaml, applies filters, spawns kms-seed-worker per source (or kms-source-detect-worker for --add), and reports summary. Called by /kms-seed skill.
+description: Orchestrates the KMS seeding workflow — reads cipherpol-8-kms/sources.yaml, applies filters, spawns kms-seed-worker per source (or kms-source-detect-worker for --add), and reports summary. Called by /kms-seed skill.
 model: sonnet
 user-invocable: false
 tools: Read, Glob, Agent
@@ -45,8 +45,8 @@ Inspect injected inputs to determine execution path.
 
 ## Phase 2B — Seed registered sources
 
-1. Read `kms/sources.yaml`
-2. Resolve `db_path` = `{repo_root}/kms/db` (always — this is the canonical KMS database)
+1. Read `cipherpol-8-kms/sources.yaml`
+2. Resolve `db_path` = `{repo_root}/cipherpol-8-kms/db` (always — this is the canonical KMS database)
 3. Filter entries by `source_filter` (name match) or `type_filter` (type match)
 4. For each matching entry: spawn `kms-seed-worker` in parallel with `db_path`
 5. Collect results — each worker returns `{name, upserted, unchanged, skipped_reason?}`

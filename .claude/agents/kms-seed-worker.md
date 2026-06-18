@@ -20,15 +20,15 @@ Never call `Read` on a file you have not first attempted to scope with `Grep`.
 
 ## Knowledge
 
-- `kms/sources.yaml` — registry of all knowledge sources; fields: `name`, `type`, `path`, `last_seeded`
-- `kms/scripts/seed_kms.py` — seed runner; stdout format: `"N upserted, N unchanged"`
+- `cipherpol-8-kms/sources.yaml` — registry of all knowledge sources; fields: `name`, `type`, `path`, `last_seeded`
+- `cipherpol-8-kms/scripts/seed_kms.py` — seed runner; stdout format: `"N upserted, N unchanged"`
 - Source types: `markdown`, `codebase`, `confluence`
 
 ## Input
 
 | Field | Description |
 |---|---|
-| `source_entry` | The full entry dict from `kms/sources.yaml` |
+| `source_entry` | The full entry dict from `cipherpol-8-kms/sources.yaml` |
 | `db_path` | Absolute path to the ChromaDB directory |
 | `repo_root` | Absolute path to the software-dev-agentic repo root |
 
@@ -56,7 +56,7 @@ from `repo_root`. Capture stdout.
 
 ### 3 — Update `last_seeded`
 
-Read `kms/sources.yaml`. Find the entry by name. Set `last_seeded` to today's ISO date. Write the file.
+Read `cipherpol-8-kms/sources.yaml`. Find the entry by name. Set `last_seeded` to today's ISO date. Write the file.
 
 ## Rules
 
