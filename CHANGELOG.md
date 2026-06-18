@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.37.0] — 2026-06-18
+
+### Added
+- `developer-plan-feature` skill — standalone planning orchestrator: figma fetch, convergence loop, approval prompt; outputs `## Plan Output` block with `run_dir` on approval; resume always re-plans with `update_mode` (completed artifacts locked, open questions from updated intent)
+- `developer-plan-build-feature` skill — thin router that chains `/developer-plan-feature` → `/developer-build-feature`
+
+### Changed
+- `developer-build-feature` — redesigned as universal executor: accepts run_dir, plan.md, or any design/spec doc; routes through `/developer-plan-feature` when no `batches` frontmatter found; always requires an argument
+- `developer-brainstorming` — transition routes directly to `/developer-build-feature` instead of `/developer-plan-build-feature`
+- Runtime state directory renamed from `.claude/agentic-state/developer/runs/` to `.claude/agentic-state/developer/feature-plans/`
+- `developer-feature-worker`, `developer-ui-worker` — invocation reference updated to `/developer-build-feature`
+
 ## [12.36.1] — 2026-06-18
 
 ### Added
