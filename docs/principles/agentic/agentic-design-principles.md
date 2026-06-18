@@ -95,9 +95,9 @@ The trigger skill owns three responsibilities before spawning the agent:
 
 The agent detects the `Pre-loaded context` block in its prompt and jumps directly to the first pending phase. Without it, the agent warns that direct invocation is unsupported.
 
-**Multiple Type O skills per persona are allowed** — as long as they all route through the same primary entry agent. Example: the developer persona has three Type O skills: `developer-build-feature` (direct build or resume), `developer-plan-feature` (planning-first workflow that runs a convergence planning loop → user approval → `feature-worker`), and `developer-build-from-ticket` (non-interactive CI/remote path — fetches a Jira ticket, runs the planning loop automatically, then `feature-worker` without any user prompts). All converge on the same executor; the rule guards against direct-invocation bypasses, not workflow variations.
+**Multiple Type O skills per persona are allowed** — as long as they all route through the same primary entry agent. Example: the developer persona has three Type O skills: `developer-build-feature` (direct build or resume), `developer-plan-build-feature` (planning-first workflow that runs a convergence planning loop → user approval → `feature-worker`), and `developer-build-from-ticket` (non-interactive CI/remote path — fetches a Jira ticket, runs the planning loop automatically, then `feature-worker` without any user prompts). All converge on the same executor; the rule guards against direct-invocation bypasses, not workflow variations.
 
-A sub-agent used only as a step inside a Type O skill (e.g. `feature-planner` inside `developer-plan-feature`) does not need its own standalone trigger skill.
+A sub-agent used only as a step inside a Type O skill (e.g. `feature-planner` inside `developer-plan-build-feature`) does not need its own standalone trigger skill.
 
 > **Adding a new persona:** create the entry agent + its trigger skill together. A persona without a trigger skill is incomplete.
 

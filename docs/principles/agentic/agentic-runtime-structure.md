@@ -27,7 +27,7 @@ Typically gitignored in downstream projects. Never shipped or read by this repo'
 
 ---
 
-## Run Directory — `.claude/agentic-state/developer/runs/<feature>/`
+## Run Directory — `.claude/agentic-state/developer/feature-plans/<feature>/`
 
 The run directory is created by the entry skill (Type O) before any agents are spawned. Its path is resolved once and passed as `run_dir` to every agent in the run.
 
@@ -68,7 +68,7 @@ Written (and updated) by `developer-feature-worker` after each artifact complete
 
 ## Figma Fetch Directory — `.claude/agentic-state/developer/figma/<timestamp>/`
 
-Created by `developer-fetch-figma` or `developer-plan-feature` before spawning `developer-figma-worker` instances. Named by timestamp only (`YYYYMMDD-HHMMSS`) — no feature association. Not tied to any single run — reusable by passing the path as an argument to `developer-plan-feature`. When picked up by a run, its path is written to `<run_dir>/figma-fetch-dir.txt`.
+Created by `developer-fetch-figma` or `developer-plan-build-feature` before spawning `developer-figma-worker` instances. Named by timestamp only (`YYYYMMDD-HHMMSS`) — no feature association. Not tied to any single run — reusable by passing the path as an argument to `developer-plan-build-feature`. When picked up by a run, its path is written to `<run_dir>/figma-fetch-dir.txt`.
 
 ```
 <figma_fetch_dir>/

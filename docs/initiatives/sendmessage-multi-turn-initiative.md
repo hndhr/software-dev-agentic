@@ -34,7 +34,7 @@ Some workflows may benefit from keeping an agent alive across multiple turns rat
 
 ## Prerequisite
 
-Agent must explicitly pause (via `AskUserQuestion` or equivalent) for `SendMessage` to be useful. Agents that run straight to completion cannot be resumed — attempting to `SendMessage` a finished agent causes an error (observed in developer-plan-feature logs, 2026-05-21).
+Agent must explicitly pause (via `AskUserQuestion` or equivalent) for `SendMessage` to be useful. Agents that run straight to completion cannot be resumed — attempting to `SendMessage` a finished agent causes an error (observed in developer-plan-build-feature logs, 2026-05-21).
 
 ---
 

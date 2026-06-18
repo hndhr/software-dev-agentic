@@ -15,8 +15,9 @@ The developer persona has three entry skills. All use the same strategist brain 
 ```
 User
  │
- ├─ /developer-plan-feature          — interactive; convergence loop + user approval + worker
- ├─ /developer-build-feature         — direct entry; routes resume vs new, or build-directly
+ ├─ /developer-plan-build-feature          — chains /developer-plan-feature → /developer-build-feature
+ ├─ /developer-plan-feature          — interactive; convergence loop + user approval; outputs approved plan
+ ├─ /developer-build-feature         — executes an approved plan; scans for approved runs or takes run_dir
  └─ /developer-build-from-ticket     — non-interactive; derives intent from Jira ticket, auto-approves
           │
           │  Step 1: gather-intent (or gather-intent-prefilled for ticket path)
@@ -59,8 +60,9 @@ User
 
 | Skill | When to use | Difference |
 |---|---|---|
-| `/developer-plan-feature` | Complex or cross-layer features; uncertain existing state | Interactive convergence loop; user reviews plan before execution |
-| `/developer-build-feature` | Known scope; resuming an existing run; or build-directly opt-out | Routes resume vs new; build-directly skips the loop |
+| `/developer-plan-build-feature` | Plan and build in one command | Chains `/developer-plan-feature` → `/developer-build-feature` |
+| `/developer-plan-feature` | Need to plan and approve before committing to build | Interactive convergence loop; outputs approved plan at run_dir |
+| `/developer-build-feature` | Any plan or design doc is ready to execute | Accepts run_dir, plan.md, or any design/spec doc; routes through `/developer-plan-feature` if no batches found, then executes |
 | `/developer-build-from-ticket` | CI job, API caller, automated pipeline | Non-interactive; intent derived from Jira ticket; auto-approves |
 
 ---
@@ -245,7 +247,7 @@ Platform skill counts: Flutter 18 · Android 17 · flutter-qontak 0 (uses flutte
 → `/developer-build-feature` with narrow intent; strategist scopes to domain only; `developer-feature-worker` calls `developer-domain-create-usecase`
 
 **Multi-layer task** — "Build the leave request feature"
-→ `/developer-plan-feature` skill: strategist decides which planners, skill runs convergence loop, plan approved, `developer-feature-worker` executes
+→ `/developer-plan-build-feature` skill: strategist decides which planners, skill runs convergence loop, plan approved, `developer-feature-worker` executes
 
 **Partial update** — "Add a new screen, domain/data already exist"
 → strategist decides: spawn only `pres-planner` + `app-planner` (domain and data have no impact)
@@ -262,7 +264,7 @@ Platform skill counts: Flutter 18 · Android 17 · flutter-qontak 0 (uses flutte
 **Flutter domain entity creation** — "Create a LeaveRequest entity for Flutter"
 
 ```
-/developer-plan-feature skill
+/developer-plan-build-feature skill
   └─ developer-feature-strategist   (decides: spawn domain-planner only)
   └─ developer-domain-planner         (explores domain layer)
   └─ developer-feature-strategist   (converged; synthesizes plan.md)
