@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.37.5] — 2026-06-18
+
+### Changed
+- `developer-build-feature` skill — fully redesigned: removed `batches` frontmatter dependency and `developer-plan-feature` routing; scope agent now owns batching (splits by scope complexity); each batch can spawn multiple workers (feature + ui) in parallel; unit test step removed (separate concern); `allowed-tools` trimmed to `Agent, Bash, Read`
+
 ## [12.37.4] — 2026-06-18
 
 ### Changed
