@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.37.4] — 2026-06-18
+
+### Changed
+- `developer-plan-feature` skill — removed `batches`-based `completed_artifacts` extraction and all downstream passing to planners and strategists; `plan.md` approval now writes `context_doc: context.md` into frontmatter so consuming orchestrators and agents know to load the sibling context file
+
 ## [12.37.3] — 2026-06-18
 
 ### Changed
