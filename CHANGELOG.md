@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.0.1] — 2026-06-19
+
+### Changed
+- `developer-build-feature` — added Step 4 (Tests): after execution, asks the user to write tests for all files, specific files, or use a test plan already present in the spec doc; delegates to `developer-test-worker`
+
 ## [13.0.0] — 2026-06-18
 
 ### Changed
