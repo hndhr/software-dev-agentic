@@ -35,13 +35,18 @@ For codebase lookups (symbol, pattern, or file existence), invoke `shared-codeba
 
 ## Input
 
-Provided inline by the calling skill — not passed as parameters:
+Passed in prompt:
 
-| Content | Source | Required |
+| Content | Key | Required |
 |---|---|---|
-| `feature`, `platform`, `operations`, `separate-ui-layer` | plan.md frontmatter | yes |
-| Artifact tables per layer (Domain / Data / Presentation / UI / App) | plan.md body | yes |
-| Key Symbols per existing artifact | context.md | yes |
+| run directory path | `run_dir` | yes |
+| batch ID to process | `batch` | yes |
+
+## Pre-flight
+
+Read `<run_dir>/plan.md` and `<run_dir>/context.md`. If `run_dir` is missing or plan.md cannot be read, stop:
+
+> run_dir is required — invoke via `/developer-build-feature`.
 
 ```bash
 cat "$CLAUDE_PLUGIN_ROOT/reference/developer/plan-format.md"
@@ -49,18 +54,13 @@ cat "$CLAUDE_PLUGIN_ROOT/reference/developer/plan-format.md"
 
 Full plan.md/context.md schema: `$CLAUDE_PLUGIN_ROOT/reference/developer/plan-format.md`.
 
-Return `MISSING INPUT` and stop if plan.md content is absent — this agent must be invoked via `/developer-build-feature`.
+Extract from plan.md:
+- `feature`, `platform`, `operations`, `separate-ui-layer` from frontmatter
+- The batch entry for `batch` ID → get its `steps` list
+- Artifact tables per layer (Domain / Data / Presentation / UI / App)
 
-## Pre-flight
-
-Plan and context are injected inline by the trigger skill. If no pre-loaded content is present, warn the user and stop:
-
-> This agent must be invoked via `/developer-build-feature` — not directly.
-
-Extract from the inlined content:
-- `feature`, `platform`, `operations`, `separate-ui-layer` from plan.md frontmatter
-- Artifact tables per layer (Domain / Data / Presentation / UI)
-- Key Symbols per existing artifact from context.md
+Extract from context.md:
+- Key Symbols per existing artifact
 
 Load cross-cutting convention references before writing any code — knowledge files only, no theory.
 

@@ -28,14 +28,18 @@ For codebase lookups (symbol, pattern, or file existence), invoke `shared-codeba
 
 ## Input
 
-Provided inline by the calling skill — not passed as parameters:
+Passed in prompt:
 
-| Content | Source | Required |
+| Content | Key | Required |
 |---|---|---|
-| `feature`, `platform`, `separate-ui-layer` | plan.md frontmatter | yes |
-| UI layer artifact table (Screen → Component → Navigator) | plan.md | yes |
-| `## Figma Alignment` table | context.md | if present |
-| `stateholder_contract` path | injected by skill | yes (may be `"none"`) |
+| run directory path | `run_dir` | yes |
+| batch ID to process | `batch` | yes |
+
+## Pre-flight
+
+Read `<run_dir>/plan.md` and `<run_dir>/context.md`. If `run_dir` is missing or plan.md cannot be read, stop:
+
+> run_dir is required — invoke via `/developer-build-feature`.
 
 ```bash
 cat "$CLAUDE_PLUGIN_ROOT/reference/developer/plan-format.md"
@@ -43,21 +47,19 @@ cat "$CLAUDE_PLUGIN_ROOT/reference/developer/plan-format.md"
 
 Full plan.md/context.md schema: `$CLAUDE_PLUGIN_ROOT/reference/developer/plan-format.md`.
 
-Return `MISSING INPUT` and stop if plan.md content is absent — this agent must be invoked via `/developer-build-feature`.
-
-## Pre-flight
-
-Plan, context, and stateholder-contract path are injected inline by the trigger skill. If no pre-loaded content is present, warn and stop:
-
-> This agent must be invoked via `/developer-build-feature` — not directly.
-
-Extract from the inlined content:
-- `feature`, `platform`, `separate-ui-layer` from plan.md frontmatter
+Extract from plan.md:
+- `feature`, `platform`, `separate-ui-layer` from frontmatter
+- The batch entry for `batch` ID → get its `steps` list
 - UI layer artifact table (Screen → Component → Navigator rows)
-- `## Figma Alignment` table from context.md (if present)
-- `stateholder_contract` path
 
-Read the stateholder contract from disk using the `Read` tool on the path from `stateholder_contract`. If the path is `"none"` or null, skip — UI wiring will use only the plan description.
+Extract from context.md:
+- `## Figma Alignment` table (if present)
+
+Check state.json to get the stateholder contract path:
+```bash
+find "$(git rev-parse --show-toplevel)/.claude/agentic-state/developer/feature-plans/<feature>" -name "state.json" 2>/dev/null
+```
+If found, read it → get `stateholder_contract` path and `completed_artifacts`. Read the stateholder contract file if the path is non-null and not `"none"`.
 
 Derive: `project` = `basename $(pwd)`.
 
@@ -73,12 +75,6 @@ Load the UI-relevant presentation knowledge reference before writing any code.
 - `codebase_grep`: `<infer>`
 
 Fallback — if the tool is unavailable: proceed without pattern reference.
-
-Check state.json to resume from a previous run:
-```bash
-find "$(git rev-parse --show-toplevel)/.claude/agentic-state/developer/feature-plans/<feature>" -name "state.json" 2>/dev/null
-```
-If found, read it and skip all artifacts already in `completed_artifacts`.
 
 ## Execution Order
 

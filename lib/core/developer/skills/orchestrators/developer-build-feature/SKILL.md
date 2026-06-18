@@ -10,7 +10,7 @@ allowed-tools: Agent, AskUserQuestion, Bash, Read, Skill
 
 This skill is a pure router. Its only permitted direct operations:
 - `Bash` — resolving and validating the input path
-- `Read` — re-reading plan.md and context.md before each worker spawn
+- `Read` — reading plan.md before each worker spawn
 - `AskUserQuestion` — unit test prompt in Step 3
 
 Never read source files, search the codebase, or write code. All planning is delegated to `/developer-plan-feature`; all implementation to worker agents.
@@ -58,99 +58,12 @@ Read `batches` from `<run_dir>/plan.md` frontmatter. Process each batch in `id` 
 - `layer: ui` → `developer-ui-worker`
 - all others (`domain`, `data`, `pres`, `app`) → `developer-feature-worker`
 
-**2c — Spawn the worker.** Re-read `plan.md` and `context.md` from disk before each spawn.
+**2c — Spawn the worker:**
 
-Extract `raw_docs` from context.md frontmatter and resolve the batch's artifact names from `## Steps` by matching the batch's `steps` IDs:
+> run_dir: \<run_dir\>
+> batch: \<batch_id\>
 
-```bash
-python3 -c "
-import re, sys
-try:
-    import yaml
-    with open('<run_dir>/context.md') as f:
-        m = re.match(r'^---\n(.*?)\n---', f.read(), re.DOTALL)
-    if m:
-        d = yaml.safe_load(m.group(1))
-        for r in d.get('raw_docs', []):
-            print(r['path'] + ' — ' + r['description'])
-except: pass
-" 2>/dev/null
-```
-
-Parse `## Steps` from plan.md — for each step ID in `batch.steps`, extract the artifact name. These are the artifacts to pass to the worker.
-
-For `developer-feature-worker`:
-
-> Pre-loaded context below — do not re-read plan.md or context.md.
->
-> **plan.md**
-> \<content\>
->
-> **context.md**
-> \<content\>
->
-> \<if raw_docs is non-empty:\>
-> **Reference docs:**
-> \<for each entry: "<path> — <description>"\>
-> `Read` the relevant doc(s) for ground-truth details (endpoint paths, request/response shapes, field names) before implementing any artifact. Do not rely solely on plan.md/context.md if a doc covers the artifact.
-> \<end if\>
->
-> **Batch:** Process only these steps: \<step IDs and artifact names from batch.steps, e.g. "1. LeaveRequest, 2. LeaveRequestRepository"\>. Skip any already `done` in `## Steps`.
->
-> Proceed directly to the first pending step in this batch.
-
-For `developer-ui-worker` — also extract `stateholder_contract` from `state.json` first:
-
-> Pre-loaded context below — do not re-read plan.md or context.md.
->
-> **plan.md**
-> \<content\>
->
-> **context.md**
-> \<content\>
->
-> **Stateholder contract path:** \<stateholder_contract from state.json, or "none" if null\>
->
-> \<if raw_docs is non-empty:\>
-> **Reference docs:**
-> \<for each entry: "<path> — <description>"\>
-> `Read` the relevant doc(s) for ground-truth details (UI stack specs, component structure, field names) before implementing any artifact. Do not rely solely on plan.md/context.md if a doc covers the artifact.
-> \<end if\>
->
-> **Batch:** Process only these steps: \<step IDs and artifact names from batch.steps\>. Skip any already `done` in `## Steps`.
->
-> \<if ## Figma Alignment section is present in context.md, include — otherwise omit\>
-> **Figma Instruction:** For every Screen and Component artifact, before writing any code:
-> 1. Look up the artifact in the `## Figma Alignment` table in context.md above to get its `UI Stack` and `Figma Files`
-> 2. `Read` the `UI Stack` file (`figma-uistack-*.md`) first — this is the merged Component Hierarchy, State Model, and User Interactions for this artifact (and any overlay components it mounts). Use this as the structural blueprint
-> 3. For each state referenced in the UI Stack's `states` frontmatter: `Read` its `.md`, `layout_file` JSX (full file, no truncation), and `screenshot` `.png` (mandatory — visual inspection required before implementing)
-> 4. For any overlay referenced (`← see figma-uistack-*.md`), repeat steps 2–3 for that overlay's UI Stack when implementing the overlay's Component artifact
->
-> Proceed directly to the first pending UI artifact in this batch.
-
-**2d — Checkpoint loop (fallback).** If the worker returns `## Context Checkpoint` instead of its completion signal, immediately re-spawn the same worker type without user interaction:
-
-> Resuming from context checkpoint. Pre-loaded context below — do not re-read plan.md or context.md.
->
-> **plan.md**
-> \<content — re-read from disk\>
->
-> **context.md**
-> \<content — re-read from disk\>
->
-> \<if raw_docs is non-empty:\>
-> **Reference docs:**
-> \<for each entry: "<path> — <description>"\>
-> `Read` the relevant doc(s) for ground-truth details before implementing any artifact.
-> \<end if\>
->
-> **Batch:** Process only these steps: \<step IDs and artifact names from batch.steps — skip any already `done` in `## Steps`\>.
->
-> **Resume from:** \<next_artifact from checkpoint block\>
->
-> \<for ui-worker: include Stateholder contract path and Figma Instruction as above\>
->
-> Proceed directly to the resumed artifact — skip any steps already marked `done` in `## Steps`.
+**2d — Checkpoint loop.** If the worker returns `## Context Checkpoint`, re-spawn immediately with the same prompt.
 
 Repeat until the worker returns `## Layers Complete` (feature-worker) or `## Feature Complete` (ui-worker).
 
