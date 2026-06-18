@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [12.38.0] — 2026-06-18
+
+### Added
+- `developer-brainstorm-build-feature` orchestrator — chains `/developer-brainstorming` → `/developer-build-feature` (mirrors the `developer-plan-build-feature` pattern)
+- `lib/core/aegis/` persona — new home for all cross-persona shared components; all components prefixed `aegis-`
+
+### Changed
+- `developer-plan-feature` and `developer-build-feature` — removed `disable-model-invocation: true` so they can be invoked cleanly by orchestrator skills
+- Renamed `lib/core/shared/` → `lib/core/aegis/`; all skill/agent names updated to carry `aegis-` prefix (`aegis-kaku-worker`, `aegis-lucci-planner`, `aegis-saturn-jaygarcia`, etc.)
+- `shared-codebase-explore`, `shared-kms-load`, `shared-kms-lookup` — `shared-` prefix replaced with `aegis-`
+
+### Removed
+- `lib/core/auditor/` persona (auditor-arch-review-worker, auditor-arch-review, auditor-arch-check)
+- `lib/core/installer/` persona — skills moved into `lib/core/aegis/` (aegis-installer-doctor, aegis-installer-setup-project)
+- `agentic-perf-review` skill
+- `release-project` skill (source removed; dist copy remains until next build)
+
 ## [12.37.5] — 2026-06-18
 
 ### Changed
