@@ -172,25 +172,18 @@ A browser-based companion for showing mockups, diagrams, and visual options duri
 - **Use the browser** for content that IS visual — mockups, wireframes, layout comparisons, architecture diagrams
 - **Use the terminal** for content that is text — requirements questions, conceptual choices, tradeoff lists, scope decisions
 
-If they agree to the companion, locate and read the detailed guide before proceeding:
+If they agree to the companion, read the detailed guide before proceeding:
 
 ```bash
-find ~/.claude/plugins -name "visual-companion.md" -path "*/brainstorming/*" 2>/dev/null | head -1
+cat "$CLAUDE_PLUGIN_ROOT/skills/brainstorming/visual-companion.md"
 ```
 
-Read that file. It contains the full server API, HTML templates, CSS classes, event format, and design tips.
+It contains the full server API, HTML templates, CSS classes, event format, and design tips.
 
 **Starting the server:**
 
 ```bash
-# Locate the scripts directory from the superpowers plugin
-SCRIPTS_DIR=$(find ~/.claude/plugins -name "start-server.sh" -path "*/brainstorming/scripts/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
-echo "Scripts dir: $SCRIPTS_DIR"
-```
-
-Then run:
-```bash
-"$SCRIPTS_DIR/start-server.sh" --project-dir /path/to/project --open
+"$CLAUDE_PLUGIN_ROOT/skills/brainstorming/scripts/start-server.sh" --project-dir /path/to/project --open
 ```
 
 Save the `screen_dir` and `state_dir` from the JSON response. Share the complete URL (including `?key=…`) with the user.
