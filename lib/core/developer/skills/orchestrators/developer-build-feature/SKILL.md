@@ -1,99 +1,89 @@
 ---
 name: developer-build-feature
-description: Universal feature executor — accepts a run_dir, plan.md, or any design/spec document. If the input already has a batches frontmatter (produced by /developer-plan-feature), executes directly. Otherwise routes through /developer-plan-feature first to produce the structured plan, then executes. Entry point for post-brainstorming execution and all /developer-plan-* outputs.
+description: Feature executor — accepts a run_dir or any plan/spec document. Spawns a scope agent to decompose work into batches, then executes each batch with one or more parallel workers (feature or ui). Self-contained; does not depend on developer-plan-feature. Does not run tests.
 user-invocable: true
 disable-model-invocation: true
-allowed-tools: Agent, AskUserQuestion, Bash, Read, Skill
+allowed-tools: Agent, Bash, Read
 ---
 
-## Routing Contract
+## Orchestrator Contract
 
-This skill is a pure router. Its only permitted direct operations:
+Only permitted direct operations:
 - `Bash` — resolving and validating the input path
-- `Read` — reading plan.md before each worker spawn
-- `AskUserQuestion` — unit test prompt in Step 3
+- `Read` — reading the plan doc
 
-Never read source files, search the codebase, or write code. All planning is delegated to `/developer-plan-feature`; all implementation to worker agents.
+Never read source files, search the codebase, or write code. Scoping is delegated to the scope agent; implementation to worker agents.
 
-## Step 1 — Resolve Plan
+## Step 1 — Resolve Input
 
-`$ARGUMENTS` is a path to one of: a **run directory**, a **`plan.md` file**, or any **design/spec document** (e.g. a brainstorming output).
+`$ARGUMENTS` is a path to a **run directory** or a **plan/spec document**.
 
 If `$ARGUMENTS` is empty, stop:
-> No plan provided. Pass a run_dir, plan.md, or spec path. Run `/developer-plan-feature` to create a plan first.
+> No input provided. Pass a run_dir or plan/spec document.
 
 ```bash
 if [ -d "$ARGUMENTS" ]; then
-  grep "^batches:" "$ARGUMENTS/plan.md" 2>/dev/null | head -1
+  ls "$ARGUMENTS/plan.md" 2>/dev/null
 elif [ -f "$ARGUMENTS" ]; then
-  grep "^batches:" "$ARGUMENTS" 2>/dev/null | head -1
+  echo "$ARGUMENTS"
 fi
 ```
 
-**If `batches` is present** → derive `run_dir`:
-- Directory → `run_dir = $ARGUMENTS`
-- File → `run_dir = dirname($ARGUMENTS)`
+- Directory → `plan_doc = $ARGUMENTS/plan.md`, `run_dir = $ARGUMENTS`
+- File → `plan_doc = $ARGUMENTS`, `run_dir = dirname($ARGUMENTS)`
 
-Proceed to Step 2.
+If the resolved file does not exist, stop:
+> Plan document not found at `<path>`.
 
-**If `batches` is absent** (design doc, spec, or bare idea) → invoke `/developer-plan-feature` via the Skill tool, passing `$ARGUMENTS` verbatim.
+Read `plan_doc`.
 
-Wait for it to complete. Read the `## Plan Output` block — extract `run_dir`.
+## Step 2 — Scope & Batch
 
-If no `## Plan Output` is present (plan was discarded or canceled), stop.
+Spawn an Agent with the following prompt, passing the full contents of `plan_doc`:
 
-Proceed to Step 2 with the `run_dir` from `## Plan Output`.
+> You are a scoping agent. Review the plan/requirements below and decompose the work into execution batches.
+>
+> Rules:
+> - If the steps are small and cohesive, return a single batch.
+> - If the steps are large or span distinct layers/concerns, split into multiple batches — each independently executable.
+> - Each batch may have multiple workers running in parallel. Worker types:
+>   - `feature` — domain, data, pres, or app layer work
+>   - `ui` — UI/widget/screen work only
+> Return ONLY a YAML block in this exact shape:
+>
+> ```yaml
+> batches:
+>   - id: 1
+>     description: "<what this batch covers>"
+>     workers:
+>       - type: feature
+>         layer: domain|data|pres|app
+>         focus: "<specific work for this worker>"
+>       - type: ui
+>         layer: ui
+>         focus: "<specific work for this worker>"
+> ```
+>
+> Plan doc:
+> <plan_doc contents>
 
-## Step 2 — Execute
+Parse the returned `batches` from the YAML block.
 
-`plan.md` is the single source of truth for execution state — update batch statuses live as work progresses.
+## Step 3 — Execute
 
-Read `batches` from `<run_dir>/plan.md` frontmatter. Process each batch in `id` order where `status != complete`.
+Process each batch in `id` order.
 
 **For each batch:**
 
-**2a — Mark in progress.** Set the batch's `status` to `in_progress` in `plan.md` frontmatter.
+**3a — Spawn all workers in the batch in parallel.** For each entry in `batch.workers`:
+- `type: feature` → `developer-feature-worker`
+- `type: ui` → `developer-ui-worker`
 
-**2b — Determine worker by `layer`:**
-- `layer: ui` → `developer-ui-worker`
-- all others (`domain`, `data`, `pres`, `app`) → `developer-feature-worker`
-
-**2c — Spawn the worker:**
+Prompt each worker:
 
 > run_dir: \<run_dir\>
-> batch: \<batch_id\>
+> batch: \<batch.id\> — \<batch.description\>
+> layer: \<worker.layer\>
+> focus: \<worker.focus\>
 
-**2d — Checkpoint loop.** If the worker returns `## Context Checkpoint`, re-spawn immediately with the same prompt.
-
-Repeat until the worker returns `## Layers Complete` (feature-worker) or `## Feature Complete` (ui-worker).
-
-**2e — Mark complete.** Set the batch's `status` to `complete` in `plan.md` frontmatter.
-
-Proceed to Step 3 after all batches are complete.
-
-## Step 3 — Unit Tests
-
-Read `## Steps` from plan.md. Extract artifact names for all steps with `layer: domain`, `layer: data`, or `layer: pres` — these are the unit-testable artifacts. Skip `ui` and `app`.
-
-If no steps are present (plan not produced by `developer-plan-feature`), skip this step.
-
-Call `AskUserQuestion` immediately — do NOT describe choices in prose:
-
-```
-question    : "Run unit tests for created artifacts?"
-header      : "Unit Tests"
-multiSelect : false
-options     :
-  - label: "Yes",  description: "Generate unit tests for all created artifacts via developer-test-worker"
-  - label: "Skip", description: "I'll run tests manually later"
-```
-
-**Yes** → spawn `developer-test-worker`:
-
-> target: <comma-separated artifact names from testable steps>
-> platform: <platform from plan.md frontmatter>
-
-**Skip** → surface the artifacts as a reminder:
-
-> Tests not generated. Run when ready:
-> `/developer-test-worker` — targets: <artifact names>
+**3b — Checkpoint loop.** If a worker returns `## Context Checkpoint`, re-spawn it immediately with the same prompt. Repeat until it returns `## Layers Complete` (feature-worker) or `## Feature Complete` (ui-worker).
