@@ -45,7 +45,7 @@ Then work directly on the relevant files in `cipherpol-aegis/lib/`.
 
 See `docs/principles/agentic/agentic-design-principles.md` and `docs/principles/agentic/agentic-conventions.md` — read them before adding any agent, worker, or skill.
 
-Unfamiliar term (`Persona`, `Strategist`, `Decision block`, `pattern`, etc.)? Check `docs/principles/glossary.md`.
+@docs/principles/glossary.md
 
 ## Conventions
 

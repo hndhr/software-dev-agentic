@@ -325,6 +325,7 @@ The agentic system enforces its own conventions through automated review — the
 | Goal | How it's achieved |
 |---|---|
 | Token efficiency | Isolated context; Search Protocol decision gate; disk-first inter-agent communication — findings written to disk, paths not content passed between phases, Orchestrator context stays clean across rounds |
+| Supervision quality | Supervised interaction pattern at input and output boundaries — surface reasoning, not just results. Input: requirements gathered one question at a time, approach options presented before agents run. Output: findings + reasoning shown at every gate so the user redirects precisely. See [agentic-conventions.md — Supervised Interaction Pattern](agentic-conventions.md#building-an-orchestrator-skill). |
 | Modular knowledge | Skills preloaded, not embedded |
 | Single source of truth | `reference/` file-addressed (`Read` or `symbol-query`), never duplicated |
 | Safe destructive operations | Use hooks in `settings.json` for automated bash execution without model involvement |
@@ -346,7 +347,7 @@ Cross-persona, end-to-end automation (product → design → developer → QA in
 |---|---|---|
 | **Context window** | A full cross-team workflow fills the main context. Compaction at the final step = degraded output. | Persona-scoped Orchestrators; disk-based hand-offs between personas. |
 | **Token billing** | A billing cap or timeout mid-workflow orphans the Orchestrator. No clean auto-recovery without human re-entry. | Approval gates at natural hand-off points; state files for resume. |
-| **Supervision** | Agents aren't mature enough for unsupervised cross-team execution. Human review at each hand-off catches drift between what was intended and what was produced. | Explicit approval steps after each Orchestrator completes. |
+| **Supervision** | Agents aren't mature enough for unsupervised cross-team execution. Human review at each hand-off catches drift between what was intended and what was produced. | Explicit approval steps after each Orchestrator completes. For planning, brainstorming, consulting, and breakdown workflows within a single persona, use **supervised convergence** — gate the user after every loop round (findings + reasoning + Confirm / Discuss / Converge now) rather than only at the end. See [agentic-conventions.md — Convergence Gate Model](agentic-conventions.md#building-an-orchestrator-skill). |
 | **Gaps** | No agreed input/output contract between teams (product → design → developer → QA) yet. Agents can't bridge a gap that hasn't been defined. | Define I/O contracts per hand-off before building the connecting Orchestrator. |
 
 Each limitation is a research problem, not a permanent constraint. Context efficiency, resume protocols, maturity metrics, and cross-team I/O contracts are all active areas of work.

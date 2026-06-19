@@ -373,6 +373,55 @@ Before writing a single instruction, answer four questions in this order:
 
 The order matters: Output → Input → Process → Budget. Designing output first prevents the skill from becoming a black box that returns whatever the agent feels like.
 
+**Convergence Gate Model — supervised vs autonomous:**
+
+Orchestrators that own a convergence loop must choose a supervision model based on what the loop is producing:
+
+| Model | When to use | User gate | Agent role per round |
+|---|---|---|---|
+| **Autonomous** | Implementation — direction is clear upfront; loop explores until findings are sufficient | Single gate at end (approve / discuss / discard) | Execute a known plan |
+| **Supervised** | Planning, brainstorming, consulting, breakdown — each round refines direction | Gate after every round | Surface findings and reasoning for human steering |
+
+The distinction: implementation loops explore a known intent. Planning loops *discover* the intent. A wrong direction in a planning loop compounds — each additional round digs deeper in the wrong place. Human gates after every round are the quality mechanism, not an error-recovery fallback.
+
+**Supervised convergence gate — required structure:**
+
+After each round completes, before the next round spawns, the orchestrator must:
+
+1. Extract **findings summary** — per-agent bullet points from the strategist's Decision block (not raw findings files)
+2. Extract **reasoning** — why the strategist proposes another round and what gaps remain
+3. Present both to the user alongside the proposed next round via `AskUserQuestion`:
+   ```
+   options:
+     - Confirm       — run next round as proposed
+     - Discuss       — redirect or ask something before the next round runs
+     - Converge now  — synthesize with what we have
+   ```
+
+**Discuss path:** The user's free text goes back to the strategist in a refinement mode. The strategist reads the user's direction against the current findings and returns a revised proposal. Present the revision for final confirmation (Confirm / Converge now only — no recursive Discuss loop).
+
+**Agent output contract for supervised loops:**
+
+Any strategist that participates in a supervised convergence loop must include `findings_summary` and `reasoning` in every `Decision: spawn-planners` it emits — these are not optional. Without them the gate cannot present meaningful choices to the user. Declare them in the Decision block schema for the relevant strategist.
+
+**Supervised Interaction Pattern — input and output boundaries:**
+
+Human supervision produces the highest quality improvement at two points in any orchestrator workflow:
+
+| Boundary | When | What to surface |
+|---|---|---|
+| **Input** | Before any agent runs | Questions one at a time, 2–3 approach options, section-by-section design approval — shapes what agents are asked to do |
+| **Output** | After agents produce results | Findings + reasoning behind the output — gives the user context to redirect precisely, not just approve or reject |
+
+The convergence gate spans both simultaneously — it validates the output of round N and shapes the input to round N+1. This is what makes mid-loop gates especially valuable: a wrong direction caught after round 1 costs one round; caught after round 3 it costs three.
+
+**Overarching rule: surface reasoning, not just results.**
+
+An approval gate that shows only output gives the user a binary yes/no. An approval gate that shows output + reasoning gives the user the context to redirect precisely. Apply this rule at both boundaries:
+
+- **Input boundary** — use `/developer-brainstorming` or equivalent: ask questions one at a time, present approaches with tradeoffs, get section-by-section approval before delegating to agents.
+- **Output boundary** — after agents run, extract `reasoning` from their output block and display it at the gate alongside the result. Single-round proposals (ticket breakdown, design proposal) and multi-round loops (convergence gate) both apply.
+
 ---
 
 ## Preloading Skills

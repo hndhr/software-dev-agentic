@@ -56,6 +56,7 @@ A single, alphabetical index of every term coined — or given a project-specifi
 | Strategist | [Agentic](agentic/agentic-glossary.md) | Pure-reasoning agent — decides and returns Decision blocks, never spawns agents or writes files. |
 | symbol-query | [Agentic](agentic/agentic-glossary.md) | Canonical source lookup: `Grep <SymbolName>` → `Read(offset=line-5, limit=60)`. |
 | Topic | [KMS](kms/kms-glossary.md) | A `#` heading inside an artifact file — thematic grouping of related concepts. |
+| Transparent Steering | [Agentic](agentic/agentic-glossary.md) | Pattern where agents surface reasoning alongside results at input and output boundaries so the human can redirect precisely — not just approve or reject. |
 | Trigger Skill | [Agentic](agentic/agentic-glossary.md) | The Type O skill that is a persona's only supported entry path. |
 | Ubiquitous language (pattern keys) | [Agentic](agentic/agentic-glossary.md) | One KMS concept = one `pattern` key, identical across all platforms. |
 | Worker | [Agentic](agentic/agentic-glossary.md) | Any agent that executes a plan and writes source files, regardless of role label. |
