@@ -7,6 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.6.0] — 2026-06-22
+
+### Added
+- `developer-debug` skill — available logs intake field; convergence loop with `developer-debug-log-worker` → user repro → re-spawn strategist until `root_cause` and `fix_recommendation` are found
+- `debug-investigation-format.md` — reference doc defining the per-round investigation file format written by `developer-debug-strategist` to `.claude/agentic-state/runs/developer/debug/<timestamp>-<slug>.md`
+
+### Changed
+- `developer-debug` skill — `disable-model-invocation` set to `false`; investigation file now written each round with timestamp-slug filename
+- `developer-plan-feature` — refactored step structure: removed Steps 0.5, 1.5, 1.5b, 1.5c; added Step 1.1 (Bug Check → delegates to `developer-debug`) and simplified Step 1.2 (Figma → delegates entirely to `developer-fetch-figma`); `developer-debug` added to `allowed-tools`
+
 ## [13.5.0] — 2026-06-22
 
 ### Changed
