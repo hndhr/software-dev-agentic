@@ -7,6 +7,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.4.1] — 2026-06-22
+
+### Added
+- `developer-feature-intent-strategist` — new `pre-plan` mode: explores module tree via Bash/Glob and returns `Decision: scope-options` with a problem statement and 2-3 candidate scope options; no user prompts, no file reads
+- `strategist-decision-format.md` — `Decision: scope-options` schema
+
+### Changed
+- `developer-plan-feature` — new Step 0.5 (Ambiguity Check): users who don't yet have a clear goal can trigger a lightweight pre-plan exploration round before intent gathering; happy-path users ("Yes — I know what to build") skip it entirely
+
+### Removed
+- `developer-issue-worker` agent
+
 ## [13.4.0] — 2026-06-22
 
 ### Removed
