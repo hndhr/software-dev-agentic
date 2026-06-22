@@ -1,0 +1,8 @@
+{
+  "name": "cipherpol-9",
+  "description": "Generic plan-then-build orchestration for any task",
+  "version": "13.3.0",
+  "author": {
+    "name": "Jurnal Engineering"
+  }
+}
