@@ -7,11 +7,16 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.6.1] — 2026-06-23
+
+### Fixed
+- `developer-debug` skill — corrected investigation file path from `.claude/agentic-state/runs/developer/debug/` to `.claude/agentic-state/developer/debug/`
+
 ## [13.6.0] — 2026-06-22
 
 ### Added
 - `developer-debug` skill — available logs intake field; convergence loop with `developer-debug-log-worker` → user repro → re-spawn strategist until `root_cause` and `fix_recommendation` are found
-- `debug-investigation-format.md` — reference doc defining the per-round investigation file format written by `developer-debug-strategist` to `.claude/agentic-state/runs/developer/debug/<timestamp>-<slug>.md`
+- `debug-investigation-format.md` — reference doc defining the per-round investigation file format written by `developer-debug-strategist` to `.claude/agentic-state/developer/debug/<timestamp>-<slug>.md`
 
 ### Changed
 - `developer-debug` skill — `disable-model-invocation` set to `false`; investigation file now written each round with timestamp-slug filename
