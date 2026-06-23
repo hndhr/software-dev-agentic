@@ -7,6 +7,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.7.0] — 2026-06-23
+
+### Changed
+- `developer-groom-ticket` skill — rewritten from planner-spawning orchestrator to consultation loop; strategist drives back-and-forth discussion with the user until they say wrap up; removed parallel planner spawning (Steps 2–3)
+- `developer-groom-strategist` agent — removed `detect-scope` and `synthesize` modes; now returns `Decision: discuss` (default) or `Decision: summarize` (on user wrap-up); reads codebase directly instead of delegating to planners
+- `developer-groom-ticket` skill — added Bug Detection Gate (Step 2): routes bug tickets to `/developer-debug` first, then feeds debug findings back into the consultation loop
+
 ## [13.6.1] — 2026-06-23
 
 ### Fixed
