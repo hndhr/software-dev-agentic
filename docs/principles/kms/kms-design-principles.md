@@ -11,7 +11,7 @@ A ChromaDB-backed knowledge store shipped inside the Claude Code plugin. Agents 
 
 ## Design Goals
 
-1. **Drop-in knowledge** — drop any doc into `kms/knowledge-sources/` and the system derives scope, platform, discipline, area, artifact, topic, subtopic, and pattern from the path and headings — frontmatter is documentation-only, not required by the seeder. The **Knowledge Path** is the source of truth; directory structure, seeder, and DB schema all derive from it (see Core Principle 4). The path → metadata mapping is the **Knowledge Path Structure**, defined in [kms-conventions.md](kms-conventions.md#kmsknowledge-sources--path-conventions)
+1. **Drop-in knowledge** — drop any doc into `knowledge-sources/` and the system derives its facets. As of the [2026-07-03 redesign](../../initiatives/2026-07-03-kms-knowledge-management-redesign.md), facets are **frontmatter-authoritative with path as fallback**: a value in the file's YAML frontmatter wins, the directory path fills the rest, and invalid facet values are reported and skipped (not silently mis-seeded). New facets `layer` (per-agent scoping) and `owner` (curated/extracted) join the set. The path → metadata mapping is the **Knowledge Path Structure**, defined in [kms-conventions.md](kms-conventions.md#kmsknowledge-sources--path-conventions)
 2. **Cascade by specificity** — project overrides platform overrides universal; agents always get the most relevant knowledge
 3. **Section ownership** — each source owns specific sections of a node; no source can corrupt another's contribution
 4. **Resilient seeding** — unavailable sources are skipped silently; existing knowledge is never removed by a failed seed
@@ -23,7 +23,7 @@ A ChromaDB-backed knowledge store shipped inside the Claude Code plugin. Agents 
 
 ### 1. Single collection — cascade via metadata
 
-One ChromaDB collection for all knowledge. Scope is enforced by Knowledge Path metadata fields (`scope`, `platform`, `project`, `discipline`, `area`, `artifact`, `topic`, `subtopic`, `pattern`), not by collection separation. Splitting by platform would break cascade fallthrough which requires all tiers queryable in a single call.
+One ChromaDB collection for all knowledge. Scope is enforced by metadata fields (`scope`, `platform`, `project`, `discipline`, `layer`, `artifact`, `topic`, `section` [=`subtopic`=`pattern`], plus `owner`; `area` retained but scheduled for removal), not by collection separation. Splitting by platform would break cascade fallthrough which requires all tiers queryable in a single call.
 
 Nodes from multiple platforms and projects naturally accumulate in a single ChromaDB instance — this is expected. Agents always query with explicit `platform` and `project` filters, so cross-platform nodes are never surfaced to an agent working in a different context. The presence of flutter or android nodes in an iOS plugin's ChromaDB is not an error.
 
@@ -56,17 +56,15 @@ The **Knowledge Path** — the ordered tuple `scope → platform/project → dis
 
 | Layer | How it derives from the Knowledge Path |
 |---|---|
-| **Directory structure** | Encodes it physically — `{scope}/[{platform}\|{project}]/{discipline}/{area}/{artifact}.md`; `#`/`##`/`###` headings encode `topic`/`subtopic`/`pattern` |
-| **Seeder** (`DirectorySource`) | Reads the path and headings, derives all metadata automatically — no frontmatter required |
-| **DB schema** (`KnowledgeNode`) | Stores it as metadata fields — every mandatory field maps 1-to-1 to a Knowledge Path term |
+| **Directory structure** | Encodes the coarse tiers physically — `{scope}/[{platform}\|{project}]/{discipline}/{area}/{artifact}.md`. Within a file: `#` → `topic` (and engineering CLEAN-layer marker), each `##` → **one node** (`section`); `###`/`####` are that node's internal body — no longer promoted to separate nodes |
+| **Seeder** (`DirectorySource`) | Reads frontmatter first, path as fallback; derives + validates all facets, and derives `layer` from frontmatter → `#`-topic marker → `cross` floor |
+| **DB schema** (`KnowledgeNode`) | Stores facets as metadata; node `id` is an opaque uuid5 over `source_file#topic#section`, stable across facet reclassification |
 
-This means: **adding a file in the right location is sufficient to define a new knowledge node** — no registration, no config, no frontmatter. The Knowledge Path is the contract; the directory structure is its on-disk form; the DB schema is its stored form; the seeder is the translator between them.
-
-Corollary: if a Knowledge Path term changes (e.g. a new `area` value), all three layers must be updated in sync — schema.py, the directory convention, and the seeder's traversal logic.
+This means: **a file with the right frontmatter (or in the right location) is sufficient to define a knowledge node** — no registration, no config. Frontmatter is authoritative; the directory structure is a browsable fallback; the DB schema is its stored form; the seeder is the translator between them.
 
 ### 5. `kms/domain/schema.py` is the single vocabulary contract
 
-All allowed values for `scope`, `platform`, `project`, `discipline`, `schema_version`, and field classifications (mandatory vs optional) live here. `artifact` is mandatory but open-ended — no controlled enum, any folder name under a discipline dir is valid. Seed runner, adapters, use cases, and agents all import from this file. Never hardcode vocabulary elsewhere.
+All allowed values for `scope`, `platform`, `project`, `discipline`, `layer` (`LAYER_VALUES`), `owner` (`OWNER_VALUES`), `schema_version`, and field classifications (mandatory vs optional) live here. `artifact` is open-ended — no controlled enum. Seed runner, adapters, use cases, and agents all import from this file. Never hardcode vocabulary elsewhere.
 
 ---
 
