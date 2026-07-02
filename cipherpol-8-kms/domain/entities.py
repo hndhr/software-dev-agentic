@@ -35,12 +35,14 @@ class KnowledgeNode:
         Falls back to the identity tuple for nodes with no source_file (manual upserts)."""
         section = self.subtopic or self.pattern
         if self.source_file:
-            key = f"{self.source_file}#{section}"
+            # topic keeps same-named ## sections under different # topics distinct
+            # (e.g. "Creation Order" under # Domain vs # Data in an architecture doc).
+            key = f"{self.source_file}#{self.topic}#{section}"
         else:
             p = self.platform or "null"
             pr = self.project or "null"
             a = self.artifact or "null"
-            key = f"{p}:{pr}:{self.discipline}:{a}:{section}"
+            key = f"{p}:{pr}:{self.discipline}:{a}:{self.topic}:{section}"
         return str(uuid.uuid5(_ID_NAMESPACE, key))
 
     @property

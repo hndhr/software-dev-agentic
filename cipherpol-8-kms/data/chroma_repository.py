@@ -93,12 +93,12 @@ def _from_meta(meta: dict, content: Optional[str] = None) -> KnowledgeNode:
 
 class ChromaKnowledgeRepository(KnowledgeRepository):
 
-    def __init__(self, db_path: str) -> None:
+    def __init__(self, db_path: str, collection: str = _COLLECTION) -> None:
         self._client = chromadb.PersistentClient(
             path=db_path,
             settings=Settings(anonymized_telemetry=False),
         )
-        self._col = self._client.get_or_create_collection(_COLLECTION)
+        self._col = self._client.get_or_create_collection(collection)
 
     # ------------------------------------------------------------------
     def list(

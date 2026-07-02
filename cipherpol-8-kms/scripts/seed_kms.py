@@ -172,9 +172,10 @@ def seed(
     add_target: str | None = None,
     repo_root: Path | None = None,
     force: bool = False,
+    collection: str = "knowledge",
 ) -> None:
     repo_root = repo_root or Path(__file__).resolve().parent.parent.parent
-    repo = ChromaKnowledgeRepository(db_path=os.path.abspath(db_path))
+    repo = ChromaKnowledgeRepository(db_path=os.path.abspath(db_path), collection=collection)
     upsert = UpsertKnowledge(repo)
 
     if add_target:
@@ -236,6 +237,7 @@ if __name__ == "__main__":
     parser.add_argument("--type", dest="src_type", help="Seed all sources of this type")
     parser.add_argument("--add", dest="add_target", help="Detect, register, and seed a new source")
     parser.add_argument("--force", action="store_true", help="Re-upsert all nodes even if content_hash matches")
+    parser.add_argument("--collection", default="knowledge", help="Target ChromaDB collection (default: knowledge)")
     args = parser.parse_args()
 
     seed(
@@ -244,4 +246,5 @@ if __name__ == "__main__":
         type_filter=args.src_type,
         add_target=args.add_target,
         force=args.force,
+        collection=args.collection,
     )
