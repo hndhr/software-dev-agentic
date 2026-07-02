@@ -12,6 +12,30 @@ from ..domain.schema import SCHEMA_VERSION
 _COLLECTION = "knowledge"
 _NULL = "null"  # ChromaDB metadata can't store None; sentinel string used instead.
 
+# Contextual retrieval: the embedded document is prefixed with a short, deterministic
+# context line built from metadata (no seed-time LLM — hash-stable). The marker lets us
+# strip the prefix on read so agents see clean content while the vector carries taxonomy.
+_CTX_MARKER = "<!-- kms:ctx -->"
+
+
+def _context_prefix(node: KnowledgeNode) -> str:
+    lead = " / ".join(p for p in (node.platform, node.discipline, node.layer, node.artifact) if p)
+    section = (node.subtopic or node.pattern or "").replace("_", " ")
+    return f"{_CTX_MARKER} {lead} — {section}".strip()
+
+
+def _embed_document(node: KnowledgeNode) -> str:
+    """Document actually stored + embedded: context prefix + body."""
+    return f"{_context_prefix(node)}\n\n{node.content or ''}"
+
+
+def _strip_ctx(document: Optional[str]) -> Optional[str]:
+    """Remove the context prefix so callers get the original body."""
+    if document and document.startswith(_CTX_MARKER):
+        parts = document.split("\n\n", 1)
+        return parts[1] if len(parts) == 2 else ""
+    return document
+
 
 def _to_meta(node: KnowledgeNode) -> dict:
     return {
@@ -143,7 +167,7 @@ class ChromaKnowledgeRepository(KnowledgeRepository):
         documents = result.get("documents") or []
         if not metadatas:
             return None
-        return _from_meta(metadatas[0], content=documents[0] if documents else None)
+        return _from_meta(metadatas[0], content=_strip_ctx(documents[0]) if documents else None)
 
     # ------------------------------------------------------------------
     def query(
@@ -166,13 +190,13 @@ class ChromaKnowledgeRepository(KnowledgeRepository):
         metadatas = (result.get("metadatas") or [[]])[0]
         documents = (result.get("documents") or [[]])[0]
         for meta, doc in zip(metadatas, documents):
-            nodes.append(_from_meta(meta, content=doc))
+            nodes.append(_from_meta(meta, content=_strip_ctx(doc)))
         return nodes
 
     # ------------------------------------------------------------------
     def upsert(self, node: KnowledgeNode) -> None:
         self._col.upsert(
             ids=[node.id],
-            documents=[node.content],
+            documents=[_embed_document(node)],
             metadatas=[_to_meta(node)],
         )

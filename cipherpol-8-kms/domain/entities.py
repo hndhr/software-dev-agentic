@@ -1,6 +1,10 @@
 from __future__ import annotations
+import uuid
 from dataclasses import dataclass, field
 from typing import Optional
+
+# Fixed namespace so uuid5 ids are stable across runs/machines.
+_ID_NAMESPACE = uuid.UUID("6b6f6d73-0000-4000-8000-000000000001")
 
 
 @dataclass
@@ -26,11 +30,18 @@ class KnowledgeNode:
 
     @property
     def id(self) -> str:
-        p = self.platform or "null"
-        pr = self.project or "null"
-        a = self.artifact or "null"
-        st = self.subtopic or self.pattern
-        return f"{p}:{pr}:{self.discipline}:{self.area}:{a}:{self.topic}:{st}:{self.pattern}"
+        """Opaque, deterministic uuid5. Keyed on content location (source_file#section)
+        so reclassifying facets (layer/platform/…) is an UPDATE, not delete+insert.
+        Falls back to the identity tuple for nodes with no source_file (manual upserts)."""
+        section = self.subtopic or self.pattern
+        if self.source_file:
+            key = f"{self.source_file}#{section}"
+        else:
+            p = self.platform or "null"
+            pr = self.project or "null"
+            a = self.artifact or "null"
+            key = f"{p}:{pr}:{self.discipline}:{a}:{section}"
+        return str(uuid.uuid5(_ID_NAMESPACE, key))
 
     @property
     def specificity(self) -> int:
