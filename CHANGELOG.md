@@ -7,6 +7,23 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.9.0] — 2026-07-03
+
+### Added
+- **KMS per-agent layer scoping** — new `layer` facet (`domain` / `data` / `presentation` / `cross`) on every knowledge node; `kms_query` / `kms_list` take an optional `layer` that scopes to that layer plus cross-cutting knowledge. `developer-domain-planner` / `developer-data-planner` / `developer-pres-planner` now retrieve only their layer via `aegis-kms-load`; `app-planner` stays cross-layer by design
+- **KMS contribution flow** — `knowledge-sources/_inbox/` on-ramp (drop a loose markdown draft), `kms-classify-worker` (infers full canonical facets and writes a normalized frontmatter-carrying file), `kms-contribute-orchestrator`, and the `/kms-contribute` trigger skill. Classify-only — never seeds, preserving the git/review gate
+- **KMS `owner` facet** (`curated` / `extracted`) — guards hand-owned docs from scanner regeneration
+- **KMS retrieval eval harness** — `cipherpol-8-kms/eval/` (`run_eval.py`, grounded `retrieval_cases.yaml`, `baseline.json`) with a recall@5 / MRR gate
+- Initiative docs — `2026-07-03-kms-knowledge-management-redesign.md` and `2026-07-03-cipherpol-console-initiative.md`
+
+### Changed
+- **KMS chunking** — now chunks at `##` (one concept per node); `###`/`####` are the node body instead of separate nodes. Contextual embedding (metadata-template prefix) and opaque uuid ids (stable across facet reclassification). Frontmatter-authoritative facet resolution with path fallback and vocab validation
+- `kms-source-audit-worker` — new frontmatter facet-validity check (F1), excludes `_inbox/`, R3/R4 aligned to the `##`-concept model
+- Reconciled KMS reference docs (`kms-conventions`, `kms-glossary`, `kms-directory-structure`, `kms-design-principles`, `kms-knowledge-source-rules`, root `glossary`) to the new model
+
+### Removed
+- **KMS `area` facet and directory level (breaking)** — knowledge-sources paths are now 3-level (`{tier}/{platform|project}/{discipline}/{artifact}.md`); design-system catalogs use `tags: [design-system]` under `discipline: design`. `area` removed from the `kms_fetch` / `kms_list` / `kms_query` / `kms_upsert` MCP tool signatures. Schema version → `4`
+
 ## [13.8.1] — 2026-06-26
 
 ### Fixed
