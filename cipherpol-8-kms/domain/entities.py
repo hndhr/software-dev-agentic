@@ -14,6 +14,8 @@ class KnowledgeNode:
     artifact: Optional[str] = None           # conventions | standard-architecture | feature-inventory | ...
     platform: Optional[str] = None          # flutter | web | ios | android — required if scope != universal
     project: Optional[str] = None           # talenta | jurnal | ... — required if scope == project
+    layer: Optional[str] = None             # domain | data | presentation | cross — see schema.LAYER_VALUES
+    owner: str = "curated"                  # curated | extracted — see schema.OWNER_VALUES
     summary: str = ""                # first sentence of ## Theory, populated at seed time
     tags: list[str] = field(default_factory=list)
     source_file: Optional[str] = None
