@@ -7,6 +7,22 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.10.0] — 2026-07-03
+
+### Added
+- **`developer-breakdown-strategist`** — replaces `developer-prd-breakdown-worker` with a discuss/summarize strategist. `/developer-breakdown-requirement` now runs a continuous clarify loop (surfaces understanding + questions, converges on user command) before proposing tickets, mirroring `/developer-groom-ticket`
+- **Zero-input breakdown** — `/developer-breakdown-requirement` can start with no PRD, eliciting the requirement conversationally (an existing parent key is still required)
+- **Single-ticket mode** — `/developer-breakdown-requirement` can now output one enriched ticket instead of a multi-ticket breakdown: scaffold an empty ticket or re-evaluate an already-built one (the strategist explores the codebase to ground re-evaluation). Fetches the ticket first — or reuses a local copy and writes back to it in place — then updates Jira via `developer-sync-ticket-worker`
+
+### Changed
+- `developer-doc-resolve-worker` — new `target` purpose (returns full ticket content) and emits `issue_type`
+- `developer-ticket-write-worker` — optional `output_path` to write a single ticket to an exact file (in-place enrichment of a local copy)
+- Orchestrator descriptions for `developer-build-feature`, `developer-plan-feature`, `developer-brainstorming`, `developer-debug`, `developer-fetch-figma` tightened with explicit run-only-when-invoked boundaries to curb unexpected ambient auto-spawns
+
+### Fixed
+- `developer-groom-ticket` — Step 4 no longer invokes the user-only `developer-adjust-ticket` skill (unreachable programmatically); drives the gather + write workers directly, filling session fields from the grooming summary
+- `developer-debug-report-ts` — set `disable-model-invocation: true` (nothing calls it; prevents ambient auto-selection)
+
 ## [13.9.0] — 2026-07-03
 
 ### Added
