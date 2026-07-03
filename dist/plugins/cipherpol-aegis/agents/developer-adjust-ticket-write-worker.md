@@ -1,6 +1,6 @@
 ---
 name: developer-adjust-ticket-write-worker
-description: Writes the Session Adjustment section to a local Jira ticket file using pre-gathered session context. Handles existing section replacement and custom subsection preservation. Invoked only by /developer-adjust-ticket.
+description: Writes the Session Adjustment section to a local Jira ticket file using pre-gathered session context. Handles existing section replacement and custom subsection preservation. Invoked by /developer-adjust-ticket and /developer-groom-ticket.
 model: sonnet
 tools: Read, Edit, AskUserQuestion
 ---

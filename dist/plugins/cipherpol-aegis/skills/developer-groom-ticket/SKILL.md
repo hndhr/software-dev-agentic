@@ -1,6 +1,6 @@
 ---
 name: developer-groom-ticket
-description: Consult on a locally fetched Jira ticket — drives a back-and-forth discussion to clarify the problem statement, identify work items, surface decisions and open questions, then updates the ticket via developer-adjust-ticket. Run before /developer-plan-feature or /developer-plan-build-feature.
+description: Consult on a locally fetched Jira ticket — drives a back-and-forth discussion to clarify the problem statement, identify work items, surface decisions and open questions, then writes the grooming outcome to the ticket via the developer-adjust-ticket workers. Run before /developer-plan-feature or /developer-plan-build-feature.
 user-invocable: true
 disable-model-invocation: true
 allowed-tools: Agent, AskUserQuestion, Read, Bash
@@ -131,4 +131,35 @@ Latest user input:
 
 ## Step 4 — Update Ticket
 
-Once the user confirms, invoke `developer-adjust-ticket` directly with the ticket path — pass the converged grooming summary as session context so the skill can write the Session Adjustment section without asking the user again.
+Once the user confirms, write the grooming outcome to the ticket. `developer-adjust-ticket` is a user-only skill (`disable-model-invocation: true`) and cannot be invoked programmatically, so this step drives its two workers directly — the same gather → write sequence that skill runs, with the session fields filled from the grooming summary instead of from an interactive question loop.
+
+**4a — Gather ticket facts.** Spawn `developer-adjust-ticket-gather-worker`:
+
+> Read ticket at: `<resolved ticket path>`
+
+Collect the partial context block it returns (`TICKET_PATH`, `TICKET_ID`, `ACCEPTANCE_CRITERIA` … `END_AC`).
+
+**4b — Assemble the context block.** Resolve today's date:
+
+```bash
+date +%F
+```
+
+Combine the gather-worker output with the confirmed grooming summary into a full context block per `$CLAUDE_PLUGIN_ROOT/reference/developer/session-adjustment-format.md`. Map grooming → session fields:
+
+- `PROGRESS` — narrate the grooming as this session's work: the Problem Statement, followed by the identified Work Items as a list (the write-worker derives `## Work Items` from this).
+- `DECISIONS` — the grooming summary's Decisions, or `none`.
+- `OPEN_QUESTIONS` — the grooming summary's Open Questions, or `none`.
+- `STATUS` — `Ready for Planning`.
+- `COMPLETED_ITEMS` — `none` (grooming completes no acceptance criteria).
+- `BUGS` — if Step 2 ran `developer-debug`, list the confirmed root cause / fix recommendation here; otherwise `none`.
+
+**4c — Write the section.** Spawn `developer-adjust-ticket-write-worker`:
+
+- `ticket_path` — the resolved ticket path
+- `context` — the full context block from 4b
+- `date` — the date from 4b
+
+Report the worker's confirmation to the user, then point to the next step:
+
+> Ticket updated. Run `/developer-plan-feature` (or `/developer-plan-build-feature`) when ready to plan the implementation.

@@ -1,6 +1,6 @@
 ---
 name: developer-adjust-ticket-gather-worker
-description: Reads a local Jira ticket file and extracts its ID and Acceptance Criteria. Returns a partial context block (TICKET_PATH, TICKET_ID, ACCEPTANCE_CRITERIA) — no user interaction. Invoked only by /developer-adjust-ticket.
+description: Reads a local Jira ticket file and extracts its ID and Acceptance Criteria. Returns a partial context block (TICKET_PATH, TICKET_ID, ACCEPTANCE_CRITERIA) — no user interaction. Invoked by /developer-adjust-ticket and /developer-groom-ticket.
 model: haiku
 tools: Read
 ---

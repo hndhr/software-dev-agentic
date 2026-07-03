@@ -1,10 +1,10 @@
 # Ticket Format
 
 > Author: Puras Handharmahua · 2026-06-15
-> Related: developer-prd-breakdown-worker.md (proposal writer), developer-ticket-write-worker.md (file writer), developer-breakdown-requirement/SKILL.md (parser + orchestrator)
+> Related: developer-breakdown-strategist.md (proposal writer), developer-ticket-write-worker.md (file writer), developer-breakdown-requirement/SKILL.md (parser + orchestrator)
 
 Single source of truth for two schemas used by the `/developer-breakdown-requirement` flow:
-1. `## Breakdown Proposal` — returned by `developer-prd-breakdown-worker`, parsed by the SKILL
+1. `## Breakdown Proposal` — returned by `developer-breakdown-strategist` (`mode: summarize`), parsed by the SKILL
 2. `TICKET-NNN.md` — written by `developer-ticket-write-worker` to the run directory
 
 ## Breakdown Levels
@@ -16,13 +16,13 @@ There are two distinct breakdown operations:
 | `epic_to_tickets` | Jira Epic | Story / Task tickets | Full `## System Design` per ticket |
 | `ticket_to_subtasks` | Jira Story or Task | Sub-task tickets | `## System Context` referencing parent |
 
-The breakdown worker detects the level from the ticket types it proposes and emits `breakdown_level` in the proposal header. The write worker reads it to select the correct file schema.
+The breakdown strategist detects the level from the ticket types it proposes and emits `breakdown_level` in the proposal header. The write worker reads it to select the correct file schema.
 
 ---
 
 ## Breakdown Proposal Schema
 
-Returned as the final output of `developer-prd-breakdown-worker`. The SKILL parses `tickets` from this block.
+Returned as the final output of `developer-breakdown-strategist` (`mode: summarize`). The SKILL parses `tickets` from this block.
 
 ```
 ## Breakdown Proposal
@@ -73,16 +73,16 @@ Relevant flows: <FlowName>, <FlowName>
 
 | Section | Required | Written by | Read by | Purpose |
 |---|---|---|---|---|
-| `**Summary:**` line | always | prd-breakdown-worker | SKILL (display) | Human-readable count and total SP |
-| `**Breakdown Level:**` | always | prd-breakdown-worker | SKILL, ticket-write-worker | Selects which TICKET-NNN.md schema to apply |
-| Summary table | always | prd-breakdown-worker | SKILL (parse tickets list) | Quick overview used to render the discussion table |
-| `## Ticket Details` | always | prd-breakdown-worker | SKILL (parse each ticket object) | Full ticket data per ticket |
-| `**Type:**` | always | prd-breakdown-worker | ticket-write-worker | Determines Jira issue type and ticket file frontmatter |
-| `**Story Points:**` | always | prd-breakdown-worker | ticket-write-worker | Fibonacci SP written to file frontmatter |
-| `**Description:**` | always | prd-breakdown-worker | ticket-write-worker | PRD-sourced context written to `## Description` section |
-| `**System Design:**` | epic_to_tickets only | prd-breakdown-worker | ticket-write-worker | Full system design — API, data model, architecture, flows |
-| `**System Context:**` | ticket_to_subtasks only | prd-breakdown-worker | ticket-write-worker | Pointer to parent system design + relevant use cases and flows |
-| `**Acceptance Criteria:**` | always | prd-breakdown-worker | ticket-write-worker | Testable criteria written to `## Acceptance Criteria` section |
+| `**Summary:**` line | always | breakdown-strategist | SKILL (display) | Human-readable count and total SP |
+| `**Breakdown Level:**` | always | breakdown-strategist | SKILL, ticket-write-worker | Selects which TICKET-NNN.md schema to apply |
+| Summary table | always | breakdown-strategist | SKILL (parse tickets list) | Quick overview used to render the discussion table |
+| `## Ticket Details` | always | breakdown-strategist | SKILL (parse each ticket object) | Full ticket data per ticket |
+| `**Type:**` | always | breakdown-strategist | ticket-write-worker | Determines Jira issue type and ticket file frontmatter |
+| `**Story Points:**` | always | breakdown-strategist | ticket-write-worker | Fibonacci SP written to file frontmatter |
+| `**Description:**` | always | breakdown-strategist | ticket-write-worker | PRD-sourced context written to `## Description` section |
+| `**System Design:**` | epic_to_tickets only | breakdown-strategist | ticket-write-worker | Full system design — API, data model, architecture, flows |
+| `**System Context:**` | ticket_to_subtasks only | breakdown-strategist | ticket-write-worker | Pointer to parent system design + relevant use cases and flows |
+| `**Acceptance Criteria:**` | always | breakdown-strategist | ticket-write-worker | Testable criteria written to `## Acceptance Criteria` section |
 
 ---
 

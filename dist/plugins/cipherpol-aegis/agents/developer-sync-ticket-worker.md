@@ -1,6 +1,6 @@
 ---
 name: developer-sync-ticket-worker
-description: Syncs a local TICKET-NNN.md file to an existing Jira ticket — fetches the current Jira ticket content, diffs it against the local file, shows the user what will change, and updates on confirmation. Invoked only by /developer-push-tickets.
+description: Syncs a local TICKET-NNN.md file to an existing Jira ticket — fetches the current Jira ticket content, diffs it against the local file, shows the user what will change, and updates on confirmation. Invoked by /developer-push-tickets and by /developer-breakdown-requirement (single-ticket mode).
 model: sonnet
 tools: Read, mcp__claude_ai_Atlassian__getJiraIssue, mcp__claude_ai_Atlassian__editJiraIssue
 ---

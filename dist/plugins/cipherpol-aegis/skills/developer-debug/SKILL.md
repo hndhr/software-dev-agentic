@@ -1,6 +1,6 @@
 ---
 name: developer-debug
-description: Trigger the developer-debug-strategist agent. Accepts an optional bug description, collects any missing intake (error message, expected vs actual behavior, entry point, platform), then hands off to the agent.
+description: Explicit debugging entry point — run ONLY when the user directly asks to debug or investigate a specific bug, or when invoked by /developer-plan-feature or /developer-groom-ticket. Do NOT auto-trigger from incidental error messages or mentions of a bug. Accepts an optional bug description, collects any missing intake (error message, expected vs actual behavior, entry point, platform), then hands off to developer-debug-strategist.
 allowed-tools: Agent, AskUserQuestion
 user-invocable: true
 disable-model-invocation: false

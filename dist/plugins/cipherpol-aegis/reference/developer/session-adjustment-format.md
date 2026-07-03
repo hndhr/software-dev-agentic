@@ -1,7 +1,7 @@
 # Session Adjustment Format
 
 > Author: Puras Handharmahua · 2026-06-16
-> Related: developer-adjust-ticket-gather-worker.md (producer), developer-adjust-ticket-write-worker.md (consumer), developer-adjust-ticket/SKILL.md (orchestrator)
+> Related: developer-adjust-ticket-gather-worker.md (producer), developer-adjust-ticket-write-worker.md (consumer), developer-adjust-ticket/SKILL.md and developer-groom-ticket/SKILL.md (orchestrators)
 
 Single source of truth for two schemas used by the `/developer-adjust-ticket` flow:
 1. `## Context Block` — assembled by the orchestrator (`SKILL.md`): gather-worker contributes `TICKET_PATH`, `TICKET_ID`, `ACCEPTANCE_CRITERIA`; orchestrator adds session fields via `AskUserQuestion`. Consumed by `developer-adjust-ticket-write-worker`.
