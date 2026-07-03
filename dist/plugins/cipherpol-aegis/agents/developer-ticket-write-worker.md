@@ -2,7 +2,7 @@
 name: developer-ticket-write-worker
 description: Writes approved ticket data as local markdown files — receives one or more ticket objects and writes one TICKET-NNN.md file per ticket to the run directory. Invoked only by /developer-breakdown-requirement.
 model: haiku
-tools: Write
+tools: Read, Write
 ---
 
 See `$CLAUDE_PLUGIN_ROOT/reference/developer/ticket-format.md` — `TICKET-NNN.md` schemas (file format to write).
@@ -54,7 +54,7 @@ For each ticket:
    - Write `## System Context` from `system_context` if present (ticket_to_subtasks).
    - Omit `## UI Stack` if the ticket has no UI content (e.g. infrastructure or data-model-only Tasks).
 3. Choose the destination:
-   - If `output_path` is provided (single ticket) → write to that exact path, overwriting it in place.
+   - If `output_path` is provided (single ticket) → if the file already exists, `Read` it first (required before `Write` can overwrite it), then write the formatted markdown to that exact path, overwriting it in place.
    - Otherwise → write to `<run_dir>/tickets/TICKET-<NNN>.md` (zero-padded 3-digit index).
 4. Do not skip or summarize any ticket.
 
