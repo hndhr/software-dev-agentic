@@ -7,6 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [13.10.1] — 2026-07-03
+
+### Fixed
+- `developer-ticket-write-worker` — granted `Read` tool so in-place enrichment (`output_path` pointing at an existing local ticket file, from `/developer-breakdown-requirement` single mode) can satisfy the Write tool's read-before-overwrite requirement; previously failed every time it tried to overwrite an already-fetched ticket
+
 ## [13.10.0] — 2026-07-03
 
 ### Added
