@@ -1,6 +1,6 @@
 ---
 name: developer-build-feature
-description: Feature executor — accepts a run_dir or any plan/spec document. Spawns a scope agent to decompose work into batches, then executes each batch with one or more parallel workers (feature or ui). After execution, asks the user whether to generate tests via developer-test-worker (all files, specific files, or skip).
+description: Explicit feature-execution entry point — run ONLY when the user directly invokes it with a run_dir or an approved plan/spec document, or when routed from /developer-plan-build-feature, /developer-brainstorming, or /developer-brainstorm-build-feature. Do NOT auto-trigger from general "build"/"implement" requests. Spawns a scope agent to decompose work into batches, executes each batch with parallel workers (feature or ui), then asks whether to generate tests.
 user-invocable: true
 allowed-tools: Agent, Bash, Read
 ---

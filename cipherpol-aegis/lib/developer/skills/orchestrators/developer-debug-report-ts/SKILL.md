@@ -2,6 +2,7 @@
 name: developer-debug-report-ts
 description: Investigate a TypeScript/mobile issue report end-to-end — classify the issue, gate on available data, fetch Firebase Crashlytics events and Loki logs, trace the root cause through Clean Architecture layers, propose solutions, and implement the chosen fix.
 user-invocable: true
+disable-model-invocation: true
 allowed-tools: Agent, AskUserQuestion, Bash, Read
 ---
 

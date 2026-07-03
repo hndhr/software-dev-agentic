@@ -1,6 +1,6 @@
 ---
 name: developer-brainstorming
-description: Use when a user brings a new idea, feature request, or open-ended problem that needs to be turned into a concrete design and spec before any implementation begins — especially when scope, approach, or constraints are still unclear.
+description: Explicit design/brainstorming entry point — run ONLY when the user directly asks to brainstorm or turn an idea into a concrete design and spec before implementation, or when invoked by /developer-brainstorm-build-feature. Do NOT auto-trigger from general feature requests, questions, or incidental idea mentions. Drives a collaborative dialogue (one question at a time), proposes approaches, presents a design for approval, writes a spec, then routes to /developer-build-feature.
 user-invocable: true
 allowed-tools: Agent, AskUserQuestion, Bash, Read, Write, Edit, WebFetch, Skill
 ---
