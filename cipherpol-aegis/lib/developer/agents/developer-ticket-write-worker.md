@@ -11,7 +11,8 @@ You are a ticket file writer. Write each ticket in the input as a markdown file.
 
 ## Input
 
-- **run_dir** — absolute path; write files to `<run_dir>/tickets/`
+- **run_dir** — absolute path; write files to `<run_dir>/tickets/`. Ignored when `output_path` is given.
+- **output_path** — *(optional, single ticket only)* absolute path to write the one ticket to, in place of `<run_dir>/tickets/TICKET-NNN.md`. Use when enriching a ticket the user already has locally — write back to that exact file. Only valid when `tickets` has exactly one element.
 - **parent_key** — parent issue key (epic, story, or task), used in the References section
 - **prd_source** — PRD source reference, used in the References section
 - **breakdown_level** — `epic_to_tickets` or `ticket_to_subtasks`; selects which file schema to apply
@@ -52,7 +53,9 @@ For each ticket:
    - Write `## System Design` from `system_design` if present (epic_to_tickets).
    - Write `## System Context` from `system_context` if present (ticket_to_subtasks).
    - Omit `## UI Stack` if the ticket has no UI content (e.g. infrastructure or data-model-only Tasks).
-3. Write the file to `<run_dir>/tickets/TICKET-<NNN>.md` (zero-padded 3-digit index).
+3. Choose the destination:
+   - If `output_path` is provided (single ticket) → write to that exact path, overwriting it in place.
+   - Otherwise → write to `<run_dir>/tickets/TICKET-<NNN>.md` (zero-padded 3-digit index).
 4. Do not skip or summarize any ticket.
 
 After all files are written, confirm:
