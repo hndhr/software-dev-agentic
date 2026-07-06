@@ -163,8 +163,10 @@ Or extract directly from the codebase:
 
 | Agent | Purpose |
 |---|---|
-| `qa-testcase-worker` | Generate mobile UI test cases from Jira tickets, PRDs, or Figma designs |
-| `qa-automation-worker` | Translate test case CSVs into Maestro YAML automation scripts |
+| `qa-testcase-worker` | Generate, regenerate, and impact-analyze mobile UI test cases (Gherkin-step CSVs) from Jira, Confluence, Figma, or code diffs |
+| `qa-automation-worker` | Create Patrol UI tests (Dart) from test case CSVs — screen mapping, triage, gated mapping table, testcases + scenarios |
+| `qa-debug-worker` | Debug failing Patrol tests — reproduce, native-tree diagnosis, fix, validate, record new failure patterns |
+| `qa-sync-worker` | Idempotently sync the canonical test case corpus to the Pokayoke SDET platform |
 
 ---
 
@@ -206,8 +208,10 @@ Or extract directly from the codebase:
 
 | Skill | Purpose |
 |---|---|
-| `/qa-generate-testcase` | Generate mobile UI test cases from Jira, Confluence, or Figma |
-| `/qa-generate-automation` | Generate Maestro YAML automation scripts from test case CSVs |
+| `/qa-generate-testcase` | Generate or regenerate Gherkin test case CSVs from Jira, Confluence, Figma, or diffs — plus impact analysis |
+| `/qa-generate-automation` | Create Patrol UI tests (Dart) from test case CSVs |
+| `/qa-debug-automation` | Debug a failing Patrol test to a clean pass |
+| `/qa-sync-testcase` | Sync test cases to the Pokayoke SDET platform (dry-run first) |
 
 **utility**
 
