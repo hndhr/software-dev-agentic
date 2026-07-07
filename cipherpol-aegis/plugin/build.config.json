@@ -1,6 +1,6 @@
 {
   "name": "cipherpol-aegis",
-  "description": "developer, debugger, tracker, auditor personas for Clean Architecture projects",
+  "description": "developer and qa personas for Clean Architecture projects",
   "include": {
     "agents": ["cipherpol-aegis/lib/*/agents"],
     "skills": ["cipherpol-aegis/lib/*/skills/*/*/"],
